@@ -244,5 +244,6 @@ model AuthControl {
   Senha     String
   Token     String?
 
-  @@id([UsuarioID, SalaoId])
+  @@id([UsuarioID])
+  @@unique([Email, SalaoId])
 }
