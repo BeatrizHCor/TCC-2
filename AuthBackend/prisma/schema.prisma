@@ -36,9 +36,9 @@ model Salao {
 }
 
 model Cliente {
-  CPF                String               @unique
+  CPF                String
   Nome               String
-  Email              String               @unique
+  Email              String
   Telefone           String
   Senha              String
   Salao              Salao                @relation(fields: [SalaoId], references: [CNPJ])
@@ -46,13 +46,13 @@ model Cliente {
   Agendamentos       Agendamentos[]
   HistoricoSimulacao HistoricoSimulacao[]
 
-  @@id([CPF, SalaoId, Email])
+  @@id([CPF, SalaoId])
 }
 
 model Funcionario {
-  CPF                 String                @unique
+  CPF                 String
   Nome                String
-  Email               String                @unique
+  Email               String
   Telefone            String
   Senha               String
   Salao               Salao                 @relation(fields: [SalaoId], references: [CNPJ])
@@ -63,35 +63,35 @@ model Funcionario {
   AtendimentoAuxiliar AtendimentoAuxiliar[]
   Holerite            Holerite[]
 
-  @@id([CPF, SalaoId, Email])
+  @@id([CPF, SalaoId])
 }
 
 model Cabeleireiro {
-  CPF          String         @unique
+  CPF          String
   Nome         String
-  Email        String         @unique
+  Email        String
   Telefone     String
   Senha        String
-  Mei          String         @unique
+  Mei          String
   Salao        Salao          @relation(fields: [SalaoId], references: [CNPJ])
   SalaoId      String
   Portfolio    Portfolio?
   Agendamentos Agendamentos[]
   Holerite     Holerite[]
 
-  @@id([CPF, SalaoId, Email, Mei])
+  @@id([CPF, SalaoId])
 }
 
 model AdmSalao {
-  CPF      String @unique
+  CPF      String
   Nome     String
-  Email    String @unique
+  Email    String
   Telefone String
   Senha    String
   Salao    Salao  @relation(fields: [SalaoId], references: [CNPJ])
   SalaoId  String @unique
 
-  @@id([CPF, SalaoId, Email])
+  @@id([CPF, SalaoId])
 }
 
 model AdmSistema {
@@ -121,7 +121,8 @@ model AtendimentoAuxiliar {
   Atendimento   Atendimento @relation(fields: [AtendimentoId], references: [ID])
   AtendimentoId Int         @unique
   AuxiliarCPF   String
-  Auxiliar      Funcionario @relation(fields: [AuxiliarCPF], references: [CPF])
+  SalaoId       String
+  Auxiliar      Funcionario @relation(fields: [AuxiliarCPF, SalaoId], references: [CPF, SalaoId])
 }
 
 model Atendimento {
@@ -129,7 +130,7 @@ model Atendimento {
   Data                DateTime
   PrecoTotal          Float
   FuncionarioCPF      String
-  Funcionario         Funcionario          @relation(fields: [FuncionarioCPF], references: [CPF])
+  Funcionario         Funcionario          @relation(fields: [FuncionarioCPF, SalaoId], references: [CPF, SalaoId])
   Auxiliar            Boolean
   AtendimentoAuxiliar AtendimentoAuxiliar?
   Salao               Salao                @relation(fields: [SalaoId], references: [CNPJ])
@@ -150,12 +151,14 @@ model Servico {
 
 model Portfolio {
   ID              Int          @id @default(autoincrement())
-  CabeleireiroCPF String       @unique
-  Cabeleireiro    Cabeleireiro @relation(fields: [CabeleireiroCPF], references: [CPF])
+  CabeleireiroCPF String
+  Cabeleireiro    Cabeleireiro @relation(fields: [CabeleireiroCPF, SalaoId], references: [CPF, SalaoId])
   Salao           Salao        @relation(fields: [SalaoId], references: [CNPJ])
-  SalaoId         String       @unique
+  SalaoId         String
   Descricao       String
   Imagem          Imagem[]
+
+  @@unique([CabeleireiroCPF, SalaoId])
 }
 
 model Agendamentos {
@@ -163,11 +166,11 @@ model Agendamentos {
   Data            DateTime
   Status          StatusAgendamento
   ClienteCPF      String
-  Cliente         Cliente           @relation(fields: [ClienteCPF], references: [CPF])
+  Cliente         Cliente           @relation(fields: [ClienteCPF, SalaoId], references: [CPF, SalaoId])
   Salao           Salao             @relation(fields: [SalaoId], references: [CNPJ])
   SalaoId         String
   CabeleireiroCPF String
-  Cabeleireiro    Cabeleireiro      @relation(fields: [CabeleireiroCPF], references: [CPF])
+  Cabeleireiro    Cabeleireiro      @relation(fields: [CabeleireiroCPF, SalaoId], references: [CPF, SalaoId])
 }
 
 enum StatusAgendamento {
@@ -179,11 +182,11 @@ model Holerite {
   Data            DateTime
   Valor           Float
   FuncionarioCPF  String
-  Funcionario     Funcionario?  @relation(fields: [FuncionarioCPF], references: [CPF])
+  Funcionario     Funcionario?  @relation(fields: [FuncionarioCPF, SalaoId], references: [CPF, SalaoId])
   Salao           Salao         @relation(fields: [SalaoId], references: [CNPJ])
   SalaoId         String
   CabeleireiroCPF String
-  Cabeleireiro    Cabeleireiro? @relation(fields: [CabeleireiroCPF], references: [CPF])
+  Cabeleireiro    Cabeleireiro? @relation(fields: [CabeleireiroCPF, SalaoId], references: [CPF, SalaoId])
 }
 
 model ServicoAtendimento {
@@ -210,7 +213,7 @@ model HistoricoSimulacao {
   ID         Int      @id @default(autoincrement())
   Data       DateTime
   ClienteCPF String
-  Cliente    Cliente  @relation(fields: [ClienteCPF], references: [CPF])
+  Cliente    Cliente  @relation(fields: [ClienteCPF, SalaoId], references: [CPF, SalaoId])
   Salao      Salao    @relation(fields: [SalaoId], references: [CNPJ])
   SalaoId    String
   Imagem     Imagem[]
