@@ -5,7 +5,8 @@ export const createLogin = async (
   SalaoId: string,
   UsuarioID: string,
   Senha: string,
-  Email: string
+  Email: string,
+  userType: string
 ) => {
   try {
     await prisma.authControl.create({
@@ -51,7 +52,15 @@ export const updateLogin = async (
   }
 };
 
-export const findLogin = (Email: string, SalaoId: string) => {
+export const findLoginbyUserId = (UsuarioID: string) => {
+  return prisma.authControl.findUnique({
+    where: {
+      UsuarioID,
+    },
+  });
+};
+
+export const findLoginbyEmail = (Email: string, SalaoId: string) => {
   return prisma.authControl.findUnique({
     where: {
       Email_SalaoId: {

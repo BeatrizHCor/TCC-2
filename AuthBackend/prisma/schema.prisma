@@ -242,8 +242,17 @@ model AuthControl {
   Email     String
   SalaoId   String
   Senha     String
+  Type      userTypes
   Token     String?
 
   @@id([UsuarioID])
   @@unique([Email, SalaoId])
+}
+
+enum userTypes {
+  Cliente
+  Funcionario
+  Cabeleireiro
+  AdmSalao
+  AdmSistema
 }
