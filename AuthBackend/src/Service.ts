@@ -1,4 +1,4 @@
-import { PrismaClient } from "@prisma/client";
+import { PrismaClient, userTypes } from "@prisma/client";
 const prisma = new PrismaClient();
 
 export const createLogin = async (
@@ -15,6 +15,7 @@ export const createLogin = async (
         Email,
         Senha,
         UsuarioID,
+        Type: userType as userTypes,
       },
     });
     return true;

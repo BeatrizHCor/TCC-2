@@ -50,7 +50,7 @@ export const verifyPasswordAndReturnToken = async (
         login.SalaoId,
         Token
       );
-      return { tken: Token, id: login.UsuarioID };
+      return { token: Token, userID: login.UsuarioID };
     }
   }
 };
@@ -74,6 +74,6 @@ export const verifyTokenAndRefresh = async (token: string, userID: string) => {
       login.SalaoId,
       Token
     );
-    return { token: Token, id: userID };
+    return { token: Token, userID: userID };
   }
 };
