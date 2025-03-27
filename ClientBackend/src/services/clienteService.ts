@@ -1,5 +1,5 @@
 import ClienteModel from '../models/clienteModel';
-import { Prisma } from '@prisma/client';
+
 
 interface ClienteData {
   CPF: string;
