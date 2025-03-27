@@ -1,0 +1,230 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Salao {
+  CNPJ               String                 @id @unique
+  Nome               String
+  RazaoSocial        String
+  CEP                String
+  Telefone           Int
+  Complemento        String
+  Email              String
+  Clientes           Cliente[]
+  Funcionarios       Funcionario[]
+  Pagamentos         PagamentosAssinatura[]
+  Cabeleireiros      Cabeleireiro[]
+  Adm                AdmSalao?
+  Atendimentos       Atendimento[]
+  Portfolio          Portfolio[]
+  Servico            Servico[]
+  Agendamentos       Agendamentos[]
+  Holerite           Holerite[]
+  Gastos             Gastos[]
+  HistoricoSimulacao HistoricoSimulacao[]
+}
+
+model Cliente {
+  CPF                String
+  Nome               String
+  Email              String
+  Telefone           String
+  Senha              String
+  Salao              Salao                @relation(fields: [SalaoId], references: [CNPJ])
+  SalaoId            String
+  Agendamentos       Agendamentos[]
+  HistoricoSimulacao HistoricoSimulacao[]
+
+  @@id([CPF, SalaoId])
+}
+
+model Funcionario {
+  CPF                 String
+  Nome                String
+  Email               String
+  Telefone            String
+  Senha               String
+  Salao               Salao                 @relation(fields: [SalaoId], references: [CNPJ])
+  SalaoId             String
+  Auxiliar            Boolean
+  Salario             Float
+  Atendimentos        Atendimento[]
+  AtendimentoAuxiliar AtendimentoAuxiliar[]
+  Holerite            Holerite[]
+
+  @@id([CPF, SalaoId])
+}
+
+model Cabeleireiro {
+  CPF          String
+  Nome         String
+  Email        String
+  Telefone     String
+  Senha        String
+  Mei          String
+  Salao        Salao          @relation(fields: [SalaoId], references: [CNPJ])
+  SalaoId      String
+  Portfolio    Portfolio?
+  Agendamentos Agendamentos[]
+  Holerite     Holerite[]
+
+  @@id([CPF, SalaoId])
+}
+
+model AdmSalao {
+  CPF      String
+  Nome     String
+  Email    String
+  Telefone String
+  Senha    String
+  Salao    Salao  @relation(fields: [SalaoId], references: [CNPJ])
+  SalaoId  String @unique
+
+  @@id([CPF, SalaoId])
+}
+
+model AdmSistema {
+  CPF      String @unique
+  Nome     String
+  Email    String @unique
+  Telefone String
+  Senha    String
+}
+
+model PagamentosAssinatura {
+  ID      Int             @id @default(autoincrement())
+  Data    DateTime
+  Valor   Float
+  Salao   Salao           @relation(fields: [SalaoId], references: [CNPJ])
+  SalaoId String
+  Status  StatusPagamento
+}
+
+enum StatusPagamento {
+  PAGO
+  PENDENTE
+  ATRASADO
+}
+
+model AtendimentoAuxiliar {
+  Atendimento   Atendimento @relation(fields: [AtendimentoId], references: [ID])
+  AtendimentoId Int         @unique
+  AuxiliarCPF   String
+  SalaoId       String
+  Auxiliar      Funcionario @relation(fields: [AuxiliarCPF, SalaoId], references: [CPF, SalaoId])
+}
+
+model Atendimento {
+  ID                  Int                  @id @default(autoincrement())
+  Data                DateTime
+  PrecoTotal          Float
+  FuncionarioCPF      String
+  Funcionario         Funcionario          @relation(fields: [FuncionarioCPF, SalaoId], references: [CPF, SalaoId])
+  Auxiliar            Boolean
+  AtendimentoAuxiliar AtendimentoAuxiliar?
+  Salao               Salao                @relation(fields: [SalaoId], references: [CNPJ])
+  SalaoId             String
+  ServicoAtendimento  ServicoAtendimento[]
+}
+
+model Servico {
+  ID                 Int                  @id @default(autoincrement())
+  Salao              Salao                @relation(fields: [SalaoId], references: [CNPJ])
+  SalaoId            String
+  Nome               String
+  PrecoMin           Float
+  PrecoMax           Float
+  Descricao          String
+  ServicoAtendimento ServicoAtendimento[]
+}
+
+model Portfolio {
+  ID              Int          @id @default(autoincrement())
+  CabeleireiroCPF String
+  Cabeleireiro    Cabeleireiro @relation(fields: [CabeleireiroCPF, SalaoId], references: [CPF, SalaoId])
+  Salao           Salao        @relation(fields: [SalaoId], references: [CNPJ])
+  SalaoId         String
+  Descricao       String
+  Imagem          Imagem[]
+
+  @@unique([CabeleireiroCPF, SalaoId])
+}
+
+model Agendamentos {
+  ID              Int               @id @default(autoincrement())
+  Data            DateTime
+  Status          StatusAgendamento
+  ClienteCPF      String
+  Cliente         Cliente           @relation(fields: [ClienteCPF, SalaoId], references: [CPF, SalaoId])
+  Salao           Salao             @relation(fields: [SalaoId], references: [CNPJ])
+  SalaoId         String
+  CabeleireiroCPF String
+  Cabeleireiro    Cabeleireiro      @relation(fields: [CabeleireiroCPF, SalaoId], references: [CPF, SalaoId])
+}
+
+enum StatusAgendamento {
+  Agendado
+}
+
+model Holerite {
+  ID              Int           @id @default(autoincrement())
+  Data            DateTime
+  Valor           Float
+  FuncionarioCPF  String
+  Funcionario     Funcionario?  @relation(fields: [FuncionarioCPF, SalaoId], references: [CPF, SalaoId])
+  Salao           Salao         @relation(fields: [SalaoId], references: [CNPJ])
+  SalaoId         String
+  CabeleireiroCPF String
+  Cabeleireiro    Cabeleireiro? @relation(fields: [CabeleireiroCPF, SalaoId], references: [CPF, SalaoId])
+}
+
+model ServicoAtendimento {
+  ID            Int         @id @default(autoincrement())
+  PrecoItem     Float
+  AtendimentoId Int
+  Atendimento   Atendimento @relation(fields: [AtendimentoId], references: [ID])
+  ServicoId     Int
+  Servico       Servico     @relation(fields: [ServicoId], references: [ID])
+}
+
+model Gastos {
+  ID Int @id @default(autoincrement())
+
+  Salao     Salao    @relation(fields: [SalaoId], references: [CNPJ])
+  SalaoId   String
+  Nome      String
+  Valor     Float
+  Descricao String
+  Data      DateTime
+}
+
+model HistoricoSimulacao {
+  ID         Int      @id @default(autoincrement())
+  Data       DateTime
+  ClienteCPF String
+  Cliente    Cliente  @relation(fields: [ClienteCPF, SalaoId], references: [CPF, SalaoId])
+  Salao      Salao    @relation(fields: [SalaoId], references: [CNPJ])
+  SalaoId    String
+  Imagem     Imagem[]
+}
+
+model Imagem {
+  ID                   Int                 @id @default(autoincrement())
+  PortfolioId          Int
+  Portfolio            Portfolio           @relation(fields: [PortfolioId], references: [ID])
+  HistoricoSimulacaoId Int?
+  HistoricoSimulacao   HistoricoSimulacao? @relation(fields: [HistoricoSimulacaoId], references: [ID])
+  Endereco             String
+  Descricao            String
+}
