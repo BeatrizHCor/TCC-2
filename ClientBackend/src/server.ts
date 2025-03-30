@@ -1,10 +1,11 @@
-import express from 'express';
-import clientRoutes from './routes/clienteRoutes';
+import app from './app';
+import dotenv from 'dotenv';
 
-const app = express();
-app.use(express.json());
+// Carrega variáveis de ambiente
+dotenv.config();
 
-// Usar as rotas de clientes
-app.use('/clients', clientRoutes);
+const PORT = process.env.PORT || 3000;
 
-app.listen(3000, () => console.log('🚀 Server running on port 3000'));
+app.listen(PORT, () => {
+  console.log(`Servidor rodando na porta ${PORT}`);
+});
