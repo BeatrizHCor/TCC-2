@@ -10,6 +10,7 @@
     "test": "jest"
   },
   "dependencies": {
+    "mobile": "file:",
     "react": "19.0.0",
     "react-native": "0.78.0"
   },
