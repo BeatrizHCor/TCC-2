@@ -3,24 +3,20 @@ import cors from 'cors';
 import morgan from 'morgan';
 import clienteRoutes from './routes/clienteRoutes';
 
-// Inicialização da aplicação Express
 const app: Application = express();
 
-// Middlewares
 app.use(cors());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(morgan('dev'));
 
-// Rotas
 app.use('/api/clientes', clienteRoutes);
 
-// Rota padrão
 app.get('/', (req: Request, res: Response) => {
   res.json({ message: 'API do Salão - Bem-vindo!' });
 });
 
-// Middleware para tratamento de erros
+
 app.use((err: Error, req: Request, res: Response, next: NextFunction) => {
   console.error(err.stack);
   res.status(500).json({
@@ -29,7 +25,7 @@ app.use((err: Error, req: Request, res: Response, next: NextFunction) => {
   });
 });
 
-// Middleware para rotas não encontradas
+
 app.use((req: Request, res: Response) => {
   res.status(404).json({ message: 'Rota não encontrada' });
 });

@@ -2,11 +2,10 @@ import { Request, Response } from 'express';
 import ClienteService from '../services/clienteService';
 
 class ClienteController {
-  // Buscar todos os clientes
   static async findAll(req: Request, res: Response) {
     try {
       const { page, limit, includeRelations } = req.query;
-      const clientes = await ClienteService.findAll(
+      const clientes = await ClienteService.getClientePage(
         Number(page), 
         Number(limit), 
         includeRelations === 'true'
@@ -17,7 +16,7 @@ class ClienteController {
     }
   }
 
-  // Criar novo cliente
+
   static async create(req: Request, res: Response) {
     try {
       const clienteData = req.body;
@@ -28,12 +27,12 @@ class ClienteController {
     }
   }
 
-  // Buscar cliente por CPF e Salão
+ 
   static async findByCPFandSalao(req: Request, res: Response) {
     try {
       const { cpf, salaoId } = req.params;
       const { includeRelations } = req.query;
-      const cliente = await ClienteService.findByCPFandSalao(
+      const cliente = await ClienteService.findByEmailandSalao(
         cpf, 
         salaoId, 
         includeRelations === 'true'
@@ -44,7 +43,7 @@ class ClienteController {
     }
   }
 
-  // Atualizar cliente
+  
   static async update(req: Request, res: Response) {
     try {
       const { cpf, salaoId } = req.params;
@@ -56,7 +55,6 @@ class ClienteController {
     }
   }
 
-  // Deletar cliente
   static async delete(req: Request, res: Response) {
     try {
       const { cpf, salaoId } = req.params;
@@ -67,7 +65,6 @@ class ClienteController {
     }
   }
 
-  // Método auxiliar para tratamento de erros
   private static handleError(res: Response, error: unknown) {
     console.error(error);
     const errorMessage = error instanceof Error ? error.message : String(error);
