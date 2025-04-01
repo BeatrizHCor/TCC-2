@@ -2,13 +2,14 @@ import { Request, Response } from 'express';
 import ClienteService from '../services/clienteService';
 
 class ClienteController {
-  static async findAll(req: Request, res: Response) {
+  static async getClientesPage(req: Request, res: Response) {
     try {
-      const { page, limit, includeRelations } = req.query;
+      const { page, limit, includeRelations, salaoId } = req.query;
       const clientes = await ClienteService.getClientePage(
         Number(page), 
         Number(limit), 
-        includeRelations === 'true'
+        includeRelations === 'true',
+        salaoId ? String(salaoId) : null
       );
       res.json(clientes);
     } catch (error) {
@@ -16,6 +17,20 @@ class ClienteController {
     }
   }
 
+    static async findAll(req: Request, res: Response) {
+      try {
+        const { limit, includeRelations, salaoId } = req.query;
+        const clientes = await ClienteService.getClientes(
+          null,
+          Number(limit),
+          includeRelations === 'true',
+          salaoId ? String(salaoId) : null
+        );
+        res.json(clientes);
+      } catch (error) {
+        this.handleError(res, error);
+      }
+    }
 
   static async create(req: Request, res: Response) {
     try {
@@ -27,13 +42,26 @@ class ClienteController {
     }
   }
 
- 
-  static async findByCPFandSalao(req: Request, res: Response) {
+  static async findByID (req: Request, res: Response) {
     try {
-      const { cpf, salaoId } = req.params;
+      const { id } = req.params; // ID do cliente
+      const includeRelations = req.query.include === 'true'; // Converte include para booleano
+      const cliente = await ClienteService.findById(id, includeRelations);
+    
+      if (!cliente) {
+        return res.status(404).json({ message: 'Cliente não encontrado' });
+      }
+      return res.json(cliente);
+    } catch (error) {
+      this.handleError(res, error);
+    }
+  }
+  static async findByEmailandSalao(req: Request, res: Response) {
+    try {
+      const { email, salaoId } = req.params;
       const { includeRelations } = req.query;
       const cliente = await ClienteService.findByEmailandSalao(
-        cpf, 
+        email, 
         salaoId, 
         includeRelations === 'true'
       );
@@ -46,9 +74,9 @@ class ClienteController {
   
   static async update(req: Request, res: Response) {
     try {
-      const { cpf, salaoId } = req.params;
+      const { email, salaoId } = req.params;
       const updateData = req.body;
-      const updatedCliente = await ClienteService.update(cpf, salaoId, updateData);
+      const updatedCliente = await ClienteService.update(email, salaoId, updateData);
       res.json(updatedCliente);
     } catch (error) {
       this.handleError(res, error);
@@ -57,8 +85,8 @@ class ClienteController {
 
   static async delete(req: Request, res: Response) {
     try {
-      const { cpf, salaoId } = req.params;
-      await ClienteService.delete(cpf, salaoId);
+      const { email, salaoId } = req.params;
+      await ClienteService.delete(email, salaoId);
       res.status(204).send();
     } catch (error) {
       this.handleError(res, error);

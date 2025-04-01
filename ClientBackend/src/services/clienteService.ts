@@ -1,8 +1,6 @@
 import { skip } from "node:test";
 import prisma from "../config/database";
 
-
-
 interface ClienteData {
   CPF: string;
   Nome: string;
@@ -13,25 +11,36 @@ interface ClienteData {
 }
 
 class ClienteService {
-  static async getClientes(skip: number | null = null, limit: number | null = null, include = false) {
+  static async getClientes(
+    skip: number | null = null, 
+    limit: number | null = null, 
+    include = false, 
+    salaoId: string | null = null
+  ) {
     return await prisma.cliente.findMany({
       ...(skip !== null ? { skip } : {}),
-      ...(limit !== null ? { take: limit } : {}),      
+      ...(limit !== null ? { take: limit } : {}),
+      ...(salaoId !== null ? { where: { SalaoId: salaoId } } : {}),
       ...(include ? {
         include: {
-          Agendamentos: true, 
-          HistoricoSimulacao: true 
+          Agendamentos: true,
+          HistoricoSimulacao: true
         }
       } : {})
     });
   }
   
-  static async getClientePage(page = 1, limit = 10, includeRelations = false) {
+  static async getClientePage(
+    page = 1, 
+    limit = 10, 
+    includeRelations = false, 
+    salaoId: string | null = null
+  ) {
     const skip = (page - 1) * limit;
-    
+
     const [total, clientes] = await Promise.all([
-      ClienteService.getClientes(),
-      ClienteService.getClientes(page, limit, includeRelations)
+      ClienteService.getClientes(null, null, false, salaoId), 
+      ClienteService.getClientes(skip, limit, includeRelations, salaoId) 
     ]);
 
     return {
@@ -59,6 +68,27 @@ class ClienteService {
 
     }
   }
+  static async findById(ID: string, include = false) {
+    try {
+      return await prisma.cliente.findUnique({
+        where: {
+            ID: ID,
+  
+          
+        },
+        ...(include ? {
+          include: {
+            Salao: true,
+            Agendamentos: true,
+            HistoricoSimulacao: true
+          }
+        } : {})
+      });
+      }
+      catch (error) {
+       return false;
+      }
+    }
 
   static async findByEmailandSalao(Email: string, salaoId: string, include = false) {
    try {

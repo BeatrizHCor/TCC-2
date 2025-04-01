@@ -1,10 +1,14 @@
+import { Agendamentos } from "./AgendamentoModel";
+import { HistoricoSimulacao } from "./historicoSimulacaoModel";
+
 export interface Cliente {
+    id?: string;  
     CPF: string;
-    Nome: string;
-    Email: string;
-    Telefone: number;
-    Senha: string;
-    SalaoId: string; // Referenced field from the Salao model
-    Agendamentos: Agendamento[];
-    HistoricoSimulacao: HistoricoSimulacao[];
+    nome: string;
+    email: string;
+    telefone: number;
+    salaoId: string;
+    agendamentos: Agendamentos[];
+    historicoSimulacao: HistoricoSimulacao[];
   }
+  
