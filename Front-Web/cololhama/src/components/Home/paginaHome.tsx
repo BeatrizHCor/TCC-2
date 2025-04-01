@@ -1,12 +1,29 @@
+import { Container, Typography, Button, Paper } from "@mui/material";
+import "../../styles/styles.global.css";
 import React from 'react';
 
 const PaginaHome: React.FC = () => {
     return (
-        <div style={{ textAlign: 'center', padding: '20px' }}>
-            <h1>Bem-vindo à Página Home</h1>
-            <p>Esta é a página inicial do seu aplicativo.</p>
-        </div>
-    );
-};
+        <>
+          <Container maxWidth="md" sx={{ mt: 4 }}>
+            <Paper elevation={3} sx={{ p: 3, textAlign: "center" }}>
+              <Typography variant="h4" gutterBottom>
+                Bem-vindo
+              </Typography>
+              <Typography variant="body1">
+                Este é um exemplo de estrutura básica de uma página em React com TypeScript e Material-UI.
+              </Typography>
+              
+              <Button variant="contained" sx={{ mt: 2, color: "primary" }}>
+               Login
+              </Button>
+              <Button variant="contained" sx={{ mt: 2, color: "primary" }}>
+                Cadastro
+              </Button>
+            </Paper>
+          </Container>
+        </>
+      );
+    }
 
 export default PaginaHome;
