@@ -3,10 +3,12 @@ import ClienteController from '../controllers/clienteController';
 
 const router = express.Router();
 
-router.get('/', ClienteController.findAll);
-router.get('/:cpf/:salaoId', ClienteController.findByCPFandSalao);
+router.get('/page', ClienteController.getClientesPage);
+router.get('/all', ClienteController.findAll);
+//router.get('/id/:id', ClienteController.findByID.bind(ClienteController));
+router.get('/:email/:salaoId', ClienteController.findByEmailandSalao);
 router.post('/', ClienteController.create);
-router.put('/:cpf/:salaoId', ClienteController.update);
-router.delete('/:cpf/:salaoId', ClienteController.delete);
+router.put('/:email/:salaoId', ClienteController.update);
+router.delete('/:email/:salaoId', ClienteController.delete);
 
 export default router;

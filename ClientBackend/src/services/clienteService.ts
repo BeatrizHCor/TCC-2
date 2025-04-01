@@ -1,5 +1,5 @@
-import ClienteModel from '../models/clienteModel';
-
+import { skip } from "node:test";
+import prisma from "../config/database";
 
 interface ClienteData {
   CPF: string;
@@ -11,12 +11,36 @@ interface ClienteData {
 }
 
 class ClienteService {
-  static async findAll(page = 1, limit = 10, includeRelations = false) {
+  static async getClientes(
+    skip: number | null = null, 
+    limit: number | null = null, 
+    include = false, 
+    salaoId: string | null = null
+  ) {
+    return await prisma.cliente.findMany({
+      ...(skip !== null ? { skip } : {}),
+      ...(limit !== null ? { take: limit } : {}),
+      ...(salaoId !== null ? { where: { SalaoId: salaoId } } : {}),
+      ...(include ? {
+        include: {
+          Agendamentos: true,
+          HistoricoSimulacao: true
+        }
+      } : {})
+    });
+  }
+  
+  static async getClientePage(
+    page = 1, 
+    limit = 10, 
+    includeRelations = false, 
+    salaoId: string | null = null
+  ) {
     const skip = (page - 1) * limit;
-    
+
     const [total, clientes] = await Promise.all([
-      ClienteModel.findMany(),
-      ClienteModel.findMany(includeRelations)
+      ClienteService.getClientes(null, null, false, salaoId), 
+      ClienteService.getClientes(skip, limit, includeRelations, salaoId) 
     ]);
 
     return {
@@ -27,62 +51,105 @@ class ClienteService {
     };
   }
 
-  // Criar novo cliente com validações
   static async create(data: ClienteData) {
     this.validateClienteData(data);
-
-    // Verificar se cliente já existe
-    const existingCliente = await ClienteModel.findByCPFandSalao(data.CPF, data.SalaoId);
+    const existingCliente = await this.findByEmailandSalao(data.Email, data.SalaoId);
     if (existingCliente) {
       throw new Error('Cliente já cadastrado neste salão');
     }
 
-    // Aqui você pode adicionar lógica de hash de senha
-    // const hashedSenha = await hashPassword(data.Senha);
+    try {
+      await prisma.cliente.create({ data });
+      return true;
+    }
+    catch (error) {
 
-    return ClienteModel.create({
-      ...data,
-      // Senha: hashedSenha
+    return false;
+
+    }
+  }
+  static async findById(ID: string, include = false) {
+    try {
+      return await prisma.cliente.findUnique({
+        where: {
+            ID: ID,
+  
+          
+        },
+        ...(include ? {
+          include: {
+            Salao: true,
+            Agendamentos: true,
+            HistoricoSimulacao: true
+          }
+        } : {})
+      });
+      }
+      catch (error) {
+       return false;
+      }
+    }
+
+  static async findByEmailandSalao(Email: string, salaoId: string, include = false) {
+   try {
+    return await prisma.cliente.findUnique({
+      where: {
+        Email_SalaoId: {
+          Email: Email,
+          SalaoId: salaoId
+        }
+      },
+      ...(include ? {
+        include: {
+          Salao: true,
+          Agendamentos: true,
+          HistoricoSimulacao: true
+        }
+      } : {})
+    });
+    }
+    catch (error) {
+     return false;
+    }
+  }
+
+  static async update(Email: string, salaoId: string, data: ClienteData) {
+   try {
+    const existingCliente = await this.findByEmailandSalao(data.Email, data.SalaoId);
+    if (!existingCliente) {
+      throw new Error('Cliente já cadastrado neste salão');
+    }
+
+    return await prisma.cliente.update({
+      where: { 
+        Email_SalaoId: {
+          Email: Email,
+          SalaoId: salaoId
+        }
+      },
+      data: data,
+    });;
+  } catch (error) {
+    throw new Error('Erro ao atualizar cliente: ');
+  }
+}
+
+  static async delete(Email: string, salaoId: string) {
+    const existingCliente = await this.findByEmailandSalao(Email, salaoId);
+    if (!existingCliente) {
+      throw new Error('Cliente já cadastrado neste salão');
+    }
+    return await prisma.cliente.delete({
+      where: { 
+        Email_SalaoId: {
+          Email: Email,
+          SalaoId: salaoId
+        }
+      },
     });
   }
 
-  // Buscar cliente por CPF e Salão
-  static async findByCPFandSalao(cpf: string, salaoId: string, includeRelations = false) {
-    const cliente = await ClienteModel.findByCPFandSalao(cpf, salaoId, includeRelations);
-    
-    if (!cliente) {
-      throw new Error('Cliente não encontrado');
-    }
-
-    return cliente;
-  }
-
-  // Buscar cliente por email
-  static async findByEmail(email: string, includeRelations = false) {
-    return ClienteModel.findByEmail(email, includeRelations);
-  }
-
-  // Atualizar cliente
-  static async update(cpf: string, salaoId: string, data: Partial<Omit<ClienteData, 'CPF' | 'SalaoId'>>) {
-    // Verificar se cliente existe
-    await this.findByCPFandSalao(cpf, salaoId);
-
-    // Validações para campos de atualização
-    this.validateUpdateData(data);
-
-    // Atualizar cliente
-    return ClienteModel.update(cpf, salaoId, data);
-  }
-
-  // Deletar cliente
-  static async delete(cpf: string, salaoId: string) {
-    // Verificar se cliente existe antes de deletar
-    await this.findByCPFandSalao(cpf, salaoId);
-
-    return ClienteModel.delete(cpf, salaoId);
-  }
-
-  // Validações
+  
   private static validateClienteData(data: ClienteData) {
     const { CPF, Nome, Email, Telefone, Senha, SalaoId } = data;
 
@@ -95,23 +162,6 @@ class ClienteService {
 
   }
 
-  private static validateUpdateData(data: Partial<Omit<ClienteData, 'CPF' | 'SalaoId'>>) {
-    // Verificar se pelo menos um campo foi fornecido para atualização
-    if (Object.keys(data).length === 0) {
-      throw new Error('Nenhum dado para atualizar');
-    }
-
-    // Validações específicas para campos de atualização
-    if (data.Email && !this.isValidEmail(data.Email)) {
-      throw new Error('Email inválido');
-    }
-  }
-
-
-  private static isValidEmail(email: string): boolean {
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    return emailRegex.test(email);
-  }
 }
 
 export default ClienteService;
