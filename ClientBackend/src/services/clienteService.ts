@@ -6,7 +6,6 @@ interface ClienteData {
   Nome: string;
   Email: string;
   Telefone: string;
-  Senha: string;
   SalaoId: string;
 }
 
@@ -51,15 +50,28 @@ class ClienteService {
     };
   }
 
-  static async create(data: ClienteData) {
-    this.validateClienteData(data);
-    const existingCliente = await this.findByEmailandSalao(data.Email, data.SalaoId);
+  static async create(  
+    
+    CPF: string,
+    Nome: string,
+    Email: string,
+    Telefone: string,
+    SalaoId: string,
+  ) {
+    const existingCliente = await this.findByEmailandSalao(Email, SalaoId);
     if (existingCliente) {
       throw new Error('Cliente já cadastrado neste salão');
     }
-
     try {
-      await prisma.cliente.create({ data });
+      await prisma.cliente.create({ 
+        data:{
+        CPF,
+        Nome,
+        Email,
+        Telefone,
+        SalaoId,
+      },
+      });
       return true;
     }
     catch (error) {
@@ -109,9 +121,31 @@ class ClienteService {
     });
     }
     catch (error) {
-     return false;
+      throw new Error('Erro ao localizar cliente');
     }
   }
+
+  static async findByCpfandSalao(Cpf: string, salaoId: string, include = false) {
+    try {
+     return await prisma.cliente.findFirst({
+       where: {
+           CPF: Cpf,
+           SalaoId: salaoId
+         
+       },
+       ...(include ? {
+         include: {
+           Salao: true,
+           Agendamentos: true,
+           HistoricoSimulacao: true
+         }
+       } : {})
+     });
+     }
+     catch (error) {
+      throw new Error('Erro ao localizar cliente');
+     }
+   }
 
   static async update(Email: string, salaoId: string, data: ClienteData) {
    try {
@@ -130,7 +164,7 @@ class ClienteService {
       data: data,
     });;
   } catch (error) {
-    throw new Error('Erro ao atualizar cliente: ');
+    throw new Error('Erro ao atualizar cliente');
   }
 }
 
@@ -149,18 +183,7 @@ class ClienteService {
     });
   }
 
-  
-  private static validateClienteData(data: ClienteData) {
-    const { CPF, Nome, Email, Telefone, Senha, SalaoId } = data;
 
-    if (!CPF) throw new Error('CPF é obrigatório');
-    if (!Nome) throw new Error('Nome é obrigatório');
-    if (!Email) throw new Error('Email é obrigatório');
-    if (!Telefone) throw new Error('Telefone é obrigatório');
-    if (!Senha) throw new Error('Senha é obrigatória');
-    if (!SalaoId) throw new Error('SalaoId é obrigatório');
-
-  }
 
 }
 

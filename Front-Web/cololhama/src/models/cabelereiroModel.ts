@@ -1,4 +1,4 @@
-import { Agendamentos } from "./AgendamentoModel";
+import { Agendamentos } from "./agendamentoModel";
 import { Holerite } from "./holeriteModel";
 import { Portfolio } from "./portifolioModel";
 
