@@ -1,11 +1,10 @@
 import React from "react";
-import {CadastroCliente} from "../../components/Cliente/CadastroCliente";
+import CadastroCliente from "../../components/Cliente/CadastroCliente";
 
 const CadastroPage: React.FC = () => {
   return (
     <div className="cadastro-page">
-      <h1>Cadastro de Cliente</h1>
-      <CadastroCliente />
+      < CadastroCliente salaoId={""} />
     </div>
   );
 };

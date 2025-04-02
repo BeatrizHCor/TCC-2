@@ -1,5 +1,5 @@
 import { AdmSalao } from "./admSalaoModel";
-import { Agendamentos } from "./AgendamentoModel";
+import { Agendamentos } from "./agendamentoModel";
 import { Atendimento } from "./atendimentoModal";
 import { Cabeleireiro } from "./cabelereiroModel";
 import { Cliente } from "./clienteModel";

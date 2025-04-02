@@ -1,6 +1,7 @@
-import { Container, Typography, Button, Paper } from "@mui/material";
+import { Container, Typography, Button, Paper} from "@mui/material";
 import "../../styles/styles.global.css";
 import React from 'react';
+import { Link } from "react-router-dom";
 
 const PaginaHome: React.FC = () => {
     return (
@@ -14,10 +15,10 @@ const PaginaHome: React.FC = () => {
                 Este é um exemplo de estrutura básica de uma página em React com TypeScript e Material-UI.
               </Typography>
               
-              <Button variant="contained" sx={{ mt: 2, color: "primary" }}>
+              <Button variant="contained" component={Link} to="/login" sx={{ mt: 2, color: "primary" }}>
                Login
               </Button>
-              <Button variant="contained" sx={{ mt: 2, color: "primary" }}>
+              <Button variant="contained" component={Link} to="/cadastro" sx={{ mt: 2, color: "primary" }}>
                 Cadastro
               </Button>
             </Paper>

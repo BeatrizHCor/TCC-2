@@ -1,7 +1,7 @@
 export enum userTypes {
-    Cliente = 'Cliente',
-    Funcionario = 'Funcionario',
-    Cabeleireiro = 'Cabeleireiro',
-    AdmSalao = 'AdmSalao',
-    AdmSistema = 'AdmSistema'
-  }
+    Cliente = 'CLIENTE',
+    Funcionario = 'FUNCIONARIO',
+    Cabeleireiro = 'CABELEIREIRO',
+    AdmSalao = 'ADM_SALAO',
+    AdmSistema = 'ADM_SISTEMA'
+}

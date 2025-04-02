@@ -1,14 +1,14 @@
-import { Agendamentos } from "./AgendamentoModel";
+import { Agendamentos } from "./agendamentoModel";
 import { HistoricoSimulacao } from "./historicoSimulacaoModel";
 
 export interface Cliente {
     id?: string;  
     CPF: string;
-    nome: string;
-    email: string;
-    telefone: number;
-    salaoId: string;
-    agendamentos: Agendamentos[];
-    historicoSimulacao: HistoricoSimulacao[];
+    Nome: string;
+    Email: string;
+    Telefone: number;
+    SalaoId: string;
+    Agendamentos: Agendamentos[];
+    HistoricoSimulacao: HistoricoSimulacao[];
   }
   

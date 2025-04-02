@@ -3,15 +3,18 @@ import { Routes, Route } from "react-router-dom";
 import HomePage from "./pages/Home/HomePage";
 import LoginPage from "./pages/Home/LoginPage";
 import CadastroPage from "./pages/Cliente/CadastroClientePage";
-
+import { ThemeProvider } from "@mui/material/styles";
+import CssBaseline from "@mui/material/CssBaseline";
+import theme from "./styles/theme";
 import "./App.css";
-import NavBar from "./components/UI/Navbar";
+import NavBar from "./components/UI/NavBar";
 
 const App: React.FC = () => {
   const isAuthenticated = false;
 
   return (
-    <>
+    <ThemeProvider theme={theme}>  
+      <CssBaseline /> 
       <NavBar isAuthenticated={isAuthenticated} />
 
       <Routes>
@@ -24,7 +27,7 @@ const App: React.FC = () => {
           </>
         )}
       </Routes>
-    </>
+      </ThemeProvider>
   );
 };
 

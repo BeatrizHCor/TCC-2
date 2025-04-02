@@ -13,7 +13,8 @@ class ClienteController {
       );
       res.json(clientes);
     } catch (error) {
-      this.handleError(res, error);
+      console.log(error);
+      res.status(500).send("something went wrong");
     }
   }
 
@@ -28,23 +29,25 @@ class ClienteController {
         );
         res.json(clientes);
       } catch (error) {
-        this.handleError(res, error);
+        console.log(error);
+        res.status(500).send("something went wrong");
       }
     }
 
   static async create(req: Request, res: Response) {
     try {
-      const clienteData = req.body;
-      const newCliente = await ClienteService.create(clienteData);
+      let{ CPF, Nome, Email, Telefone, SalaoId } = req.body;
+      const newCliente = await ClienteService.create(CPF, Nome, Email, Telefone, SalaoId);
       res.status(201).json(newCliente);
     } catch (error) {
-      this.handleError(res, error);
+      console.log(error);
+      res.status(500).send("something went wrong");
     }
   }
 
   static async findByID (req: Request, res: Response) {
     try {
-      const { id } = req.params; // ID do cliente
+      const { id } = req.params; 
       const includeRelations = req.query.include === 'true'; // Converte include para booleano
       const cliente = await ClienteService.findById(id, includeRelations);
     
@@ -53,7 +56,8 @@ class ClienteController {
       }
       return res.json(cliente);
     } catch (error) {
-      this.handleError(res, error);
+      console.log(error);
+      res.status(500).send("something went wrong");
     }
   }
   static async findByEmailandSalao(req: Request, res: Response) {
@@ -67,10 +71,25 @@ class ClienteController {
       );
       res.json(cliente);
     } catch (error) {
-      this.handleError(res, error);
+      console.log(error);
+      res.status(500).send("something went wrong");
     }
   }
-
+  static async findByCpfandSalao(req: Request, res: Response) {
+    try {
+      const { cpf, salaoId } = req.params;
+      const { includeRelations } = req.query;
+      const cliente = await ClienteService.findByCpfandSalao(
+        cpf, 
+        salaoId, 
+        includeRelations === 'true'
+      );
+      res.json(cliente);
+    } catch (error) {
+      console.log(error);
+      res.status(500).send("something went wrong");
+    }
+  }
   
   static async update(req: Request, res: Response) {
     try {
@@ -79,7 +98,8 @@ class ClienteController {
       const updatedCliente = await ClienteService.update(email, salaoId, updateData);
       res.json(updatedCliente);
     } catch (error) {
-      this.handleError(res, error);
+      console.log(error);
+      res.status(500).send("something went wrong");
     }
   }
 
@@ -89,10 +109,11 @@ class ClienteController {
       await ClienteService.delete(email, salaoId);
       res.status(204).send();
     } catch (error) {
-      this.handleError(res, error);
+      console.log(error);
+      res.status(500).send("something went wrong");
     }
   }
-
+/*
   private static handleError(res: Response, error: unknown) {
     console.error(error);
     const errorMessage = error instanceof Error ? error.message : String(error);
@@ -101,7 +122,7 @@ class ClienteController {
       error: 'Erro interno do servidor', 
       details: errorMessage 
     });
-  }
+  }*/
 }
 
 export default ClienteController;
