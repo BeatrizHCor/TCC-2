@@ -51,7 +51,6 @@ class ClienteService {
   }
 
   static async create(  
-    
     CPF: string,
     Nome: string,
     Email: string,

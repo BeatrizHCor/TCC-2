@@ -6,6 +6,7 @@ const PORT = process.env.PORT;
 const route = Router();
 const app = express();
 app.use(express.json());
+
 route.get("/", (_req: Request, res: Response) => {
   res.send("hello world with Typescript");
 });
