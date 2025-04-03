@@ -9,6 +9,7 @@ import theme from "./styles/theme";
 import "./App.css";
 import NavBar from "./components/UI/NavBar";
 import ClienteLogin from "./components/Login/ClienteLogin";
+import PerfilCliente from "./components/Cliente/perfilCliente";
 
 const App: React.FC = () => {
   const isAuthenticated = false;
@@ -25,6 +26,8 @@ const App: React.FC = () => {
           <>
             <Route path="/cadastro" element={<CadastroPage />} />
             <Route path="/login" element={<ClienteLogin />} />
+            <Route path="/perfil" element={<PerfilCliente salaoId="12345" />} />
+
 
           </>
         )}

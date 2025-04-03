@@ -191,6 +191,12 @@ export const useClienteCadastro = (salaoId: string) => {
     handleCPFChange,
     handleTelefoneChange,
     handleConfirmacaoSenhaChange,
-    handleSubmit
+    handleSubmit,
+    setCliente, //  resetar os dados
+    setAuth, //  resetar email/senha
+    setConfirmacaoSenha, // limpar confirmação de senha
+    setErrors, // limpar msgs das validações , dps arruma essas tralha
+    setTelefoneFormatado, //limpar telefone teste funciona pfvr
   };
+  
 };
