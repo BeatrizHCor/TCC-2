@@ -8,7 +8,7 @@ export interface Cliente {
     Email: string;
     Telefone: number;
     SalaoId: string;
-    Agendamentos: Agendamentos[];
-    HistoricoSimulacao: HistoricoSimulacao[];
+    Agendamentos?: Agendamentos[];
+    HistoricoSimulacao?: HistoricoSimulacao[];
   }
   

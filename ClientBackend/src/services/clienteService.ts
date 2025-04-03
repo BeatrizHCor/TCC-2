@@ -73,8 +73,10 @@ class ClienteService {
           SalaoId,
         },
       });
-    } catch (error) {
-      return false;
+      return true;
+    }
+    catch (error) {
+    throw new Error('Erro ao cadastrar cliente');
     }
   }
   static async findById(ID: string, include = false) {
