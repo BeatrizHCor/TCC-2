@@ -7,6 +7,8 @@ declare module "@mui/material/styles" {
       LighterGray: string;
       lightGray: string;
       softPink: string;
+      black: string;
+      goldenBorder: string;
     };
   }
   interface PaletteOptions {
@@ -15,6 +17,8 @@ declare module "@mui/material/styles" {
       LighterGray: string;
       lightGray: string;
       softPink: string;
+      black: string;
+      goldenBorder: string;
     };
   }
 }
@@ -22,7 +26,7 @@ declare module "@mui/material/styles" {
 const theme = createTheme({
   palette: {
     primary: {
-      main: "#72383d", // Cor personalizada para o botão
+      main: "#7d1e26", // vermelho vinho
     },
     secondary: {
       main: "#322d29",
@@ -31,15 +35,15 @@ const theme = createTheme({
       default: "#ffffff", // Fundo branco global
     },
     info: {
-        main: "##83876f", // esverdeado
+        main: "#83876f", // esverdeado
       },
-  
-    
       customColors: {
         darkGray: "#424242",
         LighterGray: "#d9d9d9",
         lightGray: "#eff0ed",
         softPink: "#d2a1a2",
+        black: "#000000",
+        goldenBorder: "#ac9c8d",
       },
     },
   });

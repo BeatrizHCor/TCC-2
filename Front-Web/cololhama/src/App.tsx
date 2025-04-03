@@ -8,6 +8,7 @@ import CssBaseline from "@mui/material/CssBaseline";
 import theme from "./styles/theme";
 import "./App.css";
 import NavBar from "./components/UI/NavBar";
+import ClienteLogin from "./components/Login/ClienteLogin";
 
 const App: React.FC = () => {
   const isAuthenticated = false;
@@ -23,7 +24,8 @@ const App: React.FC = () => {
         {!isAuthenticated && (
           <>
             <Route path="/cadastro" element={<CadastroPage />} />
-            <Route path="/login" element={<LoginPage />} />
+            <Route path="/login" element={<ClienteLogin />} />
+
           </>
         )}
       </Routes>
