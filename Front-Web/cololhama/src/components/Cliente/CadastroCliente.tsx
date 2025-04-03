@@ -21,7 +21,7 @@ import { useClienteCadastro } from './useCadastroCliente';
 import theme from "../../styles/theme"; // Importando o tema
 
 interface ClienteCadastroProps {
-  salaoId: string;
+  salaoId?: string;
 }
 
 export const ClienteCadastro: React.FC<ClienteCadastroProps> = ({ salaoId }) => {
@@ -37,7 +37,7 @@ export const ClienteCadastro: React.FC<ClienteCadastroProps> = ({ salaoId }) => 
     handleTelefoneChange,
     handleConfirmacaoSenhaChange,
     handleSubmit
-  } = useClienteCadastro(salaoId);
+  } = useClienteCadastro(salaoId ? '12345' : '');
 
   const [showPassword, setShowPassword] = React.useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = React.useState(false);

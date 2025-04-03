@@ -1,5 +1,6 @@
-import { skip } from "node:test";
 import prisma from "../config/database";
+import { PrismaClient } from "@prisma/client";
+
 
 interface ClienteData {
   CPF: string;
@@ -53,32 +54,42 @@ class ClienteService {
   }
 
   static async create(
+  static async create(
     CPF: string,
     Nome: string,
     Email: string,
     Telefone: string,
     SalaoId: string
+    SalaoId: string
   ) {
+    console.log('Iniciando criação do cliente com os dados:', { CPF, Nome, Email, Telefone, SalaoId });
+    if (!CPF || !Nome || !Email || !Telefone || !SalaoId) {
+      throw new Error('Parâmetros inválidos para criação do cliente');
+    }
     const existingCliente = await this.findByEmailandSalao(Email, SalaoId);
     if (existingCliente) {
-      throw new Error("Cliente já cadastrado neste salão");
+      console.error('Cliente já cadastrado neste salão:', { Email, SalaoId });
+      throw new Error('Cliente já cadastrado neste salão');
     }
+    console.log('Dados enviados para criação:', { CPF, Nome, Email, Telefone, SalaoId });
     try {
-      return await prisma.cliente.create({
+      const cliente = await prisma.cliente.create({
         data: {
-          CPF,
-          Nome,
-          Email,
-          Telefone,
-          SalaoId,
+          CPF: CPF,
+          Nome: Nome,
+          Email: Email,
+          Telefone: Telefone,
+          SalaoId: SalaoId,
         },
       });
+      console.log(cliente);
       return true;
-    }
-    catch (error) {
-    throw new Error('Erro ao cadastrar cliente');
+    } catch (error) {
+      console.error('Erro ao criar cliente:', error);
+      throw new Error('Erro ao criar cliente');
     }
   }
+
   static async findById(ID: string, include = false) {
     try {
       return await prisma.cliente.findUnique({
@@ -100,31 +111,28 @@ class ClienteService {
     }
   }
 
-  static async findByEmailandSalao(
-    Email: string,
-    salaoId: string,
-    include = false
-  ) {
-    try {
-      return await prisma.cliente.findUnique({
-        where: {
-          Email_SalaoId: {
-            Email: Email,
-            SalaoId: salaoId,
-          },
-        },
-        ...(include
-          ? {
-              include: {
-                Salao: true,
-                Agendamentos: true,
-                HistoricoSimulacao: true,
-              },
-            }
-          : {}),
-      });
-    } catch (error) {
-      throw new Error("Erro ao localizar cliente");
+  static async findByEmailandSalao(Email: string, salaoId: string, include = false) {
+    console.log('Buscando cliente com Email e SalaoId:', { Email, salaoId });
+   try {
+    return await prisma.cliente.findUnique({
+      where: {
+        Email_SalaoId: {
+          Email: Email,
+          SalaoId: salaoId
+        }
+      },
+      ...(include ? {
+        include: {
+          Salao: true,
+          Agendamentos: true,
+          HistoricoSimulacao: true
+        }
+      } : {})
+    });
+    }
+    catch (error) {
+      console.error('Erro ao localizar cliente:', error);
+      throw new Error('Erro ao localizar cliente');
     }
   }
 

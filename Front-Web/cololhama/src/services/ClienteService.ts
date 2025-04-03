@@ -55,7 +55,7 @@ export const ClienteService = {
 
   async verificarClienteCpfExistente(cpf: string, salaoId: string): Promise<boolean> {
     try {
-      const response = await api.get(`/cliente/cpf/${cpf}/${salaoId}`);
+      const response = await api.get(`/cliente/${cpf}/${salaoId}`);
       return !!response.data;
     } catch (error) {
       if (axios.isAxiosError(error) && error.response?.status === 404) {

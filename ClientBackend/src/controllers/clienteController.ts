@@ -14,7 +14,7 @@ class ClienteController {
       res.json(clientes);
     } catch (error) {
       console.log(error);
-      res.status(500).send("something went wrong");
+      res.status(404).json({ message: 'Cliente não encontrado' });
     }
   }
 
@@ -51,21 +51,22 @@ class ClienteController {
     }
   }
 
-  static async findByID (req: Request, res: Response): Promise<void>  {
+  static async findByID(req: Request, res: Response): Promise<void> {
     try {
       const { id } = req.params;
       const includeRelations = req.query.include === "true"; // Converte include para booleano
       const cliente = await ClienteService.findById(id, includeRelations);
 
       if (!cliente) {
-         res.status(404).json({ message: 'Cliente não encontrado' });
-      }
-      res.json(cliente);
-    } catch (error) {
+        res.status(404).json({ message: 'Cliente não encontrado' });
+      }else{
+        res.json(cliente);
+      }} catch (error) {
       console.log(error);
       res.status(500).send("something went wrong");
     }
   }
+
   static async findByEmailandSalao(req: Request, res: Response) {
     try {
       const { email, salaoId } = req.params;
@@ -75,8 +76,11 @@ class ClienteController {
         salaoId,
         includeRelations === "true"
       );
-      res.json(cliente);
-    } catch (error) {
+      if (!cliente) {
+        res.status(404).json({ message: 'Cliente não encontrado' });
+      }else{
+        res.json(cliente);
+      }} catch (error) {
       console.log(error);
       res.status(500).send("something went wrong");
     }
@@ -93,7 +97,7 @@ class ClienteController {
       res.json(cliente);
     } catch (error) {
       console.log(error);
-      res.status(500).send("something went wrong");
+
     }
   }
   
