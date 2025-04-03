@@ -41,18 +41,16 @@ export const useClienteCadastro = (salaoId: string) => {
   const [loading, setLoading] = useState(false);
   const [cpfFormatado, setCpfFormatado] = useState('');
   const [telefoneFormatado, setTelefoneFormatado] = useState('');
-
+  const [saveSuccess, setSaveSuccess] = useState(false);
 
   useEffect(() => {
     setAuth(prev => ({ ...prev, email: cliente.Email }));
   }, [cliente.Email]);
 
-
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
     setCliente(prev => ({ ...prev, [name]: value }));
     
-
     if (errors[name as keyof FormErrors]) {
       setErrors(prev => ({ ...prev, [name]: undefined }));
     }
@@ -64,6 +62,13 @@ export const useClienteCadastro = (salaoId: string) => {
     
     if (name === 'senha' && errors.senha) {
       setErrors(prev => ({ ...prev, senha: undefined }));
+    }
+    
+    if (name === 'email') {
+      setCliente(prev => ({ ...prev, Email: value }));
+      if (errors.email) {
+        setErrors(prev => ({ ...prev, email: undefined }));
+      }
     }
   };
 
@@ -90,15 +95,13 @@ export const useClienteCadastro = (salaoId: string) => {
     const maskedValue = telefoneMask(e.target.value);
     setTelefoneFormatado(maskedValue);
     
-  
     const numericValue = Number(maskedValue.replace(/\D/g, ''));
-    setCliente(prev => ({ ...prev, telefone: numericValue }));
+    setCliente(prev => ({ ...prev, Telefone: numericValue }));
     
     if (errors.telefone) {
       setErrors(prev => ({ ...prev, telefone: undefined }));
     }
   };
-
 
   const validateForm = async (): Promise<boolean> => {
     const newErrors: FormErrors = {};
@@ -108,7 +111,6 @@ export const useClienteCadastro = (salaoId: string) => {
     } else if (!validarCPF(cliente.CPF)) {
       newErrors.CPF = 'CPF inválido';
     } else {
-  
       const cpfExiste = await ClienteService.verificarClienteCpfExistente(cliente.CPF, cliente.SalaoId);
       if (cpfExiste) {
         newErrors.CPF = 'Este CPF já está cadastrado';
@@ -155,24 +157,26 @@ export const useClienteCadastro = (salaoId: string) => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
+    setSaveSuccess(false);
     
     try {
+      if (auth.email !== cliente.Email) {
+        setCliente(prev => ({ ...prev, Email: auth.email }));
+      }
+      
       const isValid = await validateForm();
       if (!isValid) {
         setLoading(false);
         return;
       }
       
-      const authResponse = await LoginService.cadastrar(auth);
-
+      await LoginService.cadastrar(auth);
       await ClienteService.cadastrarCliente(cliente);
       
-      await LoginService.login(auth.email, auth.senha,auth.salaoId);
-
-      navigate('/dashboard');
+      setSaveSuccess(true);
+      
     } catch (error) {
       console.error('Erro ao cadastrar:', error);
-
     } finally {
       setLoading(false);
     }
@@ -186,17 +190,18 @@ export const useClienteCadastro = (salaoId: string) => {
     confirmacaoSenha,
     errors,
     loading,
+    saveSuccess,
+    setSaveSuccess,
     handleChange,
     handleAuthChange,
     handleCPFChange,
     handleTelefoneChange,
     handleConfirmacaoSenhaChange,
     handleSubmit,
-    setCliente, //  resetar os dados
-    setAuth, //  resetar email/senha
-    setConfirmacaoSenha, // limpar confirmação de senha
-    setErrors, // limpar msgs das validações , dps arruma essas tralha
-    setTelefoneFormatado, //limpar telefone teste funciona pfvr
+    setCliente,
+    setAuth,
+    setConfirmacaoSenha,
+    setErrors,
+    setTelefoneFormatado,
   };
-  
 };
