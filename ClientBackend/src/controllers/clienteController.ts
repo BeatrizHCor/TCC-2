@@ -2,7 +2,7 @@ import { Request, Response } from 'express';
 import ClienteService from '../services/clienteService';
 
 class ClienteController {
-  static async getClientesPage(req: Request, res: Response) {
+  static async getClientesPage(req: Request, res: Response): Promise<void> {
     try {
       const { page, limit, includeRelations, salaoId } = req.query;
       const clientes = await ClienteService.getClientePage(
@@ -18,7 +18,7 @@ class ClienteController {
     }
   }
 
-    static async findAll(req: Request, res: Response) {
+    static async findAll(req: Request, res: Response): Promise<void> {
       try {
         const { limit, includeRelations, salaoId } = req.query;
         const clientes = await ClienteService.getClientes(
@@ -34,10 +34,16 @@ class ClienteController {
       }
     }
 
-  static async create(req: Request, res: Response) {
+  static async create(req: Request, res: Response): Promise<void> {
     try {
-      let{ CPF, Nome, Email, Telefone, SalaoId } = req.body;
-      const newCliente = await ClienteService.create(CPF, Nome, Email, Telefone, SalaoId);
+      let{ cpf, Nome, Email, Telefone, SalaoId } = req.body;
+      const newCliente = await ClienteService.create(      
+      String(cpf),
+      String(Nome),
+      String(Email),
+      String(Telefone),
+      String(SalaoId)
+    );
       res.status(201).json(newCliente);
     } catch (error) {
       console.log(error);
@@ -45,16 +51,16 @@ class ClienteController {
     }
   }
 
-  static async findByID (req: Request, res: Response) {
+  static async findByID (req: Request, res: Response): Promise<void>  {
     try {
       const { id } = req.params; 
       const includeRelations = req.query.include === 'true'; // Converte include para booleano
       const cliente = await ClienteService.findById(id, includeRelations);
     
       if (!cliente) {
-        return res.status(404).json({ message: 'Cliente não encontrado' });
+         res.status(404).json({ message: 'Cliente não encontrado' });
       }
-      return res.json(cliente);
+      res.json(cliente);
     } catch (error) {
       console.log(error);
       res.status(500).send("something went wrong");
@@ -75,7 +81,7 @@ class ClienteController {
       res.status(500).send("something went wrong");
     }
   }
-  static async findByCpfandSalao(req: Request, res: Response) {
+  static async findByCpfandSalao(req: Request, res: Response): Promise<void>  {
     try {
       const { cpf, salaoId } = req.params;
       const { includeRelations } = req.query;
@@ -91,7 +97,7 @@ class ClienteController {
     }
   }
   
-  static async update(req: Request, res: Response) {
+  static async update(req: Request, res: Response): Promise<void>  {
     try {
       const { email, salaoId } = req.params;
       const updateData = req.body;
@@ -103,7 +109,7 @@ class ClienteController {
     }
   }
 
-  static async delete(req: Request, res: Response) {
+  static async delete(req: Request, res: Response): Promise<void> {
     try {
       const { email, salaoId } = req.params;
       await ClienteService.delete(email, salaoId);
