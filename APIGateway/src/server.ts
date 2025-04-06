@@ -1,6 +1,7 @@
 import express from "express";
 import "dotenv/config";
 import { Router, Request, Response } from "express";
+import RoutesLogin from "./RoutesLogin";
 const app = express();
 const port = process.env.PORT;
 const route = Router();
@@ -12,5 +13,5 @@ route.get("/", (req: Request, res: Response) => {
 });
 
 app.use(route);
-
+app.use(RoutesLogin);
 app.listen(port, () => console.log(`server running on port ${port}`));

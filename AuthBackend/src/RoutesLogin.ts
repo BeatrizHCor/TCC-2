@@ -43,7 +43,7 @@ RoutesLogin.post("/authenticate", async (req: Request, res: Response) => {
   if (newToken) {
     res.send(newToken).status(200);
   } else {
-    res.status(401).send();
+    res.status(403).send();
   }
 });
 
