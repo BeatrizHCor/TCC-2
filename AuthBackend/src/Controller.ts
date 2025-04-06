@@ -7,6 +7,7 @@ import {
   findLoginbyUserId,
   updateLogin,
 } from "./Service";
+import { userTypes } from "@prisma/client";
 
 const SALT = process.env.SALT;
 const SECRET_KEY = process.env.SECRET_KEY;
@@ -50,7 +51,7 @@ export const verifyPasswordAndReturnToken = async (
         login.SalaoId,
         Token
       );
-      return { token: Token, userID: login.UsuarioID };
+      return { token: Token, userID: login.UsuarioID, userType: login.Type };
     }
   }
 };
@@ -63,9 +64,13 @@ const generateRandomToken = () => {
   );
 };
 
-export const verifyTokenAndRefresh = async (token: string, userID: string) => {
+export const verifyTokenAndRefresh = async (
+  token: string,
+  userID: string,
+  userType: string
+) => {
   let login = await findLoginbyUserId(userID);
-  if (login?.Token === token) {
+  if (login?.Token === token && login?.Type === userType) {
     const Token = generateRandomToken();
     await updateLogin(
       login.UsuarioID,
@@ -74,6 +79,6 @@ export const verifyTokenAndRefresh = async (token: string, userID: string) => {
       login.SalaoId,
       Token
     );
-    return { token: Token, userID: userID };
+    return { token: Token, userID: userID, userType: login.Type };
   }
 };

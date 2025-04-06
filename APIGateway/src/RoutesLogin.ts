@@ -2,6 +2,7 @@ import { Router, Request, Response } from "express";
 
 const RoutesLogin = Router();
 const loginURL = process.env.AuthURL || "";
+//Acabei misturando o que é route com o que é controller, separar pra deixar o código mais bonito depois.
 
 RoutesLogin.post("/login", async (req: Request, res: Response) => {
   let response = await fetch(loginURL + "/login", {
@@ -15,7 +16,7 @@ RoutesLogin.post("/login", async (req: Request, res: Response) => {
     res.status(403).send();
   }
 });
-
+//authenticate puro, não faz nada além de testar os tokens. Não precisa ser usado no front e será removido(?)
 RoutesLogin.post("/authenticate", async (req: Request, res: Response) => {
   let response = await fetch(loginURL + "/authenticate", {
     method: "POST",
