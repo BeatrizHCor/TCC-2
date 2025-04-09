@@ -1,11 +1,10 @@
 import axios from 'axios';
 import { Cliente } from '../models/clienteModel';
 import { AuthControl } from '../models/authModel';
-import { NovoClienteDTO } from '../models/NovoClienteDTO';
 
 const api = axios.create({
-  baseURL: 'http://localhost:3001/',
-  timeout: 10000,
+  baseURL:  'http://localhost:3001',
+  timeout: 1000,
   headers: {
     'Content-Type': 'application/json',
   },
@@ -25,7 +24,7 @@ api.interceptors.request.use(
 export const ClienteService = {
   async cadastrarCliente(cliente: Cliente): Promise<Cliente> {
     try {
-         const novoCliente: NovoClienteDTO = {
+         const novoCliente = {
               CPF: cliente.CPF,
               Nome: cliente.Nome,
               Email: cliente.Email,
@@ -42,7 +41,7 @@ export const ClienteService = {
 
   async verificarClienteEmailExistente(email: string, salaoId: string): Promise<boolean> {
     try {
-      const response = await api.get(`/cliente/${email}/${salaoId}`);
+      const response = await api.get(`/cliente/email/${email}/${salaoId}`);
       return !!response.data;
     } catch (error) {
       if (axios.isAxiosError(error) && error.response?.status === 404) {
@@ -55,7 +54,9 @@ export const ClienteService = {
 
   async verificarClienteCpfExistente(cpf: string, salaoId: string): Promise<boolean> {
     try {
-      const response = await api.get(`/cliente/${cpf}/${salaoId}`);
+      const path = `/cliente/cpf/${cpf}/${salaoId}`;
+      console.log(`Verificando cliente por CPF no caminho: ${path}`);
+      const response = await api.get(path);
       return !!response.data;
     } catch (error) {
       if (axios.isAxiosError(error) && error.response?.status === 404) {

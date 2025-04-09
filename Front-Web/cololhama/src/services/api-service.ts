@@ -1,4 +1,4 @@
-const API_URL = "https://api.example.com/clientes";
+const API_URL = "http://localhost:3001";
 
 export const cadastrarCliente = async (cliente: { nome: string; email: string }) => {
   const response = await fetch(API_URL, {

@@ -26,7 +26,7 @@ const App: React.FC = () => {
           <>
             <Route path="/cadastro" element={<CadastroPage />} />
             <Route path="/login" element={<ClienteLogin />} />
-            <Route path="/perfil" element={<PerfilCliente salaoId="12345" />} />
+            <Route path="/perfil" element={<PerfilCliente salaoId="1" />} />
 
 
           </>

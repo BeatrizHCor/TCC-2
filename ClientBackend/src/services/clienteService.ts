@@ -54,12 +54,10 @@ class ClienteService {
   }
 
   static async create(
-  static async create(
     CPF: string,
     Nome: string,
     Email: string,
     Telefone: string,
-    SalaoId: string
     SalaoId: string
   ) {
     console.log('Iniciando criação do cliente com os dados:', { CPF, Nome, Email, Telefone, SalaoId });

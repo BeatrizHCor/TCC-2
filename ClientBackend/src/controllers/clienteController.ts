@@ -127,16 +127,6 @@ class ClienteController {
       res.status(500).send("something went wrong");
     }
   }
-  /*
-  private static handleError(res: Response, error: unknown) {
-    console.error(error);
-    const errorMessage = error instanceof Error ? error.message : String(error);
-    
-    res.status(500).json({ 
-      error: 'Erro interno do servidor', 
-      details: errorMessage 
-    });
-  }*/
 }
 
 export default ClienteController;

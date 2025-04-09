@@ -3,8 +3,8 @@ import { Cliente } from "./models/clienteModel";
 import { userTypes } from "./models/tipo-usuario.enum";
 import { accessSync } from "fs";
 
-const CustomerURL = process.env.CustomerURL || "";
-const loginURL = process.env.AuthURL || "";
+const CustomerURL = process.env.CustomerURL || "http://localhost:3001";
+const loginURL = process.env.AuthURL || "http://localhost:3000";
 
 export const postCliente = async (
   CPF: string,
