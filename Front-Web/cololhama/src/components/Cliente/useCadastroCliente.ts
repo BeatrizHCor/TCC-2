@@ -158,6 +158,7 @@ export const useClienteCadastro = (salaoId: string) => {
     e.preventDefault();
     setLoading(true);
 
+
     try {
       if (auth.email !== cliente.Email) {
         setCliente(prev => ({ ...prev, Email: auth.email }));

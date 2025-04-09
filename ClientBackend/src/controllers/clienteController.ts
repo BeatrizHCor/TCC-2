@@ -3,6 +3,7 @@ import ClienteService from "../services/clienteService";
 
 class ClienteController {
   static async getClientesPage(req: Request, res: Response): Promise<void> {
+  static async getClientesPage(req: Request, res: Response): Promise<void> {
     try {
       const { page, limit, includeRelations, salaoId } = req.query;
       const clientes = await ClienteService.getClientePage(
@@ -34,6 +35,7 @@ class ClienteController {
       }
     }
 
+  static async create(req: Request, res: Response): Promise<void> {
   static async create(req: Request, res: Response): Promise<void> {
     try {
       let { CPF, Nome, Email, Telefone, SalaoId } = req.body;
@@ -85,6 +87,7 @@ class ClienteController {
       res.status(500).send("something went wrong");
     }
   }
+  static async findByCpfandSalao(req: Request, res: Response): Promise<void>  {
   static async findByCpfandSalao(req: Request, res: Response): Promise<void>  {
     try {
       const { cpf, salaoId } = req.params;
