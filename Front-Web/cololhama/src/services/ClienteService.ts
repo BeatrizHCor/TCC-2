@@ -21,6 +21,12 @@ api.interceptors.request.use(
   (error) => Promise.reject(error)
 );
 
+interface ClientePageResponse {
+  data: Cliente[];
+  total: number;
+  page: number;
+  limit: number;
+}
 export const ClienteService = {
   async cadastrarCliente(cliente: Cliente): Promise<Cliente> {
     try {
@@ -65,6 +71,31 @@ export const ClienteService = {
       console.error('Erro ao verificar cliente por CPF:', error);
       throw error;
     }
+  },
+
+    async getClientePage (   
+    page: number = 1, 
+    limit: number = 10, 
+    includeRelations: boolean = false,
+    salaoId: string
+  ): Promise<ClientePageResponse> {
+    try {
+      const response = await api.get(
+        `/cliente/page`, {
+          params: {
+            page,
+            limit,
+            includeRelations,
+            salaoId
+          }
+        }
+      );
+      
+        return response.data;
+      } catch (error) {
+        console.error('Erro ao buscar página de clientes:', error);
+        throw error;
+      }
   }
 };
 

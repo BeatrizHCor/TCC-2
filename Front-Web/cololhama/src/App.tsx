@@ -10,6 +10,7 @@ import "./App.css";
 import NavBar from "./components/UI/NavBar";
 import ClienteLogin from "./components/Login/ClienteLogin";
 import PerfilCliente from "./components/Cliente/perfilCliente";
+import VisualizarClientesPage from "./pages/Funcionario/VisualizarClientePage";
 
 const App: React.FC = () => {
   const isAuthenticated = false;
@@ -27,8 +28,10 @@ const App: React.FC = () => {
             <Route path="/cadastro" element={<CadastroPage />} />
             <Route path="/login" element={<ClienteLogin />} />
             <Route path="/perfil" element={<PerfilCliente salaoId="1" />} />
-
-
+            <Route path="/login/:salaoId" element={<LoginPage />} />
+            <Route path="/cadastro/:salaoId" element={<CadastroPage />} />
+            <Route path="/perfil/:salaoId" element={<PerfilCliente salaoId="1" />} />
+            <Route path="/listaClientes" element={<VisualizarClientesPage/>} />
           </>
         )}
       </Routes>
