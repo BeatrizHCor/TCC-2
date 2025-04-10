@@ -108,6 +108,7 @@ export const VisualizarClientes: React.FC = () => {
                   <TableCell>{cliente.Nome}</TableCell>
                   <TableCell>{cliente.Email}</TableCell>
                   <TableCell>{cliente.Telefone}</TableCell>
+                  <TableCell>{cliente.DataCadastro ? new Date(cliente.DataCadastro).toLocaleDateString('pt-BR') : ''}</TableCell>
                 </TableRow>
               ))}
             </TableBody>

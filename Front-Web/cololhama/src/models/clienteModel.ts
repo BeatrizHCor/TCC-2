@@ -10,5 +10,6 @@ export interface Cliente {
     SalaoId: string;
     Agendamentos?: Agendamentos[];
     HistoricoSimulacao?: HistoricoSimulacao[];
+    DataCadastro?: Date;
   }
   
