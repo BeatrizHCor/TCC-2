@@ -38,12 +38,12 @@ RoutesLogin.post("/login", async (req: Request, res: Response) => {
 });
 
 RoutesLogin.post("/authenticate", async (req: Request, res: Response) => {
-  let { userID, token } = req.body;
-  let newToken = await verifyTokenAndRefresh(token, userID);
+  let { userID, token, userType } = req.body;
+  let newToken = await verifyTokenAndRefresh(token, userID, userType);
   if (newToken) {
     res.send(newToken).status(200);
   } else {
-    res.status(401).send();
+    res.status(403).send();
   }
 });
 

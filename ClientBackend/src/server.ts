@@ -1,11 +1,18 @@
 import dotenv from 'dotenv';
 import  express, { NextFunction, Request, Response, Router }  from 'express';
 import clienteRoutes from './routes/clienteRoutes';
+import cors from 'cors';
+
 dotenv.config();
+
 const PORT = process.env.PORT;
 const route = Router();
 const app = express();
+
+
 app.use(express.json());
+app.use(cors());
+
 route.get("/", (_req: Request, res: Response) => {
   res.send("hello world with Typescript");
 });

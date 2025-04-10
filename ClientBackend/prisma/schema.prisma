@@ -48,6 +48,7 @@ model Cliente {
   SalaoId            String
   Agendamentos       Agendamentos[]
   HistoricoSimulacao HistoricoSimulacao[]
+  DataCadastro       DateTime             @default(now())
 
   @@unique([Email, SalaoId])
 }

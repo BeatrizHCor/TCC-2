@@ -157,8 +157,8 @@ export const useClienteCadastro = (salaoId: string) => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
-    setSaveSuccess(false);
-    
+
+
     try {
       if (auth.email !== cliente.Email) {
         setCliente(prev => ({ ...prev, Email: auth.email }));
@@ -169,16 +169,18 @@ export const useClienteCadastro = (salaoId: string) => {
         setLoading(false);
         return;
       }
-      
+
       await LoginService.cadastrar(auth);
       await ClienteService.cadastrarCliente(cliente);
-      
-      setSaveSuccess(true);
-      
+
+      await LoginService.login(auth.email, auth.senha, auth.salaoId);
+      navigate('/home', { replace: true });
+    
     } catch (error) {
       console.error('Erro ao cadastrar:', error);
     } finally {
       setLoading(false);
+      
     }
   };
 

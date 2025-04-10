@@ -33,7 +33,7 @@ export const updateLogin = async (
   Token?: string
 ) => {
   try {
-    await prisma.authControl.update({
+    return await prisma.authControl.update({
       data: {
         Email,
         Senha,
@@ -46,7 +46,6 @@ export const updateLogin = async (
         },
       },
     });
-    return true;
   } catch (e) {
     console.log(e);
     return false;
