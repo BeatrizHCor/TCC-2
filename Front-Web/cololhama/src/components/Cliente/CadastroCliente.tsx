@@ -7,7 +7,6 @@ import {
   TextField, 
   Button, 
   Stack, 
-  Grid, 
   Box, 
   InputAdornment, 
   IconButton, 
@@ -20,11 +19,9 @@ import { Link } from 'react-router-dom';
 import { useClienteCadastro } from './useCadastroCliente';
 import theme from "../../styles/theme"; // Importando o tema
 
-interface ClienteCadastroProps {
-  salaoId?: string;
-}
-
-export const ClienteCadastro: React.FC<ClienteCadastroProps> = ({ salaoId }) => {
+interface ClienteCadastroProps {}
+const salaoId = "1";
+export const ClienteCadastro: React.FC<ClienteCadastroProps> = () => {
   const {
     cpfFormatado,
     telefoneFormatado,
@@ -37,7 +34,7 @@ export const ClienteCadastro: React.FC<ClienteCadastroProps> = ({ salaoId }) => 
     handleTelefoneChange,
     handleConfirmacaoSenhaChange,
     handleSubmit
-  } = useClienteCadastro(salaoId ? '12345' : '');
+  } = useClienteCadastro(salaoId ? salaoId : '');
 
   const [showPassword, setShowPassword] = React.useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = React.useState(false);
@@ -96,8 +93,8 @@ export const ClienteCadastro: React.FC<ClienteCadastroProps> = ({ salaoId }) => 
                 />
 
                 <Box sx={{ mx: -1 }}>
-                  <Grid container spacing={2} alignItems="center">
-                    <Grid item xs={6}>
+                  <Box display="flex" gap={2} alignItems="center">
+                    <Box flex={1}>
                       <TextField
                         label="CPF"
                         required
@@ -108,8 +105,8 @@ export const ClienteCadastro: React.FC<ClienteCadastroProps> = ({ salaoId }) => 
                         inputProps={{ maxLength: 14 }}
                         fullWidth
                       />
-                    </Grid>
-                    <Grid item xs={6}>
+                    </Box>
+                    <Box flex={1}>
                       <TextField
                         label="Telefone"
                         required
@@ -120,8 +117,8 @@ export const ClienteCadastro: React.FC<ClienteCadastroProps> = ({ salaoId }) => 
                         inputProps={{ maxLength: 15 }}
                         fullWidth
                       />
-                    </Grid>
-                  </Grid>
+                    </Box>
+                  </Box>
                 </Box>
                 
                 <TextField
@@ -140,8 +137,8 @@ export const ClienteCadastro: React.FC<ClienteCadastroProps> = ({ salaoId }) => 
                 </Typography>
 
                 <Box sx={{ mx: -1 }}>
-                  <Grid container spacing={2} alignItems="center">
-                    <Grid item xs={6}>
+                  <Box display="flex" gap={2} alignItems="center">
+                    <Box flex={1}>
                       <TextField
                         name="senha"
                         label="Senha"
@@ -161,8 +158,8 @@ export const ClienteCadastro: React.FC<ClienteCadastroProps> = ({ salaoId }) => 
                           )
                         }}
                       />
-                    </Grid>
-                    <Grid item xs={6}>
+                    </Box>
+                    <Box flex={1}>
                       <TextField
                         label="Confirmar Senha"
                         required
@@ -172,18 +169,18 @@ export const ClienteCadastro: React.FC<ClienteCadastroProps> = ({ salaoId }) => 
                         error={!!errors.confirmacaoSenha}
                         helperText={errors.confirmacaoSenha}
                         fullWidth
-                        InputProps={{
-                          endAdornment: (
-                            <InputAdornment position="end">
-                              <IconButton onClick={handleClickShowConfirmPassword} edge="end">
-                                {showConfirmPassword ? <VisibilityOff /> : <Visibility />}
-                              </IconButton>
-                            </InputAdornment>
-                          )
-                        }}
+                      InputProps={{
+                        endAdornment: (
+                          <InputAdornment position="end">
+                            <IconButton onClick={handleClickShowConfirmPassword} edge="end">
+                              {showConfirmPassword ? <VisibilityOff /> : <Visibility />}
+                            </IconButton>
+                          </InputAdornment>
+                        )
+                      }}
                       />
-                    </Grid>
-                  </Grid>
+                    </Box>
+                  </Box>
                 </Box>
 
                 <Alert severity="info" sx={{ mt: 2 }}>
@@ -213,7 +210,6 @@ export const ClienteCadastro: React.FC<ClienteCadastroProps> = ({ salaoId }) => 
             </Box>
           </Paper>
         </Box>
-
       </Box>
     </Container>
   );

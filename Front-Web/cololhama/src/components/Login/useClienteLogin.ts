@@ -75,7 +75,7 @@ export const useClienteLogin = (salaoId: string) => {
       }
 
       await LoginService.login(auth.email, auth.senha, auth.salaoId);
-      navigate("/dashboard");
+      navigate("/");
     } catch (error) {
       setErrors({ senha: "Email ou senha inválidos" });
       console.error("Erro ao fazer login:", error);

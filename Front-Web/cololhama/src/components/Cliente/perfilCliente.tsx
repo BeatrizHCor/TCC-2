@@ -6,7 +6,6 @@ import {
   Typography,
   TextField,
   Stack,
-  Grid,
   Box,
   Button,
   CircularProgress,
@@ -16,11 +15,10 @@ import CheckCircleIcon from '@mui/icons-material/CheckCircle';
 import { useClienteCadastro } from "./useCadastroCliente";
 import theme from "../../styles/theme";
 
-interface PerfilClienteProps {
-  salaoId: string;
-}
+interface PerfilClienteProps {}
+const salaoId = "1";
+export const PerfilCliente: React.FC<PerfilClienteProps> = () => {
 
-export const PerfilCliente: React.FC<PerfilClienteProps> = ({ salaoId }) => {
   const {
     cliente,
     auth,
@@ -41,7 +39,7 @@ export const PerfilCliente: React.FC<PerfilClienteProps> = ({ salaoId }) => {
     setAuth,
     setConfirmacaoSenha,
     setErrors,
-  } = useClienteCadastro(salaoId);
+  } = useClienteCadastro(salaoId ? salaoId : "");
 
   const [editMode, setEditMode] = useState(false);
   const [clienteBackup, setClienteBackup] = useState({ ...cliente });
@@ -152,8 +150,8 @@ export const PerfilCliente: React.FC<PerfilClienteProps> = ({ salaoId }) => {
                 />
 
                 <Box sx={{ mx: -1 }}>
-                  <Grid container spacing={2} alignItems="center">
-                    <Grid item xs={6}>
+                  <Box display="flex" gap={2} alignItems="center">
+                    <Box flex={1}>
                       <TextField 
                         label="CPF" 
                         value={cpfFormatado} 
@@ -166,8 +164,8 @@ export const PerfilCliente: React.FC<PerfilClienteProps> = ({ salaoId }) => {
                           }
                         }} 
                       />
-                    </Grid>
-                    <Grid item xs={6}>
+                    </Box>
+                    <Box flex={1}>
                       <TextField
                         label="Telefone"
                         value={editMode ? telefoneFormatado || "" : telefoneFormatadoBackup || ""}
@@ -184,8 +182,8 @@ export const PerfilCliente: React.FC<PerfilClienteProps> = ({ salaoId }) => {
                           }
                         }}
                       />
-                    </Grid>
-                  </Grid>
+                    </Box>
+                  </Box>
                 </Box>
 
                 <TextField

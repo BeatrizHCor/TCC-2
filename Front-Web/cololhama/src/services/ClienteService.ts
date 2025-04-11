@@ -51,6 +51,7 @@ export const ClienteService = {
       return !!response.data;
     } catch (error) {
       if (axios.isAxiosError(error) && error.response?.status === 404) {
+        console.log('Cliente não encontrado, retornando false.');
         return false;
       }
       console.error('Erro ao verificar cliente:', error);
@@ -63,9 +64,11 @@ export const ClienteService = {
       const path = `/cliente/cpf/${cpf}/${salaoId}`;
       console.log(`Verificando cliente por CPF no caminho: ${path}`);
       const response = await api.get(path);
+      console.log('Resposta do servidor:', response.data);
       return !!response.data;
     } catch (error) {
       if (axios.isAxiosError(error) && error.response?.status === 404) {
+        console.log('Cliente não encontrado, retornando false.');
         return false;
       }
       console.error('Erro ao verificar cliente por CPF:', error);

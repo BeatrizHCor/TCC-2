@@ -14,9 +14,8 @@ export const telefoneMask = (value: string): string => {
     .replace(/^(\d{2})(\d)/g, '($1) $2')
     .replace(/(\d)(\d{4})$/, '$1-$2');
 };
-export const validarTelefone = (telefone: number): boolean =>{
-    const telefoneStr = telefone.toString();
-    return /^\d{10,11}$/.test(telefoneStr); 
+export const validarTelefone = (telefone: string): boolean =>{
+    return /^\d{10,11}$/.test(telefone); 
   }
 
 export const validarCPF = (cpf: string): boolean => {

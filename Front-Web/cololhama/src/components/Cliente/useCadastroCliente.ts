@@ -5,7 +5,7 @@ import { userTypes } from '../../models/tipo-usuario.enum';
 import { AuthControl } from '../../models/authModel';
 import { ClienteService } from '../../services/ClienteService';
 import { LoginService } from '../../services/LoginService';
-import { cpfMask, telefoneMask, validarCPF, validarEmail, validarSenha } from '../../utils/validations';
+import { cpfMask, telefoneMask, validarCPF, validarEmail, validarSenha, validarTelefone } from '../../utils/validations';
 
 interface FormErrors {
   CPF?: string;
@@ -23,7 +23,7 @@ export const useClienteCadastro = (salaoId: string) => {
     CPF: '',
     Nome: '',
     Email: '',
-    Telefone: 0,
+    Telefone: '',
     SalaoId: salaoId,
     Agendamentos: [],
     HistoricoSimulacao: []
@@ -96,94 +96,86 @@ export const useClienteCadastro = (salaoId: string) => {
     setTelefoneFormatado(maskedValue);
     
     const numericValue = Number(maskedValue.replace(/\D/g, ''));
-    setCliente(prev => ({ ...prev, Telefone: numericValue }));
+    setCliente(prev => ({ ...prev, Telefone: numericValue.toString() }));
     
     if (errors.telefone) {
       setErrors(prev => ({ ...prev, telefone: undefined }));
     }
   };
-
-  const validateForm = async (): Promise<boolean> => {
+  const validateForm = async () => {
     const newErrors: FormErrors = {};
-
-    if (!cliente.CPF) {
-      newErrors.CPF = 'CPF é obrigatório';
-    } else if (!validarCPF(cliente.CPF)) {
+  
+    if (!cliente.Nome.trim()) {
+      newErrors.nome = 'Nome é obrigatório';
+    }
+  
+    if (!validarCPF(cliente.CPF)) {
       newErrors.CPF = 'CPF inválido';
     } else {
-      const cpfExiste = await ClienteService.verificarClienteCpfExistente(cliente.CPF, cliente.SalaoId);
+      const cpfExiste = await ClienteService.verificarClienteCpfExistente(cliente.CPF, salaoId);
+      console.log("Verificando CPF:", cliente.CPF);
+      console.log("Resultado da checagem do CPF:", cpfExiste);
       if (cpfExiste) {
-        newErrors.CPF = 'Este CPF já está cadastrado';
+        newErrors.CPF = 'CPF já cadastrado';
       }
     }
-
-    if (!cliente.Nome) {
-      newErrors.nome = 'Nome é obrigatório';
-    } else if (cliente.Nome.length < 3) {
-      newErrors.nome = 'Nome deve ter pelo menos 3 caracteres';
-    }
-
-    if (!cliente.Email) {
-      newErrors.email = 'Email é obrigatório';
-    } else if (!validarEmail(cliente.Email)) {
-      newErrors.email = 'Email inválido';
-    } else {
-      const EmailExiste = await ClienteService.verificarClienteEmailExistente(cliente.Email, cliente.SalaoId);
-      if (EmailExiste) {
-        newErrors.email = 'Este Email já está cadastrado';
-      }
-    }
-
-    if (!cliente.Telefone) {
-      newErrors.telefone = 'Telefone é obrigatório';
-    } else if (String(cliente.Telefone).length < 10) {
+  
+    if (!validarTelefone(cliente.Telefone)) {
       newErrors.telefone = 'Telefone inválido';
     }
-    
-    if (!auth.senha) {
-      newErrors.senha = 'Senha é obrigatória';
-    } else if (!validarSenha(auth.senha)) {
-      newErrors.senha = 'A senha deve ter pelo menos 8 caracteres, incluir letras maiúsculas, minúsculas, números e caracteres especiais';
+  
+    if (!cliente.Email || validarEmail(cliente.Email)) {
+      newErrors.email = 'Email inválido';
     }
-    
-    if (auth.senha !== confirmacaoSenha) {
-      newErrors.confirmacaoSenha = 'As senhas não conferem';
+  
+    if (!auth.senha || !validarSenha(auth.senha)) {
+      newErrors.senha = 'Senha fraca';
     }
-    
+  
+    if (!confirmacaoSenha || confirmacaoSenha !== auth.senha) {
+      newErrors.confirmacaoSenha = 'As senhas não coincidem';
+    }
+  
     setErrors(newErrors);
+  
+    console.log("Erros de validação:", newErrors);
+  
     return Object.keys(newErrors).length === 0;
   };
-
+  
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
-
-
+  
+    console.log("Iniciando envio de formulário...");
+  
+    const isValid = await validateForm();
+  
+    if (!isValid) {
+      setLoading(false);
+      console.log("Formulário inválido.");
+      return;
+    }
+  
     try {
-      if (auth.email !== cliente.Email) {
-        setCliente(prev => ({ ...prev, Email: auth.email }));
-      }
-      
-      const isValid = await validateForm();
-      if (!isValid) {
-        setLoading(false);
-        return;
-      }
-
+      console.log("Cadastrando login...");
       await LoginService.cadastrar(auth);
+  
+      console.log("Cadastrando cliente...");
       await ClienteService.cadastrarCliente(cliente);
-
+  
+      console.log("Realizando login automático...");
       await LoginService.login(auth.email, auth.senha, auth.salaoId);
-      navigate('/home', { replace: true });
-    
+  
+      setLoading(false);
+      window.location.href = '/dashboard';
     } catch (error) {
       console.error('Erro ao cadastrar:', error);
-    } finally {
+      alert('Erro ao cadastrar: ' + JSON.stringify(error));
       setLoading(false);
-      
     }
   };
-
+  
   return {
     cliente,
     auth,
