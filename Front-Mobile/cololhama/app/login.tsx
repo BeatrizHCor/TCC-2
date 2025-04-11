@@ -1,5 +1,4 @@
 import React, { useState } from "react";
-import { Drawer } from "expo-router/drawer";
 import {
   View,
   Text,
@@ -9,6 +8,7 @@ import {
   ActivityIndicator,
   Alert,
   Image,
+  SafeAreaView,
 } from "react-native";
 import { MaterialIcons } from "@expo/vector-icons";
 import theme from "../theme/theme";
@@ -32,7 +32,7 @@ export default function Login() {
     try {
       await new Promise((resolve) => setTimeout(resolve, 1500));
       Alert.alert("Login", "Login realizado com sucesso!");
-    } catch (err) {
+    } catch {
       Alert.alert("Erro", "Email ou senha inválidos.");
     } finally {
       setLoading(false);
@@ -40,17 +40,20 @@ export default function Login() {
   };
 
   return (
-    <>
-      <Drawer.Screen
-        options={{
-          title: "Login",
-          drawerLabel: "Login",
-        }}
-      />
-
+    <SafeAreaView style={styles.safeContainer}>
       <View style={styles.container}>
-        <View style={styles.loginBox}>
+        {/* Topo: logo e título */}
+        <View style={styles.topSection}>
+          <Image
+            source={require("../assets/images/logo.png")}
+            style={styles.logo}
+            resizeMode="contain"
+          />
           <Text style={styles.title}>Login</Text>
+        </View>
+
+        {/* Campos e botões */}
+        <View style={styles.bottomSection}>
           <Text style={styles.subtitle}>Acesse sua conta</Text>
 
           <TextInput
@@ -64,13 +67,16 @@ export default function Login() {
 
           <View style={styles.passwordContainer}>
             <TextInput
-              style={[styles.input, { flex: 1 }]}
+              style={styles.passwordInput}
               placeholder="Senha"
               secureTextEntry={!showPassword}
               value={senha}
               onChangeText={setSenha}
             />
-            <TouchableOpacity onPress={() => setShowPassword(!showPassword)}>
+            <TouchableOpacity
+              style={styles.eyeIcon}
+              onPress={() => setShowPassword(!showPassword)}
+            >
               <MaterialIcons
                 name={showPassword ? "visibility-off" : "visibility"}
                 size={24}
@@ -98,44 +104,51 @@ export default function Login() {
             <Text style={styles.link}>Não tem uma conta? Cadastre-se</Text>
           </TouchableOpacity>
         </View>
-
-        <Image
-          source={require("../assets/images/logo.png")}
-          style={styles.image}
-          resizeMode="contain"
-        />
       </View>
-    </>
+    </SafeAreaView>
   );
 }
 
 const styles = StyleSheet.create({
+  safeContainer: {
+    flex: 1,
+    backgroundColor: "#F8F8F8",
+  },
   container: {
     flex: 1,
-    backgroundColor: theme.colors.grayLighter,
-    justifyContent: "center",
     alignItems: "center",
-    padding: theme.spacing.md,
+    justifyContent: "flex-start",
+    paddingHorizontal: 30,
+    paddingVertical: 20,
   },
-  loginBox: {
-    width: "100%",
-    maxWidth: 400,
-    backgroundColor: theme.colors.background,
-    borderRadius: theme.radius.md,
-    padding: theme.spacing.lg,
-    elevation: 3,
-    marginBottom: 20,
+  topSection: {
+    flex: 1,
+    alignItems: "center",
+    justifyContent: "center",
+    paddingTop: 20,
+  },
+  logo: {
+    width: 130,
+    height: 130,
+    marginBottom: 10,
+    tintColor: theme.colors.primary,
   },
   title: {
-    fontSize: 28,
+    fontSize: 32,
     fontWeight: "bold",
     color: theme.colors.primary,
-    marginBottom: 10,
+  },
+  bottomSection: {
+    flex: 2,
+    width: "100%",
+    maxWidth: 400,
+    justifyContent: "center",
   },
   subtitle: {
-    fontSize: 16,
+    fontSize: 17,
     color: theme.colors.grayDark,
     marginBottom: 20,
+    textAlign: "center",
   },
   input: {
     height: 50,
@@ -144,10 +157,25 @@ const styles = StyleSheet.create({
     borderRadius: theme.radius.sm,
     paddingHorizontal: 15,
     marginBottom: 15,
+    backgroundColor: "#fff",
   },
   passwordContainer: {
-    flexDirection: "row",
-    alignItems: "center",
+    position: "relative",
+    marginBottom: 15,
+  },
+  passwordInput: {
+    height: 50,
+    borderColor: theme.colors.grayLight,
+    borderWidth: 1,
+    borderRadius: theme.radius.sm,
+    paddingHorizontal: 15,
+    backgroundColor: "#fff",
+    paddingRight: 40,
+  },
+  eyeIcon: {
+    position: "absolute",
+    right: 10,
+    top: 13,
   },
   button: {
     backgroundColor: theme.colors.primary,
@@ -167,10 +195,5 @@ const styles = StyleSheet.create({
     marginTop: 15,
     color: theme.colors.primary,
     textAlign: "center",
-  },
-  image: {
-    width: 300,
-    height: 300,
-    tintColor: theme.colors.primary,
   },
 });
