@@ -4,10 +4,12 @@ import ServicoService from "../services/ServicoService";
 class ServicoController {
   static async getServicosPage(req: Request, res: Response): Promise<void> {
     try {
-      const { page, limit, includeRelations, salaoId } = req.query;
+      const { page, limit, includeRelations, precoMin, precoMax, salaoId } = req.query;
       const servicos = await ServicoService.getServicoPage(
         Number(page),
         Number(limit),
+        Number(precoMin),
+        Number(precoMax),
         includeRelations === "true",
         salaoId ? String(salaoId) : null
       );
@@ -22,8 +24,10 @@ class ServicoController {
     try {
       const { limit, includeRelations, salaoId } = req.query;
       const servicos = await ServicoService.getServicos(
-        null,
+        undefined,
         Number(limit),
+        undefined,
+        undefined,
         includeRelations === 'true',
         salaoId ? String(salaoId) : null
       );

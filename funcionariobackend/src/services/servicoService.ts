@@ -10,48 +10,75 @@ interface ServicoData {
 }
 
 class ServicoService {
-  static async getServicos(
+  static async getServicos( 
     skip: number | null = null,
     limit: number | null = null,
+    precoMin?: number,
+    precoMax?: number,
     include = false,
     salaoId: string | null = null
   ) {
-    return await prisma.servico.findMany({
-      ...(skip !== null ? { skip } : {}),
-      ...(limit !== null ? { take: limit } : {}),
-      ...(salaoId !== null ? { where: { SalaoId: salaoId } } : {}),
-      ...(include
-        ? {
-            include: {
-              Salao: true,
-              ServicoAtendimento: true,
-            },
-          }
-        : {}),
-    });
+    let whereCondition: any = {};
+  
+    if (salaoId) {
+      whereCondition.SalaoId = salaoId;
+    }
+  
+    if (precoMin != null && !isNaN(precoMin)) {
+      whereCondition.PrecoMin = { gte: precoMin };
+    }
+  
+    if (precoMax != null && !isNaN(precoMax)) {
+      whereCondition.PrecoMax = { lte: precoMax };
+    }
+  
+    const query: any = {
+      where: whereCondition
+    };
+  
+    if (typeof skip === 'number' && !isNaN(skip)) {
+      query.skip = skip;
+    }
+  
+    if (typeof limit === 'number' && !isNaN(limit)) {
+      query.take = limit;
+    }
+  
+    if (include) {
+      query.include = {
+        Salao: true,
+        ServicoAtendimento: true,
+      };
+    }
+  
+    return await prisma.servico.findMany(query);
   }
-
+  
   static async getServicoPage(
     page = 1,
     limit = 10,
+    precoMin?: number,
+    precoMax?: number,
     includeRelations = false,
     salaoId: string | null = null
   ) {
-    const skip = (page - 1) * limit;
-
+    const pageNum = isNaN(page) ? 1 : page;
+    const limitNum = isNaN(limit) ? 10 : limit;
+    const skip = (pageNum - 1) * limitNum;
+  
     const [total, servicos] = await Promise.all([
-      ServicoService.getServicos(null, null, false, salaoId),
-      ServicoService.getServicos(skip, limit, includeRelations, salaoId),
+      ServicoService.getServicos(null, null, precoMin, precoMax, false, salaoId),
+      ServicoService.getServicos(skip, limitNum, precoMin, precoMax, includeRelations, salaoId),
     ]);
-
+  
     return {
       total: total.length,
-      page,
-      limit,
+      page: pageNum,
+      limit: limitNum,
       data: servicos,
     };
   }
-
+  
   static async create(
     Nome: string,
     PrecoMin: number,

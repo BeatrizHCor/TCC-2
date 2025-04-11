@@ -11,6 +11,7 @@ import NavBar from "./components/UI/NavBar";
 import ClienteLogin from "./components/Login/ClienteLogin";
 import PerfilCliente from "./components/Cliente/perfilCliente";
 import VisualizarClientesPage from "./pages/Funcionario/VisualizarClientePage";
+import VisualizarServicoPage from "./pages/Funcionario/VisualizarServicoPage";
 
 const App: React.FC = () => {
   const isAuthenticated = false;
@@ -29,6 +30,7 @@ const App: React.FC = () => {
             <Route path="/login" element={<LoginPage/>} />
             <Route path="/perfil" element={<PerfilCliente/>} />
             <Route path="/listaClientes" element={<VisualizarClientesPage/>} />
+            <Route path="/servicos" element={<VisualizarServicoPage/>} />
           </>
         )}
       </Routes>
