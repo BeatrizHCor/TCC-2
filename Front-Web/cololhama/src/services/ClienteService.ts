@@ -3,8 +3,8 @@ import { Cliente } from '../models/clienteModel';
 import { AuthControl } from '../models/authModel';
 
 const api = axios.create({
-  baseURL:  'http://localhost:3001',
-  timeout: 1000,
+  baseURL:  'http://localhost:4000',
+  timeout: 100000,
   headers: {
     'Content-Type': 'application/json',
   },
@@ -51,6 +51,7 @@ export const ClienteService = {
       return !!response.data;
     } catch (error) {
       if (axios.isAxiosError(error) && error.response?.status === 404) {
+        console.log('Cliente não encontrado, retornando false.');
         return false;
       }
       console.error('Erro ao verificar cliente:', error);
@@ -63,9 +64,11 @@ export const ClienteService = {
       const path = `/cliente/cpf/${cpf}/${salaoId}`;
       console.log(`Verificando cliente por CPF no caminho: ${path}`);
       const response = await api.get(path);
+      console.log('Resposta do servidor:', response.data);
       return !!response.data;
     } catch (error) {
       if (axios.isAxiosError(error) && error.response?.status === 404) {
+        console.log('Cliente não encontrado, retornando false.');
         return false;
       }
       console.error('Erro ao verificar cliente por CPF:', error);

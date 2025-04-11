@@ -6,7 +6,7 @@ export interface Cliente {
     CPF: string;
     Nome: string;
     Email: string;
-    Telefone: number;
+    Telefone: string;
     SalaoId: string;
     Agendamentos?: Agendamentos[];
     HistoricoSimulacao?: HistoricoSimulacao[];
