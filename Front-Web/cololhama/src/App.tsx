@@ -26,11 +26,8 @@ const App: React.FC = () => {
         {!isAuthenticated && (
           <>
             <Route path="/cadastro" element={<CadastroPage />} />
-            <Route path="/login" element={<ClienteLogin />} />
-            <Route path="/perfil" element={<PerfilCliente salaoId="1" />} />
-            <Route path="/login/:salaoId" element={<LoginPage />} />
-            <Route path="/cadastro/:salaoId" element={<CadastroPage />} />
-            <Route path="/perfil/:salaoId" element={<PerfilCliente salaoId="1" />} />
+            <Route path="/login" element={<LoginPage/>} />
+            <Route path="/perfil" element={<PerfilCliente/>} />
             <Route path="/listaClientes" element={<VisualizarClientesPage/>} />
           </>
         )}

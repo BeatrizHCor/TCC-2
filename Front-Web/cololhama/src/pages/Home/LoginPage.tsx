@@ -1,10 +1,10 @@
 import React from 'react';
-import PaginaLogin from '../../components/Home/PaginaLogin';
+import ClientLogin from '../../components/Login/ClienteLogin';
 
 const LoginPage: React.FC = () => {
     return (
         <div>
-            <PaginaLogin />
+            <ClientLogin />
         </div>
     );
 };

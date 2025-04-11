@@ -7,7 +7,6 @@ import {
   TextField,
   Button,
   Stack,
-  Grid,
   Box,
   InputAdornment,
   IconButton,
@@ -73,8 +72,8 @@ export const ClienteLogin: React.FC = () => {
   return (
     <Container maxWidth="lg">
       <Box display="flex" justifyContent="center" alignItems="center" height="90vh">
-        <Grid container spacing={2} alignItems="center">
-          <Grid item xs={12} md={6} display="flex" justifyContent="center">
+        <Box display="flex" flexDirection={{ xs: 'column', md: 'row' }} gap={2} alignItems="center" width="100%">
+          <Box flex={1} display="flex" justifyContent="center">
             <Paper elevation={3} sx={{ p: 5, width: "100%", maxWidth: 400 }}>
               {loading && <LinearProgress />}
 
@@ -144,9 +143,9 @@ export const ClienteLogin: React.FC = () => {
                 </Stack>
               </Box>
             </Paper>
-          </Grid>
+          </Box>
 
-          <Grid item xs={12} md={6} display="flex" justifyContent="center">
+          <Box flex={1} display="flex" justifyContent="center">
             <img
               src="/icone.svg"
               alt="Logo"
@@ -156,8 +155,8 @@ export const ClienteLogin: React.FC = () => {
                 filter: "invert(16%) sepia(90%) saturate(400%) hue-rotate(-5deg)",
               }}
             />
-          </Grid>
-        </Grid>
+          </Box>
+        </Box>
       </Box>
     </Container>
   );
