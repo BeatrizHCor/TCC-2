@@ -1,16 +1,22 @@
+import { Prisma } from "@prisma/client";
 import prisma from "../config/database";
 
 class CabeleireiroService {
+  
   static getCabeleireiros = async (
     skip: number | null = null,
     limit: number | null = null,
     include = false,
-    salaoId: string | null = null
+    salaoId: string | null = null,
+    name: string | null = null
   ) => {
     return await prisma.cabeleireiro.findMany({
       ...(skip !== null ? { skip } : {}),
       ...(limit !== null ? { take: limit } : {}),
-      ...(salaoId !== null ? { where: { SalaoId: salaoId } } : {}),
+      where: {
+        SalaoId: salaoId ? salaoId : Prisma.skip,
+        Nome: name ? name : Prisma.skip
+      }
       ...(include
         ? {
             include: {
@@ -25,7 +31,8 @@ class CabeleireiroService {
     page = 1,
     limit = 10,
     includeRelations = false,
-    salaoId: string | null = null
+    salaoId: string | null = null,
+    name: string | null = null
   ) => {
     const skip = (page - 1) * limit;
 

@@ -4,12 +4,13 @@ import CabeleireiroService from "../services/CabeleireiroService";
 class CabeleireiroController {
   static findAllPaginated = async (req: Request, res: Response) => {
     try {
-      const { page, limit, includeRelations, salaoId } = req.query;
+      const { page, limit, includeRelations, salaoId, name } = req.query;
       const cabeleireiros = await CabeleireiroService.getCabeleireiroPage(
         Number(page),
         Number(limit),
         includeRelations === "true",
-        salaoId ? String(salaoId) : null
+        salaoId ? String(salaoId) : null,
+        name ? String(name) : null
       );
       res.json(cabeleireiros);
     } catch (error) {
