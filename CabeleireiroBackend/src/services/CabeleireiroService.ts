@@ -37,7 +37,7 @@ class CabeleireiroService {
     const skip = (page - 1) * limit;
 
     const [total, cabeleireiros] = await Promise.all([
-      CabeleireiroService.getCabeleireiros(null, null, false, salaoId),
+      CabeleireiroService.getCabeleireiros(null, null, false, salaoId, name),
       CabeleireiroService.getCabeleireiros(
         skip,
         limit,
