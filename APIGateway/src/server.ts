@@ -14,6 +14,9 @@ route.get("/", (req: Request, res: Response) => {
   res.send("hello world from API gateway");
 });
 
+const cors = require("cors");
+
+app.use(cors());
 app.use(route);
 app.use(RoutesLogin);
 app.use(RoutesCustomer);

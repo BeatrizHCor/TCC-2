@@ -5,6 +5,8 @@ const loginURL = process.env.AuthURL || "";
 //Acabei misturando o que é route com o que é controller, separar pra deixar o código mais bonito depois.
 
 RoutesLogin.post("/login", async (req: Request, res: Response) => {
+  console.log(req.headers);
+
   let response = await fetch(loginURL + "/login", {
     method: "POST",
     body: req.body,
