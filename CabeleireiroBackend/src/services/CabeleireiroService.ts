@@ -92,6 +92,34 @@ class CabeleireiroService {
       return null;
     }
   };
+  static update = async (
+    CPF: string,
+    Email: string,
+    Mei: string,
+    Nome: string,
+    Telefone: string,
+    SalaoId: string,
+    ID: string
+  ) => {
+    try {
+      return await prisma.cabeleireiro.update({
+        data: {
+          CPF,
+          Email,
+          Mei,
+          Nome,
+          Telefone,
+          SalaoId,
+        },
+        where: {
+          ID,
+        },
+      });
+    } catch (e) {
+      console.log(e);
+      return null;
+    }
+  };
 }
 
 export default CabeleireiroService;

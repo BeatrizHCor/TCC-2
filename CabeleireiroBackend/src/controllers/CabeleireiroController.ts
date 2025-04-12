@@ -61,6 +61,31 @@ class CabeleireiroController {
         .json({ message: "Não foi possivél criar o Cabeleireiro" });
     }
   };
+  static update = async (req: Request, res: Response) => {
+    try {
+      const { Email, CPF, Telefone, SalaoId, Mei, Nome, ID } = req.body;
+      const cabeleireiro = await CabeleireiroService.update(
+        CPF,
+        Email,
+        Mei,
+        Nome,
+        Telefone,
+        SalaoId
+      );
+      if (!cabeleireiro) {
+        res
+          .status(404)
+          .json({ message: "Cabeleireiro não pode ser registrado" });
+      } else {
+        res.json(cabeleireiro);
+      }
+    } catch (e) {
+      console.log(e);
+      res
+        .status(500)
+        .json({ message: "Não foi possivél criar o Cabeleireiro" });
+    }
+  };
 }
 
 export default CabeleireiroController;
