@@ -36,6 +36,31 @@ class CabeleireiroController {
       res.status(404).json({ message: "Cabeleireiro não encontrado" });
     }
   };
+  static create = async (req: Request, res: Response) => {
+    try {
+      const { Email, CPF, Telefone, SalaoId, Mei, Nome } = req.body;
+      const cabeleireiro = await CabeleireiroService.create(
+        CPF,
+        Email,
+        Mei,
+        Nome,
+        Telefone,
+        SalaoId
+      );
+      if (!cabeleireiro) {
+        res
+          .status(404)
+          .json({ message: "Cabeleireiro não pode ser registrado" });
+      } else {
+        res.json(cabeleireiro);
+      }
+    } catch (e) {
+      console.log(e);
+      res
+        .status(500)
+        .json({ message: "Não foi possivél criar o Cabeleireiro" });
+    }
+  };
 }
 
 export default CabeleireiroController;

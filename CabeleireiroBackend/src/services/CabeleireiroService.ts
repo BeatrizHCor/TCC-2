@@ -67,6 +67,31 @@ class CabeleireiroService {
       return false;
     }
   };
+
+  static create = async (
+    CPF: string,
+    Email: string,
+    Mei: string,
+    Nome: string,
+    Telefone: string,
+    SalaoId: string
+  ) => {
+    try {
+      return await prisma.cabeleireiro.create({
+        data: {
+          CPF,
+          Email,
+          Mei,
+          Nome,
+          Telefone,
+          SalaoId,
+        },
+      });
+    } catch (e) {
+      console.log(e);
+      return null;
+    }
+  };
 }
 
 export default CabeleireiroService;
