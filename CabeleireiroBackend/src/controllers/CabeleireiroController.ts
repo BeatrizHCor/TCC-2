@@ -89,20 +89,10 @@ class CabeleireiroController {
   };
   static delete = async (req: Request, res: Response) => {
     try {
-      const { Email, CPF, Telefone, SalaoId, Mei, Nome, ID } = req.body;
-      const cabeleireiro = await CabeleireiroService.update(
-        CPF,
-        Email,
-        Mei,
-        Nome,
-        Telefone,
-        SalaoId,
-        ID
-      );
+      const { id } = req.params;
+      const cabeleireiro = await CabeleireiroService.delete(id);
       if (!cabeleireiro) {
-        res
-          .status(404)
-          .json({ message: "Cabeleireiro não pode ser registrado" });
+        res.status(404).json({ message: "Cabeleireiro não pode ser deletado" });
       } else {
         res.json(cabeleireiro);
       }
@@ -110,7 +100,7 @@ class CabeleireiroController {
       console.log(e);
       res
         .status(500)
-        .json({ message: "Não foi possivél criar o Cabeleireiro" });
+        .json({ message: "Não foi possivél deletar o Cabeleireiro" });
     }
   };
 }
