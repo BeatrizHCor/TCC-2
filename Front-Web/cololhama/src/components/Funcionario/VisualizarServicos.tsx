@@ -1,74 +1,88 @@
-import React, { useState } from 'react';
-import { 
-  Box, 
-  Table, 
-  TableBody, 
-  TableCell, 
-  TableContainer, 
-  TableHead, 
+import React, { useState } from "react";
+import {
+  Box,
+  Table,
+  TableBody,
+  TableCell,
+  TableContainer,
+  TableHead,
   TableRow,
   TablePagination,
   Paper,
   TextField,
   Button,
   Typography,
-  InputAdornment
-} from '@mui/material';
-import EditIcon from '@mui/icons-material/Edit';
-import { Servico } from '../../models/servicoModel';
-import { useVisualizarServicos } from './useVisualizarServicos';
+  InputAdornment,
+} from "@mui/material";
+import EditIcon from "@mui/icons-material/Edit";
+import { Servico } from "../../models/servicoModel";
+import { useVisualizarServicos } from "./useVisualizarServicos";
 import "../../styles/styles.global.css";
 
 const colunas = [
-  { id: 'nome', label: 'Nome' },
-  { id: 'descricao', label: 'Descrição' },
-  { id: 'precoMin', label: 'Preço Mínimo' },
-  { id: 'precoMax', label: 'Preço Máximo' },
-  { id: 'acoes', label: 'Ações', clienteVisivel: false }
+  { id: "nome", label: "Nome" },
+  { id: "descricao", label: "Descrição" },
+  { id: "precoMin", label: "Preço Mínimo" },
+  { id: "precoMax", label: "Preço Máximo" },
+  { id: "acoes", label: "Ações", clienteVisivel: false },
 ];
 
 interface VisualizarServicosProps {
   salaoId: string;
   isCliente?: boolean;
+  isAdmin?: boolean;
 }
 
-export const VisualizarServicos: React.FC<VisualizarServicosProps> = ({ salaoId, isCliente = false }) => {
+export const VisualizarServicos: React.FC<VisualizarServicosProps> = ({
+  salaoId,
+  isCliente = false,
+}) => {
   const [page, setPage] = useState(0);
   const [rowsPerPage, setRowsPerPage] = useState(10);
-  const [nomeFilter, setNomeFilter] = useState('');
-  const [precoMinFilter, setPrecoMinFilter] = useState<number | ''>('');
-  const [precoMaxFilter, setPrecoMaxFilter] = useState<number | ''>('');
+  const [nomeFilter, setNomeFilter] = useState("");
+  const [precoMinFilter, setPrecoMinFilter] = useState<number | "">("");
+  const [precoMaxFilter, setPrecoMaxFilter] = useState<number | "">("");
 
-  const { 
-    servicos, 
-    totalServicos, 
-    isLoading, 
-    error,
-    handleEditarServico
-  } = useVisualizarServicos(page + 1, rowsPerPage, salaoId, nomeFilter, precoMinFilter, precoMaxFilter);
+  const { servicos, totalServicos, isLoading, error, handleEditarServico } =
+    useVisualizarServicos(
+      page + 1,
+      rowsPerPage,
+      salaoId,
+      nomeFilter,
+      precoMinFilter,
+      precoMaxFilter
+    );
 
   const handleChangePage = (_: unknown, newPage: number) => {
     setPage(newPage);
   };
 
-  const handleChangeRowsPerPage = (event: React.ChangeEvent<HTMLInputElement>) => {
+  const handleChangeRowsPerPage = (
+    event: React.ChangeEvent<HTMLInputElement>
+  ) => {
     setRowsPerPage(parseInt(event.target.value, 10));
     setPage(0);
   };
 
-  const handleNomeFilterChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+  const handleNomeFilterChange = (
+    event: React.ChangeEvent<HTMLInputElement>
+  ) => {
     setNomeFilter(event.target.value);
     setPage(0);
   };
 
-  const handlePrecoMinFilterChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const value = event.target.value === '' ? '' : Number(event.target.value);
+  const handlePrecoMinFilterChange = (
+    event: React.ChangeEvent<HTMLInputElement>
+  ) => {
+    const value = event.target.value === "" ? "" : Number(event.target.value);
     setPrecoMinFilter(value);
     setPage(0);
   };
 
-  const handlePrecoMaxFilterChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const value = event.target.value === '' ? '' : Number(event.target.value);
+  const handlePrecoMaxFilterChange = (
+    event: React.ChangeEvent<HTMLInputElement>
+  ) => {
+    const value = event.target.value === "" ? "" : Number(event.target.value);
     setPrecoMaxFilter(value);
     setPage(0);
   };
@@ -76,17 +90,17 @@ export const VisualizarServicos: React.FC<VisualizarServicosProps> = ({ salaoId,
   if (isLoading) return <Box>Carregando...</Box>;
   if (error) return <Box>Erro ao carregar serviços: {error}</Box>;
 
-  const colunasVisiveis = isCliente 
-    ? colunas.filter(coluna => coluna.clienteVisivel !== false)
+  const colunasVisiveis = isCliente
+    ? colunas.filter((coluna) => coluna.clienteVisivel !== false)
     : colunas;
 
   return (
-    <Box sx={{ width: '100%', p: 2 }}>
+    <Box sx={{ width: "100%", p: 2 }}>
       <Typography variant="h5" sx={{ mb: 3 }}>
         Serviços do Salão
       </Typography>
 
-      <Box sx={{ display: 'flex', mb: 2, gap: 2 }}>
+      <Box sx={{ display: "flex", mb: 2, gap: 2 }}>
         <TextField
           variant="outlined"
           label="Buscar por nome"
@@ -101,9 +115,11 @@ export const VisualizarServicos: React.FC<VisualizarServicosProps> = ({ salaoId,
           value={precoMinFilter}
           onChange={handlePrecoMinFilterChange}
           InputProps={{
-            startAdornment: <InputAdornment position="start">R$</InputAdornment>,
+            startAdornment: (
+              <InputAdornment position="start">R$</InputAdornment>
+            ),
           }}
-          sx={{ width: '180px' }}
+          sx={{ width: "180px" }}
         />
         <TextField
           variant="outlined"
@@ -112,13 +128,15 @@ export const VisualizarServicos: React.FC<VisualizarServicosProps> = ({ salaoId,
           value={precoMaxFilter}
           onChange={handlePrecoMaxFilterChange}
           InputProps={{
-            startAdornment: <InputAdornment position="start">R$</InputAdornment>,
+            startAdornment: (
+              <InputAdornment position="start">R$</InputAdornment>
+            ),
           }}
-          sx={{ width: '180px' }}
+          sx={{ width: "180px" }}
         />
       </Box>
 
-      <Paper sx={{ width: '100%', mb: 2 }}>
+      <Paper sx={{ width: "100%", mb: 2 }}>
         <TableContainer>
           <Table>
             <TableHead>
@@ -133,15 +151,27 @@ export const VisualizarServicos: React.FC<VisualizarServicosProps> = ({ salaoId,
                 <TableRow key={servico.id}>
                   <TableCell>{servico.nome}</TableCell>
                   <TableCell>{servico.descricao}</TableCell>
-                  <TableCell>R$ {servico.precoMin !== undefined ? servico.precoMin.toFixed(2) : 'N/A'}</TableCell>
-                  <TableCell>R$ {servico.precoMax !== undefined ? servico.precoMax.toFixed(2) : 'N/A'}</TableCell>
+                  <TableCell>
+                    R${" "}
+                    {servico.precoMin !== undefined
+                      ? servico.precoMin.toFixed(2)
+                      : "N/A"}
+                  </TableCell>
+                  <TableCell>
+                    R${" "}
+                    {servico.precoMax !== undefined
+                      ? servico.precoMax.toFixed(2)
+                      : "N/A"}
+                  </TableCell>
                   {!isCliente && (
                     <TableCell>
-                      <Button 
-                        startIcon={<EditIcon />} 
-                        variant="outlined" 
+                      <Button
+                        startIcon={<EditIcon />}
+                        variant="outlined"
                         size="small"
-                        onClick={() => servico.id && handleEditarServico(servico.id)}
+                        onClick={() =>
+                          servico.id && handleEditarServico(servico.id)
+                        }
                       >
                         Editar
                       </Button>
@@ -161,7 +191,9 @@ export const VisualizarServicos: React.FC<VisualizarServicosProps> = ({ salaoId,
           onPageChange={handleChangePage}
           onRowsPerPageChange={handleChangeRowsPerPage}
           labelRowsPerPage="Itens por página:"
-          labelDisplayedRows={({ from, to, count }) => `${from}-${to} de ${count}`}
+          labelDisplayedRows={({ from, to, count }) =>
+            `${from}-${to} de ${count}`
+          }
         />
       </Paper>
     </Box>
