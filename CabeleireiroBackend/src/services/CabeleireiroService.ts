@@ -120,6 +120,18 @@ class CabeleireiroService {
       return null;
     }
   };
+  static delete = async (ID: string) => {
+    try {
+      return await prisma.cabeleireiro.delete({
+        where: {
+          ID,
+        },
+      });
+    } catch (e) {
+      console.log(e);
+      return null;
+    }
+  };
 }
 
 export default CabeleireiroService;

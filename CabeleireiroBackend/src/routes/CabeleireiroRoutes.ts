@@ -7,4 +7,5 @@ router.get("/cabeleireiro/page", CabeleireiroController.findAllPaginated);
 router.get("/cabeleireiro/ID/:id/", CabeleireiroController.findById);
 router.post("cabeleireiro", CabeleireiroController.create);
 router.put("cabeleireiro", CabeleireiroController.update);
+router.delete("cabeleireiro", CabeleireiroController.delete);
 export default router;
