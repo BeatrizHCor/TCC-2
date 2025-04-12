@@ -2,7 +2,6 @@ import { Prisma } from "@prisma/client";
 import prisma from "../config/database";
 
 class CabeleireiroService {
-  
   static getCabeleireiros = async (
     skip: number | null = null,
     limit: number | null = null,
@@ -15,8 +14,8 @@ class CabeleireiroService {
       ...(limit !== null ? { take: limit } : {}),
       where: {
         SalaoId: salaoId ? salaoId : Prisma.skip,
-        Nome: name ? name : Prisma.skip
-      }
+        Nome: name ? name : Prisma.skip,
+      },
       ...(include
         ? {
             include: {
