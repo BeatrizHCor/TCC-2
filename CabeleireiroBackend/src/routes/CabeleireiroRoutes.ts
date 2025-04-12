@@ -4,7 +4,6 @@ import CabeleireiroController from "../controllers/CabeleireiroController";
 const router = express.Router();
 
 router.get("/cabeleireiro/page", CabeleireiroController.findAllPaginated);
-router.get("/cabeleireiro/all");
-router.get("/cabeleireiro/ID/:id/");
+router.get("/cabeleireiro/ID/:id/", CabeleireiroController.findById);
 
 export default router;

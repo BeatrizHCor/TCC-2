@@ -46,6 +46,27 @@ class CabeleireiroService {
       data: cabeleireiros,
     };
   };
+
+  static findById = async (ID: string, include = false) => {
+    try {
+      return await prisma.cabeleireiro.findUnique({
+        where: {
+          ID,
+        },
+        ...(include
+          ? {
+              include: {
+                Salao: true,
+                Agendamentos: true,
+              },
+            }
+          : {}),
+      });
+    } catch (e) {
+      console.log(e);
+      return false;
+    }
+  };
 }
 
 export default CabeleireiroService;
