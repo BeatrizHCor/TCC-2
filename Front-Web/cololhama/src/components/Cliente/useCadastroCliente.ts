@@ -21,12 +21,12 @@ export const useClienteCadastro = (salaoId: string) => {
  
   const [cliente, setCliente] = useState<Cliente>({
     CPF: '',
-    Nome: '',
-    Email: '',
-    Telefone: '',
-    SalaoId: salaoId,
-    Agendamentos: [],
-    HistoricoSimulacao: []
+    nome: '',
+    email: '',
+    telefone: '',
+    salaoId: salaoId,
+    agendamentos: [],
+    historicoSimulacao: []
   });
   
   const [auth, setAuth] = useState<AuthControl>({
@@ -44,8 +44,8 @@ export const useClienteCadastro = (salaoId: string) => {
   const [saveSuccess, setSaveSuccess] = useState(false);
 
   useEffect(() => {
-    setAuth(prev => ({ ...prev, email: cliente.Email }));
-  }, [cliente.Email]);
+    setAuth(prev => ({ ...prev, email: cliente.email }));
+  }, [cliente.email]);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
@@ -65,7 +65,7 @@ export const useClienteCadastro = (salaoId: string) => {
     }
     
     if (name === 'email') {
-      setCliente(prev => ({ ...prev, Email: value }));
+      setCliente(prev => ({ ...prev, email: value }));
       if (errors.email) {
         setErrors(prev => ({ ...prev, email: undefined }));
       }
@@ -96,7 +96,7 @@ export const useClienteCadastro = (salaoId: string) => {
     setTelefoneFormatado(maskedValue);
     
     const numericValue = Number(maskedValue.replace(/\D/g, ''));
-    setCliente(prev => ({ ...prev, Telefone: numericValue.toString() }));
+    setCliente(prev => ({ ...prev, telefone: numericValue.toString() }));
     
     if (errors.telefone) {
       setErrors(prev => ({ ...prev, telefone: undefined }));
@@ -105,7 +105,7 @@ export const useClienteCadastro = (salaoId: string) => {
   const validateForm = async () => {
     const newErrors: FormErrors = {};
   
-    if (!cliente.Nome.trim()) {
+    if (!cliente.nome.trim()) {
       newErrors.nome = 'Nome é obrigatório';
     }
   
@@ -120,11 +120,11 @@ export const useClienteCadastro = (salaoId: string) => {
       }
     }
   
-    if (!validarTelefone(cliente.Telefone)) {
+    if (!validarTelefone(cliente.telefone)) {
       newErrors.telefone = 'Telefone inválido';
     }
   
-    if (!cliente.Email || validarEmail(cliente.Email)) {
+    if (!cliente.email || !validarEmail(cliente.email)) {
       newErrors.email = 'Email inválido';
     }
   
@@ -168,7 +168,7 @@ export const useClienteCadastro = (salaoId: string) => {
       await LoginService.login(auth.email, auth.senha, auth.salaoId);
   
       setLoading(false);
-      window.location.href = '/dashboard';
+      window.location.href = '/home';
     } catch (error) {
       console.error('Erro ao cadastrar:', error);
       alert('Erro ao cadastrar: ' + JSON.stringify(error));

@@ -13,7 +13,7 @@ export class LoginService {
         salaoID: authData.salaoId,
         userType: authData.type,
       };
-      const response = await axios.post(`${API_URL}/register`, requestData);
+      const response = await axios.post(`${API_URL}register`, requestData);
       return response.data;
     } catch (error) {
       console.error("Erro ao cadastrar usuário:", error);

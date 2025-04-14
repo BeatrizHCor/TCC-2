@@ -2,7 +2,7 @@ import axios from "axios";
 import { Cliente } from "../models/clienteModel";
 
 const api = axios.create({
-  baseURL: "http://localhost:3000",
+  baseURL: "http://localhost:3001",
   timeout: 100000,
   headers: {
     "Content-Type": "application/json",
@@ -31,10 +31,10 @@ export const ClienteService = {
     try {
       const novoCliente = {
         CPF: cliente.CPF,
-        Nome: cliente.Nome,
-        Email: cliente.Email,
-        Telefone: String(cliente.Telefone),
-        SalaoId: cliente.SalaoId,
+        Nome: cliente.nome,
+        Email: cliente.email,
+        Telefone: String(cliente.telefone),
+        SalaoId: cliente.salaoId,
       };
       const response = await api.post("/cliente", novoCliente);
       return response.data;
