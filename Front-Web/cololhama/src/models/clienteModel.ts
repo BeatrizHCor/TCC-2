@@ -4,12 +4,12 @@ import { HistoricoSimulacao } from "./historicoSimulacaoModel";
 export interface Cliente {
     id?: string;  
     CPF: string;
-    Nome: string;
-    Email: string;
-    Telefone: string;
-    SalaoId: string;
-    Agendamentos?: Agendamentos[];
-    HistoricoSimulacao?: HistoricoSimulacao[];
-    DataCadastro?: Date;
+    nome: string;
+    email: string;
+    telefone: string;
+    salaoId: string;
+    agendamentos?: Agendamentos[];
+    historicoSimulacao?: HistoricoSimulacao[];
+    dataCadastro?: Date;
   }
   
