@@ -1,5 +1,5 @@
 import axios from "axios";
-import { Cliente } from "../models/clienteModel";
+import { Cabeleireiro } from "../models/cabelereiroModel";
 
 const api = axios.create({
   baseURL: "http://localhost:3000",
@@ -20,75 +20,77 @@ api.interceptors.request.use(
   (error) => Promise.reject(error)
 );
 
-interface ClientePageResponse {
-  data: Cliente[];
+interface CabeleireiroPageResponse {
+  data: Cabeleireiro[];
   total: number;
   page: number;
   limit: number;
 }
-export const ClienteService = {
-  async cadastrarCliente(cliente: Cliente): Promise<Cliente> {
+export const CabeleireiroService = {
+  async cadastrarCabeleireiro(
+    cabeleireiro: Cabeleireiro
+  ): Promise<Cabeleireiro> {
     try {
-      const novoCliente = {
-        CPF: cliente.CPF,
-        Nome: cliente.Nome,
-        Email: cliente.Email,
-        Telefone: String(cliente.Telefone),
-        SalaoId: cliente.SalaoId,
+      const novoCabeleireiro = {
+        CPF: cabeleireiro.cpf,
+        Nome: cabeleireiro.nome,
+        Email: cabeleireiro.email,
+        Telefone: String(cabeleireiro.telefone),
+        SalaoId: cabeleireiro.salaoId,
       };
-      const response = await api.post("/cliente", novoCliente);
+      const response = await api.post("/cabeleireiro", novoCabeleireiro);
       return response.data;
     } catch (error) {
-      console.error("Erro ao cadastrar cliente:", error);
+      console.error("Erro ao cadastrar cabeleireiro:", error);
       throw error;
     }
   },
 
-  async verificarClienteEmailExistente(
+  async verificarCabeleireiroEmailExistente(
     email: string,
     salaoId: string
   ): Promise<boolean> {
     try {
-      const response = await api.get(`/cliente/email/${email}/${salaoId}`);
+      const response = await api.get(`/cabeleireiro/email/${email}/${salaoId}`);
       return !!response.data;
     } catch (error) {
       if (axios.isAxiosError(error) && error.response?.status === 404) {
-        console.log("Cliente não encontrado, retornando false.");
+        console.log("Cabeleireiro não encontrado, retornando false.");
         return false;
       }
-      console.error("Erro ao verificar cliente:", error);
+      console.error("Erro ao verificar cabeleireiro:", error);
       throw error;
     }
   },
 
-  async verificarClienteCpfExistente(
+  async verificarCabeleireiroCpfExistente(
     cpf: string,
     salaoId: string
   ): Promise<boolean> {
     try {
-      const path = `/cliente/cpf/${cpf}/${salaoId}`;
-      console.log(`Verificando cliente por CPF no caminho: ${path}`);
+      const path = `/cabeleireiro/cpf/${cpf}/${salaoId}`;
+      console.log(`Verificando cabeleireiro por CPF no caminho: ${path}`);
       const response = await api.get(path);
       console.log("Resposta do servidor:", response.data);
       return !!response.data;
     } catch (error) {
       if (axios.isAxiosError(error) && error.response?.status === 404) {
-        console.log("Cliente não encontrado, retornando false.");
+        console.log("Cabeleireiro não encontrado, retornando false.");
         return false;
       }
-      console.error("Erro ao verificar cliente por CPF:", error);
+      console.error("Erro ao verificar cabeleireiro por CPF:", error);
       throw error;
     }
   },
 
-  async getClientePage(
+  async getCabeleireiroPage(
     page: number = 1,
     limit: number = 10,
     includeRelations: boolean = false,
     salaoId: string
-  ): Promise<ClientePageResponse> {
+  ): Promise<CabeleireiroPageResponse> {
     try {
-      const response = await api.get(`/cliente/page`, {
+      const response = await api.get(`/cabeleireiro/page`, {
         params: {
           page,
           limit,
@@ -99,10 +101,10 @@ export const ClienteService = {
 
       return response.data;
     } catch (error) {
-      console.error("Erro ao buscar página de clientes:", error);
+      console.error("Erro ao buscar página de cabeleireiros:", error);
       throw error;
     }
   },
 };
 
-export default ClienteService;
+export default CabeleireiroService;

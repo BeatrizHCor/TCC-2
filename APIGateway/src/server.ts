@@ -4,6 +4,7 @@ import { Router, Request, Response } from "express";
 import RoutesLogin from "./RoutesLogin";
 import RoutesCustomer from "./RoutesCustomer";
 import dotenv from "dotenv";
+import RoutesCabeleireiro from "./RoutesCabeleireiro";
 const app = express();
 const port = process.env.PORT;
 const route = Router();
@@ -18,6 +19,7 @@ const cors = require("cors");
 
 app.use(cors());
 app.use(route);
+app.use(RoutesCabeleireiro);
 app.use(RoutesLogin);
 app.use(RoutesCustomer);
 app.listen(port, () => console.log(`server running on port ${port}`));

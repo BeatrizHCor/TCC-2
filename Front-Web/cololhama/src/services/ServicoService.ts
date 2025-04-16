@@ -1,14 +1,13 @@
-import axios from 'axios';
-import { Servico } from '../models/servicoModel';
+import axios from "axios";
+import { Servico } from "../models/servicoModel";
 
 const api = axios.create({
-  baseURL:  'http://localhost:3002',
+  baseURL: "http://localhost:3000",
   timeout: 100000,
   headers: {
-    'Content-Type': 'application/json',
+    "Content-Type": "application/json",
   },
 });
-
 
 interface ServicoPaginadoResponse {
   data: Servico[];
@@ -26,18 +25,19 @@ class ServicoService {
     precoMax?: number
   ): Promise<ServicoPaginadoResponse> {
     try {
-        const response = await api.get(`/servico/page`, {
+      const response = await api.get(`/servico/page`, {
         params: {
-            page,
-            limit,
-            precoMin,
-            precoMax,
-            includeRelations: false,
-            salaoId,
-            }});
+          page,
+          limit,
+          precoMin,
+          precoMax,
+          includeRelations: false,
+          salaoId,
+        },
+      });
       return response.data;
     } catch (error) {
-      console.error('Erro ao buscar serviços:', error);
+      console.error("Erro ao buscar serviços:", error);
       throw error;
     }
   }
@@ -62,17 +62,22 @@ class ServicoService {
     }
   }
 
-  static async createServico(servicoData: Omit<Servico, 'ID'>): Promise<Servico> {
+  static async createServico(
+    servicoData: Omit<Servico, "ID">
+  ): Promise<Servico> {
     try {
       const response = await api.post(`/servico`, servicoData);
       return response.data;
     } catch (error) {
-      console.error('Erro ao criar serviço:', error);
+      console.error("Erro ao criar serviço:", error);
       throw error;
     }
   }
 
-  static async updateServico(id: string, servicoData: Partial<Servico>): Promise<Servico> {
+  static async updateServico(
+    id: string,
+    servicoData: Partial<Servico>
+  ): Promise<Servico> {
     try {
       const response = await api.put(`/servico/update/${id}`, servicoData);
       return response.data;

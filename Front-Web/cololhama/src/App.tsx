@@ -12,13 +12,14 @@ import ClienteLogin from "./components/Login/ClienteLogin";
 import PerfilCliente from "./components/Cliente/perfilCliente";
 import VisualizarClientesPage from "./pages/Funcionario/VisualizarClientePage";
 import VisualizarServicoPage from "./pages/Funcionario/VisualizarServicoPage";
+import VisualizarCabeleireiroPage from "./pages/Cabeleireiro/VisualizarCabeleireiroPage";
 
 const App: React.FC = () => {
   const isAuthenticated = false;
 
   return (
-    <ThemeProvider theme={theme}>  
-      <CssBaseline /> 
+    <ThemeProvider theme={theme}>
+      <CssBaseline />
       <NavBar isAuthenticated={isAuthenticated} />
 
       <Routes>
@@ -27,16 +28,19 @@ const App: React.FC = () => {
         {!isAuthenticated && (
           <>
             <Route path="/cadastro" element={<CadastroPage />} />
-            <Route path="/login" element={<LoginPage/>} />
-            <Route path="/perfil" element={<PerfilCliente/>} />
-            <Route path="/listaClientes" element={<VisualizarClientesPage/>} />
-            <Route path="/servicos" element={<VisualizarServicoPage/>} />
+            <Route path="/login" element={<LoginPage />} />
+            <Route path="/perfil" element={<PerfilCliente />} />
+            <Route path="/listaClientes" element={<VisualizarClientesPage />} />
+            <Route path="/servicos" element={<VisualizarServicoPage />} />
+            <Route
+              path="/cabelereiros"
+              element={<VisualizarCabeleireiroPage />}
+            />
           </>
         )}
       </Routes>
-      </ThemeProvider>
+    </ThemeProvider>
   );
 };
 
 export default App;
-
