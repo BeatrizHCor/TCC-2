@@ -55,7 +55,7 @@ export const useManterServico = (servicoId?: string) => {
         setSalaoId(servico.salaoId || null);
       } catch (error) {
         console.error("Erro ao buscar serviço:", error);
-       
+        navigate("/servicos", { replace: true });
       } finally {
         setIsLoading(false);
       }
@@ -68,7 +68,7 @@ export const useManterServico = (servicoId?: string) => {
         fetchServico();
       }
     }
-  }, [servicoId, user]);
+  }, [servicoId]);
 
 
   const validateForm = (): boolean => {

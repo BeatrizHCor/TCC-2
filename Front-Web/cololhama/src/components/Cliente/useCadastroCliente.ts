@@ -30,10 +30,11 @@ export const useClienteCadastro = (salaoId: string) => {
   });
   
   const [auth, setAuth] = useState<AuthControl>({
+    usuarioID: '',
     email: '',
     salaoId: salaoId,
     senha: '',
-    type: userTypes.Cliente
+    type: userTypes.CLIENTE
   });
   
   const [confirmacaoSenha, setConfirmacaoSenha] = useState('');
@@ -158,11 +159,25 @@ export const useClienteCadastro = (salaoId: string) => {
     }
   
     try {
+      console.log("Cadastrando cliente...");
+      const clienteResponse = await ClienteService.cadastrarCliente(cliente);
+      
+      if (!clienteResponse) {
+        console.error("Erro ao cadastrar cliente.");
+        return;
+      }
+      
+      console.log("Buscando cliente ID...");
+      const clienteCadastrado = await ClienteService.getByCpfandSalao(cliente.CPF, cliente.salaoId);
+      
+      if (clienteCadastrado && clienteCadastrado.id) {
+        setAuth((prev) => ({ ...prev, usuarioID: clienteCadastrado.id }));
+      } else {
+        console.error("Cliente não encontrado após cadastro.");
+      }
+      
       console.log("Cadastrando login...");
       await LoginService.cadastrar(auth);
-  
-      console.log("Cadastrando cliente...");
-      await ClienteService.cadastrarCliente(cliente);
   
       console.log("Realizando login automático...");
       await LoginService.login(auth.email, auth.senha, auth.salaoId);

@@ -32,8 +32,8 @@ const App: React.FC = () => {
             <Route path="/perfil" element={<PerfilCliente/>} />
             <Route path="/listaClientes" element={<VisualizarClientesPage/>} />
             <Route path="/servicos" element={<VisualizarServicoPage/>} />
-            <Route path="/servico/editar" element={<ManterServicoPage/>} />
-            <Route path="/servico/editar/:id" element={<ManterServicoPage/>} />
+            <Route path="/servico/editar/novo" element={<ManterServicoPage/>} />
+            <Route path="/servico/editar/:servicoId" element={<ManterServicoPage/>} />
           </>
         )}
       </Routes>

@@ -36,7 +36,7 @@ export const ClienteService = {
         Telefone: String(cliente.telefone),
         SalaoId: cliente.salaoId,
       };
-      const response = await api.post("/cliente", novoCliente);
+      const response = await api.post(`/cliente`, novoCliente);
       return response.data;
     } catch (error) {
       console.error("Erro ao cadastrar cliente:", error);
@@ -75,6 +75,26 @@ export const ClienteService = {
       if (axios.isAxiosError(error) && error.response?.status === 404) {
         console.log("Cliente não encontrado, retornando false.");
         return false;
+      }
+      console.error("Erro ao verificar cliente por CPF:", error);
+      throw error;
+    }
+  },
+
+  async getByCpfandSalao(
+    cpf: string,
+    salaoId: string
+  ): Promise<Cliente> {
+    try {
+      const path = `/cliente/cpf/${cpf}/${salaoId}`;
+      console.log(`Verificando cliente por CPF no caminho: ${path}`);
+      const response = await api.get(path);
+      console.log("Resposta do servidor:", response.data);
+      return response.data;
+    } catch (error) {
+      if (axios.isAxiosError(error) && error.response?.status === 404) {
+        console.log("Cliente não encontrado, retornando false.");
+        throw error;
       }
       console.error("Erro ao verificar cliente por CPF:", error);
       throw error;

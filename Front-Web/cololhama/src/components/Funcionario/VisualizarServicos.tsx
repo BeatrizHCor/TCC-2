@@ -43,7 +43,7 @@ export const VisualizarServicos: React.FC<VisualizarServicosProps> = ({
   const [page, setPage] = useState(0);
   const [rowsPerPage, setRowsPerPage] = useState(10);
   const [nomeFilter, setNomeFilter] = useState("");
-  const [nomeFilterInput, setNomeFilterInput] = useState(""); // Estado separado para o campo de entrada
+  const [nomeFilterInput, setNomeFilterInput] = useState(""); 
   const [precoMinFilter, setPrecoMinFilter] = useState<number | "">("");
   const [precoMaxFilter, setPrecoMaxFilter] = useState<number | "">("");
 
@@ -122,7 +122,7 @@ export const VisualizarServicos: React.FC<VisualizarServicosProps> = ({
         <Button
           component={Link}
           variant="outlined"
-          to = "/servico/editar"
+          to = "/servico/editar/novo"
           sx={{
             color: theme.palette.primary.main,
             borderBlockColor: theme.palette.primary.main,
@@ -165,7 +165,7 @@ export const VisualizarServicos: React.FC<VisualizarServicosProps> = ({
           sx={{ width: "180px" }}
         />
       </Box>
-
+    
       <Paper sx={{ width: "100%", mb: 2 }}>
         <TableContainer>
           <Table>
@@ -178,9 +178,9 @@ export const VisualizarServicos: React.FC<VisualizarServicosProps> = ({
             </TableHead>
             <TableBody>
               {servicos.map((servicos: Servico, index) => (
-                <TableRow key={servicos.id}>
-                  <TableCell>{servicos.nome} </TableCell>
-                  <TableCell>{servicos.descricao}</TableCell>
+                <TableRow key={servicos.id ?? `row-${index}`}>
+                  <TableCell>{servicos.nome || "—"} </TableCell>
+                  <TableCell>{servicos.descricao || "—"}</TableCell>
                   <TableCell>
                     R${" "}
                     {servicos.precoMin !== undefined
