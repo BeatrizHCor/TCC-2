@@ -24,10 +24,9 @@ const colunas = [
   { id: "nome", label: "Nome" },
   { id: "email", label: "Email" },
   { id: "telefone", label: "Telefone" },
-  { id: "dataCadastro", label: "Data de Cadastro" },
 ];
 
-export const VisualizarClientes: React.FC = () => {
+export const VisualizarCabeleireiro: React.FC = () => {
   const [page, setPage] = useState(0);
   const [rowsPerPage, setRowsPerPage] = useState(10);
   const [colunaBusca, setColunaBusca] = useState("nome");
@@ -63,7 +62,7 @@ export const VisualizarClientes: React.FC = () => {
   };
 */
   if (isLoading) return <Box>Carregando...</Box>;
-  if (error) return <Box>Erro ao carregar clientes: {error}</Box>;
+  if (error) return <Box>Erro ao carregar cabeleireiro: {error}</Box>;
 
   return (
     <Box sx={{ width: "100%", p: 2 }}>
@@ -131,4 +130,4 @@ export const VisualizarClientes: React.FC = () => {
     </Box>
   );
 };
-export default VisualizarClientes;
+export default VisualizarCabeleireiro;
