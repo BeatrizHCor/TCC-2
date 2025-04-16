@@ -12,6 +12,7 @@ import ClienteLogin from "./components/Login/ClienteLogin";
 import PerfilCliente from "./components/Cliente/perfilCliente";
 import VisualizarClientesPage from "./pages/Funcionario/VisualizarClientePage";
 import VisualizarServicoPage from "./pages/Funcionario/VisualizarServicoPage";
+import ManterServicoPage from "./pages/Funcionario/ManterServicoPage";
 import VisualizarCabeleireiroPage from "./pages/Cabeleireiro/VisualizarCabeleireiroPage";
 
 const App: React.FC = () => {
@@ -32,6 +33,8 @@ const App: React.FC = () => {
             <Route path="/perfil" element={<PerfilCliente />} />
             <Route path="/listaClientes" element={<VisualizarClientesPage />} />
             <Route path="/servicos" element={<VisualizarServicoPage />} />
+            <Route path="/servico/editar" element={<ManterServicoPage/>} />
+            <Route path="/servico/editar/:id" element={<ManterServicoPage/>} />
             <Route
               path="/cabelereiros"
               element={<VisualizarCabeleireiroPage />}

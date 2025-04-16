@@ -2,8 +2,7 @@ import axios from "axios";
 import { Servico } from "../models/servicoModel";
 
 const api = axios.create({
-  baseURL: "http://localhost:3000",
-  timeout: 100000,
+  baseURL:  'http://localhost:3002',
   headers: {
     "Content-Type": "application/json",
   },
