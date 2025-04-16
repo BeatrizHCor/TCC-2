@@ -1,7 +1,7 @@
 import axios from "axios";
 import { AuthControl } from "../models/authModel";
 
-const API_URL = "http://localhost:3000/";
+const API_URL = "http://localhost:4000/";
 
 export class LoginService {
   static async cadastrar(authData: AuthControl): Promise<AuthControl> {

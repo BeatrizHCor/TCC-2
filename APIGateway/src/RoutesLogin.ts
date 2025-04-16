@@ -37,7 +37,10 @@ RoutesLogin.post("/register", async (req: Request, res: Response) => {
   console.log(req.body);
   let response = await fetch(loginURL + "/register", {
     method: "POST",
-    body: req.body,
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify(req.body),
   });
   if (response.ok) {
     res.status(200).send("login created");
