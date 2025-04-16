@@ -1,5 +1,5 @@
 import { Request, Response } from "express";
-import ServicoService from "../services/ServicoService";
+import ServicoService from "../services/servicoService";
 
 class ServicoController {
   static async getServicosPage(req: Request, res: Response): Promise<void> {

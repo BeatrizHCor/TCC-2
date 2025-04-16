@@ -10,7 +10,7 @@ interface ServicoData {
 }
 
 class ServicoService {
-  static async getServicos( 
+  static async getServicos(
     skip: number | null = null,
     limit: number | null = null,
     precoMin?: number,
@@ -19,38 +19,42 @@ class ServicoService {
     salaoId: string | null = null
   ) {
     let whereCondition: any = {};
-  
+
     if (salaoId) {
       whereCondition.SalaoId = salaoId;
     }
-  
+
     if (precoMin != null && !isNaN(precoMin)) {
       whereCondition.PrecoMin = { gte: precoMin };
     }
-  
+
     if (precoMax != null && !isNaN(precoMax)) {
       whereCondition.PrecoMax = { lte: precoMax };
     }
-  
+
     const query: any = {
-      where: whereCondition
+      where: whereCondition,
     };
-  
+
     if (typeof skip === 'number' && !isNaN(skip)) {
       query.skip = skip;
+    } else {
+      query.skip = 0; 
     }
-  
+
     if (typeof limit === 'number' && !isNaN(limit)) {
       query.take = limit;
+    } else {
+      query.take = 10; 
     }
-  
+
     if (include) {
       query.include = {
         Salao: true,
         ServicoAtendimento: true,
       };
     }
-  
+    console.log("Query gerada:", query);
     return await prisma.servico.findMany(query);
   }
   

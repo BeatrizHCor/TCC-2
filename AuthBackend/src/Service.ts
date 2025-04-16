@@ -11,10 +11,10 @@ export const createLogin = async (
   try {
     await prisma.authControl.create({
       data: {
-        SalaoId,
-        Email,
-        Senha,
-        UsuarioID,
+        SalaoId: SalaoId,
+        Email: Email,
+        Senha: Senha,
+        UsuarioID: UsuarioID,
         Type: userType as userTypes,
       },
     });
@@ -61,11 +61,14 @@ export const findLoginbyUserId = (UsuarioID: string) => {
 };
 
 export const findLoginbyEmail = (Email: string, SalaoId: string) => {
+  if (!Email || !SalaoId) {
+    throw new Error("Email e SalaoID são obrigatórios.");
+  }
   return prisma.authControl.findUnique({
     where: {
-      Email_SalaoId: {
-        Email,
-        SalaoId,
+      Email_SalaoId: {        
+        Email: Email,
+        SalaoId: SalaoId,       
       },
     },
   });
