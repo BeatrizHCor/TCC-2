@@ -64,7 +64,7 @@ export const ClienteCadastro: React.FC<ClienteCadastroProps> = () => {
           />
         </Box>
 
-        <Box flex={1} display="flex" justifyContent="flex-start">
+        <Box flex={1} display="flex" justifyContent="flex-start" sx={{ mt: 10 }}>
           <Paper elevation={3} sx={{ p: 5, width: 520 }}>
             {loading && <LinearProgress />}
             
@@ -76,7 +76,7 @@ export const ClienteCadastro: React.FC<ClienteCadastroProps> = () => {
               Preencha os campos abaixo
             </Typography>
             
-            <Box component="form" onSubmit={handleSubmit} noValidate>
+            <Box component="form" onSubmit={handleSubmit} noValidate sx={{ mt: 1 }}>
               <Stack spacing={2}>
                 <Typography variant="h6" sx={{ color: theme.palette.primary.main }}>
                   Informações Pessoais
