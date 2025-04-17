@@ -23,6 +23,9 @@ import "../../styles/styles.global.css";
 import { Link } from "react-router-dom";
 import theme from "../../styles/theme";
 
+import { Link } from "react-router-dom";
+import theme from "../../styles/theme";
+
 
 const colunas = [
   { id: "nome", label: "Nome" },
@@ -45,6 +48,7 @@ export const VisualizarServicos: React.FC<VisualizarServicosProps> = ({
   const [page, setPage] = useState(0);
   const [rowsPerPage, setRowsPerPage] = useState(10);
   const [nomeFilter, setNomeFilter] = useState("");
+  const [nomeFilterInput, setNomeFilterInput] = useState(""); 
   const [nomeFilterInput, setNomeFilterInput] = useState(""); 
   const [precoMinFilter, setPrecoMinFilter] = useState<number | "">("");
   const [precoMaxFilter, setPrecoMaxFilter] = useState<number | "">("");
@@ -198,6 +202,7 @@ export const VisualizarServicos: React.FC<VisualizarServicosProps> = ({
           <Table>
             <TableHead>
               <TableRow key="header-row">
+              <TableRow key="header-row">
                 {colunasVisiveis.map((coluna) => (
                   <TableCell key={coluna.id}>{coluna.label}</TableCell>
                 ))}
@@ -219,10 +224,14 @@ export const VisualizarServicos: React.FC<VisualizarServicosProps> = ({
                     R${" "}
                     {servicos.precoMin !== undefined
                       ? servicos.precoMin.toFixed(2)
+                    {servicos.precoMin !== undefined
+                      ? servicos.precoMin.toFixed(2)
                       : "N/A"}
                   </TableCell>
                   <TableCell>
                     R${" "}
+                    {servicos.precoMax !== undefined
+                      ? servicos.precoMax.toFixed(2)
                     {servicos.precoMax !== undefined
                       ? servicos.precoMax.toFixed(2)
                       : "N/A"}
@@ -234,6 +243,7 @@ export const VisualizarServicos: React.FC<VisualizarServicosProps> = ({
                         variant="outlined"
                         size="small"
                         onClick={() =>
+                          servicos.id && handleEditarServico(servicos.id)
                           servicos.id && handleEditarServico(servicos.id)
                         }
                       >
