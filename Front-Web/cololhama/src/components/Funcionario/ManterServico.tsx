@@ -13,7 +13,7 @@ import {
   DialogContentText,
   DialogTitle
 } from "@mui/material";
-import { useNavigate, useLocation } from "react-router-dom";
+import { useNavigate, useLocation, useParams } from "react-router-dom";
 import { useManterServico } from "./useManterServico";
 import theme from "../../styles/theme";
 import SaveIcon from "@mui/icons-material/Save";
@@ -24,7 +24,8 @@ import "../../styles/styles.global.css";
 const ManterServico: React.FC = () => {
   const navigate = useNavigate();
   const location = useLocation();
-  const servicoId = location.state?.servicoId;
+  const { servicoId: servicoId } = useParams();
+
   const [openDeleteDialog, setOpenDeleteDialog] = useState(false);
 
   const {
@@ -137,7 +138,7 @@ const ManterServico: React.FC = () => {
                   type="number"
                   label="Preço Máximo"
                   value={precoMax}
-                  onChange={(e) => setPrecoMax(Number(e.target.value))}
+                  onChange={(e) => setPrecoMax(Number(e.target.value))}               
                   slotProps={{
                     input: {
                     startAdornment: (

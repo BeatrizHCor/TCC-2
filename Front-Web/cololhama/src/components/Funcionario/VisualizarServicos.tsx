@@ -13,8 +13,10 @@ import {
   Button,
   Typography,
   InputAdornment,
+  IconButton,
 } from "@mui/material";
 import EditIcon from "@mui/icons-material/Edit";
+import CheckIcon from "@mui/icons-material/Check";
 import { Servico } from "../../models/servicoModel";
 import { useVisualizarServicos } from "./useVisualizarServicos";
 import "../../styles/styles.global.css";
@@ -56,6 +58,7 @@ export const VisualizarServicos: React.FC<VisualizarServicosProps> = ({
       precoMinFilter,
       precoMaxFilter
     );
+  const [precoMinInput, setPrecoMinInput] = React.useState(precoMinFilter); 
 
   const handleChangePage = (_: unknown, newPage: number) => {
     setPage(newPage);
@@ -68,19 +71,26 @@ export const VisualizarServicos: React.FC<VisualizarServicosProps> = ({
     setPage(0);
   };
 
-  const handlePrecoMinFilterChange = (
-    event: React.ChangeEvent<HTMLInputElement>
-  ) => {
-    const value = event.target.value === "" ? "" : Number(event.target.value);
-    setPrecoMinFilter(value);
-    setPage(0);
-  };
+  const [precoMaxInput, setPrecoMaxInput] = React.useState(precoMaxFilter);
 
-  const handlePrecoMaxFilterChange = (
-    event: React.ChangeEvent<HTMLInputElement>
-  ) => {
-    const value = event.target.value === "" ? "" : Number(event.target.value);
-    setPrecoMaxFilter(value);
+  const handlePrecoMaxInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const onlyNumbers = e.target.value.replace(/\D/g, "");
+    setPrecoMaxInput(onlyNumbers === "" ? "" : Number(onlyNumbers));
+    
+  };
+  
+  const aplicarFiltroPrecoMax = () => {
+    setPrecoMaxFilter(precoMaxInput);
+  };
+  
+
+  const handlePrecoMinInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const onlyNumbers = e.target.value.replace(/\D/g, "");
+    setPrecoMinInput(onlyNumbers === "" ? "" : Number(onlyNumbers));
+  };
+  
+  const aplicarFiltroPreco = () => {
+    setPrecoMinFilter(precoMinInput);
     setPage(0);
   };
 
@@ -90,6 +100,8 @@ export const VisualizarServicos: React.FC<VisualizarServicosProps> = ({
   const colunasVisiveis = isCliente
     ? colunas.filter((coluna) => coluna.clienteVisivel !== false)
     : colunas;
+
+    
 
   console.log("Serviços:", servicos);
   console.log("Colunas visíveis:", colunasVisiveis);
@@ -133,39 +145,54 @@ export const VisualizarServicos: React.FC<VisualizarServicosProps> = ({
           Novo Serviço
         </Button>
         )}
-
-        <TextField
-          variant="outlined"
-          label="Preço mínimo"
-          type="number"
-          value={precoMinFilter}
-          onChange={handlePrecoMinFilterChange}
-          slotProps={{
-            input: {
-              startAdornment: (
-                <InputAdornment position="start">R$</InputAdornment>
+        <Box display="flex" justifyContent="flex-end" gap={2}>
+          <TextField
+            variant="outlined"
+            label="Preço mínimo"
+            type="text" 
+            value={precoMinInput}
+            onChange={handlePrecoMinInputChange}
+            sx={{ width: "150px" }}
+            inputMode="numeric"
+            slotProps={{
+              input: {
+              startAdornment: (<InputAdornment position="start">R$</InputAdornment>                
               ),
-            },
-          }}
-          sx={{ width: "180px" }}
-        />
-        <TextField
-          variant="outlined"
-          label="Preço máximo"
-          type="number"
-          value={precoMaxFilter}
-          onChange={handlePrecoMaxFilterChange}
-          slotProps={{
-            input: {
-              startAdornment: (
-                <InputAdornment position="start">R$</InputAdornment>
+              endAdornment: (
+                <InputAdornment position="end">
+                  <IconButton onClick={aplicarFiltroPreco}>
+                    <CheckIcon />
+                  </IconButton>
+                </InputAdornment>
               ),
-            },
-          }}
-          sx={{ width: "180px" }}
-        />
+              }
+            }}
+          />
+        
+          <TextField
+            variant="outlined"
+            label="Preço máximo"
+            type="text"
+            value={precoMaxInput}
+            onChange={handlePrecoMaxInputChange}
+            sx={{ width: "150px" }}
+            inputMode="numeric"
+            slotProps={{
+              input: {
+                startAdornment: (<InputAdornment position="start">R$</InputAdornment>
+                ),
+                endAdornment: (
+                  <InputAdornment position="end">
+                    <IconButton onClick={aplicarFiltroPrecoMax}>
+                      <CheckIcon />
+                    </IconButton>
+                  </InputAdornment>
+                ),              
+              }
+            }}
+          />
+        </Box>
       </Box>
-    
       <Paper sx={{ width: "100%", mb: 2 }}>
         <TableContainer>
           <Table>
@@ -177,7 +204,14 @@ export const VisualizarServicos: React.FC<VisualizarServicosProps> = ({
               </TableRow>
             </TableHead>
             <TableBody>
-              {servicos.map((servicos: Servico, index) => (
+              {servicos.length === 0 ? (
+              <TableRow>
+                <TableCell colSpan={colunasVisiveis.length} align="center">
+                  Nenhum serviço encontrado.
+                </TableCell>
+              </TableRow>
+              ) : (
+              servicos.map((servicos: Servico, index) => (
                 <TableRow key={servicos.id ?? `row-${index}`}>
                   <TableCell>{servicos.nome || "—"} </TableCell>
                   <TableCell>{servicos.descricao || "—"}</TableCell>
@@ -208,7 +242,7 @@ export const VisualizarServicos: React.FC<VisualizarServicosProps> = ({
                     </TableCell>
                   )}
                 </TableRow>
-              ))}
+              )))}
             </TableBody>
           </Table>
         </TableContainer>

@@ -7,6 +7,13 @@ const api = axios.create({
     "Content-Type": "application/json",
   },
 });
+interface ServicoData {
+  Nome: string;
+  SalaoId: string;
+  PrecoMin: number;
+  PrecoMax: number;
+  Descricao: string;  
+}
 
 interface ServicoPaginadoResponse {
   data: Servico[];
@@ -44,7 +51,15 @@ class ServicoService {
   static async getServicoById(id: string): Promise<Servico> {
     try {
       const response = await api.get(`/servico/ID/${id}`);
-      return response.data;
+      const servico: Servico = {
+        id: response.data.ID,
+        salaoId: response.data.SalaoId,
+        nome: response.data.Nome,        
+        precoMin: response.data.PrecoMin,
+        precoMax: response.data.PrecoMax,
+        descricao: response.data.Descricao,        
+      };
+      return servico;
     } catch (error) {
       console.error(`Erro ao buscar serviço com ID ${id}:`, error);
       throw error;
@@ -65,7 +80,14 @@ class ServicoService {
     servicoData: Omit<Servico, "ID">
   ): Promise<Servico> {
     try {
-      const response = await api.post(`/servico`, servicoData);
+      const servicoCreate: ServicoData = {
+        Nome: servicoData.nome || "",
+        SalaoId: servicoData.salaoId || "",
+        PrecoMin: servicoData.precoMin || 0,
+        PrecoMax: servicoData.precoMax || 0,
+        Descricao: servicoData.descricao || "",
+      }
+      const response = await api.post(`/servico`, servicoCreate);
       return response.data;
     } catch (error) {
       console.error("Erro ao criar serviço:", error);
@@ -78,7 +100,14 @@ class ServicoService {
     servicoData: Partial<Servico>
   ): Promise<Servico> {
     try {
-      const response = await api.put(`/servico/update/${id}`, servicoData);
+      const servicoEditado: ServicoData = {
+        Nome: servicoData.nome || "",
+        SalaoId: servicoData.salaoId || "",
+        PrecoMin: servicoData.precoMin || 0,
+        PrecoMax: servicoData.precoMax || 0,
+        Descricao: servicoData.descricao || "",
+      }
+      const response = await api.put(`/servico/update/${id}`, servicoEditado);
       return response.data;
     } catch (error) {
       console.error(`Erro ao atualizar serviço com ID ${id}:`, error);

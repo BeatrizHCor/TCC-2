@@ -108,10 +108,10 @@ export const useManterServico = (servicoId?: string) => {
     try {
       const servicoData: Omit<Servico, 'id'> = {
         nome,
-        descricao,
+        salaoId,      
         precoMin,
         precoMax,
-        salaoId
+        descricao,
       };
       
       if (isEditing && servicoId) {

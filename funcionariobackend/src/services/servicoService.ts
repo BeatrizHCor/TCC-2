@@ -83,33 +83,23 @@ class ServicoService {
     };
   }
   
-  static async create(
-    Nome: string,
-    PrecoMin: number,
-    PrecoMax: number,
-    Descricao: string,
-    SalaoId: string
+  static async create(DadosServico: ServicoData
   ) {
-    console.log('Iniciando criação do serviço com os dados:', { Nome, PrecoMin, PrecoMax, Descricao, SalaoId });
-    
-    if (!Nome || PrecoMin === undefined || PrecoMax === undefined || !Descricao || !SalaoId) {
-      throw new Error('Parâmetros inválidos para criação do serviço');
-    }
-    
-    if (PrecoMin > PrecoMax) {
+ 
+    if (DadosServico.PrecoMin > DadosServico.PrecoMax) {
       throw new Error('Preço mínimo não pode ser maior que o preço máximo');
     }
 
-    console.log('Dados enviados para criação:', { Nome, PrecoMin, PrecoMax, Descricao, SalaoId });
+    console.log('Dados enviados para criação:', { Nome: DadosServico.Nome, PrecoMin: DadosServico.PrecoMin, PrecoMax: DadosServico.PrecoMax, Descricao: DadosServico.Descricao, SalaoId: DadosServico.SalaoId });
     
     try {
       const servico = await prisma.servico.create({
         data: {
-          Nome,
-          PrecoMin,
-          PrecoMax,
-          Descricao,
-          SalaoId,
+          Nome: DadosServico.Nome,
+          SalaoId: DadosServico.SalaoId,
+          PrecoMin: DadosServico.PrecoMin,
+          PrecoMax: DadosServico.PrecoMax,
+          Descricao: DadosServico.Descricao,          
         },
       });
       

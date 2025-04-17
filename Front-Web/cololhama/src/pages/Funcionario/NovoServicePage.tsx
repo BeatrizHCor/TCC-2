@@ -1,7 +1,7 @@
 import React from 'react';
 import ManterServico from '../../components/Funcionario/ManterServico';
 const 
-ManterServicoPage: React.FC = () => {
+NovoServicoPage: React.FC = () => {
     return (
         <div>
            <ManterServico></ManterServico>
@@ -9,4 +9,4 @@ ManterServicoPage: React.FC = () => {
     );
 };
 
-export default ManterServicoPage;
+export default NovoServicoPage;
