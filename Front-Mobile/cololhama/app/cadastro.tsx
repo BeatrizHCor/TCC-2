@@ -9,11 +9,12 @@ import {
   ActivityIndicator,
   StyleSheet,
   KeyboardAvoidingView,
-  Platform
+  Platform,
 } from 'react-native';
 import { MaterialIcons } from '@expo/vector-icons';
 import { useClienteCadastro } from './useCadastroCliente';
 import theme from '@/theme/theme';
+import { useRouter } from 'expo-router';
 
 interface ClienteCadastroProps {
   salaoId?: string;
@@ -30,28 +31,33 @@ export const ClienteCadastro: React.FC<ClienteCadastroProps> = ({ salaoId }) => 
     handleCPFChange,
     handleTelefoneChange,
     handleConfirmacaoSenhaChange,
-    handleSubmit
+    handleSubmit,
   } = useClienteCadastro(salaoId || '');
 
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+
+  const router = useRouter();
 
   return (
     <KeyboardAvoidingView
       style={styles.container}
       behavior={Platform.OS === 'ios' ? 'padding' : undefined}
     >
-      <ScrollView 
-        contentContainerStyle={styles.scrollContainer}
-        keyboardShouldPersistTaps="handled"
-      >
-        <View style={styles.topSection}>
-          <Image source={require('../assets/images/logo.png')} style={styles.logo} />
-          <Text style={styles.title}>Cadastre-se</Text>
-          <Text style={styles.subtitle}>Preencha os campos abaixo</Text>
-        </View>
+      <View style={styles.header}>
+        <Image
+          source={require('../assets/images/logo.png')}
+          style={styles.logo}
+        />
+        <Text style={styles.headerTitle}>Cadastre-se</Text>
+        <Text style={styles.headerSubtitle}>Preencha os campos abaixo</Text>
+      </View>
 
-        <View style={styles.formContainer}>
+      <View style={styles.content}>
+        <ScrollView
+          contentContainerStyle={styles.scrollContent}
+          keyboardShouldPersistTaps="handled"
+        >
           <Text style={styles.sectionTitle}>Informações Pessoais</Text>
 
           <TextInput
@@ -106,14 +112,14 @@ export const ClienteCadastro: React.FC<ClienteCadastroProps> = ({ salaoId }) => 
                   secureTextEntry={!showPassword}
                   onChangeText={(text) => handleChange('senha', text)}
                 />
-                <TouchableOpacity 
-                  onPress={() => setShowPassword(!showPassword)} 
+                <TouchableOpacity
+                  onPress={() => setShowPassword(!showPassword)}
                   style={styles.icon}
                   activeOpacity={0.7}
                 >
-                  <MaterialIcons 
-                    name={showPassword ? 'visibility-off' : 'visibility'} 
-                    size={20} 
+                  <MaterialIcons
+                    name={showPassword ? 'visibility-off' : 'visibility'}
+                    size={20}
                     color="#666"
                   />
                 </TouchableOpacity>
@@ -130,87 +136,97 @@ export const ClienteCadastro: React.FC<ClienteCadastroProps> = ({ salaoId }) => 
                   value={confirmacaoSenha}
                   onChangeText={handleConfirmacaoSenhaChange}
                 />
-                <TouchableOpacity 
-                  onPress={() => setShowConfirmPassword(!showConfirmPassword)} 
+                <TouchableOpacity
+                  onPress={() => setShowConfirmPassword(!showConfirmPassword)}
                   style={styles.icon}
                   activeOpacity={0.7}
                 >
-                  <MaterialIcons 
-                    name={showConfirmPassword ? 'visibility-off' : 'visibility'} 
-                    size={20} 
+                  <MaterialIcons
+                    name={showConfirmPassword ? 'visibility-off' : 'visibility'}
+                    size={20}
                     color="#666"
                   />
                 </TouchableOpacity>
               </View>
-              {errors.confirmacaoSenha && <Text style={styles.error}>{errors.confirmacaoSenha}</Text>}
+              {errors.confirmacaoSenha && (
+                <Text style={styles.error}>{errors.confirmacaoSenha}</Text>
+              )}
             </View>
           </View>
 
           <Text style={styles.info}>
-            A senha deve conter pelo menos 8 caracteres, incluindo letras maiúsculas, minúsculas, números e caracteres especiais.
+            A senha deve conter pelo menos 8 caracteres, incluindo letras maiúsculas,
+            minúsculas, números e caracteres especiais.
           </Text>
 
-          <View style={styles.actions}>
-            <TouchableOpacity style={styles.link} activeOpacity={0.7}>
-              <Text style={styles.linkText}>Já possui uma conta? Faça login</Text>
-            </TouchableOpacity>
+          <TouchableOpacity
+            style={[styles.button, loading && styles.buttonDisabled]}
+            onPress={handleSubmit}
+            disabled={loading}
+            activeOpacity={0.7}
+          >
+            {loading ? (
+              <ActivityIndicator color="#fff" />
+            ) : (
+              <Text style={styles.buttonText}>CADASTRAR</Text>
+            )}
+          </TouchableOpacity>
 
-            <TouchableOpacity
-              style={[styles.button, loading && styles.buttonDisabled]}
-              onPress={handleSubmit}
-              disabled={loading}
-              activeOpacity={0.7}
-            >
-              {loading ? (
-                <ActivityIndicator color="#fff" />
-              ) : (
-                <Text style={styles.buttonText}>CADASTRAR</Text>
-              )}
-            </TouchableOpacity>
-          </View>
-        </View>
-      </ScrollView>
+          <TouchableOpacity
+            onPress={() => router.replace('/login')}
+            style={styles.link}
+            activeOpacity={0.7}
+          >
+            <Text style={styles.linkText}>Já possui uma conta? Faça login</Text>
+          </TouchableOpacity>
+        </ScrollView>
+      </View>
     </KeyboardAvoidingView>
   );
 };
 
 const styles = StyleSheet.create({
-  container: { 
-    flex: 1, 
-    backgroundColor: '#f6f6f6' 
+  container: { flex: 1, backgroundColor: theme.colors.primary },
+  header: {
+    alignItems: 'center',
+    paddingTop: 60,
+    paddingBottom: 24,
+    backgroundColor: theme.colors.primary,
   },
-  scrollContainer: { 
+  logo: {
+    width: 120,
+    height: 120,
+    resizeMode: 'contain',
+    tintColor: '#fff',
+  },
+  headerTitle: {
+    fontSize: 26,
+    fontWeight: 'bold',
+    color: '#fff',
+    marginTop: 12,
+  },
+  headerSubtitle: {
+    fontSize: 16,
+    color: '#fff',
+    marginTop: 4,
+  },
+  content: {
+    flex: 1,
+    backgroundColor: '#f6f6f6',
+    borderTopLeftRadius: 32,
+    borderTopRightRadius: 32,
+    paddingTop: 20,
     paddingHorizontal: 20,
-    paddingVertical: 16
   },
-  topSection: { 
-    alignItems: 'center', 
-    marginBottom: 20 
+  scrollContent: {
+    paddingBottom: 32,
   },
-  logo: { 
-    width: 120, 
-    height: 120, 
-    resizeMode: 'contain'
-  },
-  title: { 
-    fontSize: 28, 
-    fontWeight: 'bold', 
+  sectionTitle: {
+    fontSize: 18,
+    fontWeight: 'bold',
+    marginTop: 16,
+    marginBottom: 10,
     color: theme.colors.primary,
-    marginTop: 8
-  },
-  subtitle: { 
-    fontSize: 16, 
-    color: '#555' 
-  },
-  formContainer: {
-    marginBottom: 20
-  },
-  sectionTitle: { 
-    fontSize: 18, 
-    fontWeight: 'bold', 
-    marginTop: 16, 
-    marginBottom: 10, 
-    color: theme.colors.primary 
   },
   input: {
     backgroundColor: '#fff',
@@ -219,63 +235,60 @@ const styles = StyleSheet.create({
     marginBottom: 8,
     borderWidth: 1,
     borderColor: '#ccc',
-    fontSize: 16
+    fontSize: 16,
   },
   inputError: {
-    borderColor: 'red'
+    borderColor: 'red',
   },
-  row: { 
-    flexDirection: 'row', 
-    gap: 8 
+  row: {
+    flexDirection: 'row',
+    gap: 8,
   },
-  halfInput: { 
-    flex: 1 
+  halfInput: {
+    flex: 1,
   },
-  error: { 
-    color: 'red', 
-    marginBottom: 8, 
-    fontSize: 12
-  },
-  passwordContainer: { 
+  passwordContainer: {
     position: 'relative',
-    width: '100%'
+    width: '100%',
   },
-  icon: { 
-    position: 'absolute', 
-    right: 12, 
+  icon: {
+    position: 'absolute',
+    right: 12,
     top: 12,
-    padding: 2
+    padding: 2,
   },
-  info: { 
-    fontSize: 12, 
-    color: '#444', 
-    marginVertical: 12 
+  error: {
+    color: 'red',
+    marginBottom: 8,
+    fontSize: 12,
   },
-  actions: { 
-    flexDirection: 'row', 
-    justifyContent: 'space-between', 
-    alignItems: 'center', 
-    marginTop: 20 
-  },
-  link: {
-    padding: 4
-  },
-  linkText: { 
-    color: theme.colors.primary 
+  info: {
+    fontSize: 12,
+    color: '#444',
+    marginVertical: 12,
   },
   button: {
     backgroundColor: theme.colors.primary,
     paddingVertical: 12,
-    paddingHorizontal: 24,
-    borderRadius: 8
+    borderRadius: 8,
+    alignItems: 'center',
+    marginTop: 8,
   },
-  buttonDisabled: { 
-    opacity: 0.6 
+  buttonDisabled: {
+    opacity: 0.6,
   },
-  buttonText: { 
-    color: '#fff', 
-    fontWeight: 'bold' 
-  }
+  buttonText: {
+    color: '#fff',
+    fontWeight: 'bold',
+  },
+  link: {
+    marginTop: 16,
+    alignSelf: 'center',
+  },
+  linkText: {
+    color: theme.colors.primary,
+    fontSize: 14,
+  },
 });
 
 export default ClienteCadastro;
