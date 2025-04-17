@@ -3,7 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { AuthControl } from "../../models/authModel";
 import { userTypes } from "../../models/tipo-usuario.enum";
 import { LoginService } from "../../services/LoginService";
-
+import { validarEmail } from "../../utils/validations";
 interface FormErrors {
   email?: string;
   senha?: string;
@@ -16,16 +16,12 @@ export const useClienteLogin = (salaoId: string) => {
     email: "",
     senha: "",
     salaoId: salaoId,
-    type: userTypes.Cliente,
+    type: userTypes.CLIENTE,
   });
 
   const [errors, setErrors] = useState<FormErrors>({});
   const [loading, setLoading] = useState(false);
 
-  const validateEmail = (email: string): boolean => {
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/; 
-    return emailRegex.test(email);
-  };
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
@@ -36,9 +32,9 @@ export const useClienteLogin = (salaoId: string) => {
     }
   };
 
-  // Evento para validar email assim que a pessoa clicar fora do campo
+  
   const handleEmailBlur = () => {
-    if (!validateEmail(auth.email)) {
+    if (!validarEmail(auth.email)) {
       setErrors((prev) => ({
         ...prev,
         email: "Formato de email inválido",
@@ -51,7 +47,7 @@ export const useClienteLogin = (salaoId: string) => {
 
     if (!auth.email) {
       newErrors.email = "Email é obrigatório";
-    } else if (!validateEmail(auth.email)) {
+    } else if (!validarEmail(auth.email)) {
       newErrors.email = "Formato de email inválido";
     }
 

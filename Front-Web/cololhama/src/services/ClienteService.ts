@@ -2,7 +2,7 @@ import axios from "axios";
 import { Cliente } from "../models/clienteModel";
 
 const api = axios.create({
-  baseURL: "http://localhost:3000",
+  baseURL: "http://localhost:3001",
   timeout: 100000,
   headers: {
     "Content-Type": "application/json",
@@ -31,12 +31,12 @@ export const ClienteService = {
     try {
       const novoCliente = {
         CPF: cliente.CPF,
-        Nome: cliente.Nome,
-        Email: cliente.Email,
-        Telefone: String(cliente.Telefone),
-        SalaoId: cliente.SalaoId,
+        Nome: cliente.nome,
+        Email: cliente.email,
+        Telefone: String(cliente.telefone),
+        SalaoId: cliente.salaoId,
       };
-      const response = await api.post("/cliente", novoCliente);
+      const response = await api.post(`/cliente`, novoCliente);
       return response.data;
     } catch (error) {
       console.error("Erro ao cadastrar cliente:", error);
@@ -75,6 +75,26 @@ export const ClienteService = {
       if (axios.isAxiosError(error) && error.response?.status === 404) {
         console.log("Cliente não encontrado, retornando false.");
         return false;
+      }
+      console.error("Erro ao verificar cliente por CPF:", error);
+      throw error;
+    }
+  },
+
+  async getByCpfandSalao(
+    cpf: string,
+    salaoId: string
+  ): Promise<Cliente> {
+    try {
+      const path = `/cliente/cpf/${cpf}/${salaoId}`;
+      console.log(`Verificando cliente por CPF no caminho: ${path}`);
+      const response = await api.get(path);
+      console.log("Resposta do servidor:", response.data);
+      return response.data;
+    } catch (error) {
+      if (axios.isAxiosError(error) && error.response?.status === 404) {
+        console.log("Cliente não encontrado, retornando false.");
+        throw error;
       }
       console.error("Erro ao verificar cliente por CPF:", error);
       throw error;

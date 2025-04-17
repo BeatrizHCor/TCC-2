@@ -1,5 +1,5 @@
 import { Request, Response } from "express";
-import ServicoService from "../services/ServicoService";
+import ServicoService from "../services/servicoService";
 
 class ServicoController {
   static async getServicosPage(req: Request, res: Response): Promise<void> {
@@ -40,13 +40,10 @@ class ServicoController {
 
   static async create(req: Request, res: Response): Promise<void> {
     try {
-      const { Nome, PrecoMin, PrecoMax, Descricao, SalaoId } = req.body;
+      const { DataCreateService } = req.body;
       const newServico = await ServicoService.create(
-        Nome,
-        Number(PrecoMin),
-        Number(PrecoMax),
-        Descricao,
-        SalaoId
+        DataCreateService
+   
       );
       res.status(201).json(newServico);
     } catch (error) {

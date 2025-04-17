@@ -134,7 +134,7 @@ export const PerfilCliente: React.FC<PerfilClienteProps> = () => {
                 <TextField
                   name="Nome"
                   label="Nome Completo"
-                  value={editMode ? cliente.Nome || "" : clienteBackup.Nome || ""}
+                  value={editMode ? cliente.nome || "" : ""}
                   required
                   onChange={handleChange}
                   error={!!errors.nome}

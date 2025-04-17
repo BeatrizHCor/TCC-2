@@ -29,7 +29,7 @@ export const registerLogin = async (
 ) => {
   let hashed = await HashPassword(password);
   if (hashed) {
-    let created = createLogin(salaoID, userID, hashed, email, userType);
+    let created = await createLogin(salaoID, userID, hashed, email, userType);
     return created;
   }
 };
@@ -39,6 +39,9 @@ export const verifyPasswordAndReturnToken = async (
   password: string,
   salaoID: string
 ) => {
+  console.log("Email:", email);
+  console.log("SalaoId:", salaoID);
+
   let login = await findLoginbyEmail(email, salaoID);
   if (login) {
     let match = await argon2.verify(login.Senha, password + SALT);

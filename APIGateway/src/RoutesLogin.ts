@@ -32,6 +32,23 @@ RoutesLogin.post("/authenticate", async (req: Request, res: Response) => {
   }
 });
 
+RoutesLogin.post("/register", async (req: Request, res: Response) => {
+  console.log(req.headers);
+  console.log(req.body);
+  let response = await fetch(loginURL + "/register", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify(req.body),
+  });
+  if (response.ok) {
+    res.status(200).send("login created");
+  } else {
+    res.status(403).send();
+  }
+});
+
 //Logout não implementado no AuthService
 RoutesLogin.post("/logout", async (req: Request, res: Response) => {
   let response = await fetch(loginURL + "/logout", {

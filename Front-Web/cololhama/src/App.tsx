@@ -8,10 +8,11 @@ import CssBaseline from "@mui/material/CssBaseline";
 import theme from "./styles/theme";
 import "./App.css";
 import NavBar from "./components/UI/NavBar";
-import ClienteLogin from "./components/Login/ClienteLogin";
 import PerfilCliente from "./components/Cliente/perfilCliente";
 import VisualizarClientesPage from "./pages/Funcionario/VisualizarClientePage";
 import VisualizarServicoPage from "./pages/Funcionario/VisualizarServicoPage";
+import EditarServicoPage from "./pages/Funcionario/EditarServicoPage";
+import NovoServicoPage from "./pages/Funcionario/NovoServicePage";
 import VisualizarCabeleireiroPage from "./pages/Cabeleireiro/VisualizarCabeleireiroPage";
 
 const App: React.FC = () => {
@@ -32,6 +33,8 @@ const App: React.FC = () => {
             <Route path="/perfil" element={<PerfilCliente />} />
             <Route path="/listaClientes" element={<VisualizarClientesPage />} />
             <Route path="/servicos" element={<VisualizarServicoPage />} />
+            <Route path="/servico/editar/novo" element={<NovoServicoPage/>} />
+            <Route path="/servico/editar/:servicoId" element={<EditarServicoPage/>} />
             <Route
               path="/cabelereiros"
               element={<VisualizarCabeleireiroPage />}

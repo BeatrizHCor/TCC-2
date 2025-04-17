@@ -10,7 +10,7 @@ interface ServicoData {
 }
 
 class ServicoService {
-  static async getServicos( 
+  static async getServicos(
     skip: number | null = null,
     limit: number | null = null,
     precoMin?: number,
@@ -19,38 +19,42 @@ class ServicoService {
     salaoId: string | null = null
   ) {
     let whereCondition: any = {};
-  
+
     if (salaoId) {
       whereCondition.SalaoId = salaoId;
     }
-  
+
     if (precoMin != null && !isNaN(precoMin)) {
       whereCondition.PrecoMin = { gte: precoMin };
     }
-  
+
     if (precoMax != null && !isNaN(precoMax)) {
       whereCondition.PrecoMax = { lte: precoMax };
     }
-  
+
     const query: any = {
-      where: whereCondition
+      where: whereCondition,
     };
-  
+
     if (typeof skip === 'number' && !isNaN(skip)) {
       query.skip = skip;
+    } else {
+      query.skip = 0; 
     }
-  
+
     if (typeof limit === 'number' && !isNaN(limit)) {
       query.take = limit;
+    } else {
+      query.take = 10; 
     }
-  
+
     if (include) {
       query.include = {
         Salao: true,
         ServicoAtendimento: true,
       };
     }
-  
+    console.log("Query gerada:", query);
     return await prisma.servico.findMany(query);
   }
   
@@ -79,33 +83,23 @@ class ServicoService {
     };
   }
   
-  static async create(
-    Nome: string,
-    PrecoMin: number,
-    PrecoMax: number,
-    Descricao: string,
-    SalaoId: string
+  static async create(DadosServico: ServicoData
   ) {
-    console.log('Iniciando criação do serviço com os dados:', { Nome, PrecoMin, PrecoMax, Descricao, SalaoId });
-    
-    if (!Nome || PrecoMin === undefined || PrecoMax === undefined || !Descricao || !SalaoId) {
-      throw new Error('Parâmetros inválidos para criação do serviço');
-    }
-    
-    if (PrecoMin > PrecoMax) {
+ 
+    if (DadosServico.PrecoMin > DadosServico.PrecoMax) {
       throw new Error('Preço mínimo não pode ser maior que o preço máximo');
     }
 
-    console.log('Dados enviados para criação:', { Nome, PrecoMin, PrecoMax, Descricao, SalaoId });
+    console.log('Dados enviados para criação:', { Nome: DadosServico.Nome, PrecoMin: DadosServico.PrecoMin, PrecoMax: DadosServico.PrecoMax, Descricao: DadosServico.Descricao, SalaoId: DadosServico.SalaoId });
     
     try {
       const servico = await prisma.servico.create({
         data: {
-          Nome,
-          PrecoMin,
-          PrecoMax,
-          Descricao,
-          SalaoId,
+          Nome: DadosServico.Nome,
+          SalaoId: DadosServico.SalaoId,
+          PrecoMin: DadosServico.PrecoMin,
+          PrecoMax: DadosServico.PrecoMax,
+          Descricao: DadosServico.Descricao,          
         },
       });
       

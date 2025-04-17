@@ -7,6 +7,7 @@ import dotenv from "dotenv";
 import RoutesCabeleireiro from "./RoutesCabeleireiro";
 const app = express();
 const port = process.env.PORT;
+const frontURL = process.env.FRONT_URL || "http://localhost:5173";
 const route = Router();
 dotenv.config();
 app.use(express.json());
@@ -16,8 +17,9 @@ route.get("/", (req: Request, res: Response) => {
 });
 
 const cors = require("cors");
-
 app.use(cors());
+
+
 app.use(route);
 app.use(RoutesCabeleireiro);
 app.use(RoutesLogin);

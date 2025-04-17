@@ -72,7 +72,7 @@ export const ClienteCadastro: React.FC<ClienteCadastroProps> = () => {
               Cadastre-se
             </Typography>
             
-            <Typography variant="body1" color="textSecondary" paragraph>
+            <Typography variant="body1" color="textSecondary"  component="p" sx={{ marginBottom: '16px' }}>
               Preencha os campos abaixo
             </Typography>
             
@@ -102,21 +102,29 @@ export const ClienteCadastro: React.FC<ClienteCadastroProps> = () => {
                         onChange={handleCPFChange}
                         error={!!errors.CPF}
                         helperText={errors.CPF}
-                        inputProps={{ maxLength: 14 }}
                         fullWidth
+                        slotProps={{ 
+                          htmlInput: {
+                            maxLength: 14
+                          } 
+                        }}
                       />
                     </Box>
                     <Box flex={1}>
                       <TextField
-                        label="Telefone"
+                        label="telefone"
                         required
                         value={telefoneFormatado}
                         onChange={handleTelefoneChange}
                         error={!!errors.telefone}
                         helperText={errors.telefone}
-                        inputProps={{ maxLength: 15 }}
                         fullWidth
-                      />
+                        slotProps={{
+                           htmlInput: {
+                            maxLength: 15
+                           } 
+                          }}
+                       />
                     </Box>
                   </Box>
                 </Box>
@@ -148,7 +156,8 @@ export const ClienteCadastro: React.FC<ClienteCadastroProps> = () => {
                         error={!!errors.senha}
                         helperText={errors.senha}
                         fullWidth
-                        InputProps={{
+                        slotProps={{
+                          input:{
                           endAdornment: (
                             <InputAdornment position="end">
                               <IconButton onClick={handleClickShowPassword} edge="end">
@@ -156,6 +165,7 @@ export const ClienteCadastro: React.FC<ClienteCadastroProps> = () => {
                               </IconButton>
                             </InputAdornment>
                           )
+                        }
                         }}
                       />
                     </Box>
@@ -166,17 +176,19 @@ export const ClienteCadastro: React.FC<ClienteCadastroProps> = () => {
                         type={showConfirmPassword ? "text" : "password"}
                         value={confirmacaoSenha}
                         onChange={handleConfirmacaoSenhaChange}
-                        error={!!errors.confirmacaoSenha}
-                        helperText={errors.confirmacaoSenha}
+                        error={!!errors.confirmacaoSenha || !!errors.senha}
+                        helperText={errors.confirmacaoSenha || errors.senha}
                         fullWidth
-                      InputProps={{
+                      slotProps={{
+                        input:{
                         endAdornment: (
                           <InputAdornment position="end">
                             <IconButton onClick={handleClickShowConfirmPassword} edge="end">
                               {showConfirmPassword ? <VisibilityOff /> : <Visibility />}
                             </IconButton>
                           </InputAdornment>
-                        )
+                          )
+                        }
                       }}
                       />
                     </Box>

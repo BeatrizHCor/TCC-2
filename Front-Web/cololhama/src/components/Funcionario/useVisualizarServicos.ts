@@ -26,6 +26,7 @@ export const useVisualizarServicos = (
   const navigate = useNavigate();
 
   useEffect(() => {
+    if (!salaoId) return;
     const fetchServicos = async () => {
       setIsLoading(true);
       setError(null);
@@ -39,7 +40,16 @@ export const useVisualizarServicos = (
           precoMaxFilter !== '' ? precoMaxFilter : undefined,         
         );
         
-        setServicos(response.data);
+        const servicosFormatados: Servico[] = (response.data || []).map((item: any) => ({
+          id: item.ID ?? "",
+          salaoId: item.SalaoId ?? "",
+          nome: item.Nome ?? "",
+          descricao: item.Descricao ?? "",
+          precoMin: item.PrecoMin ?? 0,
+          precoMax: item.PrecoMax ?? 0,
+        }));
+        
+        setServicos(servicosFormatados);
         setTotalServicos(response.total);
       } catch (err) {
         console.error('Erro ao buscar serviços:', err);
@@ -53,9 +63,8 @@ export const useVisualizarServicos = (
   }, [page, limit, salaoId, nomeFilter, precoMinFilter, precoMaxFilter]);
 
   const handleEditarServico = (servicoId: string) => {
-    navigate(`/servicos/editar/${servicoId}`);
+    navigate(`/servico/editar/${servicoId}`);
   };
-
   return {
     servicos,
     totalServicos,

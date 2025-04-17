@@ -47,11 +47,19 @@ export const validarCPF = (cpf: string): boolean => {
 
 export const validarEmail = (email: string): boolean => {
   const regex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+  if (!regex.test(email)) {
+    console.log("Email inválido:", email);
+    return false;
+  }
   return regex.test(email);
 };
 
 export const validarSenha = (senha: string): boolean => {
-  // Pelo menos 8 caracteres, uma letra maiúscula, uma minúscula, um número e um caractere especial
+  // pelo menos 8 caracteres, uma letra maiúscula, uma minúscula, um número e um caractere especial
   const regex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/;
+  if (!regex.test(senha)) {
+    console.log("Senha inválida: erro na validação.ts");
+    return false;
+  }
   return regex.test(senha);
 };

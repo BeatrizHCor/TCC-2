@@ -86,14 +86,14 @@ export const registerLogin = async (
 export const postLogin = async (
   email: string,
   password: string,
-  salaoId: string
+  salaoID: string
 ) => {
   let responseLogin = await fetch(loginURL + "/login", {
     method: "POST",
     body: JSON.stringify({
       email,
       password,
-      salaoId,
+      salaoID,
     }),
   });
   if (responseLogin.ok) {

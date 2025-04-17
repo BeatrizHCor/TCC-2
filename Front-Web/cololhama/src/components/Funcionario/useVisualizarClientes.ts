@@ -24,8 +24,17 @@ export const useVisualizarClientes = (
           false, 
           salaoId
         );
-
-        setClientes(response.data);
+        const listaClientes: Cliente[] = (response.data || []).map((item: any) => ({
+          id: item.ID ?? "",
+          nome: item.Nome ?? "",
+          email: item.Email ?? "",
+          telefone: item.Telefone ?? "",
+          dataCadastro: item.DataCadastro ?? "",
+          CPF: item.CPF ?? "",
+          salaoId: item.SalaoId ?? "",
+        }));
+   
+        setClientes(listaClientes);
         setTotalClientes(response.total);
       } catch (err) {
         setError(err instanceof Error ? err.message : 'Erro ao buscar clientes');
