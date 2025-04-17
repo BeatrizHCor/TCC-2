@@ -2,7 +2,7 @@ import axios from "axios";
 import { AuthControl } from "../models/authModel";
 
 const api = axios.create({
-  baseURL: "http://localhost:3000",
+  baseURL: "http://localhost:4000",
   timeout: 100000,
   headers: {
     "Content-Type": "application/json",
@@ -12,15 +12,13 @@ const api = axios.create({
 export class LoginService {
   static async cadastrar(authData: AuthControl): Promise<AuthControl> {
     try {
-      const requestData = {
+      const response = await api.post(`/register`, {
         userID: authData.usuarioID,
         email: authData.email,
         password: authData.senha,
         salaoID: authData.salaoId,
         userType: authData.type,
-      };
-      console.log("Request Data:", requestData);
-      const response = await api.post(`/register`, requestData);
+      });
       return response.data;
     } catch (error) {
       console.error("Erro ao cadastrar usuário:", error);
