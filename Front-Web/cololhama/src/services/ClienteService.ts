@@ -2,7 +2,7 @@ import axios from "axios";
 import { Cliente } from "../models/clienteModel";
 
 const api = axios.create({
-  baseURL: "http://localhost:3001",
+  baseURL: process.env.APIGATEWAY_URL || "http://localhost:4000",
   timeout: 100000,
   headers: {
     "Content-Type": "application/json",
@@ -27,16 +27,33 @@ interface ClientePageResponse {
   limit: number;
 }
 export const ClienteService = {
-  async cadastrarCliente(cliente: Cliente): Promise<Cliente> {
+  async cadastrarCliente({
+    CPF,
+    nome,
+    email,
+    telefone,
+    salaoId,
+    password,
+    userType,
+  }: {
+    CPF: string;
+    nome: string;
+    email: string;
+    telefone: string;
+    salaoId: string;
+    password: string;
+    userType: string;
+  }): Promise<Cliente> {
     try {
-      const novoCliente = {
-        CPF: cliente.CPF,
-        Nome: cliente.nome,
-        Email: cliente.email,
-        Telefone: String(cliente.telefone),
-        SalaoId: cliente.salaoId,
-      };
-      const response = await api.post(`/cliente`, novoCliente);
+      const response = await api.post(`/cliente`, {
+        CPF: CPF,
+        Nome: nome,
+        Email: email,
+        Telefone: telefone,
+        SalaoId: salaoId,
+        Password: password,
+        userType: userType,
+      });
       return response.data;
     } catch (error) {
       console.error("Erro ao cadastrar cliente:", error);

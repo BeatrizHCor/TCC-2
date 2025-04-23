@@ -29,11 +29,10 @@ export const ClienteCadastro: React.FC<ClienteCadastroProps> = () => {
     errors,
     loading,
     handleChange,
-    handleAuthChange,
     handleCPFChange,
     handleTelefoneChange,
-    handleConfirmacaoSenhaChange,
-    handleSubmit
+    handleSubmit,
+    handleConfirmacaoSenhaChange
   } = useClienteCadastro(salaoId ? salaoId : '');
 
   const [showPassword, setShowPassword] = React.useState(false);
@@ -152,9 +151,9 @@ export const ClienteCadastro: React.FC<ClienteCadastroProps> = () => {
                         label="Senha"
                         required
                         type={showPassword ? "text" : "password"}
-                        onChange={handleAuthChange}
-                        error={!!errors.senha}
-                        helperText={errors.senha}
+                        onChange={handleChange}
+                        error={!!errors.password}
+                        helperText={errors.password}
                         fullWidth
                         slotProps={{
                           input:{
@@ -176,8 +175,8 @@ export const ClienteCadastro: React.FC<ClienteCadastroProps> = () => {
                         type={showConfirmPassword ? "text" : "password"}
                         value={confirmacaoSenha}
                         onChange={handleConfirmacaoSenhaChange}
-                        error={!!errors.confirmacaoSenha || !!errors.senha}
-                        helperText={errors.confirmacaoSenha || errors.senha}
+                        error={!!errors.confirmacaoSenha || !!errors.password}
+                        helperText={errors.confirmacaoSenha || errors.password}
                         fullWidth
                       slotProps={{
                         input:{

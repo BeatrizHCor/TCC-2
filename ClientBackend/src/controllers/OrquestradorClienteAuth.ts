@@ -14,7 +14,7 @@ class OrquestradorClienteAuth {
             const clienteResponse = await ClienteController.create(req);
             if (!clienteResponse) {
                 res.status(400).json({ message: 'Erro ao criar cliente.' });
-            }
+            }// achar forma de interroper totamente o fluxo se o cliente não for criado
             // extrai ID
             const clienteData = await ClienteService.findByEmailandSalao(Email, SalaoId);
             if (!clienteData) {
@@ -23,13 +23,13 @@ class OrquestradorClienteAuth {
             else {
                 clienteId = clienteData.ID;            
                 const authUrl = `${AuthBack}/register`;
-                            
+
             //criar um login no AuthBackend
             const authResponse = await axios.post(authUrl, {
                 userID: clienteData.ID,
-                email: clienteData.Email,
-                password: req.body.password,
-                salaoID: clienteData.SalaoId,
+                email: req.body.Email,
+                password: req.body.Password,
+                salaoID: req.body.SalaoId,
                 userType: 'Cliente',                
             });
         

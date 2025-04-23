@@ -10,21 +10,6 @@ const api = axios.create({
 });
 
 export class LoginService {
-  static async cadastrar(authData: AuthControl): Promise<AuthControl> {
-    try {
-      const response = await api.post(`/register`, {
-        userID: authData.usuarioID,
-        email: authData.email,
-        password: authData.senha,
-        salaoID: authData.salaoId,
-        userType: authData.type,
-      });
-      return response.data;
-    } catch (error) {
-      console.error("Erro ao cadastrar usuário:", error);
-      throw error;
-    }
-  }
 
   static async login(
     email: string,
