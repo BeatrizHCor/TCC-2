@@ -1,5 +1,6 @@
 import express from 'express';
 import ClienteController from '../controllers/clienteController';
+import OrquestradorClienteAuth from '../controllers/OrquestradorClienteAuth';
 
 const router = express.Router();
 
@@ -8,7 +9,7 @@ router.get('/cliente/all', ClienteController.findAll);
 router.get('/cliente/ID/:id/', ClienteController.findByID);
 router.get('/cliente/email/:email/:salaoId', ClienteController.findByEmailandSalao);
 router.get('/cliente/cpf/:cpf/:salaoId', ClienteController.findByCpfandSalao);
-router.post('/cliente', ClienteController.create);
+router.post('/cliente', OrquestradorClienteAuth.create);
 router.put('/cliente/update/:email/:salaoId', ClienteController.update);
 router.delete('/cliente/delete/:email/:salaoId', ClienteController.delete);
 

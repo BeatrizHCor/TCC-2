@@ -1,6 +1,6 @@
 import { Request, Response } from "express";
 import ClienteService from "../services/clienteService";
-
+import { Cliente } from "@prisma/client";
 class ClienteController {
 
   static async getClientesPage(req: Request, res: Response): Promise<void> {
@@ -36,7 +36,7 @@ class ClienteController {
     }
 
 
-  static async create(req: Request, res: Response): Promise<void> {
+  static async create(req: Request): Promise<boolean | null> {
     try {
       let { CPF, Nome, Email, Telefone, SalaoId } = req.body;
       const newCliente = await ClienteService.create(
@@ -46,17 +46,20 @@ class ClienteController {
         Telefone,
         SalaoId
       );
-      res.status(201).json(newCliente);
+      if (!newCliente) {
+        return null; 
+      }
+      return newCliente;
     } catch (error) {
-      console.log(error);
-      res.status(500).send("something went wrong");
+      console.error('Erro ao criar cliente:', error);
+      return null; 
     }
   }
 
   static async findByID(req: Request, res: Response): Promise<void> {
     try {
       const { id } = req.params;
-      const includeRelations = req.query.include === "true"; // Converte include para booleano
+      const includeRelations = req.query.include === "true" ? true : false;
       const cliente = await ClienteService.findById(id, includeRelations);
 
       if (!cliente) {
@@ -72,11 +75,11 @@ class ClienteController {
   static async findByEmailandSalao(req: Request, res: Response) {
     try {
       const { email, salaoId } = req.params;
-      const { includeRelations } = req.query;
+      const includeRelations = req.query.include === "true" ? true : false;
       const cliente = await ClienteService.findByEmailandSalao(
         email,
         salaoId,
-        includeRelations === "true"
+        includeRelations
       );
       if (!cliente) {
         res.status(404).json({ message: 'Cliente não encontrado' });
