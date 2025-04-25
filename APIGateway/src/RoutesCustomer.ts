@@ -1,6 +1,12 @@
 import { Router, Request, Response } from "express";
 import { Cliente } from "./models/clienteModel";
-import { postCliente, postLogin, registerLogin, getClientePage, getClienteByCPF } from "./Service";
+import { 
+  postCliente, 
+  postLogin, 
+  registerLogin, 
+  getClientePage, 
+  getClienteByCPF, 
+  deleteCliente } from "./Service";
 const RoutesCustomer = Router();
 
 //Lógica feita, ainda não testado. Da pra deixar o código mais limpo mas a idéia é esse fluxo. No fim ja retorna um token.
@@ -18,6 +24,19 @@ RoutesCustomer.post("/cliente", async (req: Request, res: Response) => {
       SalaoId,
       userType
     );
+    if (!register) {
+      console.log("Register failed");
+      let clienteDelete = await deleteCliente(
+        Email,
+        SalaoId);
+      if (clienteDelete) {
+        console.log("Cliente deleted successfully");
+      }else{
+        console.log("Failed to delete cliente after register failure");
+      }
+      throw new Error("Login registration failed");
+    }
+
     let token = await postLogin(Email, Password, SalaoId);
     res.status(200).send(token);
   } catch (e) {

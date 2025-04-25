@@ -190,3 +190,31 @@ export const getClienteByCPF = async (cpf: string, salaoId: string) => {
     throw new Error("Error in getting cliente by CPF");
   }
 };  
+
+export const getClienteByEmail = async (email: string, salaoId: string) => {
+  let responseCliente = await fetch(
+    CustomerURL + `/cliente/email/${email}/${salaoId}`,
+    {
+      method: "GET",
+    }
+  );
+  if (responseCliente.ok) {
+    return (await responseCliente.json()) as Cliente;
+  } else {
+    throw new Error("Error in getting cliente by email");
+  }
+}
+
+export const deleteCliente = async (email:string, salaoId:string) => { 
+  let responseCliente = await fetch(
+    CustomerURL + `/cliente/delete/${email}/${salaoId}`,
+    {
+      method: "DELETE",
+    }
+  );
+  if (responseCliente.ok) {
+    return (await responseCliente.json()) as Cliente;
+  } else {
+    throw new Error("Error in deleting cliente");
+  }
+}
