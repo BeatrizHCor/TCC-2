@@ -3,10 +3,12 @@ import { Cliente } from "./models/clienteModel";
 import { userTypes } from "./models/tipo-usuario.enum";
 import { accessSync } from "fs";
 import { Cabeleireiro } from "./models/cabelereiroModel";
+import e from "express";
 
-const CustomerURL = process.env.CustomerURL || "http://localhost:4001";
-const loginURL = process.env.AuthURL || "http://localhost:4000";
-const CabeleireiroURL = process.env.CabeleireiroURL || "http://localhost:4002";
+const CustomerURL = process.env.CUSTOMER_URL || "http://localhost:4001";
+const loginURL = process.env.AUTH_URL || "http://localhost:4000";
+const CabeleireiroURL = process.env.CABELEREIRO_URL || "http://localhost:4002";
+const FuncionarioURL = process.env.FUNCIONARIO_URL || "http://localhost:4003";
 
 export const postCliente = async (
   CPF: string,
@@ -17,6 +19,9 @@ export const postCliente = async (
 ) => {
   let responseCliente = await fetch(CustomerURL + "/cliente", {
     method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
     body: JSON.stringify({ CPF, Nome, Email, Telefone, SalaoId }),
   });
   if (responseCliente.ok) {
@@ -29,6 +34,9 @@ export const postCliente = async (
 export const postCabeleireiro = async (cabeleireiro: Cabeleireiro) => {
   let responseCabeleireiro = await fetch(CabeleireiroURL + "/cabeleireiro", {
     method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
     body: JSON.stringify(cabeleireiro),
   });
   if (responseCabeleireiro.ok) {
@@ -59,20 +67,23 @@ export const getCabeleireiroPage = async (
 };
 
 export const registerLogin = async (
-  userType: userTypes,
   userID: string,
   email: string,
   password: string,
-  salaoId: string
+  salaoId: string,
+  userType: userTypes
 ) => {
   let responseRegister = await fetch(loginURL + "/register", {
     method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
     body: JSON.stringify({
-      userType,
       userID,
       email,
       password,
       salaoId,
+      userType,
     }),
   });
   if (responseRegister.ok) {
@@ -90,6 +101,9 @@ export const postLogin = async (
 ) => {
   let responseLogin = await fetch(loginURL + "/login", {
     method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
     body: JSON.stringify({
       email,
       password,
@@ -110,6 +124,9 @@ export const authenticate = async (
 ) => {
   let response = await fetch(loginURL + "/authenticate", {
     method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
     body: JSON.stringify({ userID, token, userType }),
   });
   if (response.ok) {
@@ -119,3 +136,57 @@ export const authenticate = async (
     throw new Error("Error in Authentication");
   }
 };
+
+export const getClientePage = async (
+  page: string,
+  limit: string,
+  includeRelations: boolean = false,
+  salaoId: string
+) => {
+  let responseClientes = await fetch(
+    CustomerURL +
+      `/cliente/page`,
+       {
+      method: "GET",
+      body: JSON.stringify({
+        page,
+        limit,
+        includeRelations,
+        salaoId,
+      }),
+    }
+  );
+  if (responseClientes.ok) {
+    return (await responseClientes.json()) as Cliente[];
+  } else {
+    throw new Error("Error in getting cliente page");
+  }
+};
+
+export const getCliente = async (id: string, includeRelations: boolean) => {
+  let responseCliente = await fetch(
+    CustomerURL + `/cliente/ID/${id}?include=${includeRelations}`,
+    {
+      method: "GET",
+    }
+  );
+  if (responseCliente.ok) {
+    return (await responseCliente.json()) as Cliente;
+  } else {
+    throw new Error("Error in getting cliente");
+  }
+};
+
+export const getClienteByCPF = async (cpf: string, salaoId: string) => {
+  let responseCliente = await fetch(
+    CustomerURL + `/cliente/cpf/${cpf}/${salaoId}`,
+    {
+      method: "GET",
+    }
+  );
+  if (responseCliente.ok) {
+    return (await responseCliente.json()) as Cliente;
+  } else {
+    throw new Error("Error in getting cliente by CPF");
+  }
+};  

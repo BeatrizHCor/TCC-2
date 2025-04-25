@@ -147,7 +147,7 @@ export const ClienteCadastro: React.FC<ClienteCadastroProps> = () => {
                   <Box display="flex" gap={2} alignItems="center">
                     <Box flex={1}>
                       <TextField
-                        name="senha"
+                        name="password"
                         label="Senha"
                         required
                         type={showPassword ? "text" : "password"}
@@ -175,8 +175,8 @@ export const ClienteCadastro: React.FC<ClienteCadastroProps> = () => {
                         type={showConfirmPassword ? "text" : "password"}
                         value={confirmacaoSenha}
                         onChange={handleConfirmacaoSenhaChange}
-                        error={!!errors.confirmacaoSenha || !!errors.password}
-                        helperText={errors.confirmacaoSenha || errors.password}
+                        error={!!errors.confirmacaoSenha}
+                        helperText={errors.confirmacaoSenha}
                         fullWidth
                       slotProps={{
                         input:{

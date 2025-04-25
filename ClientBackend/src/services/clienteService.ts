@@ -60,16 +60,11 @@ class ClienteService {
     Telefone: string,
     SalaoId: string
   ) {
-    console.log('Iniciando criação do cliente com os dados:', { CPF, Nome, Email, Telefone, SalaoId });
-    if (!CPF || !Nome || !Email || !Telefone || !SalaoId) {
-      throw new Error('Parâmetros inválidos para criação do cliente');
-    }
     const existingCliente = await this.findByEmailandSalao(Email, SalaoId);
     if (existingCliente) {
       console.error('Cliente já cadastrado neste salão:', { Email, SalaoId });
       throw new Error('Cliente já cadastrado neste salão');
     }
-    console.log('Dados enviados para criação:', { CPF, Nome, Email, Telefone, SalaoId });
     try {
       const cliente = await prisma.cliente.create({
         data: {
@@ -81,7 +76,7 @@ class ClienteService {
         },
       });
       console.log(cliente);
-      return true;
+      return cliente;
     } catch (error) {
       console.error('Erro ao criar cliente:', error);
       throw new Error('Erro ao criar cliente');
@@ -110,7 +105,6 @@ class ClienteService {
   }
 
   static async findByEmailandSalao(Email: string, salaoId: string, include = false) {
-    console.log('Buscando cliente com Email e SalaoId:', { Email, salaoId });
    try {
     return await prisma.cliente.findUnique({
       where: {

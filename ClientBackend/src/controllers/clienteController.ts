@@ -1,6 +1,6 @@
 import { Request, Response } from "express";
 import ClienteService from "../services/clienteService";
-import { Cliente } from "@prisma/client";
+
 class ClienteController {
 
   static async getClientesPage(req: Request, res: Response): Promise<void> {
@@ -36,25 +36,23 @@ class ClienteController {
     }
 
 
-  static async create(req: Request): Promise<boolean | null> {
-    try {
-      let { CPF, Nome, Email, Telefone, SalaoId } = req.body;
-      const newCliente = await ClienteService.create(
-        CPF,
-        Nome,
-        Email,
-        Telefone,
-        SalaoId
-      );
-      if (!newCliente) {
-        return null; 
+    static async create(req: Request, res: Response): Promise<void> {
+      try {
+        let { CPF, Nome, Email, Telefone, SalaoId } = req.body;
+        const newCliente = await ClienteService.create(
+          CPF,
+          Nome,
+          Email,
+          Telefone,
+          SalaoId
+          
+        );
+        res.status(201).json(newCliente);
+      } catch (error) {
+        console.log(error);
+        res.status(500).send("something went wrong");
       }
-      return newCliente;
-    } catch (error) {
-      console.error('Erro ao criar cliente:', error);
-      return null; 
     }
-  }
 
   static async findByID(req: Request, res: Response): Promise<void> {
     try {

@@ -2,7 +2,7 @@ import axios from "axios";
 import { AuthControl } from "../models/authModel";
 
 const api = axios.create({
-  baseURL: "http://localhost:4000",
+  baseURL: import.meta.env.APIGATEWAY_URL || "http://localhost:4000",
   timeout: 10000,
   headers: {
     "Content-Type": "application/json",
@@ -24,13 +24,12 @@ export class LoginService {
       });
       if (response.data.token) {
         localStorage.setItem("token", response.data.token);
-        localStorage.setItem("usuario", JSON.stringify(response.data));
+        localStorage.setItem("usuario", JSON.stringify({ email, salaoId }));
 
         axios.defaults.headers.common[
           "Authorization"
         ] = `Bearer ${response.data.token}`;
       }
-
       return response.data;
     } catch (error) {
       console.error("Erro ao realizar login:", error);

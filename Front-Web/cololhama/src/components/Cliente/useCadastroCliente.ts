@@ -2,7 +2,6 @@ import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { userTypes } from '../../models/tipo-usuario.enum';
 import { ClienteService } from '../../services/ClienteService';
-import { LoginService } from '../../services/LoginService';
 import { cpfMask, telefoneMask, validarCPF, validarEmail, validarSenha, validarTelefone } from '../../utils/validations';
 
 interface FormErrors {
@@ -80,7 +79,7 @@ export const useClienteCadastro = (salaoId: string) => {
     if (!validarCPF(cadastro.CPF)) {
       newErrors.CPF = 'CPF inválido';
     } else {
-      const cpfExiste = await ClienteService.verificarClienteCpfExistente(cadastro.CPF, salaoId);
+      const cpfExiste = await ClienteService.getClienteByCpfAndSalao(cadastro.CPF, salaoId);
       if (cpfExiste) {
         newErrors.CPF = 'CPF já cadastrado';
       }
@@ -125,8 +124,6 @@ export const useClienteCadastro = (salaoId: string) => {
         console.error("Erro ao cadastrar cliente.");
         return;
       }
-
-      await LoginService.login(cadastro.email, cadastro.password, cadastro.salaoId);
 
       setLoading(false);
       window.location.href = '/home';
