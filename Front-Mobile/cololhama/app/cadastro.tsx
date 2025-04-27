@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState } from "react";
 import {
   View,
   Text,
@@ -10,17 +10,19 @@ import {
   StyleSheet,
   KeyboardAvoidingView,
   Platform,
-} from 'react-native';
-import { MaterialIcons } from '@expo/vector-icons';
-import { useClienteCadastro } from './useCadastroCliente';
-import theme from '@/theme/theme';
-import { useRouter } from 'expo-router';
+} from "react-native";
+import { MaterialIcons } from "@expo/vector-icons";
+import { useClienteCadastro } from "./useCadastroCliente";
+import theme from "@/theme/theme";
+import { useRouter } from "expo-router";
 
 interface ClienteCadastroProps {
   salaoId?: string;
 }
 
-export const ClienteCadastro: React.FC<ClienteCadastroProps> = ({ salaoId }) => {
+export const ClienteCadastro: React.FC<ClienteCadastroProps> = ({
+  salaoId,
+}) => {
   const {
     cpfFormatado,
     telefoneFormatado,
@@ -32,7 +34,7 @@ export const ClienteCadastro: React.FC<ClienteCadastroProps> = ({ salaoId }) => 
     handleTelefoneChange,
     handleConfirmacaoSenhaChange,
     handleSubmit,
-  } = useClienteCadastro(salaoId || '');
+  } = useClienteCadastro(salaoId || "");
 
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
@@ -42,11 +44,11 @@ export const ClienteCadastro: React.FC<ClienteCadastroProps> = ({ salaoId }) => 
   return (
     <KeyboardAvoidingView
       style={styles.container}
-      behavior={Platform.OS === 'ios' ? 'padding' : undefined}
+      behavior={Platform.OS === "ios" ? "padding" : undefined}
     >
       <View style={styles.header}>
         <Image
-          source={require('../assets/images/logo.png')}
+          source={require("../assets/images/logo.png")}
           style={styles.logo}
         />
         <Text style={styles.headerTitle}>Cadastre-se</Text>
@@ -63,7 +65,7 @@ export const ClienteCadastro: React.FC<ClienteCadastroProps> = ({ salaoId }) => 
           <TextInput
             style={[styles.input, errors.nome && styles.inputError]}
             placeholder="Nome Completo"
-            onChangeText={(text) => handleChange('nome', text)}
+            onChangeText={(text) => handleChange("nome", text)}
           />
           {errors.nome && <Text style={styles.error}>{errors.nome}</Text>}
 
@@ -88,7 +90,9 @@ export const ClienteCadastro: React.FC<ClienteCadastroProps> = ({ salaoId }) => 
                 maxLength={15}
                 keyboardType="phone-pad"
               />
-              {errors.telefone && <Text style={styles.error}>{errors.telefone}</Text>}
+              {errors.telefone && (
+                <Text style={styles.error}>{errors.telefone}</Text>
+              )}
             </View>
           </View>
 
@@ -97,7 +101,7 @@ export const ClienteCadastro: React.FC<ClienteCadastroProps> = ({ salaoId }) => 
             placeholder="Email"
             keyboardType="email-address"
             autoCapitalize="none"
-            onChangeText={(text) => handleChange('email', text)}
+            onChangeText={(text) => handleChange("email", text)}
           />
           {errors.email && <Text style={styles.error}>{errors.email}</Text>}
 
@@ -110,7 +114,7 @@ export const ClienteCadastro: React.FC<ClienteCadastroProps> = ({ salaoId }) => 
                   style={[styles.input, errors.senha && styles.inputError]}
                   placeholder="Senha"
                   secureTextEntry={!showPassword}
-                  onChangeText={(text) => handleChange('senha', text)}
+                  onChangeText={(text) => handleChange("senha", text)}
                 />
                 <TouchableOpacity
                   onPress={() => setShowPassword(!showPassword)}
@@ -118,7 +122,7 @@ export const ClienteCadastro: React.FC<ClienteCadastroProps> = ({ salaoId }) => 
                   activeOpacity={0.7}
                 >
                   <MaterialIcons
-                    name={showPassword ? 'visibility-off' : 'visibility'}
+                    name={showPassword ? "visibility-off" : "visibility"}
                     size={20}
                     color="#666"
                   />
@@ -130,7 +134,10 @@ export const ClienteCadastro: React.FC<ClienteCadastroProps> = ({ salaoId }) => 
             <View style={styles.halfInput}>
               <View style={styles.passwordContainer}>
                 <TextInput
-                  style={[styles.input, errors.confirmacaoSenha && styles.inputError]}
+                  style={[
+                    styles.input,
+                    errors.confirmacaoSenha && styles.inputError,
+                  ]}
                   placeholder="Confirmar Senha"
                   secureTextEntry={!showConfirmPassword}
                   value={confirmacaoSenha}
@@ -142,7 +149,7 @@ export const ClienteCadastro: React.FC<ClienteCadastroProps> = ({ salaoId }) => 
                   activeOpacity={0.7}
                 >
                   <MaterialIcons
-                    name={showConfirmPassword ? 'visibility-off' : 'visibility'}
+                    name={showConfirmPassword ? "visibility-off" : "visibility"}
                     size={20}
                     color="#666"
                   />
@@ -155,8 +162,8 @@ export const ClienteCadastro: React.FC<ClienteCadastroProps> = ({ salaoId }) => 
           </View>
 
           <Text style={styles.info}>
-            A senha deve conter pelo menos 8 caracteres, incluindo letras maiúsculas,
-            minúsculas, números e caracteres especiais.
+            A senha deve conter pelo menos 8 caracteres, incluindo letras
+            maiúsculas, minúsculas, números e caracteres especiais.
           </Text>
 
           <TouchableOpacity
@@ -173,7 +180,7 @@ export const ClienteCadastro: React.FC<ClienteCadastroProps> = ({ salaoId }) => 
           </TouchableOpacity>
 
           <TouchableOpacity
-            onPress={() => router.replace('/login')}
+            onPress={() => router.replace("/Login")}
             style={styles.link}
             activeOpacity={0.7}
           >
@@ -188,7 +195,7 @@ export const ClienteCadastro: React.FC<ClienteCadastroProps> = ({ salaoId }) => 
 const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: theme.colors.primary },
   header: {
-    alignItems: 'center',
+    alignItems: "center",
     paddingTop: 60,
     paddingBottom: 24,
     backgroundColor: theme.colors.primary,
@@ -196,23 +203,23 @@ const styles = StyleSheet.create({
   logo: {
     width: 120,
     height: 120,
-    resizeMode: 'contain',
-    tintColor: '#fff',
+    resizeMode: "contain",
+    tintColor: "#fff",
   },
   headerTitle: {
     fontSize: 26,
-    fontWeight: 'bold',
-    color: '#fff',
+    fontWeight: "bold",
+    color: "#fff",
     marginTop: 12,
   },
   headerSubtitle: {
     fontSize: 16,
-    color: '#fff',
+    color: "#fff",
     marginTop: 4,
   },
   content: {
     flex: 1,
-    backgroundColor: '#f6f6f6',
+    backgroundColor: "#f6f6f6",
     borderTopLeftRadius: 32,
     borderTopRightRadius: 32,
     paddingTop: 20,
@@ -223,67 +230,67 @@ const styles = StyleSheet.create({
   },
   sectionTitle: {
     fontSize: 18,
-    fontWeight: 'bold',
+    fontWeight: "bold",
     marginTop: 16,
     marginBottom: 10,
     color: theme.colors.primary,
   },
   input: {
-    backgroundColor: '#fff',
+    backgroundColor: "#fff",
     borderRadius: 8,
     padding: 12,
     marginBottom: 8,
     borderWidth: 1,
-    borderColor: '#ccc',
+    borderColor: "#ccc",
     fontSize: 16,
   },
   inputError: {
-    borderColor: 'red',
+    borderColor: "red",
   },
   row: {
-    flexDirection: 'row',
+    flexDirection: "row",
     gap: 8,
   },
   halfInput: {
     flex: 1,
   },
   passwordContainer: {
-    position: 'relative',
-    width: '100%',
+    position: "relative",
+    width: "100%",
   },
   icon: {
-    position: 'absolute',
+    position: "absolute",
     right: 12,
     top: 12,
     padding: 2,
   },
   error: {
-    color: 'red',
+    color: "red",
     marginBottom: 8,
     fontSize: 12,
   },
   info: {
     fontSize: 12,
-    color: '#444',
+    color: "#444",
     marginVertical: 12,
   },
   button: {
     backgroundColor: theme.colors.primary,
     paddingVertical: 12,
     borderRadius: 8,
-    alignItems: 'center',
+    alignItems: "center",
     marginTop: 8,
   },
   buttonDisabled: {
     opacity: 0.6,
   },
   buttonText: {
-    color: '#fff',
-    fontWeight: 'bold',
+    color: "#fff",
+    fontWeight: "bold",
   },
   link: {
     marginTop: 16,
-    alignSelf: 'center',
+    alignSelf: "center",
   },
   linkText: {
     color: theme.colors.primary,

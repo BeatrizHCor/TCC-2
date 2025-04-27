@@ -99,7 +99,8 @@ export default function Login() {
             <TouchableOpacity
               style={[
                 styles.button,
-                (!validateEmail(email) || senha === "") && styles.disabledButton,
+                (!validateEmail(email) || senha === "") &&
+                  styles.disabledButton,
               ]}
               onPress={handleSubmit}
               disabled={!validateEmail(email) || senha === ""}
@@ -111,7 +112,7 @@ export default function Login() {
               )}
             </TouchableOpacity>
 
-            <TouchableOpacity onPress={() => router.push("/cadastro")}>
+            <TouchableOpacity onPress={() => router.push("/Cadastro")}>
               <Text style={styles.link}>Não tem uma conta? Cadastre-se</Text>
             </TouchableOpacity>
           </View>

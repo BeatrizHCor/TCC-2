@@ -2,7 +2,7 @@ import { Router, Request, Response } from "express";
 import {
   registerLogin,
   verifyPasswordAndReturnToken,
-  verifyTokenAndRefresh,
+  verifyTokenAndType,
 } from "./Controller";
 
 const RoutesLogin = Router();
@@ -39,7 +39,7 @@ RoutesLogin.post("/login", async (req: Request, res: Response) => {
 
 RoutesLogin.post("/authenticate", async (req: Request, res: Response) => {
   let { userID, token, userType } = req.body;
-  let newToken = await verifyTokenAndRefresh(token, userID, userType);
+  let newToken = await verifyTokenAndType(token, userID, userType);
   if (newToken) {
     res.send(newToken).status(200);
   } else {

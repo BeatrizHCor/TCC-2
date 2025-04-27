@@ -67,21 +67,15 @@ const generateRandomToken = () => {
   );
 };
 
-export const verifyTokenAndRefresh = async (
+export const verifyTokenAndType = async (
   token: string,
   userID: string,
   userType: string
 ) => {
   let login = await findLoginbyUserId(userID);
   if (login?.Token === token && login?.Type === userType) {
-    const Token = generateRandomToken();
-    await updateLogin(
-      login.UsuarioID,
-      login.Senha,
-      login.Email,
-      login.SalaoId,
-      Token
-    );
-    return { token: Token, userID: userID, userType: login.Type };
+    return { token: login.Token, userID: userID, userType: login.Type };
+  } else {
+    return null;
   }
 };
