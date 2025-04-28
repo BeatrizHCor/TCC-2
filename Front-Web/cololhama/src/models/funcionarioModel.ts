@@ -10,8 +10,8 @@ export interface Funcionario {
     telefone: string;
     salaoId: string; 
     auxiliar: boolean;
-    salario: number;
-    atendimentos: Atendimento[];
-    atendimentoAuxiliar: AtendimentoAuxiliar[];
-    holerite: Holerite[];
+    salario?: number;
+    atendimentos?: Atendimento[];
+    atendimentoAuxiliar?: AtendimentoAuxiliar[];
+    holerite?: Holerite[];
   }

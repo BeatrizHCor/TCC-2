@@ -126,7 +126,7 @@ export const useClienteCadastro = (salaoId: string) => {
       }
 
       setLoading(false);
-      window.location.href = '/home';
+      window.location.href = '/';
     } catch (error) {
       console.error('Erro ao cadastrar:', error);
       alert('Erro ao cadastrar: ' + JSON.stringify(error));

@@ -218,3 +218,29 @@ export const deleteCliente = async (email:string, salaoId:string) => {
     throw new Error("Error in deleting cliente");
   }
 }
+
+export const getFuncionarioPage = async (
+  page: string,
+  limit: string,
+  includeRelations: boolean = false, 
+  salaoId: string
+) => {  
+  let responseFuncionarios = await fetch(
+    FuncionarioURL +
+      `/funcionario/page`,
+    {
+      method: "GET",
+      body: JSON.stringify({
+        page,
+        limit,
+        includeRelations,
+        salaoId,
+      }),
+    }
+  );
+  if (responseFuncionarios.ok) {
+    return (await responseFuncionarios.json()) as Cabeleireiro[];
+  } else {
+    throw new Error("Error in getting funcionario page");
+  }
+}
