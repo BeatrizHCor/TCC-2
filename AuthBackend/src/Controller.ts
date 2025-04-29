@@ -24,12 +24,12 @@ export const registerLogin = async (
   userID: string,
   email: string,
   password: string,
-  salaoID: string,
+  salaoId: string,
   userType: string
 ) => {
   let hashed = await HashPassword(password);
   if (hashed) {
-    let created = await createLogin(salaoID, userID, hashed, email, userType);
+    let created = await createLogin(salaoId, userID, hashed, email, userType);
     return created;
   }
 };

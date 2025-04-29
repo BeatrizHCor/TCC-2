@@ -2,7 +2,7 @@ import { Agendamentos } from "./agendamentoModel";
 import { HistoricoSimulacao } from "./historicoSimulacaoModel";
 
 export interface Cliente {
-    id?: string;  
+    ID?: string;  
     CPF: string;
     Nome: string;
     Email: string;

@@ -64,16 +64,11 @@ class FuncionarioService {
     Auxiliar: boolean,
     Salario: number
   ) {
-    console.log('Iniciando criação do funcionário com os dados:', { CPF, Nome, Email, Telefone, SalaoId, Auxiliar, Salario });
-    if (!CPF || !Nome || !Email || !Telefone || !SalaoId || Salario === undefined || Auxiliar === undefined) {
-      throw new Error('Parâmetros inválidos para criação do funcionário');
-    }
     const existingFuncionario = await this.findByEmailandSalao(Email, SalaoId);
     if (existingFuncionario) {
       console.error('Funcionário já cadastrado neste salão:', { Email, SalaoId });
       throw new Error('Funcionário já cadastrado neste salão');
     }
-    console.log('Dados enviados para criação:', { CPF, Nome, Email, Telefone, SalaoId, Auxiliar, Salario });
     try {
       const funcionario = await prisma.funcionario.create({
         data: {
@@ -204,6 +199,18 @@ class FuncionarioService {
           Email: Email,
           SalaoId: salaoId,
         },
+      },
+    });
+  }
+
+  static async deleteById(ID: string) {
+    const existingFuncionario = await this.findById(ID);
+    if (!existingFuncionario) {
+      throw new Error("Funcionário não encontrado");
+    }
+    return await prisma.funcionario.delete({
+      where: {
+        ID: ID,
       },
     });
   }

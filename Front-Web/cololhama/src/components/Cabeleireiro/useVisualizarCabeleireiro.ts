@@ -24,8 +24,18 @@ export const useVisualizarCabeleireiros = (
           false,
           salaoId
         );
-
-        setCabeleireiros(response.data);
+        const listaCabeleireiros: Cabeleireiro[] = (response.data || []).map(
+          (item: any) => ({
+            id: item.ID ?? "",
+            cpf: item.CPF ?? "",
+            nome: item.Nome ?? "",
+            email: item.Email ?? "",
+            telefone: item.Telefone ?? "",
+            mei: item.MEI ?? "",
+            salaoId: item.SalaoId ?? "",
+          })
+        );
+        setCabeleireiros(listaCabeleireiros);
         setTotalCabeleireiros(response.total);
       } catch (err) {
         setError(

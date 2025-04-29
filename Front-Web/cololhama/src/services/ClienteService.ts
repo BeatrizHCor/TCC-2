@@ -2,23 +2,44 @@ import axios from "axios";
 import { Cliente } from "../models/clienteModel";
 
 const api = axios.create({
-  baseURL: "http://localhost:3001",
+  baseURL: import.meta.env.APIGATEWAY_URL || "http://localhost:5000",
   timeout: 100000,
   headers: {
     "Content-Type": "application/json",
   },
 });
-
+// set os dados do usuario para autenticação no header de cada requisição
 api.interceptors.request.use(
   (config) => {
-    const token = localStorage.getItem("usuario");
-    if (token) {
-      config.headers.Authorization = `Bearer ${token}`;
+    const usuario = localStorage.getItem("usuario"); 
+    if (usuario) {
+      const { userID, userType } = JSON.parse(usuario); 
+      config.headers.userID = userID; 
+      config.headers.userType = userType; 
     }
     return config;
   },
   (error) => Promise.reject(error)
 );
+
+// verifique se a resposta contém um novo token e atualiza
+api.interceptors.response.use(
+  (response) => {
+    const tokenHeader = response.headers["authorization"]?.replace("Bearer ", "");
+    const currentToken = localStorage.getItem("token");
+    if (tokenHeader !== currentToken) {
+      console.log("Atualizando token na memória local");
+      localStorage.setItem("token", tokenHeader);
+      axios.defaults.headers.common["Authorization"] = `Bearer ${tokenHeader}`;
+    }
+    return response;
+  },
+  (error) => {
+    console.error("Erro na resposta da API:", error);
+    return Promise.reject(error);
+  }
+);
+
 
 interface ClientePageResponse {
   data: Cliente[];
@@ -27,17 +48,51 @@ interface ClientePageResponse {
   limit: number;
 }
 export const ClienteService = {
-  async cadastrarCliente(cliente: Cliente): Promise<Cliente> {
+  async cadastrarCliente({
+    CPF,
+    nome,
+    email,
+    telefone,
+    salaoId,
+    password,
+    userType,
+  }: {
+    CPF: string;
+    nome: string;
+    email: string;
+    telefone: string;
+    salaoId: string;
+    password: string;
+    userType: string;
+  }): Promise<boolean> {
+    console.log("Dados recebidos para cadastro:", {
+      CPF,
+      nome,
+      email,
+      telefone,
+      salaoId,
+      password,
+      userType,
+    });
     try {
-      const novoCliente = {
-        CPF: cliente.CPF,
-        Nome: cliente.nome,
-        Email: cliente.email,
-        Telefone: String(cliente.telefone),
-        SalaoId: cliente.salaoId,
-      };
-      const response = await api.post(`/cliente`, novoCliente);
-      return response.data;
+      const response = await api.post(`/cliente`, {
+        CPF: CPF,
+        Nome: nome,
+        Email: email,
+        Telefone: telefone,
+        SalaoId: salaoId,
+        Password: password,
+        userType: userType,
+      });
+      if (response.data.token) {
+        localStorage.setItem("token", response.data.token);
+        localStorage.setItem("usuario", JSON.stringify({ email, salaoId }));
+
+        axios.defaults.headers.common[
+          "Authorization"
+        ] = `Bearer ${response.data.token}`;
+      }
+      return !!response.data;
     } catch (error) {
       console.error("Erro ao cadastrar cliente:", error);
       throw error;
@@ -61,7 +116,7 @@ export const ClienteService = {
     }
   },
 
-  async verificarClienteCpfExistente(
+  async getClienteByCpfAndSalao(
     cpf: string,
     salaoId: string
   ): Promise<boolean> {
@@ -69,6 +124,10 @@ export const ClienteService = {
       const path = `/cliente/cpf/${cpf}/${salaoId}`;
       console.log(`Verificando cliente por CPF no caminho: ${path}`);
       const response = await api.get(path);
+      if (response.status === 204) {
+        console.log("Cliente não encontrado, retornando false.");
+        return false;
+      }
       console.log("Resposta do servidor:", response.data);
       return !!response.data;
     } catch (error) {
@@ -81,25 +140,6 @@ export const ClienteService = {
     }
   },
 
-  async getByCpfandSalao(
-    cpf: string,
-    salaoId: string
-  ): Promise<Cliente> {
-    try {
-      const path = `/cliente/cpf/${cpf}/${salaoId}`;
-      console.log(`Verificando cliente por CPF no caminho: ${path}`);
-      const response = await api.get(path);
-      console.log("Resposta do servidor:", response.data);
-      return response.data;
-    } catch (error) {
-      if (axios.isAxiosError(error) && error.response?.status === 404) {
-        console.log("Cliente não encontrado, retornando false.");
-        throw error;
-      }
-      console.error("Erro ao verificar cliente por CPF:", error);
-      throw error;
-    }
-  },
 
   async getClientePage(
     page: number = 1,

@@ -12,18 +12,18 @@ RoutesLogin.get("/login", (req: Request, res: Response) => {
 });
 
 RoutesLogin.post("/register", (req: Request, res: Response) => {
-  let { userID, email, password, salaoID, userType } = req.body;
-  registerLogin(userID, email, password, salaoID, userType)
+  let { userID, email, password, salaoId, userType } = req.body;
+  registerLogin(userID, email, password, salaoId, userType)
     .then((r) => {
       if (r) {
-        res.status(201).send("login created");
+        res.status(201).json({ message: "login created" });;
       } else {
-        res.status(403).send("Not able to create login");
+        res.status(403).json({ message: "problema ao criar login" });;
       }
     })
     .catch((e) => {
       console.log(e);
-      res.status(500).send("something went wrong");
+      res.status(500).json({ message: "erro" });;
     });
 });
 

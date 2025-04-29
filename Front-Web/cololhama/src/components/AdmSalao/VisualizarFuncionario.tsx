@@ -1,11 +1,11 @@
-import React, { useState } from "react";
-import {
-  Box,
-  Table,
-  TableBody,
-  TableCell,
-  TableContainer,
-  TableHead,
+import React, { useState } from 'react';
+import { 
+  Box, 
+  Table, 
+  TableBody, 
+  TableCell, 
+  TableContainer, 
+  TableHead, 
   TableRow,
   TablePagination,
   Paper,
@@ -14,33 +14,36 @@ import {
   Select,
   FormControl,
   InputLabel,
-} from "@mui/material";
-import { useVisualizarCabeleireiros } from "./useVisualizarCabeleireiro";
+} from '@mui/material';
+import { Funcionario } from '../../models/funcionarioModel';
+import { useVisualizarFuncionarios } from './useVisualizarFuncionario';
 import "../../styles/styles.global.css";
-import { Cabeleireiro } from "../../models/cabelereiroModel";
 
 const colunas = [
-  { id: "nome", label: "Nome" },
-  { id: "email", label: "Email" },
-  { id: "telefone", label: "Telefone" },
+  { id: 'nome', label: 'Nome' },
+  { id: 'email', label: 'Email' },
+  { id: 'telefone', label: 'Telefone' },
+  { id: 'dataCadastro', label: 'Data de Cadastro' },
 ];
 
-export const VisualizarCabeleireiro: React.FC = () => {
+export const VisualizarFuncionarios: React.FC = () => {
   const [page, setPage] = useState(0);
   const [rowsPerPage, setRowsPerPage] = useState(10);
-  const [colunaBusca, setColunaBusca] = useState("nome");
-  const [termoBusca, setTermoBusca] = useState("");
+  const [colunaBusca, setColunaBusca] = useState('nome');
+  const [termoBusca, setTermoBusca] = useState('');
 
-  const { cabeleireiros, totalCabeleireiros, isLoading, error } =
-    useVisualizarCabeleireiros(page + 1, rowsPerPage, "1");
+  const { 
+    funcionarios, 
+    totalFuncionarios, 
+    isLoading, 
+    error 
+  } = useVisualizarFuncionarios(page + 1, rowsPerPage, '1');
 
   const handleChangePage = (_: unknown, newPage: number) => {
     setPage(newPage);
   };
 
-  const handleChangeRowsPerPage = (
-    event: React.ChangeEvent<HTMLInputElement>
-  ) => {
+  const handleChangeRowsPerPage = (event: React.ChangeEvent<HTMLInputElement>) => {
     setRowsPerPage(parseInt(event.target.value, 10));
     setPage(0);
   };
@@ -49,18 +52,17 @@ export const VisualizarCabeleireiro: React.FC = () => {
     setColunaBusca(event.target.value);
   };
 
-  const handleTermoBuscaChange = (
-    event: React.ChangeEvent<HTMLInputElement>
-  ) => {
+  const handleTermoBuscaChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     setTermoBusca(event.target.value);
     setPage(0);
   };
+
   if (isLoading) return <Box>Carregando...</Box>;
-  if (error) return <Box>Erro ao carregar cabeleireiro: {error}</Box>;
+  if (error) return <Box>Erro ao carregar funcionários: {error}</Box>;
 
   return (
-    <Box sx={{ width: "100%", p: 2 }}>
-      <Box sx={{ display: "flex", mb: 2 }}>
+    <Box sx={{ width: '100%', p: 2 }}>
+      <Box sx={{ display: 'flex', mb: 2 }}>
         <FormControl variant="outlined" sx={{ minWidth: 120, mr: 1 }}>
           <InputLabel id="coluna-busca-label">Buscar por</InputLabel>
           <Select
@@ -85,7 +87,7 @@ export const VisualizarCabeleireiro: React.FC = () => {
         />
       </Box>
 
-      <Paper sx={{ width: "100%", mb: 2 }}>
+      <Paper sx={{ width: '100%', mb: 2 }}>
         <TableContainer>
           <Table>
             <TableHead>
@@ -96,12 +98,11 @@ export const VisualizarCabeleireiro: React.FC = () => {
               </TableRow>
             </TableHead>
             <TableBody>
-              {cabeleireiros.map((cabeleireiro: Cabeleireiro) => (
-                <TableRow key={cabeleireiro.id}>
-                  <TableCell>{cabeleireiro.nome}</TableCell>
-                  <TableCell>{cabeleireiro.email}</TableCell>
-                  <TableCell>{cabeleireiro.telefone}</TableCell>
-                  <TableCell>{cabeleireiro.mei}</TableCell>
+              {funcionarios.map((funcionario: Funcionario) => (
+                <TableRow key={funcionario.id}>
+                  <TableCell>{funcionario.nome}</TableCell>
+                  <TableCell>{funcionario.email}</TableCell>
+                  <TableCell>{funcionario.telefone}</TableCell>        
                 </TableRow>
               ))}
             </TableBody>
@@ -110,18 +111,16 @@ export const VisualizarCabeleireiro: React.FC = () => {
         <TablePagination
           rowsPerPageOptions={[5, 10, 25]}
           component="div"
-          count={totalCabeleireiros}
+          count={totalFuncionarios}
           rowsPerPage={rowsPerPage}
           page={page}
           onPageChange={handleChangePage}
           onRowsPerPageChange={handleChangeRowsPerPage}
           labelRowsPerPage="Itens por página:"
-          labelDisplayedRows={({ from, to, count }) =>
-            `${from}-${to} de ${count}`
-          }
+          labelDisplayedRows={({ from, to, count }) => `${from}-${to} de ${count}`}
         />
       </Paper>
     </Box>
   );
 };
-export default VisualizarCabeleireiro;
+export default VisualizarFuncionarios;

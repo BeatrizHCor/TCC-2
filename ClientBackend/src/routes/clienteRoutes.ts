@@ -1,6 +1,7 @@
 import express from 'express';
 import ClienteController from '../controllers/clienteController';
 
+
 const router = express.Router();
 
 router.get('/cliente/page', ClienteController.getClientesPage);
