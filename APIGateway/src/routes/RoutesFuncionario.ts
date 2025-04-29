@@ -2,7 +2,12 @@ import { Router, Request, Response } from "express";
 import { getFuncionarioPage,
     postFuncionario,
     getServicoPage, 
-    deleteFuncionario} from "../services/ServiceFunc";
+    deleteFuncionario,
+    postServico,
+    deleteServico,
+    updateServico,
+    getServicoById, 
+    getServicosBySalao} from "../services/ServiceFunc";
 import { postLogin, registerLogin } from "../services/Service";
 
 
@@ -65,6 +70,24 @@ RoutesFuncionario.post(
     }
 );
 
+RoutesFuncionario.delete(
+    "/funcionario/delete/:id",
+    async (req: Request, res: Response) => {
+        const id = req.params.id;
+        try {
+            let funcionarioDelete = await deleteFuncionario(id);
+            if (funcionarioDelete) {
+                res.status(200).send(funcionarioDelete);
+            } else {
+                res.status(404).send("Funcionario not found");
+            }
+        } catch (e) {
+            console.log(e);
+            res.status(500).send("Error in deleting Funcionario");
+        }
+    }
+);
+
 RoutesFuncionario.get(
     "/servico/page",
     async (req: Request, res: Response) => {
@@ -84,4 +107,88 @@ RoutesFuncionario.get(
     }
 );
 
+RoutesFuncionario.post(
+    "/servico",
+    async (req: Request, res: Response) => {
+        let ServicoData = req.body;
+        try {           
+            let servico = await postServico(ServicoData);
+            res.status(200).send(servico);
+        } catch (e) {
+            console.log(e);
+            res.status(500).send("Error in creating customer");
+        }
+    }
+);
+
+RoutesFuncionario.delete(
+    "/servico/delete/:id",
+    async (req: Request, res: Response) => {
+        const id = req.params.id;
+        try {
+            let servicoDelete = await deleteServico(id);
+            if (servicoDelete) {
+                res.status(200).send(servicoDelete);
+            } else {
+                res.status(404).send("Servico not found");
+            }
+        } catch (e) {
+            console.log(e);
+            res.status(500).send("Error in deleting Funcionario");
+        }
+    }
+);
+
+RoutesFuncionario.put(
+    "/servico/update/:id",
+    async (req: Request, res: Response) => {
+        const id = req.params.id;
+        const servicoData = req.body;
+        try {
+            let servicoUpdate = await updateServico(id, servicoData);
+            if (servicoUpdate) {
+                res.status(200).send(servicoUpdate);
+            }
+        } catch (e) {
+            console.log(e);
+            res.status(500).send("Error in updating Funcionario");
+        }
+    }
+);
+
+RoutesFuncionario.get(
+    "/servico/ID/:id",
+    async (req: Request, res: Response) => {
+        const id = req.params.id;
+        try {
+            let servico = await getServicoById(id);
+            if (servico) {
+                res.status(200).send(servico);
+            } else {
+                res.status(404).send("Servico not found");
+            }
+        } catch (e) {
+            console.log(e);
+            res.status(500).send("Error in getting Funcionario");
+        }
+    }
+);
+
+RoutesFuncionario.get(
+    "/servico/salao/:salaoId",
+    async (req: Request, res: Response) => {
+        const { nome, salaoId } = req.params;
+        try {
+            let servico = await getServicosBySalao(salaoId);
+            if (servico) {
+                res.status(200).send(servico);
+            } else {
+                res.status(404).send("Servico not found");
+            }
+        } catch (e) {
+            console.log(e);
+            res.status(500).send("Error in getting Funcionario");
+        }
+    }
+);
 export default RoutesFuncionario;

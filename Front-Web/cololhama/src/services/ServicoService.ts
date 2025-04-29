@@ -40,14 +40,6 @@ api.interceptors.response.use(
   }
 );
 
-interface ServicoData {
-  Nome: string;
-  SalaoId: string;
-  PrecoMin: number;
-  PrecoMax: number;
-  Descricao: string;  
-}
-
 interface ServicoPaginadoResponse {
   data: Servico[];
   total: number;
@@ -61,7 +53,8 @@ class ServicoService {
     limit: number = 10,
     salaoId: string,
     precoMin?: number,
-    precoMax?: number
+    precoMax?: number,
+    includeRelations: boolean = false
   ): Promise<ServicoPaginadoResponse> {
     try {
       const response = await api.get(`/servico/page`, {
@@ -70,7 +63,7 @@ class ServicoService {
           limit,
           precoMin,
           precoMax,
-          includeRelations: false,
+          includeRelations,
           salaoId,
         },
       });
@@ -110,17 +103,10 @@ class ServicoService {
   }
 
   static async createServico(
-    servicoData: Omit<Servico, "ID">
+    servicoData: Servico
   ): Promise<Servico> {
     try {
-      const servicoCreate: ServicoData = {
-        Nome: servicoData.nome || "",
-        SalaoId: servicoData.salaoId || "",
-        PrecoMin: servicoData.precoMin || 0,
-        PrecoMax: servicoData.precoMax || 0,
-        Descricao: servicoData.descricao || "",
-      }
-      const response = await api.post(`/servico`, servicoCreate);
+      const response = await api.post(`/servico`, servicoData);
       return response.data;
     } catch (error) {
       console.error("Erro ao criar serviço:", error);
@@ -130,17 +116,10 @@ class ServicoService {
 
   static async updateServico(
     id: string,
-    servicoData: Partial<Servico>
+    servicoData: Servico,
   ): Promise<Servico> {
-    try {
-      const servicoEditado: ServicoData = {
-        Nome: servicoData.nome || "",
-        SalaoId: servicoData.salaoId || "",
-        PrecoMin: servicoData.precoMin || 0,
-        PrecoMax: servicoData.precoMax || 0,
-        Descricao: servicoData.descricao || "",
-      }
-      const response = await api.put(`/servico/update/${id}`, servicoEditado);
+    try {      
+      const response = await api.put(`/servico/update/${id}`, servicoData);
       return response.data;
     } catch (error) {
       console.error(`Erro ao atualizar serviço com ID ${id}:`, error);

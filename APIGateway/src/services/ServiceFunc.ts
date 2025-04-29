@@ -93,25 +93,14 @@ export const getServicoPage = async (
   }
 
   export const postServico = async (
-    saloId: string,
-    nome: string,
-    precoMin: number,
-    precoMax: number,
-    descricao: string,
+    servicoData: Servico
   ) => {
     let responseServico = await fetch(FuncionarioURL + "/servico", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
       },
-      body: JSON.stringify(
-        {   saloId: saloId,
-            nome: nome,
-            precoMin: precoMin,
-            precoMax: precoMax,
-            descricao: descricao,
-        }),
-  
+      body: JSON.stringify(servicoData),
       });
     if (responseServico.ok) {
         return (await responseServico.json()) as Servico;
@@ -119,3 +108,52 @@ export const getServicoPage = async (
         throw new Error("Error in posting Servico");
     }
 }
+
+export const deleteServico = async (id: string) => {
+    let responseServico = await fetch(FuncionarioURL + `/servico/delete/${id}`, {
+        method: "DELETE",
+    });
+    if (responseServico.ok) {
+        return (await responseServico.json()) as Servico;
+    } else {
+        throw new Error("Error in deleting Servico");
+    }
+}
+
+export const updateServico = async (id: string, servicoData: Servico) => {
+    let responseServico = await fetch(FuncionarioURL + `/servico/update/${id}`, { 
+        method: "PUT",
+        headers: {
+            "Content-Type": "application/json",
+        },
+        body: JSON.stringify(servicoData),
+    });
+    if (responseServico.ok) {  
+        return (await responseServico.json()) as Servico;
+    } else {
+        throw new Error("Error in updating Servico");
+    }
+}
+
+export const getServicoById = async (id: string) => {
+    let responseServico = await fetch(FuncionarioURL + `/servico/ID/${id}`, {
+        method: "GET",
+    });
+    if (responseServico.ok) {
+        return (await responseServico.json()) as Servico;
+    } else {
+        throw new Error("Error in getting Servico by ID");
+    }
+}
+
+export const getServicosBySalao = async (salaoId: string) => {
+    let responseServicos = await fetch(FuncionarioURL + `/servico/salao/${salaoId}`, {
+        method: "GET",
+    });
+    if (responseServicos.ok) {
+        return (await responseServicos.json()) as Servico[];
+    } else {
+        throw new Error("Error in getting Servicos by Salão ID");
+    }
+}
+

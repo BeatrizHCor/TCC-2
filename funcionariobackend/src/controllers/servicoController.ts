@@ -40,9 +40,13 @@ class ServicoController {
 
   static async create(req: Request, res: Response): Promise<void> {
     try {
-      const { DataCreateService } = req.body;
+      const DataCreateService = req.body;
       const newServico = await ServicoService.create(
-        DataCreateService
+        DataCreateService.nome,
+        DataCreateService.precoMin,
+        DataCreateService.precoMax,
+        DataCreateService.descricao,
+        DataCreateService.salaoId
    
       );
       res.status(201).json(newServico);
@@ -94,7 +98,14 @@ class ServicoController {
     try {
       const { id } = req.params;
       const updateData = req.body;
-      const updatedServico = await ServicoService.update(id, updateData);
+      const updatedServico = await ServicoService.update(
+        id, 
+        updateData.nome,
+        updateData.precoMin,
+        updateData.precoMax,
+        updateData.descricao,
+        updateData.salaoId
+   );
       res.json(updatedServico);
     } catch (error) {
       console.log(error);
