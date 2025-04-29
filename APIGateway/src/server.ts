@@ -2,10 +2,10 @@ import express from "express";
 import "dotenv/config";
 import dotenv from "dotenv";
 import { Router, Request, Response } from "express";
-import RoutesLogin from "./RoutesLogin";
-import RoutesCustomer from "./RoutesCustomer";
-import RoutesFuncionario from "./RoutesFuncionario";
-import RoutesCabeleireiro from "./RoutesCabeleireiro";
+import RoutesLogin from "./routes/RoutesLogin";
+import RoutesCustomer from "./routes/RoutesCustomer";
+import RoutesFuncionario from "./routes/RoutesFuncionario";
+import RoutesCabeleireiro from "./routes/RoutesCabeleireiro";
 
 const app = express();
 const port = process.env.PORT;

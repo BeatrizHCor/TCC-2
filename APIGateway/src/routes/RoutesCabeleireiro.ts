@@ -1,11 +1,11 @@
 import { Router, Request, Response } from "express";
 import {
+  deleteCabeleireiro,
   getCabeleireiroPage,
   postCabeleireiro,
-  postCliente,
   postLogin,
   registerLogin,
-} from "./Service";
+} from "../services/Service";
 const RoutesCabeleireiro = Router();
 
 //Lógica feita, ainda não testado. Da pra deixar o código mais limpo mas a idéia é esse fluxo. No fim ja retorna um token.
@@ -21,9 +21,7 @@ RoutesCabeleireiro.post(
         email: Email,
         telefone: Telefone,
         salaoId: SalaoId,
-        mei,
-        agendamentos: [],
-        holerite: [],
+        mei,   
       });
 
       let register = await registerLogin(
@@ -33,6 +31,16 @@ RoutesCabeleireiro.post(
         Password,
         SalaoId
       );
+      if (!register) {
+        console.log("Register failed");
+        let cabeleireiroDelete = await deleteCabeleireiro(cabeleireiro.id!);
+        if (cabeleireiroDelete) {
+          console.log("Cabeleireiro deleted successfully");
+        } else {
+          console.log("Failed to delete cabeleireiro after register failure");
+        }
+        throw new Error("Login registration failed");
+      }
       let token = await postLogin(Email, Password, SalaoId);
       res.status(200).send(token);
     } catch (e) {

@@ -202,6 +202,18 @@ class FuncionarioService {
       },
     });
   }
+
+  static async deleteById(ID: string) {
+    const existingFuncionario = await this.findById(ID);
+    if (!existingFuncionario) {
+      throw new Error("Funcionário não encontrado");
+    }
+    return await prisma.funcionario.delete({
+      where: {
+        ID: ID,
+      },
+    });
+  }
 }
 
 export default FuncionarioService;

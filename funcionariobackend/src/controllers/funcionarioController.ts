@@ -125,8 +125,8 @@ class FuncionarioController {
 
   static async delete(req: Request, res: Response): Promise<void> {
     try {
-      const { email, salaoId } = req.params;
-      await FuncionarioService.delete(email, salaoId);
+      const { id } = req.params;
+      await FuncionarioService.deleteById(id);
       res.status(204).send();
     } catch (error) {
       console.log(error);

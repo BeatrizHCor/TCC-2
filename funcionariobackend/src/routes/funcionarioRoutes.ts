@@ -10,6 +10,6 @@ router.get('/funcionario/email/:email/:salaoId', FuncionarioController.findByEma
 router.get('/funcionario/cpf/:cpf/:salaoId', FuncionarioController.findByCpfandSalao);
 router.post('/funcionario', FuncionarioController.create);
 router.put('/funcionario/update/:email/:salaoId', FuncionarioController.update);
-router.delete('/funcionario/delete/:email/:salaoId', FuncionarioController.delete);
+router.delete('/funcionario/delete/:id', FuncionarioController.delete);
 
 export default router;

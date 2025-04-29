@@ -1,31 +1,29 @@
 import { Router, Request, Response } from "express";
-import { Cliente } from "./models/clienteModel";
 import { 
   postCliente, 
-  postLogin, 
-  registerLogin, 
   getClientePage, 
   getClienteByCPF, 
-  deleteCliente } from "./Service";
+  deleteCliente } from "../services/ServiceClient";
+import {  
+  postLogin, 
+  registerLogin, } from "../services/Service";
+
 const RoutesCustomer = Router();
 
-//Lógica feita, ainda não testado. Da pra deixar o código mais limpo mas a idéia é esse fluxo. No fim ja retorna um token.
+
 RoutesCustomer.post("/cliente", async (req: Request, res: Response) => {
   let { CPF, Nome, Email, Telefone, SalaoId, Password, userType } = req.body;
   try {
     let cliente = await postCliente(CPF, Nome, Email, Telefone, SalaoId);
-    if (!cliente || !cliente.ID) {
-      throw new Error("Cliente creation failed or ID is undefined");
-    }
     let register = await registerLogin(
-      cliente.ID,
+      cliente.ID!,
       Email,
       Password,
       SalaoId,
       userType
     );
     if (!register) {
-      console.log("Register failed");
+      console.log("Register auth failed");
       let clienteDelete = await deleteCliente(
         Email,
         SalaoId);
