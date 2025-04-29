@@ -1,5 +1,6 @@
 import axios from "axios";
 import { AuthControl } from "../models/authModel";
+import { stringify } from "querystring";
 
 const api = axios.create({
   baseURL: import.meta.env.APIGATEWAY_URL || "http://localhost:4000",
@@ -24,8 +25,7 @@ export class LoginService {
       });
       if (response.data.token) {
         localStorage.setItem("token", response.data.token);
-        localStorage.setItem("usuario", JSON.stringify({ email, salaoId }));
-
+        localStorage.setItem("usuario", JSON.parse(response.data.userID, response.data.userType));
         axios.defaults.headers.common[
           "Authorization"
         ] = `Bearer ${response.data.token}`;
@@ -42,18 +42,24 @@ export class LoginService {
     localStorage.removeItem("usuario");
     delete axios.defaults.headers.common["Authorization"];
   }
-
-  static getUsuarioLogado(): AuthControl | null {
-    const usuarioString = localStorage.getItem("usuario");
-    if (usuarioString) {
-      return JSON.parse(usuarioString);
-    }
-    return null;
+static getUserID(): string | null {
+    const usuario = this.getUserData();
+    return usuario?.userID || null;
   }
 
   static getToken(): string | null {
     return localStorage.getItem("token");
   }
+
+  static getUserType = (): string | null => {
+    const usuario = this.getUserData();
+    return usuario?.userType || null;
+  };
+
+  private static getUserData = (): { userID: string; userType: string } | null => {
+    const usuario = localStorage.getItem("usuario");
+    return usuario ? JSON.parse(usuario) : null;
+  };
 
   static isAuthenticated(): boolean {
     return !!this.getToken();
