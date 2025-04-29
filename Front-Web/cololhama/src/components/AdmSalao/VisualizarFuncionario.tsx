@@ -16,7 +16,7 @@ import {
   InputLabel,
 } from '@mui/material';
 import { Funcionario } from '../../models/funcionarioModel';
-import { useVisualizarFuncionarios } from './useVisualizarFuncionarios';
+import { useVisualizarFuncionarios } from './useVisualizarFuncionario';
 import "../../styles/styles.global.css";
 
 const colunas = [

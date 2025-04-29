@@ -2,7 +2,7 @@ import axios from "axios";
 import { Cabeleireiro } from "../models/cabelereiroModel";
 
 const api = axios.create({
-  baseURL: "http://localhost:3000",
+  baseURL: import.meta.env.APIGATEWAY_URL || "http://localhost:5000",
   timeout: 100000,
   headers: {
     "Content-Type": "application/json",

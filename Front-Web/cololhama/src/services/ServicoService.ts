@@ -2,7 +2,7 @@ import axios from "axios";
 import { Servico } from "../models/servicoModel";
 
 const api = axios.create({
-  baseURL:  'http://localhost:3002',
+  baseURL:  import.meta.env.APIGATEWAY_URL || "http://localhost:3002",
   headers: {
     "Content-Type": "application/json",
   },

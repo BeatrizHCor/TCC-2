@@ -1,6 +1,4 @@
 import { useState, useEffect } from 'react';
-import { Cliente } from '../../models/clienteModel';
-import ClienteService from '../../services/ClienteService';
 import { Funcionario } from '../../models/funcionarioModel';
 import FuncionarioService from '../../services/FuncionarioService';
 

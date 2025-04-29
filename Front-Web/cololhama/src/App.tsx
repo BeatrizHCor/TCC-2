@@ -39,6 +39,7 @@ const App: React.FC = () => {
               path="/cabelereiros"
               element={<VisualizarCabeleireiroPage />}
             />
+            <Route path ="/funcionarios" element={<VisualizarClientesPage />} />
           </>
         )}
       </Routes>

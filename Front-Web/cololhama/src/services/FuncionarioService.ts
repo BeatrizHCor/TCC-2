@@ -59,7 +59,7 @@ export const FuncionarioService = {
     ): Promise<FuncionarioPageResponse> {
         try {
             const response = await api.get<FuncionarioPageResponse>(
-                `/funcionario/pages`, {
+                `/funcionario/page`, {
                     params: {
                       page,
                       limit,

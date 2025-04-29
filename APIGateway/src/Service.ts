@@ -145,15 +145,9 @@ export const getClientePage = async (
 ) => {
   let responseClientes = await fetch(
     CustomerURL +
-      `/cliente/page`,
-       {
+      `/cliente/page?page=${page}&limit=${limit}&includeRelations=${includeRelations}&salaoId=${salaoId}`,
+    {
       method: "GET",
-      body: JSON.stringify({
-        page,
-        limit,
-        includeRelations,
-        salaoId,
-      }),
     }
   );
   if (responseClientes.ok) {
@@ -227,20 +221,36 @@ export const getFuncionarioPage = async (
 ) => {  
   let responseFuncionarios = await fetch(
     FuncionarioURL +
-      `/funcionario/page`,
+      `/funcionario/page?page=${page}&limit=${limit}&includeRelations=${includeRelations}&salaoId=${salaoId}`,
     {
       method: "GET",
-      body: JSON.stringify({
-        page,
-        limit,
-        includeRelations,
-        salaoId,
-      }),
     }
   );
   if (responseFuncionarios.ok) {
     return (await responseFuncionarios.json()) as Cabeleireiro[];
   } else {
     throw new Error("Error in getting funcionario page");
+  }
+}
+
+export const getServicoPage = async (
+  page: string,
+  limit: string,
+  precoMin: number | null = null,
+  precoMax: number | null = null,
+  includeRelations: boolean = false,
+  salaoId: string
+) => {
+  let responseServicos = await fetch(
+    FuncionarioURL +
+      `/servico/page?page=${page}&limit=${limit}&precoMin=${precoMin}&precoMax=${precoMax}&includeRelations=${includeRelations}&salaoId=${salaoId}`,
+    {
+      method: "GET",
+    }
+  );
+  if (responseServicos.ok) {
+    return (await responseServicos.json()) as Cabeleireiro[];
+  } else {
+    throw new Error("Error in getting servico page");
   }
 }

@@ -15,7 +15,6 @@ import {
   FormControl,
   InputLabel,
 } from "@mui/material";
-import { Cliente } from "../../models/clienteModel";
 import { useVisualizarCabeleireiros } from "./useVisualizarCabeleireiro";
 import "../../styles/styles.global.css";
 import { Cabeleireiro } from "../../models/cabelereiroModel";
@@ -56,11 +55,6 @@ export const VisualizarCabeleireiro: React.FC = () => {
     setTermoBusca(event.target.value);
     setPage(0);
   };
-  /*
-  const formatarData = (data: string) => {
-    return new Date(data).toLocaleDateString('pt-BR');
-  };
-*/
   if (isLoading) return <Box>Carregando...</Box>;
   if (error) return <Box>Erro ao carregar cabeleireiro: {error}</Box>;
 
