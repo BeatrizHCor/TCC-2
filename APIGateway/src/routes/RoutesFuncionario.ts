@@ -7,7 +7,9 @@ import { getFuncionarioPage,
     deleteServico,
     updateServico,
     getServicoById, 
-    getServicosBySalao} from "../services/ServiceFunc";
+    getServicosBySalao,
+    getServicoByNomeAndSalao,
+    findServicoByNomeAndSalaoId} from "../services/ServiceFunc";
 import { postLogin, registerLogin } from "../services/Service";
 
 
@@ -93,12 +95,13 @@ RoutesFuncionario.get(
     async (req: Request, res: Response) => {
         const page = (req.query.page as string) || '0';
         const limit = (req.query.limit as string) || '10';
+        const nome = req.query.nome as string || null;
         const precoMin: number | null = null;
         const precoMax: number | null = null;
         const includeRelations = req.query.include === "true" ? true : false;
         const salaoId = req.query.salaoId as string || '';
          try {
-            const funcionarios = await getServicoPage(page, limit, precoMin, precoMax, includeRelations, salaoId);
+            const funcionarios = await getServicoPage(page, limit, nome, precoMin, precoMax, includeRelations, salaoId);
             res.json(funcionarios);
         } catch (error) {
           console.error("Erro ao buscar funcionarios:", error);
@@ -177,7 +180,7 @@ RoutesFuncionario.get(
 RoutesFuncionario.get(
     "/servico/salao/:salaoId",
     async (req: Request, res: Response) => {
-        const { nome, salaoId } = req.params;
+        const { salaoId } = req.params;
         try {
             let servico = await getServicosBySalao(salaoId);
             if (servico) {
@@ -188,6 +191,42 @@ RoutesFuncionario.get(
         } catch (e) {
             console.log(e);
             res.status(500).send("Error in getting Funcionario");
+        }
+    }
+);
+
+RoutesFuncionario.get(
+    "/servico/nome/:nome/:salaoId",
+    async (req: Request, res: Response) => {
+        const { nome, salaoId } = req.params;
+        try {
+            let servico = await getServicoByNomeAndSalao(nome, salaoId);
+            if (servico) {
+                res.status(200).send(servico);
+            } else {
+                res.status(404).send("Servico not found");
+            }
+        } catch (e) {
+            console.log(e);
+            res.status(500).send("Error in getting Servicos");
+        }
+    }
+);
+
+RoutesFuncionario.get(
+    "/servico/find/:nome/:salaoId",
+    async (req: Request, res: Response) => {
+        const { nome, salaoId } = req.params;
+        try {
+            let servico = await findServicoByNomeAndSalaoId(nome, salaoId);
+            if (servico) {
+                res.status(200).send(servico);
+            } else {
+                res.status(404).send("Servico not found");
+            }
+        } catch (e) {
+            console.log(e);
+            res.status(500).send("Error in finding Servicos");
         }
     }
 );

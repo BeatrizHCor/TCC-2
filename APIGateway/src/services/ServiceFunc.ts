@@ -73,6 +73,7 @@ export const deleteFuncionario = async (id: string) => {
 export const getServicoPage = async (
     page: string,
     limit: string,
+    nome: string | null = null,
     precoMin: number | null = null,
     precoMax: number | null = null,
     includeRelations: boolean = false,
@@ -80,9 +81,9 @@ export const getServicoPage = async (
   ) => {
     let responseServicos = await fetch(
       FuncionarioURL +
-        `/servico/page?page=${page}&limit=${limit}&precoMin=${precoMin}&precoMax=${precoMax}&includeRelations=${includeRelations}&salaoId=${salaoId}`,
+      `/servico/page?page=${page}&limit=${limit}&nome=${nome}&precoMin=${precoMin}&precoMax=${precoMax}&includeRelations=${includeRelations}&salaoId=${salaoId}`,
       {
-        method: "GET",
+      method: "GET",
       }
     );
     if (responseServicos.ok) {
@@ -157,3 +158,24 @@ export const getServicosBySalao = async (salaoId: string) => {
     }
 }
 
+export const getServicoByNomeAndSalao = async (nome: string, salaoId: string) => {
+    let responseServico = await fetch(FuncionarioURL + `/servico/nome/${nome}/${salaoId}`, {
+        method: "GET",
+    });
+    if (responseServico.ok) {
+        return (await responseServico.json()) as Servico;
+    } else {
+        throw new Error("Error in getting Servico by Nome and Salão ID");
+    }
+}
+
+export const findServicoByNomeAndSalaoId = async (nome: string, salaoId: string) => {
+    let responseServico = await fetch(FuncionarioURL + `/servico/find/${nome}/${salaoId}`, {
+        method: "GET",
+    });
+    if (responseServico.ok) {
+        return (await responseServico.json()) as Servico[];
+    } else {
+        throw new Error("Error in finding Servico by Nome and Salão ID");
+    }
+}
