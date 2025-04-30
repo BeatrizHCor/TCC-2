@@ -22,7 +22,7 @@ import { useVisualizarServicos } from "./useVisualizarServicos";
 import "../../styles/styles.global.css";
 import { Link } from "react-router-dom";
 import theme from "../../styles/theme";
-
+import { BotaoTranparente } from "../../styles/styles.mui";
 const colunas = [
   { id: "nome", label: "Nome" },
   { id: "descricao", label: "Descrição" },
@@ -47,7 +47,6 @@ export const VisualizarServicos: React.FC<VisualizarServicosProps> = ({
   const [page, setPage] = useState(0);
   const [rowsPerPage, setRowsPerPage] = useState(10);
   const [nomeFilter, setNomeFilter] = useState("");
-  const [nomeFilterInput, setNomeFilterInput] = useState(""); 
   const [precoMinFilter, setPrecoMinFilter] = useState<number | "">("");
   const [precoMaxFilter, setPrecoMaxFilter] = useState<number | "">("");
 
@@ -60,7 +59,7 @@ export const VisualizarServicos: React.FC<VisualizarServicosProps> = ({
       precoMinFilter,
       precoMaxFilter
     );
-  const [precoMinInput, setPrecoMinInput] = React.useState(precoMinFilter); 
+ 
 
   const handleChangePage = (_: unknown, newPage: number) => {
     setPage(newPage);
@@ -72,27 +71,32 @@ export const VisualizarServicos: React.FC<VisualizarServicosProps> = ({
     setRowsPerPage(parseInt(event.target.value, 10));
     setPage(0);
   };
+  const[NomeFiltroInput, setNomeFilterInput ]= useState("");
+  const handleNomeFilterInput = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setNomeFilterInput(e.target.value);
+  };
+  const aplicarFiltroNome = () => {
+    setNomeFilter(NomeFiltroInput);
+    setPage(0);
+  }
 
-  const [precoMaxInput, setPrecoMaxInput] = React.useState(precoMaxFilter);
-
+  const [precoMaxInput, setPrecoMaxInput] = useState<Number | "" >(""); 
   const handlePrecoMaxInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const onlyNumbers = e.target.value.replace(/\D/g, "");
-    setPrecoMaxInput(onlyNumbers === "" ? "" : Number(onlyNumbers));
-    
+    setPrecoMaxInput(Number(onlyNumbers)); 
   };
-  
   const aplicarFiltroPrecoMax = () => {
-    setPrecoMaxFilter(precoMaxInput);
+    setPrecoMaxFilter(Number(precoMaxInput));
+    setPage(0);
   };
   
-
+  const [precoMinInput, setPrecoMinInput] = useState<Number | "" >(""); 
   const handlePrecoMinInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const onlyNumbers = e.target.value.replace(/\D/g, "");
     setPrecoMinInput(onlyNumbers === "" ? "" : Number(onlyNumbers));
   };
-  
   const aplicarFiltroPreco = () => {
-    setPrecoMinFilter(precoMinInput);
+    setPrecoMinFilter(Number(precoMinInput));
     setPage(0);
   };
 
@@ -102,11 +106,6 @@ export const VisualizarServicos: React.FC<VisualizarServicosProps> = ({
   const colunasVisiveis = isCliente
     ? colunas.filter((coluna) => coluna.clienteVisivel !== false)
     : colunas;
-
-    
-
-  console.log("Serviços:", servicos);
-  console.log("Colunas visíveis:", colunasVisiveis);
 
   return (
     <Box sx={{ width: "100%", p: 2 }}>
@@ -118,16 +117,13 @@ export const VisualizarServicos: React.FC<VisualizarServicosProps> = ({
         <TextField
           variant="outlined"
           label="Buscar por nome"
-          value={nomeFilterInput} 
-          onChange={(event) => setNomeFilterInput(event.target.value)} 
+          value={NomeFiltroInput} 
+          onChange={handleNomeFilterInput}
           sx={{ maxWidth: "50%", flexGrow: 1 }}
         />
         <Button
           variant="contained"
-          onClick={() => {
-            setNomeFilter(nomeFilterInput); 
-            setPage(0);
-          }}
+          onClick={aplicarFiltroNome}
         >
           Buscar
         </Button>
@@ -136,13 +132,13 @@ export const VisualizarServicos: React.FC<VisualizarServicosProps> = ({
         <Button
           component={Link}
           variant="outlined"
-          to = "/servico/editar/novo"
-          sx={{
+          to = "/servico/editar/novo" 
+          sx ={{
             color: theme.palette.primary.main,
             borderBlockColor: theme.palette.primary.main,
             borderColor: theme.palette.primary.main,
             borderWidth: 1,
-          }}
+          }}     
         >
           Novo Serviço
         </Button>
