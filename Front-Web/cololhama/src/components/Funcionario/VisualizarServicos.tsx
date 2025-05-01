@@ -23,6 +23,8 @@ import "../../styles/styles.global.css";
 import { Link } from "react-router-dom";
 import theme from "../../styles/theme";
 import { BotaoTranparente } from "../../styles/styles.mui";
+
+const SalaoID = import.meta.env.SALAO_ID || "1"; // importa o ID do salão aqui
 const colunas = [
   { id: "nome", label: "Nome" },
   { id: "descricao", label: "Descrição" },
@@ -112,7 +114,6 @@ export const VisualizarServicos: React.FC<VisualizarServicosProps> = ({
       <Typography variant="h5" sx={{ mb: 3 }}>
         Serviços do Salão
       </Typography>
-
       <Box sx={{ display: "flex", mb: 2, gap: 2 }}>
         <TextField
           variant="outlined"

@@ -11,24 +11,46 @@ import {
   Paper,
   TextField,
   Button,
+  Typography,
 } from "@mui/material";
+import EditIcon from "@mui/icons-material/Edit";
 import { useVisualizarCabeleireiros } from "./useVisualizarCabeleireiro";
 import "../../styles/styles.global.css";
 import { Cabeleireiro } from "../../models/cabelereiroModel";
+import { Link } from "react-router-dom";
+import theme from "../../styles/theme";
+
 const SalaoID = import.meta.env.SALAO_ID || "1"; // importa o ID do salão aqui
 const colunas = [
   { id: "nome", label: "Nome" },
   { id: "email", label: "Email" },
   { id: "telefone", label: "Telefone" },
+  { id: "mei", label: "MEI" },
+  { id: "portif", label: "Portifólio" },
+  { id: "acoes", label: "Ações", clienteVisivel: false }
 ];
 
-export const VisualizarCabeleireiro: React.FC = () => {
+interface VisualizarServicosProps {
+  isCliente?: boolean;
+}
+
+export const VisualizarCabeleireiro: React.FC = (
+  isCliente
+) => {
+  const usuario = localStorage.getItem("usuario");
+  isCliente = !!(usuario && JSON.parse(usuario)?.userType === "Cliente");
+
   const [page, setPage] = useState(0);
   const [rowsPerPage, setRowsPerPage] = useState(10);
   const [termoBusca, setTermoBusca] = useState("");
 
   const { cabeleireiros, totalCabeleireiros, isLoading, error } =
-    useVisualizarCabeleireiros(page + 1, rowsPerPage, SalaoID, termoBusca);
+    useVisualizarCabeleireiros(
+      page + 1, 
+      rowsPerPage, 
+      SalaoID, 
+      termoBusca
+    );
 
   const handleChangePage = (_: unknown, newPage: number) => {
     setPage(newPage);
@@ -52,9 +74,16 @@ export const VisualizarCabeleireiro: React.FC = () => {
 
   if (isLoading) return <Box>Carregando...</Box>;
   if (error) return <Box>Erro ao carregar cabeleireiro: {error}</Box>;
+ 
+  const colunasVisiveis = isCliente
+    ? colunas.filter((coluna) => coluna.clienteVisivel !== false)
+    : colunas;
 
   return (
     <Box sx={{ width: "100%", p: 2 }}>
+      <Typography variant="h5" sx={{ mb: 3 }}>
+        Cabelereiros
+      </Typography>
       <Box sx={{ display: "flex", mb: 2, gap: 2 }}>
       <TextField
           variant="outlined"
@@ -69,8 +98,22 @@ export const VisualizarCabeleireiro: React.FC = () => {
         >
           Buscar
         </Button>
+        {!isCliente &&(
+        <Button
+          component={Link}
+          variant="outlined"
+          to = "/cabeleireiro" 
+          sx ={{
+            color: theme.palette.primary.main,
+            borderBlockColor: theme.palette.primary.main,
+            borderColor: theme.palette.primary.main,
+            borderWidth: 1,
+          }}     
+        >
+          Novo Cabelereiro
+        </Button>
+        )}
       </Box>
-
       <Paper sx={{ width: "100%", mb: 2 }}>
         <TableContainer>
           <Table>
@@ -88,6 +131,26 @@ export const VisualizarCabeleireiro: React.FC = () => {
                   <TableCell>{cabeleireiro.email}</TableCell>
                   <TableCell>{cabeleireiro.telefone}</TableCell>
                   <TableCell>{cabeleireiro.mei}</TableCell>
+                  <TableCell>
+                      <Button
+                        startIcon={<EditIcon />}
+                        variant="outlined"
+                        size="small"
+                      >
+                        Portifólio
+                      </Button>
+                   </TableCell>
+                   {!isCliente && (
+                    <TableCell>
+                      <Button
+                        startIcon={<EditIcon />}
+                        variant="outlined"
+                        size="small"                      
+                      >
+                        Editar
+                      </Button>
+                    </TableCell>
+                  )}
                 </TableRow>
               ))}
             </TableBody>

@@ -14,14 +14,13 @@ import {
 import CheckCircleIcon from '@mui/icons-material/CheckCircle';
 import { useClienteCadastro } from "./useCadastroCliente";
 import theme from "../../styles/theme";
-
+// essa pagina interia não funciona com a pagina de cadastro modificada, tem que ser refeita
 interface PerfilClienteProps {}
-const salaoId = "1";
+const salaoId = import.meta.env.SALAO_ID || "1"; // importa o ID do salão aqui
 export const PerfilCliente: React.FC<PerfilClienteProps> = () => {
 
   const {
-    cliente,
-    auth,
+    cadastro,
     cpfFormatado,
     telefoneFormatado,
     confirmacaoSenha,
@@ -30,20 +29,19 @@ export const PerfilCliente: React.FC<PerfilClienteProps> = () => {
     saveSuccess,
     setSaveSuccess,
     handleChange,
-    handleAuthChange,
     handleCPFChange,
     handleTelefoneChange,
-    handleConfirmacaoSenhaChange,
     handleSubmit,
-    setCliente,
-    setAuth,
+    handleConfirmacaoSenhaChange,
+    setCadastro,
     setConfirmacaoSenha,
     setErrors,
+    setTelefoneFormatado,
   } = useClienteCadastro(salaoId ? salaoId : "");
 
   const [editMode, setEditMode] = useState(false);
-  const [clienteBackup, setClienteBackup] = useState({ ...cliente });
-  const [authBackup, setAuthBackup] = useState({ ...auth });
+  const [clienteBackup, setClienteBackup] = useState({ cadastro });
+  const [authBackup, setAuthBackup] = useState({ cadastro });
   const [telefoneFormatadoBackup, setTelefoneFormatadoBackup] = useState(telefoneFormatado);
   const [showSuccessAnimation, setShowSuccessAnimation] = useState(false);
 
@@ -56,25 +54,23 @@ export const PerfilCliente: React.FC<PerfilClienteProps> = () => {
         setSaveSuccess(false);
         setEditMode(false);
         
-        setClienteBackup({ ...cliente });
-        setAuthBackup({ ...auth });
+        setClienteBackup({ cadastro});
+        setAuthBackup({ cadastro });
         setTelefoneFormatadoBackup(telefoneFormatado);
       }, 1500); 
       
       return () => clearTimeout(timer);
     }
-  }, [saveSuccess, cliente, auth, telefoneFormatado]);
+  }, [saveSuccess, cadastro, telefoneFormatado]);
 
   const toggleEditMode = () => {
     if (editMode) {
-      setCliente({ ...clienteBackup });
-      setAuth({ ...authBackup });
       setConfirmacaoSenha("");
       setErrors({});
     } else {
 
-      setClienteBackup({ ...cliente });
-      setAuthBackup({ ...auth });
+      setClienteBackup({ cadastro });
+      setAuthBackup({ cadastro});
       setTelefoneFormatadoBackup(telefoneFormatado);
     }
     setEditMode(!editMode);
@@ -134,7 +130,7 @@ export const PerfilCliente: React.FC<PerfilClienteProps> = () => {
                 <TextField
                   name="Nome"
                   label="Nome Completo"
-                  value={editMode ? cliente.nome || "" : ""}
+                  value={editMode ? cadastro.nome || "" : ""}
                   required
                   onChange={handleChange}
                   error={!!errors.nome}
@@ -171,8 +167,11 @@ export const PerfilCliente: React.FC<PerfilClienteProps> = () => {
                         value={editMode ? telefoneFormatado || "" : telefoneFormatadoBackup || ""}
                         onChange={handleTelefoneChange}
                         error={!!errors.telefone}
-                        helperText={errors.telefone}
-                        inputProps={{ maxLength: 15 }}
+                        helperText={errors.telefone}                     
+                        slotProps={{ 
+                          htmlInput: {
+                            maxLength: 15
+                          }}}
                         fullWidth
                         disabled={!editMode}
                         sx={{ 
@@ -189,10 +188,10 @@ export const PerfilCliente: React.FC<PerfilClienteProps> = () => {
                 <TextField
                   name="email"
                   label="Email"
-                  value={editMode ? auth.email || "" : authBackup.email || ""}
+                  value={editMode ? cadastro.email || "" : cadastro.email || ""}
                   required
                   type="email"
-                  onChange={handleAuthChange}
+                  onChange={handleChange}
                   error={!!errors.email}
                   helperText={errors.email}
                   fullWidth
@@ -213,11 +212,11 @@ export const PerfilCliente: React.FC<PerfilClienteProps> = () => {
                   name="senha"
                   label="Senha"
                   type="password"
-                  value={editMode ? auth.senha || "" : "••••••••"}
+                  value={editMode ? cadastro.password || "" : "••••••••"}
                   required
-                  onChange={handleAuthChange}
-                  error={!!errors.senha}
-                  helperText={errors.senha}
+                  onChange={handleChange}
+                  error={!!errors.password}
+                  helperText={errors.password}
                   fullWidth
                   disabled={!editMode}
                   sx={{ 

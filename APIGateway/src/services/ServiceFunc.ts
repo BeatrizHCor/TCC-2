@@ -71,6 +71,31 @@ export const deleteFuncionario = async (id: string) => {
     }
 }
 
+export const updateFuncionario = async (id: string, funcionarioData: Funcionario) => {
+    let responseFuncionario = await fetch(FuncionarioURL + `/funcionario/update/${id}`, {
+        method: "PUT",
+        headers: {
+            "Content-Type": "application/json",
+        },
+        body: JSON.stringify(funcionarioData),
+    });
+    if (responseFuncionario.ok) {  
+        return (await responseFuncionario.json()) as Funcionario;
+    }    else {
+        throw new Error("Error in updating Funcionario");
+    }
+}
+export const getFuncionarioById = async (id: string) => {
+    let responseFuncionario = await fetch(FuncionarioURL + `/funcionario/ID/${id}`, {
+        method: "GET",
+    });
+    if (responseFuncionario.ok) {
+        return (await responseFuncionario.json()) as Funcionario;
+    } else {
+        throw new Error("Error in getting Funcionario by ID");
+    }
+}
+
 export const getServicoPage = async (
     page: string,
     limit: string,
