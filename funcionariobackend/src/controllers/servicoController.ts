@@ -6,8 +6,8 @@ class ServicoController {
     try {
       const { page, limit, includeRelations, nome, precoMin, precoMax, salaoId } = req.query;
       const servicos = await ServicoService.getServicoPage(
-        Number(page),
-        Number(limit),
+        page ? Number(page): 0,
+        limit ? Number(limit): 10,
         nome ? String(nome) : undefined,
         Number(precoMin),
         Number(precoMax),

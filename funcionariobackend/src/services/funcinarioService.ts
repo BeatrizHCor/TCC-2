@@ -21,14 +21,10 @@ class FuncionarioService {
     return await prisma.funcionario.findMany({
       ...(skip !== null ? { skip } : {}),
       ...(limit !== null ? { take: limit } : {}),
-      ...(salaoId !== null || nome !== null
-        ? {
-            where: {
-              ...(salaoId ? { SalaoId: salaoId } : {}),
-              ...(nome ? { Nome: { contains: nome , mode:'insensitive' } } : {}),
-            },
-          }
-        : {}),
+      where: {
+        ...(salaoId ? { SalaoId: salaoId } : {}),
+        ...(nome ? { Nome: { contains: nome, mode: 'insensitive' } } : {}),
+        },      
       ...(include
         ? {
             include: {

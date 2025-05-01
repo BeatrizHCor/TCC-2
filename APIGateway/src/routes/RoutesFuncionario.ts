@@ -9,7 +9,8 @@ import { getFuncionarioPage,
     getServicoById, 
     getServicosBySalao,
     getServicoByNomeAndSalao,
-    findServicoByNomeAndSalaoId} from "../services/ServiceFunc";
+    findServicoByNomeAndSalaoId,
+    getFuncionarioById} from "../services/ServiceFunc";
 import { postLogin, registerLogin } from "../services/Service";
 
 
@@ -20,7 +21,7 @@ RoutesFuncionario.get(
     async (req: Request, res: Response) => {
         const page = (req.query.page as string) || '0';
         const limit = (req.query.limit as string) || '10';
-        const nome = req.query.nome as string || null;
+        const nome = (req.query.nome as string) || null;
         const includeRelations = req.query.include === "true" ? true : false;
         const salaoId = req.query.salaoId as string || '';
          try {
@@ -82,7 +83,7 @@ RoutesFuncionario.delete(
             if (funcionarioDelete) {
                 res.status(200).send(funcionarioDelete);
             } else {
-                res.status(404).send("Funcionario not found");
+                res.status(404).send("Funcionario not deleted");
             }
         } catch (e) {
             console.log(e);
@@ -90,6 +91,26 @@ RoutesFuncionario.delete(
         }
     }
 );
+
+RoutesFuncionario.get(
+    "/funcionario/ID/:id",
+    async (req: Request, res: Response) => {
+        const id = req.params.id;
+        try {
+            let funcionario = await getFuncionarioById(id);
+            if (funcionario) {
+                res.status(200).send(funcionario);
+            } else {
+                res.status(404).send("Funcionario not found");
+            }
+        } catch (e) {
+            console.log(e);
+            res.status(500).send("Error in getting Funcionario");
+        }
+    }
+);
+
+
 
 RoutesFuncionario.get(
     "/servico/page",

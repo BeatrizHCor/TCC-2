@@ -6,16 +6,13 @@ class FuncionarioController {
   static async getFuncionariosPage(req: Request, res: Response): Promise<void> {
     try {
       const { page, limit, nome, includeRelations, salaoId } = req.query;
-      console.log("Query Params:", req.query); // Log the query parameters
-      console.log("comecçando no controler");
       const funcionarios = await FuncionarioService.getFuncionarioPage(
-        Number(page),
-        Number(limit),
+        page ? Number(page): 1,
+        limit ? Number(limit): 10,
         nome ? String(nome) : null,
         includeRelations === "true",
         salaoId ? String(salaoId) : null
       );
-      console.log("Funcionarios:", funcionarios); // Log the fetched funcionarios
       res.json(funcionarios);
     } catch (error) {
       console.log(error);
@@ -62,7 +59,7 @@ class FuncionarioController {
   static async findByID(req: Request, res: Response): Promise<void> {
     try {
       const { id } = req.params;
-      const includeRelations = req.query.include === "true"; // Converte include para booleano
+      const includeRelations = req.query.include === "true";
       const funcionario = await FuncionarioService.findById(id, includeRelations);
 
       if (!funcionario) {
