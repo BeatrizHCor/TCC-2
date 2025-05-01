@@ -20,10 +20,11 @@ RoutesFuncionario.get(
     async (req: Request, res: Response) => {
         const page = (req.query.page as string) || '0';
         const limit = (req.query.limit as string) || '10';
+        const nome = req.query.nome as string || null;
         const includeRelations = req.query.include === "true" ? true : false;
         const salaoId = req.query.salaoId as string || '';
          try {
-            const funcionarios = await getFuncionarioPage(page, limit, includeRelations, salaoId);
+            const funcionarios = await getFuncionarioPage(page, limit, nome, includeRelations, salaoId);
             res.json(funcionarios);
         } catch (error) {
           console.error("Erro ao buscar funcionarios:", error);

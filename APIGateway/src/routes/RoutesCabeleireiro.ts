@@ -53,13 +53,14 @@ RoutesCabeleireiro.post(
 RoutesCabeleireiro.get(
   "/cabeleireiro/page",
   async (req: Request, res: Response) => {
-    let { page, limit, includeRelations, salaoId } = req.query;
+    let { page, limit, includeRelations, salaoId, name } = req.query;
     try {
       let cabeleireiros = await getCabeleireiroPage(
         Number(page),
         Number(limit),
         Boolean(includeRelations === "true"),
-        Number(salaoId)
+        Number(salaoId),
+        String(name)
       );
       res.status(200).send(cabeleireiros);
     } catch (e) {

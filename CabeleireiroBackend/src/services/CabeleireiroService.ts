@@ -8,21 +8,21 @@ class CabeleireiroService {
     include = false,
     salaoId: string | null = null,
     name: string | null = null
-  ) => {
+  ) => {console.log("CabeleireiroService.getCabeleireiros", name);
     return await prisma.cabeleireiro.findMany({
       ...(skip !== null ? { skip } : {}),
       ...(limit !== null ? { take: limit } : {}),
       where: {
-        SalaoId: salaoId ? salaoId : Prisma.skip,
-        Nome: name ? name : Prisma.skip,
+      SalaoId: salaoId ? salaoId : Prisma.skip,
+      ...(name ? { Nome: { contains: name, mode: 'insensitive' } } : {}),
       },
       ...(include
-        ? {
-            include: {
-              Agendamentos: true,
-            },
-          }
-        : {}),
+      ? {
+        include: {
+          Agendamentos: true,
+        },
+        }
+      : {}),
     });
   };
 

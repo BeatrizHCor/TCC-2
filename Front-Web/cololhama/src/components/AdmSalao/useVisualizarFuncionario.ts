@@ -5,6 +5,7 @@ import FuncionarioService from '../../services/FuncionarioService';
 export const useVisualizarFuncionarios = (
   page: number = 1,
   limit: number = 10,
+  nomeFilter: string = "",
   salaoId: string
 ) => {
   const [funcionarios, setFuncionarios] = useState<Funcionario[]>([]);
@@ -21,6 +22,7 @@ export const useVisualizarFuncionarios = (
         const response = await FuncionarioService.getFuncionarioPage(
           page,
           limit,
+          nomeFilter,
           false,
           salaoId
         );
@@ -45,7 +47,7 @@ export const useVisualizarFuncionarios = (
     };
 
     buscarFuncionarios();
-  }, [page, limit, salaoId]);
+  }, [page, limit, nomeFilter, salaoId]);
 
   return {
     funcionarios,

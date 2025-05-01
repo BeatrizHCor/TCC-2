@@ -15,6 +15,7 @@ import EditarServicoPage from "./pages/Funcionario/EditarServicoPage";
 import NovoServicoPage from "./pages/Funcionario/NovoServicePage";
 import VisualizarCabeleireiroPage from "./pages/Cabeleireiro/VisualizarCabeleireiroPage";
 import PortfolioCabeleireiro from "./components/Cabeleireiro/portfolioCabeleireiro";
+import VisualizarFuncionarioPage from "./pages/AdmSalao/VisualizarFuncionario";
 
 const App: React.FC = () => {
   const isAuthenticated = false;
@@ -39,6 +40,13 @@ const App: React.FC = () => {
             <Route path="/cabelereiros" element={<VisualizarCabeleireiroPage />} />
             <Route path="/funcionarios" element={<VisualizarClientesPage />} />
             <Route path="/portfolio" element={<PortfolioCabeleireiro />} />
+            <Route path="/servico/editar/novo" element={<NovoServicoPage/>} />
+            <Route path="/servico/editar/:servicoId" element={<EditarServicoPage/>} />
+            <Route
+              path="/cabelereiros"
+              element={<VisualizarCabeleireiroPage />}
+            />
+            <Route path ="/funcionarios" element={<VisualizarFuncionarioPage />} />
           </>
         )}
       </Routes>

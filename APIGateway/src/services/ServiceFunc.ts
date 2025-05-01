@@ -41,12 +41,13 @@ export const postFuncionario = async (
 export const getFuncionarioPage = async (
   page: string,
   limit: string,
+  nome: string | null = null,
   includeRelations: boolean = false, 
   salaoId: string
 ) => {  
   let responseFuncionarios = await fetch(
     FuncionarioURL +
-      `/funcionario/page?page=${page}&limit=${limit}&includeRelations=${includeRelations}&salaoId=${salaoId}`,
+    `/funcionario/page?page=${page}&limit=${limit}&nome=${nome}&includeRelations=${includeRelations}&salaoId=${salaoId}`,
     {
       method: "GET",
     }

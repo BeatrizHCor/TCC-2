@@ -14,13 +14,21 @@ class FuncionarioService {
   static async getFuncionarios(
     skip: number | null = null,
     limit: number | null = null,
+    nome: string | null = null,
     include = false,
     salaoId: string | null = null
   ) {
     return await prisma.funcionario.findMany({
       ...(skip !== null ? { skip } : {}),
       ...(limit !== null ? { take: limit } : {}),
-      ...(salaoId !== null ? { where: { SalaoId: salaoId } } : {}),
+      ...(salaoId !== null || nome !== null
+        ? {
+            where: {
+              ...(salaoId ? { SalaoId: salaoId } : {}),
+              ...(nome ? { Nome: { contains: nome , mode:'insensitive' } } : {}),
+            },
+          }
+        : {}),
       ...(include
         ? {
             include: {
@@ -37,14 +45,15 @@ class FuncionarioService {
   static async getFuncionarioPage(
     page = 1,
     limit = 10,
+    nome: string | null = null,
     includeRelations = false,
     salaoId: string | null = null
   ) {
     const skip = (page - 1) * limit;
 
     const [total, funcionarios] = await Promise.all([
-      FuncionarioService.getFuncionarios(null, null, false, salaoId),
-      FuncionarioService.getFuncionarios(skip, limit, includeRelations, salaoId),
+      FuncionarioService.getFuncionarios(null, null, nome, false, salaoId),
+      FuncionarioService.getFuncionarios(skip, limit, nome, includeRelations, salaoId),
     ]);
 
     return {

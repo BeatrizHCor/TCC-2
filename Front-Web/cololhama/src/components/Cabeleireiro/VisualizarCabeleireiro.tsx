@@ -10,15 +10,12 @@ import {
   TablePagination,
   Paper,
   TextField,
-  MenuItem,
-  Select,
-  FormControl,
-  InputLabel,
+  Button,
 } from "@mui/material";
 import { useVisualizarCabeleireiros } from "./useVisualizarCabeleireiro";
 import "../../styles/styles.global.css";
 import { Cabeleireiro } from "../../models/cabelereiroModel";
-
+const SalaoID = import.meta.env.SALAO_ID || "1"; // importa o ID do salão aqui
 const colunas = [
   { id: "nome", label: "Nome" },
   { id: "email", label: "Email" },
@@ -28,15 +25,22 @@ const colunas = [
 export const VisualizarCabeleireiro: React.FC = () => {
   const [page, setPage] = useState(0);
   const [rowsPerPage, setRowsPerPage] = useState(10);
-  const [colunaBusca, setColunaBusca] = useState("nome");
   const [termoBusca, setTermoBusca] = useState("");
 
   const { cabeleireiros, totalCabeleireiros, isLoading, error } =
-    useVisualizarCabeleireiros(page + 1, rowsPerPage, "1");
+    useVisualizarCabeleireiros(page + 1, rowsPerPage, SalaoID, termoBusca);
 
   const handleChangePage = (_: unknown, newPage: number) => {
     setPage(newPage);
   };
+  const[NomeFiltroInput, setNomeFilterInput ]= useState("");
+  const handleNomeFilterInput = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setNomeFilterInput(e.target.value);
+  };
+  const aplicarFiltroNome = () => {
+    setTermoBusca(NomeFiltroInput);
+    setPage(0);
+  }
 
   const handleChangeRowsPerPage = (
     event: React.ChangeEvent<HTMLInputElement>
@@ -45,44 +49,26 @@ export const VisualizarCabeleireiro: React.FC = () => {
     setPage(0);
   };
 
-  const handleColunaBuscaChange = (event: any) => {
-    setColunaBusca(event.target.value);
-  };
 
-  const handleTermoBuscaChange = (
-    event: React.ChangeEvent<HTMLInputElement>
-  ) => {
-    setTermoBusca(event.target.value);
-    setPage(0);
-  };
   if (isLoading) return <Box>Carregando...</Box>;
   if (error) return <Box>Erro ao carregar cabeleireiro: {error}</Box>;
 
   return (
     <Box sx={{ width: "100%", p: 2 }}>
-      <Box sx={{ display: "flex", mb: 2 }}>
-        <FormControl variant="outlined" sx={{ minWidth: 120, mr: 1 }}>
-          <InputLabel id="coluna-busca-label">Buscar por</InputLabel>
-          <Select
-            labelId="coluna-busca-label"
-            value={colunaBusca}
-            onChange={handleColunaBuscaChange}
-            label="Buscar por"
-          >
-            {colunas.map((coluna) => (
-              <MenuItem key={coluna.id} value={coluna.id}>
-                {coluna.label}
-              </MenuItem>
-            ))}
-          </Select>
-        </FormControl>
-        <TextField
+      <Box sx={{ display: "flex", mb: 2, gap: 2 }}>
+      <TextField
           variant="outlined"
-          label="Buscar"
-          value={termoBusca}
-          onChange={handleTermoBuscaChange}
-          fullWidth
+          label="Buscar por nome"
+          value={NomeFiltroInput} 
+          onChange={handleNomeFilterInput}
+          sx={{ maxWidth: "50%", flexGrow: 1 }}
         />
+        <Button
+          variant="contained"
+          onClick={aplicarFiltroNome}
+        >
+          Buscar
+        </Button>
       </Box>
 
       <Paper sx={{ width: "100%", mb: 2 }}>
