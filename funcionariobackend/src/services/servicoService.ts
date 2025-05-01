@@ -1,5 +1,5 @@
 import prisma from "../config/database";
-import { PrismaClient } from "@prisma/client";
+import { Prisma } from "@prisma/client";
 
 class ServicoService {
   static async getServicos(
@@ -54,7 +54,7 @@ class ServicoService {
         ServicoAtendimento: true,
       };
     }
-    console.log("Query gerada:", query);
+    console.log("Query gerada");
     return await prisma.servico.findMany(query);
   }
   

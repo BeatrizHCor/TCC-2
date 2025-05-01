@@ -5,13 +5,17 @@ class FuncionarioController {
 
   static async getFuncionariosPage(req: Request, res: Response): Promise<void> {
     try {
-      const { page, limit, includeRelations, salaoId } = req.query;
+      const { page, limit, nome, includeRelations, salaoId } = req.query;
+      console.log("Query Params:", req.query); // Log the query parameters
+      console.log("comecçando no controler");
       const funcionarios = await FuncionarioService.getFuncionarioPage(
         Number(page),
         Number(limit),
+        nome ? String(nome) : null,
         includeRelations === "true",
         salaoId ? String(salaoId) : null
       );
+      console.log("Funcionarios:", funcionarios); // Log the fetched funcionarios
       res.json(funcionarios);
     } catch (error) {
       console.log(error);
@@ -21,10 +25,11 @@ class FuncionarioController {
 
   static async findAll(req: Request, res: Response): Promise<void> {
     try {
-      const { limit, includeRelations, salaoId } = req.query;
+      const { limit, nome, includeRelations, salaoId } = req.query;
       const funcionarios = await FuncionarioService.getFuncionarios(
         null,
         Number(limit),
+        nome ? String(nome) : null,
         includeRelations === 'true',
         salaoId ? String(salaoId) : null
       );

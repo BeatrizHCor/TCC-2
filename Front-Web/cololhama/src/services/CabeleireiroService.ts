@@ -108,7 +108,8 @@ export const CabeleireiroService = {
     page: number = 1,
     limit: number = 10,
     includeRelations: boolean = false,
-    salaoId: string
+    salaoId: string,
+    name?: string 
   ): Promise<CabeleireiroPageResponse> {
     try {
       const response = await api.get(`/cabeleireiro/page`, {
@@ -117,6 +118,7 @@ export const CabeleireiroService = {
           limit,
           includeRelations,
           salaoId,
+          name
         },
       });
 

@@ -25,8 +25,6 @@ export const useVisualizarServicos = (
   const [error, setError] = useState<string | null>(null);
   const navigate = useNavigate();
   useEffect(() => {
-    if (!salaoId) return;
-
     const fetchServicos = async () => {
       setIsLoading(true);
       setError(null);
@@ -48,7 +46,8 @@ export const useVisualizarServicos = (
           descricao: item.Descricao ?? "",
           precoMin: item.PrecoMin ?? 0,
           precoMax: item.PrecoMax ?? 0,
-        }));
+        })
+      );
         console.log("Serviços formatados:", servicosFormatados);
         setServicos(servicosFormatados);
         setTotalServicos(response.total);

@@ -5,7 +5,8 @@ import CabeleireiroService from "../../services/CabeleireiroService";
 export const useVisualizarCabeleireiros = (
   page: number = 1,
   limit: number = 10,
-  salaoId: string
+  salaoId: string,
+  termoBusca: string
 ) => {
   const [cabeleireiros, setCabeleireiros] = useState<Cabeleireiro[]>([]);
   const [totalCabeleireiros, setTotalCabeleireiros] = useState<number>(0);
@@ -17,12 +18,13 @@ export const useVisualizarCabeleireiros = (
       setIsLoading(true);
       setError(null);
 
-      try {
+      try { 
         const response = await CabeleireiroService.getCabeleireiroPage(
           page,
           limit,
           false,
-          salaoId
+          salaoId,
+          termoBusca
         );
         const listaCabeleireiros: Cabeleireiro[] = (response.data || []).map(
           (item: any) => ({
@@ -46,9 +48,9 @@ export const useVisualizarCabeleireiros = (
         setIsLoading(false);
       }
     };
-
+    console.log("Buscando cabeleireiros com o nome:", termoBusca);
     buscarCabeleireiros();
-  }, [page, limit, salaoId]);
+  }, [page, limit, salaoId, termoBusca]);
 
   return {
     cabeleireiros,

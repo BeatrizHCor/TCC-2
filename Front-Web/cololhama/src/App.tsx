@@ -14,6 +14,7 @@ import VisualizarServicoPage from "./pages/Funcionario/VisualizarServicoPage";
 import EditarServicoPage from "./pages/Funcionario/EditarServicoPage";
 import NovoServicoPage from "./pages/Funcionario/NovoServicePage";
 import VisualizarCabeleireiroPage from "./pages/Cabeleireiro/VisualizarCabeleireiroPage";
+import VisualizarFuncionarioPage from "./pages/AdmSalao/VisualizarFuncionario";
 
 const App: React.FC = () => {
   const isAuthenticated = false;
@@ -39,7 +40,7 @@ const App: React.FC = () => {
               path="/cabelereiros"
               element={<VisualizarCabeleireiroPage />}
             />
-            <Route path ="/funcionarios" element={<VisualizarClientesPage />} />
+            <Route path ="/funcionarios" element={<VisualizarFuncionarioPage />} />
           </>
         )}
       </Routes>

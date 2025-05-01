@@ -41,7 +41,6 @@ api.interceptors.response.use(
   }
 );
 
-
 interface FuncionarioPageResponse {
 data: Funcionario[];  
 total: number;
@@ -54,6 +53,7 @@ export const FuncionarioService = {
     async getFuncionarioPage(
         page: number = 1,
         limit: number = 10,
+        nome: string | null = null,
         includeRelations: boolean = false,
         salaoId: string
     ): Promise<FuncionarioPageResponse> {
@@ -63,6 +63,7 @@ export const FuncionarioService = {
                     params: {
                       page,
                       limit,
+                      nome,
                       includeRelations,
                       salaoId,
                     },
