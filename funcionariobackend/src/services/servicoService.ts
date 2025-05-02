@@ -11,18 +11,17 @@ class ServicoService {
     include = false,
     salaoId: string | null = null
   ) {
-    let whereCondition: any = {};
-
-    if (salaoId) {
-      whereCondition.SalaoId = salaoId;
-    }
-
-    if (nome) {
+    let whereCondition: Prisma.ServicoWhereInput = {};
+    if (nome && nome.trim() !== '' && typeof nome === 'string' && nome.trim().length > 0 && nome !== 'null') {
       whereCondition.Nome = {
         contains: nome,
         mode: 'insensitive',
       };
+    if (salaoId) {
+        whereCondition.SalaoId = salaoId;
+      }
     }
+  console.log("whereCondition final:", JSON.stringify(whereCondition));
 
     if (precoMin != null && !isNaN(precoMin)) {
       whereCondition.PrecoMin = { gte: precoMin };

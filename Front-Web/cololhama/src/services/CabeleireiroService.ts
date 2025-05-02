@@ -57,6 +57,7 @@ export const CabeleireiroService = {
         Nome: cabeleireiro.nome,
         Email: cabeleireiro.email,
         Telefone: String(cabeleireiro.telefone),
+        Mei: String(cabeleireiro.mei),
         SalaoId: cabeleireiro.salaoId,
       };
       const response = await api.post("/cabeleireiro", novoCabeleireiro);
@@ -171,7 +172,7 @@ export const CabeleireiroService = {
         Nome: cabeleireiro.nome,
         Email: cabeleireiro.email,
         Telefone: String(cabeleireiro.telefone),
-        Mei: cabeleireiro.mei,
+        Mei: String(cabeleireiro.mei),
         SalaoId: cabeleireiro.salaoId,
       });
       return response.data;
