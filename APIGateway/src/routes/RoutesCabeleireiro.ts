@@ -1,11 +1,16 @@
 import { Router, Request, Response } from "express";
 import {
-  deleteCabeleireiro,
-  getCabeleireiroPage,
-  postCabeleireiro,
   postLogin,
   registerLogin,
 } from "../services/Service";
+ import {
+  deleteCabeleireiro,
+  getCabeleireiroById,
+  getCabeleireiroPage,
+  postCabeleireiro,
+  updateCabeleireiro,
+ } from "../services/ServiceCabelereiro";
+
 const RoutesCabeleireiro = Router();
 
 //Lógica feita, ainda não testado. Da pra deixar o código mais limpo mas a idéia é esse fluxo. No fim ja retorna um token.
@@ -66,6 +71,57 @@ RoutesCabeleireiro.get(
     } catch (e) {
       console.log(e);
       res.status(500).send("Error querying Cabeleireiros");
+    }
+  }
+);
+
+RoutesCabeleireiro.get(
+  "/cabeleireiro/ID/:id",
+  async (req: Request, res: Response) => {
+    let { id } = req.params;
+    const includeRelations = req.query.include === "true";
+    try {
+      let cabeleireiro = await getCabeleireiroById(id,includeRelations);
+      res.status(200).send(cabeleireiro);
+    } catch (e) {
+      console.log(e);
+      res.status(500).send("Error querying Cabeleireiros");
+    }
+  }
+);
+
+RoutesCabeleireiro.delete(
+  "/cabeleireiro/delete/:id",
+  async (req: Request, res: Response) => {
+    let { id } = req.params;
+    try {
+      let cabeleireiro = await deleteCabeleireiro(id);
+      res.status(200).send(cabeleireiro);
+    } catch (e) {
+      console.log(e);
+      res.status(500).send("Error deleting Cabeleireiros");
+    }
+  }
+);
+
+RoutesCabeleireiro.put(
+  "/cabeleireiro",
+  async (req: Request, res: Response) => {
+    let { id, CPF, Nome, Email, Telefone, Mei, SalaoId } = req.body;
+    try {
+      let cabeleireiro = await updateCabeleireiro(
+        Email,
+        CPF,
+        Telefone,
+        SalaoId,
+        Mei,
+        Nome,
+        id,
+      );
+      res.status(200).send(cabeleireiro);
+    } catch (e) {
+      console.log(e);
+      res.status(500).send("Error updating Cabeleireiros");
     }
   }
 );
