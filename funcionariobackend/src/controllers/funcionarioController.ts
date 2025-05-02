@@ -5,7 +5,8 @@ class FuncionarioController {
 
   static async getFuncionariosPage(req: Request, res: Response): Promise<void> {
     try {
-      const { page, limit, nome, includeRelations, salaoId } = req.query;
+      const { page, limit, includeRelations, salaoId } = req.query;
+      const nome = req.query.nome ? String(req.query.nome) : null;
       const funcionarios = await FuncionarioService.getFuncionarioPage(
         page ? Number(page): 1,
         limit ? Number(limit): 10,

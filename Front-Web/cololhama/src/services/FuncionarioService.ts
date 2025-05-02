@@ -50,14 +50,14 @@ limit: number;
 
 export const FuncionarioService = {
 
-    async getFuncionarioPage(
+async getFuncionarioPage(
         page: number = 1,
         limit: number = 10,
         nome: string | null = null,
         includeRelations: boolean = false,
         salaoId: string
     ): Promise<FuncionarioPageResponse> {
-        try {
+        try {console.log("Buscando funcionários com o nome:", nome);
             const response = await api.get<FuncionarioPageResponse>(
                 `/funcionario/page`, {
                     params: {
@@ -67,7 +67,7 @@ export const FuncionarioService = {
                       includeRelations,
                       salaoId,
                     },
-                  });
+                  });console.log("Funcionários recebidos:", response.data);
             return response.data;
         } catch (error) {
             console.error("Erro ao buscar funcionários:", error);
