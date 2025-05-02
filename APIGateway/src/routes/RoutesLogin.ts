@@ -1,7 +1,7 @@
 import { Router, Request, Response } from "express";
 
 const RoutesLogin = Router();
-const loginURL = process.env.AuthURL || "";
+const loginURL = process.env.AUTH_URL || "http://localhost:3000";
 //Acabei misturando o que é route com o que é controller, separar pra deixar o código mais bonito depois.
 
 RoutesLogin.post("/login", async (req: Request, res: Response) => {

@@ -1,10 +1,8 @@
 import "dotenv/config";
-import { Cliente } from "../models/clienteModel";
 import { userTypes } from "../models/tipo-usuario.enum";
 import { accessSync } from "fs";
-import { Cabeleireiro } from "../models/cabelereiroModel";
 import e from "express";
-import { Servico } from "../models/servicoModel";
+
 
 const CustomerURL = process.env.CUSTOMER_URL || "http://localhost:4001";
 const loginURL = process.env.AUTH_URL || "http://localhost:4000";

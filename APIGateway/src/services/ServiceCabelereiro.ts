@@ -1,9 +1,7 @@
 import { Cabeleireiro } from "../models/cabelereiroModel";
-
+import 'dotenv/config';
 
 const CabeleireiroURL = process.env.CABELEREIRO_URL || "http://localhost:4002";
-
-
 
 export const postCabeleireiro = async (cabeleireiro: Cabeleireiro) => {
   let responseCabeleireiro = await fetch(CabeleireiroURL + "/cabeleireiro", {

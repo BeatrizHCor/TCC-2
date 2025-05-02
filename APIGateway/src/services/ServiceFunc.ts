@@ -3,8 +3,7 @@ import { Funcionario } from "../models/funcionarioModel";
 import { Servico } from "../models/servicoModel";
 import e, { response } from "express";
 
-const FuncionarioURL = process.env.FUNCIONARIO_URL || "http://localhost:4003";
-
+const FuncionarioURL = process.env.FUNC_URL || "http://localhost:3002";
 export const postFuncionario = async (
     CPF: string,
     Nome: string,
@@ -45,9 +44,10 @@ export const getFuncionarioPage = async (
   includeRelations: boolean = false, 
   salaoId: string
 ) => {  
+    const nomeParam = nome ? `&nome=${nome}` : "";
   let responseFuncionarios = await fetch(
     FuncionarioURL +
-    `/funcionario/page?page=${page}&limit=${limit}&nome=${nome}&includeRelations=${includeRelations}&salaoId=${salaoId}`,
+    `/funcionario/page?page=${page}&limit=${limit}&nome=${nomeParam}&includeRelations=${includeRelations}&salaoId=${salaoId}`,
     {
       method: "GET",
     }
