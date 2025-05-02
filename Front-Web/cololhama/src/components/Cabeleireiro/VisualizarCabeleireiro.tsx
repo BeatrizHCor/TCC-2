@@ -30,21 +30,23 @@ const colunas = [
   { id: "acoes", label: "Ações", clienteVisivel: false }
 ];
 
-interface VisualizarServicosProps {
+interface VisualizarCabeleireiroProps {
+  salaoId: string;
   isCliente?: boolean;
 }
 
-export const VisualizarCabeleireiro: React.FC = (
-  isCliente
-) => {
+export const VisualizarCabeleireiro: React.FC <VisualizarCabeleireiroProps> = ({
+  salaoId,
+  isCliente = false,
+}) => {
   const usuario = localStorage.getItem("usuario");
   isCliente = !!(usuario && JSON.parse(usuario)?.userType === "Cliente");
-
+  salaoId = SalaoID;
   const [page, setPage] = useState(0);
   const [rowsPerPage, setRowsPerPage] = useState(10);
   const [termoBusca, setTermoBusca] = useState("");
 
-  const { cabeleireiros, totalCabeleireiros, isLoading, error } =
+  const { cabeleireiros, totalCabeleireiros, handleEditarCabeleireiro, isLoading, error } =
     useVisualizarCabeleireiros(
       page + 1, 
       rowsPerPage, 
@@ -102,7 +104,7 @@ export const VisualizarCabeleireiro: React.FC = (
         <Button
           component={Link}
           variant="outlined"
-          to = "/cabeleireiro" 
+          to = "/cabeleireiro/novo" 
           sx ={{
             color: theme.palette.primary.main,
             borderBlockColor: theme.palette.primary.main,
@@ -119,40 +121,51 @@ export const VisualizarCabeleireiro: React.FC = (
           <Table>
             <TableHead>
               <TableRow>
-                {colunas.map((coluna) => (
+                {colunasVisiveis.map((coluna) => (
                   <TableCell key={coluna.id}>{coluna.label}</TableCell>
                 ))}
               </TableRow>
             </TableHead>
             <TableBody>
-              {cabeleireiros.map((cabeleireiro: Cabeleireiro) => (
-                <TableRow key={cabeleireiro.id}>
-                  <TableCell>{cabeleireiro.nome}</TableCell>
-                  <TableCell>{cabeleireiro.email}</TableCell>
-                  <TableCell>{cabeleireiro.telefone}</TableCell>
-                  <TableCell>{cabeleireiro.mei}</TableCell>
-                  <TableCell>
-                      <Button
-                        startIcon={<EditIcon />}
-                        variant="outlined"
-                        size="small"
-                      >
-                        Portifólio
-                      </Button>
-                   </TableCell>
-                   {!isCliente && (
-                    <TableCell>
-                      <Button
-                        startIcon={<EditIcon />}
-                        variant="outlined"
-                        size="small"                      
-                      >
-                        Editar
-                      </Button>
-                    </TableCell>
-                  )}
+              {cabeleireiros.length === 0 ? (
+                <TableRow>
+                  <TableCell colSpan={colunasVisiveis.length} align="center">
+                    Nenhum serviço encontrado.
+                  </TableCell>
                 </TableRow>
-              ))}
+              ) : (
+                cabeleireiros.map((cabeleireiro: Cabeleireiro) => (
+                  <TableRow key={cabeleireiro.id}>
+                    <TableCell>{cabeleireiro.nome}</TableCell>
+                    <TableCell>{cabeleireiro.email}</TableCell>
+                    <TableCell>{cabeleireiro.telefone}</TableCell>
+                    <TableCell>{cabeleireiro.mei}</TableCell>
+                    <TableCell>
+                        <Button
+                          startIcon={<EditIcon />}
+                          variant="outlined"
+                          size="small"
+                        >
+                          Portifólio
+                        </Button>
+                    </TableCell>
+                    {!isCliente && (
+                      <TableCell>
+                        <Button
+                          startIcon={<EditIcon />}
+                          variant="outlined"
+                          size="small" 
+                          onClick={() => {
+                            cabeleireiro.id && handleEditarCabeleireiro(cabeleireiro.id);
+                          }}                
+                        >
+                          Editar
+                        </Button>
+                      </TableCell>
+                    )}
+                  </TableRow>
+                ))
+              )}
             </TableBody>
           </Table>
         </TableContainer>
