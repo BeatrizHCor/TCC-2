@@ -17,8 +17,6 @@ import VisualizarCabeleireiroPage from "./pages/Cabeleireiro/VisualizarCabeleire
 import PortfolioCabeleireiro from "./components/Cabeleireiro/portfolioCabeleireiro";
 import VisualizarFuncionarioPage from "./pages/AdmSalao/VisualizarFuncionario";
 import ManterCabeleireiroPage from "./pages/Cabeleireiro/ManterCabelereiroPage";
-import VisualizarFuncionarioPage from "./pages/AdmSalao/VisualizarFuncionario";
-import ManterCabeleireiroPage from "./pages/Cabeleireiro/ManterCabelereiroPage";
 
 const App: React.FC = () => {
   const isAuthenticated = false;
