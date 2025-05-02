@@ -52,6 +52,7 @@ class ServicoService {
     page: number = 1,
     limit: number = 10,
     salaoId: string,
+    nome?: string,
     precoMin?: number,
     precoMax?: number,
     includeRelations: boolean = false
@@ -61,6 +62,7 @@ class ServicoService {
         params: {
           page,
           limit,
+          nome,
           precoMin,
           precoMax,
           includeRelations,
@@ -135,6 +137,33 @@ class ServicoService {
       throw error;
     }
   }
+
+  static async getServicoByNomeAndSalao(
+    nome: string,
+    salaoId: string
+  ): Promise<Servico> {
+    try {
+      const response = await api.get(`/servico/nome/${nome}/${salaoId}`);
+      return response.data;
+    } catch (error) {
+      console.error(`Erro ao buscar serviço com nome ${nome} do salão ${salaoId}:`, error);
+      throw error;
+    }
+  }
+
+  static async findServicoByNomeAndSalaoId(
+    nome: string,
+    salaoId: string
+  ): Promise<Servico[]> {
+    try {
+      const response = await api.get(`/servico/find/${nome}/${salaoId}`);
+      return response.data;
+    } catch (error) {
+      console.error(`Erro ao buscar serviço com nome ${nome} do salão ${salaoId}:`, error);
+      throw error;
+    }
+  }
+
 }
 
 export default ServicoService;

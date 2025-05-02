@@ -13,5 +13,6 @@ export interface Cabeleireiro {
     portfolio?: Portfolio; 
     agendamentos?: Agendamentos[];
     holerite?: Holerite[];
+    dataCadastro?: Date;
   }
   

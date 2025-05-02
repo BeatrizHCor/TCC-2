@@ -14,6 +14,7 @@ import {
   Select,
   FormControl,
   InputLabel,
+  Button,
 } from '@mui/material';
 import { Cliente } from '../../models/clienteModel';
 import { useVisualizarClientes } from './useVisualizarClientes';
@@ -57,17 +58,20 @@ export const VisualizarClientes: React.FC = () => {
     setTermoBusca(event.target.value);
     setPage(0);
   };
-/*
-  const formatarData = (data: string) => {
-    return new Date(data).toLocaleDateString('pt-BR');
+ const[NomeFiltroInput, setNomeFilterInput ]= useState("");
+  const handleNomeFilterInput = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setNomeFilterInput(e.target.value);
   };
-*/
+  const aplicarFiltroNome = () => {
+    setTermoBusca(NomeFiltroInput);
+    setPage(0);
+  }
   if (isLoading) return <Box>Carregando...</Box>;
   if (error) return <Box>Erro ao carregar clientes: {error}</Box>;
 
   return (
     <Box sx={{ width: '100%', p: 2 }}>
-      <Box sx={{ display: 'flex', mb: 2 }}>
+      <Box sx={{ display: 'flex', mb: 2, gap: 2 }}>
         <FormControl variant="outlined" sx={{ minWidth: 120, mr: 1 }}>
           <InputLabel id="coluna-busca-label">Buscar por</InputLabel>
           <Select
@@ -86,10 +90,16 @@ export const VisualizarClientes: React.FC = () => {
         <TextField
           variant="outlined"
           label="Buscar"
-          value={termoBusca}
-          onChange={handleTermoBuscaChange}
-          fullWidth
+          value={NomeFiltroInput} 
+          onChange={handleNomeFilterInput}
+          sx={{ maxWidth: "50%", flexGrow: 1 }}
         />
+        <Button
+          variant="contained"
+          onClick={aplicarFiltroNome}
+        >
+          Buscar
+        </Button>
       </Box>
 
       <Paper sx={{ width: '100%', mb: 2 }}>

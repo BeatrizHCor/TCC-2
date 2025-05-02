@@ -1,3 +1,4 @@
+import { Prisma } from "@prisma/client";
 import prisma from "../config/database";
 
 interface FuncionarioData {
@@ -14,13 +15,27 @@ class FuncionarioService {
   static async getFuncionarios(
     skip: number | null = null,
     limit: number | null = null,
+    nome: string | null = null,
     include = false,
     salaoId: string | null = null
   ) {
+    const whereClause: any = {};
+    if (nome !== null) {
+      whereClause.Nome = {
+        contains: nome,
+        mode: 'insensitive',
+      };
+    }
+    if (salaoId) {
+      whereClause.SalaoId = salaoId;
+    }
     return await prisma.funcionario.findMany({
       ...(skip !== null ? { skip } : {}),
       ...(limit !== null ? { take: limit } : {}),
-      ...(salaoId !== null ? { where: { SalaoId: salaoId } } : {}),
+      where: {
+        ...(nome ? { Nome: { contains: nome, mode: 'insensitive' } } : {}),
+        ...(salaoId ? { SalaoId: salaoId } : {}),
+      },    
       ...(include
         ? {
             include: {
@@ -37,14 +52,15 @@ class FuncionarioService {
   static async getFuncionarioPage(
     page = 1,
     limit = 10,
+    nome: string | null = null,
     includeRelations = false,
     salaoId: string | null = null
   ) {
     const skip = (page - 1) * limit;
 
     const [total, funcionarios] = await Promise.all([
-      FuncionarioService.getFuncionarios(null, null, false, salaoId),
-      FuncionarioService.getFuncionarios(skip, limit, includeRelations, salaoId),
+      FuncionarioService.getFuncionarios(null, null, nome, false, salaoId),
+      FuncionarioService.getFuncionarios(skip, limit, nome, includeRelations, salaoId),
     ]);
 
     return {

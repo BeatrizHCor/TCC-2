@@ -21,7 +21,7 @@ const NavBar: React.FC<NavBarProps> = ({ isAuthenticated }) => {
         </Box>
 
         <Box sx={{ display: "flex", gap: 3 }}>
-          {["/servicos", "/cabelereiros", "/sobre", "/perfil"].map((route, index) => (
+          {["/servicos", "/cabeleireiros", "/sobre", "/perfil"].map((route, index) => (
             <Box key={index} sx={{ position: "relative", overflow: "hidden" }}>
               <Button
                 color="inherit"
@@ -50,7 +50,7 @@ const NavBar: React.FC<NavBarProps> = ({ isAuthenticated }) => {
                   },
                 }}
               >
-                {route === "/servicos" ? "Serviços" : route === "/cabelereiros" ? "Cabeleireiros" : route === "/perfil" ? "Perfil" : "Sobre Nós" }
+                {route === "/servicos" ? "Serviços" : route === "/cabeleireiros" ? "Cabeleireiros" : route === "/perfil" ? "Perfil" : "Sobre Nós" }
               </Button>
             </Box>
           ))}

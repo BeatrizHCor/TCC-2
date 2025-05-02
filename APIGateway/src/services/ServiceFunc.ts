@@ -3,8 +3,7 @@ import { Funcionario } from "../models/funcionarioModel";
 import { Servico } from "../models/servicoModel";
 import e, { response } from "express";
 
-const FuncionarioURL = process.env.FUNCIONARIO_URL || "http://localhost:4003";
-
+const FuncionarioURL = process.env.FUNC_URL || "http://localhost:3002";
 export const postFuncionario = async (
     CPF: string,
     Nome: string,
@@ -41,12 +40,13 @@ export const postFuncionario = async (
 export const getFuncionarioPage = async (
   page: string,
   limit: string,
+  nome: string | null = null,
   includeRelations: boolean = false, 
   salaoId: string
 ) => {  
   let responseFuncionarios = await fetch(
     FuncionarioURL +
-      `/funcionario/page?page=${page}&limit=${limit}&includeRelations=${includeRelations}&salaoId=${salaoId}`,
+    `/funcionario/page?page=${page}&limit=${limit}&nome=${nome}&includeRelations=${includeRelations}&salaoId=${salaoId}`,
     {
       method: "GET",
     }
@@ -70,9 +70,35 @@ export const deleteFuncionario = async (id: string) => {
     }
 }
 
+export const updateFuncionario = async (id: string, funcionarioData: Funcionario) => {
+    let responseFuncionario = await fetch(FuncionarioURL + `/funcionario/update/${id}`, {
+        method: "PUT",
+        headers: {
+            "Content-Type": "application/json",
+        },
+        body: JSON.stringify(funcionarioData),
+    });
+    if (responseFuncionario.ok) {  
+        return (await responseFuncionario.json()) as Funcionario;
+    }    else {
+        throw new Error("Error in updating Funcionario");
+    }
+}
+export const getFuncionarioById = async (id: string) => {
+    let responseFuncionario = await fetch(FuncionarioURL + `/funcionario/ID/${id}`, {
+        method: "GET",
+    });
+    if (responseFuncionario.ok) {
+        return (await responseFuncionario.json()) as Funcionario;
+    } else {
+        throw new Error("Error in getting Funcionario by ID");
+    }
+}
+
 export const getServicoPage = async (
     page: string,
     limit: string,
+    nome: string | null = null,
     precoMin: number | null = null,
     precoMax: number | null = null,
     includeRelations: boolean = false,
@@ -80,9 +106,9 @@ export const getServicoPage = async (
   ) => {
     let responseServicos = await fetch(
       FuncionarioURL +
-        `/servico/page?page=${page}&limit=${limit}&precoMin=${precoMin}&precoMax=${precoMax}&includeRelations=${includeRelations}&salaoId=${salaoId}`,
+      `/servico/page?page=${page}&limit=${limit}&nome=${nome}&precoMin=${precoMin}&precoMax=${precoMax}&includeRelations=${includeRelations}&salaoId=${salaoId}`,
       {
-        method: "GET",
+      method: "GET",
       }
     );
     if (responseServicos.ok) {
@@ -157,3 +183,24 @@ export const getServicosBySalao = async (salaoId: string) => {
     }
 }
 
+export const getServicoByNomeAndSalao = async (nome: string, salaoId: string) => {
+    let responseServico = await fetch(FuncionarioURL + `/servico/nome/${nome}/${salaoId}`, {
+        method: "GET",
+    });
+    if (responseServico.ok) {
+        return (await responseServico.json()) as Servico;
+    } else {
+        throw new Error("Error in getting Servico by Nome and Salão ID");
+    }
+}
+
+export const findServicoByNomeAndSalaoId = async (nome: string, salaoId: string) => {
+    let responseServico = await fetch(FuncionarioURL + `/servico/find/${nome}/${salaoId}`, {
+        method: "GET",
+    });
+    if (responseServico.ok) {
+        return (await responseServico.json()) as Servico[];
+    } else {
+        throw new Error("Error in finding Servico by Nome and Salão ID");
+    }
+}

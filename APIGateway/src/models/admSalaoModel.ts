@@ -5,4 +5,5 @@ export interface AdmSalao {
     email: string;
     telefone: string;
     salaoId: string;
+    dataCadastro?: string;
   }

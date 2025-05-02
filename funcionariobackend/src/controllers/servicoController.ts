@@ -4,10 +4,11 @@ import ServicoService from "../services/servicoService";
 class ServicoController {
   static async getServicosPage(req: Request, res: Response): Promise<void> {
     try {
-      const { page, limit, includeRelations, precoMin, precoMax, salaoId } = req.query;
+      const { page, limit, includeRelations, nome, precoMin, precoMax, salaoId } = req.query;
       const servicos = await ServicoService.getServicoPage(
-        Number(page),
-        Number(limit),
+        page ? Number(page): 0,
+        limit ? Number(limit): 10,
+        nome ? String(nome) : undefined,
         Number(precoMin),
         Number(precoMax),
         includeRelations === "true",
@@ -26,6 +27,7 @@ class ServicoController {
       const servicos = await ServicoService.getServicos(
         undefined,
         Number(limit),
+        undefined,
         undefined,
         undefined,
         includeRelations === 'true',
@@ -133,6 +135,17 @@ class ServicoController {
         includeRelations === "true"
       );
       res.json(servicos);
+    } catch (error) {
+      console.log(error);
+      res.status(500).send("something went wrong");
+    }
+  }
+
+  static async findServicoByNomeAndSalaoId(req: Request, res: Response): Promise<void> {
+    try {
+      const { Nome, SalaoId } = req.params;
+      const servico  = await ServicoService.findServicoByNomeAndSalaoId(Nome, SalaoId);
+      res.json(servico);
     } catch (error) {
       console.log(error);
       res.status(500).send("something went wrong");

@@ -67,6 +67,7 @@ model Funcionario {
   Atendimentos        Atendimento[]
   AtendimentoAuxiliar AtendimentoAuxiliar[]
   Holerite            Holerite[]
+  DataCadastro       DateTime             @default(now())
 
   @@unique([Email, SalaoId])
 }
@@ -84,6 +85,7 @@ model Cabeleireiro {
   Portfolio    Portfolio?
   Agendamentos Agendamentos[]
   Holerite     Holerite[]
+  DataCadastro       DateTime             @default(now())
 
   @@unique([Email, SalaoId])
 }
@@ -97,6 +99,7 @@ model AdmSalao {
   Telefone String
   Salao    Salao  @relation(fields: [SalaoId], references: [ID])
   SalaoId  String @unique
+  DataCadastro       DateTime             @default(now())
 
   @@unique([Email, SalaoId])
 }
