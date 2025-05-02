@@ -11,7 +11,9 @@ import {
 const RoutesCustomer = Router();
 
 
-RoutesCustomer.post("/cliente", async (req: Request, res: Response) => {
+RoutesCustomer.post(
+  "/cliente", 
+  async (req: Request, res: Response) => {
   let { CPF, Nome, Email, Telefone, SalaoId, Password, userType } = req.body;
   try {
     let cliente = await postCliente(CPF, Nome, Email, Telefone, SalaoId);
@@ -43,7 +45,9 @@ RoutesCustomer.post("/cliente", async (req: Request, res: Response) => {
   }
 });
 
-RoutesCustomer.get("/cliente/page", async (req: Request, res: Response) => {
+RoutesCustomer.get(
+  "/cliente/page", 
+  async (req: Request, res: Response) => {
   const page = (req.query.page as string) || '0';
   const limit = (req.query.limit as string) || '10';
   const includeRelations = req.query.include === "true" ? true : false;
@@ -58,7 +62,9 @@ RoutesCustomer.get("/cliente/page", async (req: Request, res: Response) => {
   }
 });
 
-RoutesCustomer.get("/cliente/cpf/:cpf/:salaoId", async (req, res) => {
+RoutesCustomer.get(
+  "/cliente/cpf/:cpf/:salaoId", 
+  async (req, res) => {
   const { cpf, salaoId } = req.params;
   try {
     const cliente = await getClienteByCPF(cpf, salaoId);
