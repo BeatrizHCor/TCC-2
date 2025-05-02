@@ -59,7 +59,7 @@ export const VisualizarFuncionarios: React.FC = () => {
 
   return (
     <Box sx={{ width: '100%', p: 2 }}>
-      <Box sx={{ display: 'flex', mb: 2 }}>
+      <Box sx={{ display: 'flex', mb: 2 , gap: 2}}>
       <TextField
           variant="outlined"
           label="Buscar por nome"
@@ -90,7 +90,8 @@ export const VisualizarFuncionarios: React.FC = () => {
                 <TableRow key={funcionario.id}>
                   <TableCell>{funcionario.nome}</TableCell>
                   <TableCell>{funcionario.email}</TableCell>
-                  <TableCell>{funcionario.telefone}</TableCell>        
+                  <TableCell>{funcionario.telefone}</TableCell>
+                  <TableCell>{funcionario.dataCadastro ? new Date(funcionario.dataCadastro).toLocaleDateString('pt-BR') : 'N/A'}</TableCell>      
                 </TableRow>
               ))}
             </TableBody>

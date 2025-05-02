@@ -145,6 +145,7 @@ export const CabeleireiroService = {
         telefone: response.data.Telefone,
         mei: response.data.MEI,
         salaoId: response.data.SalaoId,
+        dataCadastro: response.data.DataCadastro,
       };
       return cabeleireiro;
     } catch (error) {

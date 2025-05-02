@@ -54,7 +54,6 @@ class ServicoService {
         ServicoAtendimento: true,
       };
     }
-    console.log("Query gerada");
     return await prisma.servico.findMany(query);
   }
   

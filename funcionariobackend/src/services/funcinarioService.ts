@@ -1,3 +1,4 @@
+import { Prisma } from "@prisma/client";
 import prisma from "../config/database";
 
 interface FuncionarioData {
@@ -18,13 +19,20 @@ class FuncionarioService {
     include = false,
     salaoId: string | null = null
   ) {
+    const whereClause: any = {};
+    if (nome) {
+      whereClause.Nome = {
+        contains: nome,
+        mode: 'insensitive',
+      };
+    }
+    if (salaoId) {
+      whereClause.SalaoId = salaoId;
+    }
     return await prisma.funcionario.findMany({
       ...(skip !== null ? { skip } : {}),
       ...(limit !== null ? { take: limit } : {}),
-      where: {
-        ...(salaoId ? { SalaoId: salaoId } : {}),
-        ...(nome ? { Nome: { contains: nome, mode: 'insensitive' } } : {}),
-        },      
+      where: whereClause,     
       ...(include
         ? {
             include: {

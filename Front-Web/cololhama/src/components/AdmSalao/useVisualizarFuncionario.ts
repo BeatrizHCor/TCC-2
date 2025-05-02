@@ -34,8 +34,8 @@ export const useVisualizarFuncionarios = (
           telefone: item.Telefone ?? "",
           salaoId: item.SalaoId ?? "",
           auxiliar: item.Auxiliar ?? false,
+          dataCadastro: item.DataCadastro ?? "",
         }));
-
         setFuncionarios(listaFuncionarios);
         setTotalFuncionarios(response.total);
       } catch (err) {
