@@ -14,4 +14,5 @@ export interface Funcionario {
     atendimentos?: Atendimento[];
     atendimentoAuxiliar?: AtendimentoAuxiliar[];
     holerite?: Holerite[];
+    dataCadastro?: Date;
   }
