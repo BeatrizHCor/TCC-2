@@ -20,7 +20,7 @@ class FuncionarioService {
     salaoId: string | null = null
   ) {
     const whereClause: any = {};
-    if (nome) {
+    if (nome !== null) {
       whereClause.Nome = {
         contains: nome,
         mode: 'insensitive',
@@ -32,7 +32,10 @@ class FuncionarioService {
     return await prisma.funcionario.findMany({
       ...(skip !== null ? { skip } : {}),
       ...(limit !== null ? { take: limit } : {}),
-      where: whereClause,     
+      where: {
+        ...(nome ? { Nome: { contains: nome, mode: 'insensitive' } } : {}),
+        ...(salaoId ? { SalaoId: salaoId } : {}),
+      },    
       ...(include
         ? {
             include: {

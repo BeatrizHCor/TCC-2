@@ -9,20 +9,13 @@ class CabeleireiroService {
     salaoId: string | null = null,
     name: string | null = null
   ) => {
-    const whereClause: any = {};
-    if (name) {
-      whereClause.Nome = {
-        contains: name,
-        mode: 'insensitive',
-      };
-    }
-    if (salaoId) {
-      whereClause.SalaoId = salaoId;
-    }
     return await prisma.cabeleireiro.findMany({
       ...(skip !== null ? { skip } : {}),
       ...(limit !== null ? { take: limit } : {}),
-      where: whereClause,
+      where: {
+        ...(name ? { Nome: { contains: name, mode: 'insensitive' } } : {}),
+        ...(salaoId ? { SalaoId: salaoId } : {}),
+      },
       ...(include
       ? {
         include: {
@@ -48,7 +41,8 @@ class CabeleireiroService {
         skip,
         limit,
         includeRelations,
-        salaoId
+        salaoId,
+        name
       ),
     ]);
 
