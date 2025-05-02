@@ -12,7 +12,7 @@ import {
   Platform,
 } from 'react-native';
 import { MaterialIcons } from '@expo/vector-icons';
-import { useClienteCadastro } from './useCadastroCliente';
+import { useClienteCadastro } from '../hooks/useCadastroCliente';
 import theme from '@/theme/theme';
 import { useRouter } from 'expo-router';
 
