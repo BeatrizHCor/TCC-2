@@ -1,34 +1,23 @@
 import "dotenv/config";
-import { Cliente } from "./models/clienteModel";
-import { userTypes } from "./models/tipo-usuario.enum";
+import { Cliente } from "../models/clienteModel";
+import { userTypes } from "../models/tipo-usuario.enum";
 import { accessSync } from "fs";
-import { Cabeleireiro } from "./models/cabelereiroModel";
+import { Cabeleireiro } from "../models/cabelereiroModel";
+import e from "express";
+import { Servico } from "../models/servicoModel";
 
-const CustomerURL = process.env.CustomerURL || "http://localhost:4001";
-const loginURL = process.env.AuthURL || "http://localhost:4000";
-const CabeleireiroURL = process.env.CabeleireiroURL || "http://localhost:4002";
+const CustomerURL = process.env.CUSTOMER_URL || "http://localhost:4001";
+const loginURL = process.env.AUTH_URL || "http://localhost:4000";
+const CabeleireiroURL = process.env.CABELEREIRO_URL || "http://localhost:4002";
+const FuncionarioURL = process.env.FUNCIONARIO_URL || "http://localhost:4003";
 
-export const postCliente = async (
-  CPF: string,
-  Nome: string,
-  Email: string,
-  Telefone: string,
-  SalaoId: string
-) => {
-  let responseCliente = await fetch(CustomerURL + "/cliente", {
-    method: "POST",
-    body: JSON.stringify({ CPF, Nome, Email, Telefone, SalaoId }),
-  });
-  if (responseCliente.ok) {
-    return (await responseCliente.json()) as Cliente;
-  } else {
-    throw new Error("Error in posting customer");
-  }
-};
 
 export const postCabeleireiro = async (cabeleireiro: Cabeleireiro) => {
   let responseCabeleireiro = await fetch(CabeleireiroURL + "/cabeleireiro", {
     method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
     body: JSON.stringify(cabeleireiro),
   });
   if (responseCabeleireiro.ok) {
@@ -58,21 +47,35 @@ export const getCabeleireiroPage = async (
   }
 };
 
+export const deleteCabeleireiro = async (id: string) => {
+  let responseCabeleireiro = await fetch(CabeleireiroURL + `/cabeleireiro/ID/${id}`, {
+    method: "DELETE",
+  });
+  if (responseCabeleireiro.ok) {
+    return (await responseCabeleireiro.json()) as Cabeleireiro;
+  } else {
+    throw new Error("Error in deleting Cabeleireiro");
+  }
+}  
+
 export const registerLogin = async (
-  userType: userTypes,
   userID: string,
   email: string,
   password: string,
-  salaoId: string
+  salaoId: string,
+  userType: userTypes
 ) => {
   let responseRegister = await fetch(loginURL + "/register", {
     method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
     body: JSON.stringify({
-      userType,
       userID,
       email,
       password,
       salaoId,
+      userType,
     }),
   });
   if (responseRegister.ok) {
@@ -90,6 +93,9 @@ export const postLogin = async (
 ) => {
   let responseLogin = await fetch(loginURL + "/login", {
     method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
     body: JSON.stringify({
       email,
       password,
@@ -110,6 +116,9 @@ export const authenticate = async (
 ) => {
   let response = await fetch(loginURL + "/authenticate", {
     method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
     body: JSON.stringify({ userID, token, userType }),
   });
   if (response.ok) {
@@ -119,3 +128,8 @@ export const authenticate = async (
     throw new Error("Error in Authentication");
   }
 };
+//Todas as outras funções vão usar a função de authenticate no Service para verificar se o usuário é quem diz ser, pra depois permitir.
+
+
+
+

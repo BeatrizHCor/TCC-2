@@ -14,7 +14,7 @@ import {
   ScrollView,
 } from "react-native";
 import { MaterialIcons } from "@expo/vector-icons";
-import theme from "../theme/theme";
+import theme from "../../theme/theme";
 import { useRouter } from "expo-router";
 
 export default function Login() {

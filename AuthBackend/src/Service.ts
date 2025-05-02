@@ -11,10 +11,10 @@ export const createLogin = async (
   try {
     await prisma.authControl.create({
       data: {
-        SalaoId: SalaoId,
-        Email: Email,
-        Senha: Senha,
         UsuarioID: UsuarioID,
+        Email: Email,
+        SalaoId: SalaoId,
+        Senha: Senha,
         Type: userType as userTypes,
       },
     });

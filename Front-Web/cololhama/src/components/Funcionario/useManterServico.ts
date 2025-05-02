@@ -106,7 +106,7 @@ export const useManterServico = (servicoId?: string) => {
     setIsLoading(true);
     
     try {
-      const servicoData: Omit<Servico, 'id'> = {
+      const servicoData: Servico = {
         nome,
         salaoId,      
         precoMin,

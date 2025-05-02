@@ -2,18 +2,43 @@ import axios from "axios";
 import { Servico } from "../models/servicoModel";
 
 const api = axios.create({
-  baseURL:  'http://localhost:3002',
+  baseURL:  import.meta.env.APIGATEWAY_URL || "http://localhost:3002",
   headers: {
     "Content-Type": "application/json",
   },
 });
-interface ServicoData {
-  Nome: string;
-  SalaoId: string;
-  PrecoMin: number;
-  PrecoMax: number;
-  Descricao: string;  
-}
+
+// set os dados do usuario para autenticação no header de cada requisição
+api.interceptors.request.use(
+  (config) => {
+    const usuario = localStorage.getItem("usuario"); 
+    if (usuario) {
+      const { userID, userType } = JSON.parse(usuario); 
+      config.headers.userID = userID; 
+      config.headers.userType = userType; 
+    }
+    return config;
+  },
+  (error) => Promise.reject(error)
+);
+
+// verifique se a resposta contém um novo token e atualiza
+api.interceptors.response.use(
+  (response) => {
+    const tokenHeader = response.headers["authorization"]?.replace("Bearer ", "");
+    const currentToken = localStorage.getItem("token");
+    if (tokenHeader !== currentToken) {
+      console.log("Atualizando token na memória local");
+      localStorage.setItem("token", tokenHeader);
+      axios.defaults.headers.common["Authorization"] = `Bearer ${tokenHeader}`;
+    }
+    return response;
+  },
+  (error) => {
+    console.error("Erro na resposta da API:", error);
+    return Promise.reject(error);
+  }
+);
 
 interface ServicoPaginadoResponse {
   data: Servico[];
@@ -28,7 +53,8 @@ class ServicoService {
     limit: number = 10,
     salaoId: string,
     precoMin?: number,
-    precoMax?: number
+    precoMax?: number,
+    includeRelations: boolean = false
   ): Promise<ServicoPaginadoResponse> {
     try {
       const response = await api.get(`/servico/page`, {
@@ -37,7 +63,7 @@ class ServicoService {
           limit,
           precoMin,
           precoMax,
-          includeRelations: false,
+          includeRelations,
           salaoId,
         },
       });
@@ -77,17 +103,10 @@ class ServicoService {
   }
 
   static async createServico(
-    servicoData: Omit<Servico, "ID">
+    servicoData: Servico
   ): Promise<Servico> {
     try {
-      const servicoCreate: ServicoData = {
-        Nome: servicoData.nome || "",
-        SalaoId: servicoData.salaoId || "",
-        PrecoMin: servicoData.precoMin || 0,
-        PrecoMax: servicoData.precoMax || 0,
-        Descricao: servicoData.descricao || "",
-      }
-      const response = await api.post(`/servico`, servicoCreate);
+      const response = await api.post(`/servico`, servicoData);
       return response.data;
     } catch (error) {
       console.error("Erro ao criar serviço:", error);
@@ -97,17 +116,10 @@ class ServicoService {
 
   static async updateServico(
     id: string,
-    servicoData: Partial<Servico>
+    servicoData: Servico,
   ): Promise<Servico> {
-    try {
-      const servicoEditado: ServicoData = {
-        Nome: servicoData.nome || "",
-        SalaoId: servicoData.salaoId || "",
-        PrecoMin: servicoData.precoMin || 0,
-        PrecoMax: servicoData.precoMax || 0,
-        Descricao: servicoData.descricao || "",
-      }
-      const response = await api.put(`/servico/update/${id}`, servicoEditado);
+    try {      
+      const response = await api.put(`/servico/update/${id}`, servicoData);
       return response.data;
     } catch (error) {
       console.error(`Erro ao atualizar serviço com ID ${id}:`, error);

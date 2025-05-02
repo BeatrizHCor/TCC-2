@@ -1,14 +1,6 @@
 import prisma from "../config/database";
 import { PrismaClient } from "@prisma/client";
 
-interface ServicoData {
-  Nome: string;
-  PrecoMin: number;
-  PrecoMax: number;
-  Descricao: string;
-  SalaoId: string;
-}
-
 class ServicoService {
   static async getServicos(
     skip: number | null = null,
@@ -83,23 +75,27 @@ class ServicoService {
     };
   }
   
-  static async create(DadosServico: ServicoData
+  static async create(
+    Nome: string,
+    PrecoMin: number,
+    PrecoMax: number,
+    Descricao: string,
+    SalaoId: string
   ) {
- 
-    if (DadosServico.PrecoMin > DadosServico.PrecoMax) {
+    if (PrecoMin > PrecoMax) {
       throw new Error('Preço mínimo não pode ser maior que o preço máximo');
     }
 
-    console.log('Dados enviados para criação:', { Nome: DadosServico.Nome, PrecoMin: DadosServico.PrecoMin, PrecoMax: DadosServico.PrecoMax, Descricao: DadosServico.Descricao, SalaoId: DadosServico.SalaoId });
+    console.log('Dados enviados para criação:', { Nome, PrecoMin, PrecoMax, Descricao, SalaoId });
     
     try {
       const servico = await prisma.servico.create({
         data: {
-          Nome: DadosServico.Nome,
-          SalaoId: DadosServico.SalaoId,
-          PrecoMin: DadosServico.PrecoMin,
-          PrecoMax: DadosServico.PrecoMax,
-          Descricao: DadosServico.Descricao,          
+          Nome,
+          SalaoId,
+          PrecoMin,
+          PrecoMax,
+          Descricao,          
         },
       });
       
@@ -155,23 +151,33 @@ class ServicoService {
     }
   }
 
-  static async update(ID: string, data: ServicoData) {
+  static async update(
+    ID: string, 
+    Nome: string,
+    PrecoMin: number,
+    PrecoMax: number,
+    Descricao: string,
+    SalaoId: string) {
     try {
       const existingServico = await this.findById(ID);
       
       if (!existingServico) {
         throw new Error("Serviço não encontrado");
       }
-
-      if (data.PrecoMin > data.PrecoMax) {
+      if (PrecoMin > PrecoMax) {
         throw new Error('Preço mínimo não pode ser maior que o preço máximo');
       }
-
       return await prisma.servico.update({
         where: {
           ID: ID,
         },
-        data: data,
+        data: {
+          Nome,
+          PrecoMin,
+          PrecoMax,
+          Descricao,
+          SalaoId,
+        },
       });
     } catch (error) {
       console.error('Erro ao atualizar serviço:', error);
