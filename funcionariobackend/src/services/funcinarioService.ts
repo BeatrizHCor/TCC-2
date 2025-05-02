@@ -19,23 +19,22 @@ class FuncionarioService {
     include = false,
     salaoId: string | null = null
   ) {
-    const whereClause: any = {};
-    if (nome !== null) {
-      whereClause.Nome = {
+    let whereCondition: Prisma.FuncionarioWhereInput = {};
+    if (nome && nome.trim() !== '' && typeof nome === 'string' && nome.trim().length > 0 && nome !== 'null') {
+      whereCondition.Nome = {
         contains: nome,
         mode: 'insensitive',
       };
-    }
     if (salaoId) {
-      whereClause.SalaoId = salaoId;
+        whereCondition.SalaoId = salaoId;
+      }
     }
+  console.log("whereCondition final:", JSON.stringify(whereCondition));
+
     return await prisma.funcionario.findMany({
       ...(skip !== null ? { skip } : {}),
       ...(limit !== null ? { take: limit } : {}),
-      where: {
-        ...(nome ? { Nome: { contains: nome, mode: 'insensitive' } } : {}),
-        ...(salaoId ? { SalaoId: salaoId } : {}),
-      },    
+      where: whereCondition,           
       ...(include
         ? {
             include: {
