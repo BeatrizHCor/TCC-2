@@ -135,11 +135,11 @@ export const VisualizarCabeleireiro: React.FC <VisualizarCabeleireiroProps> = ({
                 </TableRow>
               ) : (
                 cabeleireiros.map((cabeleireiro: Cabeleireiro) => (
-                  <TableRow key={cabeleireiro.id}>
-                    <TableCell>{cabeleireiro.nome}</TableCell>
-                    <TableCell>{cabeleireiro.email}</TableCell>
-                    <TableCell>{cabeleireiro.telefone}</TableCell>
-                    <TableCell>{cabeleireiro.mei}</TableCell>
+                  <TableRow key={cabeleireiro.ID}>
+                    <TableCell>{cabeleireiro.Nome}</TableCell>
+                    <TableCell>{cabeleireiro.Email}</TableCell>
+                    <TableCell>{cabeleireiro.Telefone}</TableCell>
+                    <TableCell>{cabeleireiro.Mei}</TableCell>
                     <TableCell>
                         <Button
                           startIcon={<EditIcon />}
@@ -156,7 +156,7 @@ export const VisualizarCabeleireiro: React.FC <VisualizarCabeleireiroProps> = ({
                           variant="outlined"
                           size="small" 
                           onClick={() => {
-                            cabeleireiro.id && handleEditarCabeleireiro(cabeleireiro.id);
+                            cabeleireiro.ID && handleEditarCabeleireiro(cabeleireiro.ID);
                           }}                
                         >
                           Editar

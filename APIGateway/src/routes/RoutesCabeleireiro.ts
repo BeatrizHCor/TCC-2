@@ -17,28 +17,30 @@ const RoutesCabeleireiro = Router();
 RoutesCabeleireiro.post(
   "/cabeleireiro",
   async (req: Request, res: Response) => {
-    let { CPF, Nome, Email, Telefone, SalaoId, Password, userType, mei } =
+    let { CPF, Nome, Email, Telefone, SalaoId, Password, userType, Mei } =
       req.body;
-    try {
-      let cabeleireiro = await postCabeleireiro({
-        cpf: CPF,
-        nome: Nome,
-        email: Email,
-        telefone: Telefone,
-        salaoId: SalaoId,
-        mei,   
-      });
+    try {console.log("tipo de user", typeof userType, userType);
 
+      let cabeleireiro = await postCabeleireiro({
+        CPF: CPF,
+        Nome: Nome,
+        Email: Email,
+        Telefone: Telefone,
+        Mei: Mei,   
+        SalaoId: SalaoId,
+      });
+      console.log("resultado create no controler",cabeleireiro);
       let register = await registerLogin(
-        userType,
-        cabeleireiro.id!,
+        cabeleireiro.ID!,
         Email,
-        Password,
-        SalaoId
+        String(Password),
+        SalaoId,
+        userType,
       );
-      if (!register) {
+      console.log("resultado register no controler",register);
+      if (register.status !== 201) {
         console.log("Register failed");
-        let cabeleireiroDelete = await deleteCabeleireiro(cabeleireiro.id!);
+        let cabeleireiroDelete = await deleteCabeleireiro(cabeleireiro.ID!);
         if (cabeleireiroDelete) {
           console.log("Cabeleireiro deleted successfully");
         } else {
@@ -50,7 +52,7 @@ RoutesCabeleireiro.post(
       res.status(200).send(token);
     } catch (e) {
       console.log(e);
-      res.status(500).send("Error in creating customer");
+      res.status(500).send("Error in creating Cabeleireiro");
     }
   }
 );
@@ -107,7 +109,7 @@ RoutesCabeleireiro.delete(
 RoutesCabeleireiro.put(
   "/cabeleireiro",
   async (req: Request, res: Response) => {
-    let { id, CPF, Nome, Email, Telefone, Mei, SalaoId } = req.body;
+    let { ID, CPF, Nome, Email, Telefone, Mei, SalaoId } = req.body;
     try {
       let cabeleireiro = await updateCabeleireiro(
         Email,
@@ -116,7 +118,7 @@ RoutesCabeleireiro.put(
         SalaoId,
         Mei,
         Nome,
-        id,
+        ID,
       );
       res.status(200).send(cabeleireiro);
     } catch (e) {

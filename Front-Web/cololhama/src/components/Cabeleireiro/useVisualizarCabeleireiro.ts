@@ -37,13 +37,13 @@ export const useVisualizarCabeleireiros = (
         );
         const listaCabeleireiros: Cabeleireiro[] = (response.data || []).map(
           (item: any) => ({
-            id: item.ID ?? "",
-            cpf: item.CPF ?? "",
-            nome: item.Nome ?? "",
-            email: item.Email ?? "",
-            telefone: item.Telefone ?? "",
-            mei: item.MEI ?? "",
-            salaoId: item.SalaoId ?? "",
+            ID: item?.ID ?? "",
+            CPF: item?.CPF ?? "",
+            Nome: item?.Nome ?? "",
+            Email: item?.Email ?? "",
+            Telefone: item?.Telefone ?? "",
+            Mei: item?.MEI ?? "",
+            SalaoId: item?.SalaoId ?? "",
           })
         );
         setCabeleireiros(listaCabeleireiros);

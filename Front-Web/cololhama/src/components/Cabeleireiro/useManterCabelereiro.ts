@@ -47,12 +47,12 @@ export const useManterCabeleireiro = (cabeleireiroId?: string) => {
       try {
         const cabeleireiro = await CabeleireiroService.getCabeleireiroById(cabeleireiroId);
         console.log("Cabeleireiro:", cabeleireiro);
-        setNome(cabeleireiro.nome || "");
-        setCpf(cabeleireiro.cpf || "");
-        setEmail(cabeleireiro.email || "");
-        setTelefone(cabeleireiro.telefone || "");
-        setMei(cabeleireiro.mei || "");
-        setSalaoId(cabeleireiro.salaoId || null);
+        setNome(cabeleireiro.Nome || "");
+        setCpf(cabeleireiro.CPF || "");
+        setEmail(cabeleireiro.Email || "");
+        setTelefone(cabeleireiro.Telefone || "");
+        setMei(cabeleireiro.Mei || "");
+        setSalaoId(cabeleireiro.SalaoId || null);
       } catch (error) {
         console.error("Erro ao buscar cabeleireiro:", error);
         navigate("/cabeleireiros", { replace: true });
@@ -113,19 +113,27 @@ export const useManterCabeleireiro = (cabeleireiroId?: string) => {
     setIsLoading(true);
     
     try {
-      const cabeleireiroData: Cabeleireiro = {
-        id: cabeleireiroId || undefined,
-        nome: nome,
-        cpf: cpf,
-        email: email,
-        telefone: telefone,
-        mei: mei,
-        salaoId: salaoId,
-      };
-      
       if (isEditing && cabeleireiroId) {
+        const cabeleireiroData: Cabeleireiro = {
+          ID: cabeleireiroId || undefined,
+          Nome: nome,
+          CPF: cpf,
+          Email: email,
+          Telefone: telefone,
+          Mei: mei,
+          SalaoId: salaoId,
+        };
         await CabeleireiroService.updateCabeleireiro(cabeleireiroData);
-      } else {
+      } else {      
+        const cabeleireiroData: Cabeleireiro = {
+        ID: cabeleireiroId || undefined,
+        Nome: nome,
+        CPF: cpf,
+        Email: email,
+        Telefone: telefone,
+        Mei: mei,
+        SalaoId: salaoId,
+      };
         await CabeleireiroService.cadastrarCabeleireiro(cabeleireiroData);
       }
       
