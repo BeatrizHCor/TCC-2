@@ -2,7 +2,7 @@ import axios from "axios";
 import { Servico } from "../models/servicoModel";
 
 const api = axios.create({
-  baseURL:  import.meta.env.APIGATEWAY_URL || "http://localhost:3002",
+  baseURL:  import.meta.env.APIGATEWAY_URL || "http://localhost:5000",
   headers: {
     "Content-Type": "application/json",
   },
@@ -58,6 +58,11 @@ class ServicoService {
     includeRelations: boolean = false
   ): Promise<ServicoPaginadoResponse> {
     try {
+      console.log("Buscando serviços com o nome:", nome);
+      console.log("Buscando serviços com o salãoId:", salaoId);
+      console.log("Buscando serviços com o preço mínimo:", precoMin);
+      console.log("Buscando serviços  com o preço máximo:", precoMax);
+      console.log("Buscando serviços com o includeRelations:", includeRelations); 
       const response = await api.get(`/servico/page`, {
         params: {
           page,
@@ -69,6 +74,7 @@ class ServicoService {
           salaoId,
         },
       });
+      console.log("Serviços recebidos:", response.data);
       return response.data;
     } catch (error) {
       console.error("Erro ao buscar serviços:", error);

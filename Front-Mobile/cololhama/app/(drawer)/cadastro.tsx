@@ -46,7 +46,7 @@ export const ClienteCadastro: React.FC<ClienteCadastroProps> = ({ salaoId }) => 
     >
       <View style={styles.header}>
         <Image
-          source={require('../assets/images/logo.png')}
+          source={require('../../assets/images/logo.png')}
           style={styles.logo}
         />
         <Text style={styles.headerTitle}>Cadastre-se</Text>
