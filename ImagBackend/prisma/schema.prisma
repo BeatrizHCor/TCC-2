@@ -6,10 +6,257 @@
 
 generator client {
   provider = "prisma-client-js"
-  output   = "../src/generated/prisma"
 }
 
 datasource db {
   provider = "postgresql"
   url      = env("DATABASE_URL")
+}
+
+model Salao {
+  ID String @id @default(uuid())
+
+  CNPJ               String                 @unique
+  Nome               String
+  RazaoSocial        String
+  CEP                String
+  Telefone           Int
+  Complemento        String
+  Email              String
+  Clientes           Cliente[]
+  Funcionarios       Funcionario[]
+  Pagamentos         PagamentosAssinatura[]
+  Cabeleireiros      Cabeleireiro[]
+  Adm                AdmSalao?
+  Atendimentos       Atendimento[]
+  Portfolio          Portfolio[]
+  Servico            Servico[]
+  Agendamentos       Agendamentos[]
+  Holerite           Holerite[]
+  Gastos             Gastos[]
+  HistoricoSimulacao HistoricoSimulacao[]
+}
+
+model Cliente {
+  ID String @id @default(uuid())
+
+  CPF                String
+  Nome               String
+  Email              String
+  Telefone           String
+  Salao              Salao                @relation(fields: [SalaoId], references: [ID])
+  SalaoId            String
+  Agendamentos       Agendamentos[]
+  HistoricoSimulacao HistoricoSimulacao[]
+  DataCadastro       DateTime             @default(now())
+
+  @@unique([Email, SalaoId])
+}
+
+model Funcionario {
+  ID String @id @default(uuid())
+
+  CPF                 String
+  Nome                String
+  Email               String
+  Telefone            String
+  Salao               Salao                 @relation(fields: [SalaoId], references: [ID])
+  SalaoId             String
+  Auxiliar            Boolean
+  Salario             Float
+  Atendimentos        Atendimento[]
+  AtendimentoAuxiliar AtendimentoAuxiliar[]
+  Holerite            Holerite[]
+  DataCadastro       DateTime             @default(now())
+
+  @@unique([Email, SalaoId])
+}
+
+model Cabeleireiro {
+  ID String @id @default(uuid())
+
+  CPF          String
+  Nome         String
+  Email        String
+  Telefone     String
+  Mei          String
+  Salao        Salao          @relation(fields: [SalaoId], references: [ID])
+  SalaoId      String
+  Portfolio    Portfolio?
+  Agendamentos Agendamentos[]
+  Holerite     Holerite[]
+  DataCadastro       DateTime             @default(now())
+
+  @@unique([Email, SalaoId])
+}
+
+model AdmSalao {
+  ID String @id @default(uuid())
+
+  CPF      String
+  Nome     String
+  Email    String
+  Telefone String
+  Salao    Salao  @relation(fields: [SalaoId], references: [ID])
+  SalaoId  String @unique
+  DataCadastro       DateTime             @default(now())
+
+  @@unique([Email, SalaoId])
+}
+
+model AdmSistema {
+  ID String @id @default(uuid())
+
+  CPF      String @unique
+  Nome     String
+  Email    String @unique
+  Telefone String
+}
+
+model PagamentosAssinatura {
+  ID      String          @id @default(uuid())
+  Data    DateTime
+  Valor   Float
+  Salao   Salao           @relation(fields: [SalaoId], references: [ID])
+  SalaoId String
+  Status  StatusPagamento
+}
+
+enum StatusPagamento {
+  PAGO
+  PENDENTE
+  ATRASADO
+}
+
+model AtendimentoAuxiliar {
+  Atendimento   Atendimento @relation(fields: [AtendimentoId], references: [ID])
+  AtendimentoId String      @unique
+  AuxiliarID    String
+  SalaoId       String
+  Auxiliar      Funcionario @relation(fields: [AuxiliarID], references: [ID])
+}
+
+model Atendimento {
+  ID                  String               @id @default(uuid())
+  Data                DateTime
+  PrecoTotal          Float
+  FuncionarioID       String
+  Funcionario         Funcionario          @relation(fields: [FuncionarioID], references: [ID])
+  Auxiliar            Boolean
+  AtendimentoAuxiliar AtendimentoAuxiliar?
+  Salao               Salao                @relation(fields: [SalaoId], references: [ID])
+  SalaoId             String
+  ServicoAtendimento  ServicoAtendimento[]
+  Agendamentos        Agendamentos[]
+}
+
+model Servico {
+  ID                 String               @id @default(uuid())
+  Salao              Salao                @relation(fields: [SalaoId], references: [ID])
+  SalaoId            String
+  Nome               String
+  PrecoMin           Float
+  PrecoMax           Float
+  Descricao          String
+  ServicoAtendimento ServicoAtendimento[]
+}
+
+model Portfolio {
+  ID             String       @id @default(uuid())
+  CabeleireiroID String       @unique
+  Cabeleireiro   Cabeleireiro @relation(fields: [CabeleireiroID], references: [ID])
+  Salao          Salao        @relation(fields: [SalaoId], references: [ID])
+  SalaoId        String
+  Descricao      String
+  Imagem         Imagem[]
+}
+
+model Agendamentos {
+  ID             String            @id @default(uuid())
+  Data           DateTime
+  Status         StatusAgendamento
+  ClienteID      String
+  Cliente        Cliente           @relation(fields: [ClienteID], references: [ID])
+  Salao          Salao             @relation(fields: [SalaoId], references: [ID])
+  SalaoId        String
+  CabeleireiroID String
+  Cabeleireiro   Cabeleireiro      @relation(fields: [CabeleireiroID], references: [ID])
+  AtendimentoID  String?
+  Atendimento    Atendimento?      @relation(fields: [AtendimentoID], references: [ID])
+}
+
+enum StatusAgendamento {
+  Agendado
+}
+
+model Holerite {
+  ID             String        @id @default(uuid())
+  Data           DateTime
+  Valor          Float
+  FuncionarioID  String
+  Funcionario    Funcionario?  @relation(fields: [FuncionarioID], references: [ID])
+  Salao          Salao         @relation(fields: [SalaoId], references: [ID])
+  SalaoId        String
+  CabeleireiroID String
+  Cabeleireiro   Cabeleireiro? @relation(fields: [CabeleireiroID], references: [ID])
+}
+
+model ServicoAtendimento {
+  ID            String      @id @default(uuid())
+  PrecoItem     Float
+  AtendimentoId String
+  Atendimento   Atendimento @relation(fields: [AtendimentoId], references: [ID])
+  ServicoId     String
+  Servico       Servico     @relation(fields: [ServicoId], references: [ID])
+}
+
+model Gastos {
+  ID String @id @default(uuid())
+
+  Salao     Salao    @relation(fields: [SalaoId], references: [ID])
+  SalaoId   String
+  Nome      String
+  Valor     Float
+  Descricao String
+  Data      DateTime
+}
+
+model HistoricoSimulacao {
+  ID        String   @id @default(uuid())
+  Data      DateTime
+  ClienteID String
+  Cliente   Cliente  @relation(fields: [ClienteID], references: [ID])
+  Salao     Salao    @relation(fields: [SalaoId], references: [ID])
+  SalaoId   String
+  Imagem    Imagem[]
+}
+
+model Imagem {
+  ID                   String              @id @default(uuid())
+  PortfolioId          String
+  Portfolio            Portfolio           @relation(fields: [PortfolioId], references: [ID])
+  HistoricoSimulacaoId String?
+  HistoricoSimulacao   HistoricoSimulacao? @relation(fields: [HistoricoSimulacaoId], references: [ID])
+  Endereco             String
+  Descricao            String
+}
+
+model AuthControl {
+  UsuarioID String
+  Email     String
+  SalaoId   String
+  Senha     String
+  Type      userTypes
+  Token     String?
+
+  @@id([UsuarioID])
+  @@unique([Email, SalaoId])
+}
+
+enum userTypes {
+  Cliente
+  Funcionario
+  Cabeleireiro
+  AdmSalao
+  AdmSistema
 }
