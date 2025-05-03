@@ -1,5 +1,6 @@
 import axios from "axios";
 import { Cabeleireiro } from "../models/cabelereiroModel";
+import { c } from "vite/dist/node/moduleRunnerTransport.d-CXw_Ws6P";
 
 const api = axios.create({
   baseURL: import.meta.env.APIGATEWAY_URL || "http://localhost:5000",
@@ -52,15 +53,7 @@ export const CabeleireiroService = {
     cabeleireiro: Cabeleireiro
   ): Promise<Cabeleireiro> {
     try {
-      const novoCabeleireiro = {
-        CPF: cabeleireiro.cpf,
-        Nome: cabeleireiro.nome,
-        Email: cabeleireiro.email,
-        Telefone: String(cabeleireiro.telefone),
-        Mei: String(cabeleireiro.mei),
-        SalaoId: cabeleireiro.salaoId,
-      };
-      const response = await api.post("/cabeleireiro", novoCabeleireiro);
+      const response = await api.post("/cabeleireiro", cabeleireiro);
       return response.data;
     } catch (error) {
       console.error("Erro ao cadastrar cabeleireiro:", error);
@@ -138,16 +131,7 @@ export const CabeleireiroService = {
       const response = await api.get(`/cabeleireiro/ID/${id}`, {
         params: { include: includeRelations },
       });   
-      const cabeleireiro: Cabeleireiro = {
-        id: response.data.ID,
-        cpf: response.data.CPF,
-        nome: response.data.Nome,
-        email: response.data.Email,
-        telefone: response.data.Telefone,
-        mei: response.data.MEI,
-        salaoId: response.data.SalaoId,
-        dataCadastro: response.data.DataCadastro,
-      };
+      const cabeleireiro: Cabeleireiro = response.data;
       return cabeleireiro;
     } catch (error) {
       console.error("Erro ao buscar cabeleireiro por ID:", error);
@@ -166,15 +150,7 @@ export const CabeleireiroService = {
   },
   async updateCabeleireiro(cabeleireiro: Cabeleireiro): Promise<Cabeleireiro> {
     try {
-      const response = await api.put("/cabeleireiro", {
-        id: cabeleireiro.id,
-        CPF: cabeleireiro.cpf,
-        Nome: cabeleireiro.nome,
-        Email: cabeleireiro.email,
-        Telefone: String(cabeleireiro.telefone),
-        Mei: String(cabeleireiro.mei),
-        SalaoId: cabeleireiro.salaoId,
-      });
+      const response = await api.put("/cabeleireiro", cabeleireiro);
       return response.data;
     } catch (error) {
       console.error("Erro ao atualizar cabeleireiro:", error);

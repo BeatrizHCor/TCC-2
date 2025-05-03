@@ -6,6 +6,7 @@ import {
   findLoginbyEmail,
   findLoginbyUserId,
   updateLogin,
+  deleteLogin,
 } from "./Service";
 import { userTypes } from "@prisma/client";
 
@@ -85,3 +86,22 @@ export const verifyTokenAndRefresh = async (
     return { token: Token, userID: userID, userType: login.Type };
   }
 };
+
+export const verifyToken = async (token: string, userID: string) => {
+  let login = await findLoginbyUserId(userID);
+  if (login?.Token === token) {
+    return true;
+  } else {
+    return false;
+  }
+};
+
+export const deleteAuth = async (userID: string) => {
+  let login = await findLoginbyUserId(userID);
+  if (login) {
+    await deleteLogin(userID);
+    return true;
+  } else {
+    return false;
+  }
+}

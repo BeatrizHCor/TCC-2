@@ -3,16 +3,16 @@ import { Holerite } from "./holeriteModel";
 import { Portfolio } from "./portifolioModel";
 
 export interface Cabeleireiro {
-    id?: string;
-    cpf: string;
-    nome: string;
-    email: string;
-    telefone: string;
-    mei?: string;
-    salaoId: string; 
-    portfolio?: Portfolio; 
-    agendamentos?: Agendamentos[];
-    holerite?: Holerite[];
-    dataCadastro?: Date;
+    ID?: string;
+    CPF: string;
+    Nome: string;
+    Email: string;
+    Telefone: string;
+    Mei?: string;
+    SalaoId: string; 
+    Portfolio?: Portfolio; 
+    Agendamentos?: Agendamentos[];
+    Holerite?: Holerite[];
+    DataCadastro?: Date;
   }
   

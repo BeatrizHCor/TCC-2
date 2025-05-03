@@ -5,7 +5,7 @@ import e from "express";
 
 
 const CustomerURL = process.env.CUSTOMER_URL || "http://localhost:4001";
-const loginURL = process.env.AUTH_URL || "http://localhost:4000";
+const loginURL = process.env.AUTH_URL || "http://localhost:3000";
 
 
 
@@ -31,9 +31,8 @@ export const registerLogin = async (
   });
   if (responseRegister.ok) {
     return await responseRegister.json();
-  } else {
-    await fetch(CustomerURL + `/cliente/delete/${email}/${salaoId}`);
-    throw new Error("Error in registering login");
+  } else {;
+    return responseRegister.status;
   }
 };
 
