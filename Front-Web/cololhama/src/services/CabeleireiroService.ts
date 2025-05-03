@@ -1,6 +1,7 @@
 import axios from "axios";
 import { Cabeleireiro } from "../models/cabelereiroModel";
 import { c } from "vite/dist/node/moduleRunnerTransport.d-CXw_Ws6P";
+import { Password } from "@mui/icons-material";
 
 const api = axios.create({
   baseURL: import.meta.env.APIGATEWAY_URL || "http://localhost:5000",
@@ -50,10 +51,26 @@ interface CabeleireiroPageResponse {
 }
 export const CabeleireiroService = {
   async cadastrarCabeleireiro(
-    cabeleireiro: Cabeleireiro
+    CPF: string, 
+    Nome: string, 
+    Email: string, 
+    Telefone: string, 
+    Mei: string,
+    SalaoId: string, 
+    Password: string, 
+    userType: string = "Cabeleireiro", 
   ): Promise<Cabeleireiro> {
     try {
-      const response = await api.post("/cabeleireiro", cabeleireiro);
+      const response = await api.post("/cabeleireiro", {
+        CPF,
+        Nome,
+        Email,
+        Telefone,
+        SalaoId,
+        Password,
+        userType,
+        Mei
+      });
       return response.data;
     } catch (error) {
       console.error("Erro ao cadastrar cabeleireiro:", error);
@@ -148,9 +165,27 @@ export const CabeleireiroService = {
       throw error;
     }
   },
-  async updateCabeleireiro(cabeleireiro: Cabeleireiro): Promise<Cabeleireiro> {
+  async UpdateCabeleireiro(
+    ID: string,
+    CPF: string,
+    Nome: string,
+    Email: string,
+    Telefone: string,
+    Mei: string,
+    SalaoId: string,
+    Password: string,
+  ): Promise<Cabeleireiro> {
     try {
-      const response = await api.put("/cabeleireiro", cabeleireiro);
+      const response = await api.put(`/cabeleireiro`, {
+        ID, 
+        CPF, 
+        Nome, 
+        Email, 
+        Telefone, 
+        Mei, 
+        SalaoId,
+        Password
+      });
       return response.data;
     } catch (error) {
       console.error("Erro ao atualizar cabeleireiro:", error);

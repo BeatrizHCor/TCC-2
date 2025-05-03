@@ -109,7 +109,7 @@ RoutesCabeleireiro.delete(
 RoutesCabeleireiro.put(
   "/cabeleireiro",
   async (req: Request, res: Response) => {
-    let { ID, CPF, Nome, Email, Telefone, Mei, SalaoId } = req.body;
+    let { ID, CPF, Nome, Email, Telefone, Mei, SalaoId , Password} = req.body;
     try {
       let cabeleireiro = await updateCabeleireiro(
         Email,
