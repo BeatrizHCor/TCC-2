@@ -35,6 +35,10 @@ const { cabeleireiroId: cabeleireiroId } = useParams();
     telefone,
     setTelefone,
     mei,
+    password,
+    confirmPassword,
+    setPassword,
+    setConfirmPassword,
     setMei,
     salaoId,
     isLoading,
@@ -145,7 +149,34 @@ console.log("salaoId", salaoId, "cabeleireiroId", cabeleireiroId);
                 helperText={validationErrors.mei}
               />
             </Box>
+            <Box sx={{ display: "flex", gap: 3 }}>
+              <Box sx={{ flex: 1 }}>
+                <TextField
+                  fullWidth
+                  required
+                  label="Senha"
+                  type="password"
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  error={Boolean(validationErrors.password)}
+                  helperText={validationErrors.password}
+                />
+              </Box>
 
+              <Box sx={{ flex: 1 }}>
+                <TextField
+                  fullWidth
+                  required
+                  label="Confirmar Senha"
+                  value={confirmPassword}
+                  type="password"
+                  onChange={(e) => setConfirmPassword(e.target.value)}
+                  error={Boolean(validationErrors.confirmPassword)}
+                  helperText={validationErrors.confirmPassword}
+                />
+              </Box>
+            </Box>
+          
             <Box sx={{ display: "flex", gap: 2, justifyContent: "space-between", mt: 2 }}>
               <Button
                 variant="outlined"

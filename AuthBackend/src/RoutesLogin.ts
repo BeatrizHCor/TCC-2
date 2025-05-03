@@ -21,9 +21,9 @@ RoutesLogin.post("/register", (req: Request, res: Response) => {
   registerLogin(userID, email, password, salaoId, userType)
     .then((r) => {
       if (r) {
-        res.status(201).json({ message: "login created" });;
+        res.status(201).json({ status: 201, message: "login created"  });;
       } else {
-        res.status(403).json({ message: "problema ao criar login" });;
+        res.status(403).json({ status: 403, message: "problema ao criar login" });;
       }
     })
     .catch((e) => {

@@ -12,6 +12,8 @@ interface ValidationErrors {
   email?: string;
   telefone?: string;
   mei?: string;
+  password?: string;
+  confirmPassword?: string;
 }
 
 export const useManterCabeleireiro = (cabeleireiroId?: string) => {
@@ -21,6 +23,8 @@ export const useManterCabeleireiro = (cabeleireiroId?: string) => {
   const [telefone, setTelefone] = useState("");
   const [mei, setMei] = useState("");
   const [salaoId, setSalaoId] = useState<string | null>(null);
+  const [password, setPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
   
   const [isLoading, setIsLoading] = useState(false);
   const [validationErrors, setValidationErrors] = useState<ValidationErrors>({});
@@ -92,6 +96,19 @@ export const useManterCabeleireiro = (cabeleireiroId?: string) => {
     if (!telefone.trim()) {
       errors.telefone = "Telefone é obrigatório";
     }
+
+    if (!mei.trim()) {
+      errors.mei = "MEI é obrigatório";
+    }
+    if (!isEditing && !password.trim()) {
+      errors.password = "Senha é obrigatória";
+    }
+    if (!isEditing && !confirmPassword.trim()) {
+      errors.confirmPassword = "Confirmação de senha é obrigatória";
+    } else if (password !== confirmPassword) {
+      errors.confirmPassword = "As senhas não coincidem";
+    }
+
     
     setValidationErrors(errors);
     return Object.keys(errors).length === 0;
@@ -114,27 +131,26 @@ export const useManterCabeleireiro = (cabeleireiroId?: string) => {
     
     try {
       if (isEditing && cabeleireiroId) {
-        const cabeleireiroData: Cabeleireiro = {
-          ID: cabeleireiroId || undefined,
-          Nome: nome,
-          CPF: cpf,
-          Email: email,
-          Telefone: telefone,
-          Mei: mei,
-          SalaoId: salaoId,
-        };
-        await CabeleireiroService.updateCabeleireiro(cabeleireiroData);
+        await CabeleireiroService.UpdateCabeleireiro(
+          cabeleireiroId,
+          cpf,
+          nome,
+          email,
+          telefone,
+          mei,
+          salaoId,
+          password
+        );
       } else {      
-        const cabeleireiroData: Cabeleireiro = {
-        ID: cabeleireiroId || undefined,
-        Nome: nome,
-        CPF: cpf,
-        Email: email,
-        Telefone: telefone,
-        Mei: mei,
-        SalaoId: salaoId,
-      };
-        await CabeleireiroService.cadastrarCabeleireiro(cabeleireiroData);
+        await CabeleireiroService.cadastrarCabeleireiro(
+          cpf,
+          nome,
+          email,
+          telefone,
+          mei,
+          salaoId,
+          password
+        );
       }
       
       navigate(-1);
@@ -172,6 +188,10 @@ export const useManterCabeleireiro = (cabeleireiroId?: string) => {
     telefone,
     setTelefone,
     mei,
+    password,
+    confirmPassword,
+    setPassword,
+    setConfirmPassword,
     setMei,
     salaoId,
     isLoading,
