@@ -1,6 +1,6 @@
 import axios from "axios";
 import { Cabeleireiro } from "../models/cabelereiroModel";
-import { c } from "vite/dist/node/moduleRunnerTransport.d-CXw_Ws6P";
+//import { c } from "vite/dist/node/moduleRunnerTransport.d-CXw_Ws6P";
 import { Password } from "@mui/icons-material";
 
 const api = axios.create({
@@ -30,7 +30,7 @@ api.interceptors.response.use(
   (response) => {
     const tokenHeader = response.headers["authorization"]?.replace("Bearer ", "");
     const currentToken = localStorage.getItem("token");
-    if (tokenHeader !== currentToken) {
+    if (tokenHeader !== currentToken && currentToken) {
       console.log("Atualizando token na memória local");
       localStorage.setItem("token", tokenHeader);
       axios.defaults.headers.common["Authorization"] = `Bearer ${tokenHeader}`;

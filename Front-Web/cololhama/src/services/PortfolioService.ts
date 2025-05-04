@@ -24,11 +24,11 @@ api.interceptors.request.use(
 );
 
 // verifique se a resposta contém um novo token e atualiza
-api.interceptors.response.use(
+api.interceptors.response.use( 
   (response) => {
     const tokenHeader = response.headers["authorization"]?.replace("Bearer ", "");
-    const currentToken = localStorage.getItem("token");
-    if (tokenHeader !== currentToken && currentToken){
+    const currentToken = localStorage.getItem("token");    
+    if (tokenHeader !== currentToken && currentToken) {
       console.log("Atualizando token na memória local");
       localStorage.setItem("token", tokenHeader);
       axios.defaults.headers.common["Authorization"] = `Bearer ${tokenHeader}`;
@@ -40,41 +40,3 @@ api.interceptors.response.use(
     return Promise.reject(error);
   }
 );
-
-interface FuncionarioPageResponse {
-data: Funcionario[];  
-total: number;
-page: number;
-limit: number;
-}
-
-export const FuncionarioService = {
-
-async getFuncionarioPage(
-        page: number = 1,
-        limit: number = 10,
-        nome: string | null = null,
-        includeRelations: boolean = false,
-        salaoId: string
-    ): Promise<FuncionarioPageResponse> {
-        try {console.log("Buscando funcionários com o nome:", nome);
-            const response = await api.get<FuncionarioPageResponse>(
-                `/funcionario/page`, {
-                    params: {
-                      page,
-                      limit,
-                      nome,
-                      includeRelations,
-                      salaoId,
-                    },
-                  });console.log("Funcionários recebidos:", response.data);
-            return response.data;
-        } catch (error) {
-            console.error("Erro ao buscar funcionários:", error);
-            throw error;
-        }
-    }
-
-}
-
-export default FuncionarioService;

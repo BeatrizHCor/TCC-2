@@ -2,18 +2,18 @@ import { Request, Response } from "express";
 import { ImagemService } from "../services/ImagemService";
 
 export class ImagemController {
-  static async upload(req: Request, res: Response): Promise<void> {
+  static async uploadPortfolio(req: Request, res: Response): Promise<void> {
     try {
-      const { portfolioId, descricao } = req.body;
+      const { PortfolioId, Descricao } = req.body;
 
       if (!req.file) {
         res.status(400).json({ error: "Nenhum arquivo enviado." });
       }
     
-      const imagem = await ImagemService.uploadImagem(
+      const imagem = await ImagemService.uploadImagemPortfolio(
         req.file!,
-        portfolioId,
-        descricao
+        PortfolioId,
+        Descricao
       );
 
       res.status(201).json(imagem);
@@ -41,8 +41,8 @@ export class ImagemController {
 
   static async getByPortfolio(req: Request, res: Response) {
     try {
-      const { portfolioId } = req.params;
-      const imagens = await ImagemService.getImagensPorPortfolio(portfolioId);
+      const { PortfolioId } = req.params;
+      const imagens = await ImagemService.getImagensPorPortfolio(PortfolioId);
 
       res.json(imagens);
     } catch (error) {

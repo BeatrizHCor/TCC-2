@@ -60,7 +60,13 @@ const { cabeleireiroId: cabeleireiroId } = useParams();
     await handleDelete();
     handleCloseDeleteDialog();
   };
-console.log("salaoId", salaoId, "cabeleireiroId", cabeleireiroId);
+  while (!salaoId && isLoading) {
+    return (
+      <Box sx={{ p: 3, textAlign: "center" }}>
+        <CircularProgress />
+      </Box>
+    );
+  }
   if (!salaoId) {
     return (
       <Box sx={{ p: 3, textAlign: "center" }}>
