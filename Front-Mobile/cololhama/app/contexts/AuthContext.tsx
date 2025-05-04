@@ -47,6 +47,11 @@ export const AuthContextProvider = ({ children }: ComponentProps) => {
     });
 
     console.log(response);
+    if (response.ok) {
+      let infos = await response.json();
+      localStorage.setItem("token", infos.token);
+      localStorage.setItem("usuario", infos);
+    }
   };
 
   const doAuthenticate = async () => {};
