@@ -112,7 +112,9 @@ export default function VisualizarServicosScreen() {
                 <Text style={styles.cardDescription}>{item.Descricao}</Text>
                 <Text style={styles.cardPrice}>
                   Preço Mín: R${" "}
-                  {item.PrecoMin ? item.PrecoMin.toFixed(2) : "N/A"}
+                  {item.PrecoMin !== null && item.PrecoMin !== undefined
+                    ? item.PrecoMin.toFixed(2)
+                    : "N/A"}
                 </Text>
                 <Text style={styles.cardPrice}>
                   Preço Máx: R${" "}
