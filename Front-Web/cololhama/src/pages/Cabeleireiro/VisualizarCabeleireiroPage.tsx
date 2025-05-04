@@ -1,7 +1,7 @@
-import react from "react";
 import VisualizarCabeleireiro from "../../components/Cabeleireiro/VisualizarCabeleireiro";
 
 const VisualizarCabeleireiroPage: React.FC = () => {
-  return <VisualizarCabeleireiro />;
+  const salaoId = "1"; 
+  return <VisualizarCabeleireiro salaoId={salaoId} />;
 };
 export default VisualizarCabeleireiroPage;

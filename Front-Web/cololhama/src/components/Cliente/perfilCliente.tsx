@@ -1,5 +1,5 @@
 import "../../styles/styles.global.css";
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import {
   Container,
   Paper,
@@ -12,16 +12,16 @@ import {
   Fade,
 } from "@mui/material";
 import CheckCircleIcon from '@mui/icons-material/CheckCircle';
-import { useClienteCadastro } from "./useCadastroCliente";
+import { usePerfilCliente } from "./usePerfilCliente";
 import theme from "../../styles/theme";
 
 interface PerfilClienteProps {}
-const salaoId = "1";
-export const PerfilCliente: React.FC<PerfilClienteProps> = () => {
 
+const salaoId = import.meta.env.SALAO_ID || "1"; 
+
+export const PerfilCliente: React.FC<PerfilClienteProps> = () => {
   const {
-    cliente,
-    auth,
+    perfil,
     cpfFormatado,
     telefoneFormatado,
     confirmacaoSenha,
@@ -29,70 +29,58 @@ export const PerfilCliente: React.FC<PerfilClienteProps> = () => {
     loading,
     saveSuccess,
     setSaveSuccess,
+    isInitialized,
     handleChange,
-    handleAuthChange,
-    handleCPFChange,
     handleTelefoneChange,
-    handleConfirmacaoSenhaChange,
     handleSubmit,
-    setCliente,
-    setAuth,
-    setConfirmacaoSenha,
-    setErrors,
-  } = useClienteCadastro(salaoId ? salaoId : "");
+    handleConfirmacaoSenhaChange,
+  } = usePerfilCliente(salaoId);
 
   const [editMode, setEditMode] = useState(false);
-  const [clienteBackup, setClienteBackup] = useState({ ...cliente });
-  const [authBackup, setAuthBackup] = useState({ ...auth });
-  const [telefoneFormatadoBackup, setTelefoneFormatadoBackup] = useState(telefoneFormatado);
   const [showSuccessAnimation, setShowSuccessAnimation] = useState(false);
 
-  useEffect(() => {
+  React.useEffect(() => {
     if (saveSuccess) {
       setShowSuccessAnimation(true);
-      
+
       const timer = setTimeout(() => {
         setShowSuccessAnimation(false);
         setSaveSuccess(false);
         setEditMode(false);
-        
-        setClienteBackup({ ...cliente });
-        setAuthBackup({ ...auth });
-        setTelefoneFormatadoBackup(telefoneFormatado);
       }, 1500); 
       
       return () => clearTimeout(timer);
     }
-  }, [saveSuccess, cliente, auth, telefoneFormatado]);
+  }, [saveSuccess, setSaveSuccess]);
 
   const toggleEditMode = () => {
-    if (editMode) {
-      setCliente({ ...clienteBackup });
-      setAuth({ ...authBackup });
-      setConfirmacaoSenha("");
-      setErrors({});
-    } else {
-
-      setClienteBackup({ ...cliente });
-      setAuthBackup({ ...auth });
-      setTelefoneFormatadoBackup(telefoneFormatado);
-    }
     setEditMode(!editMode);
   };
 
-
-  const handleFormSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    
-
-    await handleSubmit(e);
-  };
+  // Show loading if profile data is still being fetched
+  if (!isInitialized) {
+    return (
+      <Container maxWidth="lg">
+        <Box display="flex" justifyContent="center" alignItems="center" height="90vh">
+          <CircularProgress />
+        </Box>
+      </Container>
+    );
+  }
 
   return (
     <Container maxWidth="lg">
       <Box display="flex" justifyContent="center" alignItems="center" height="90vh">
         <Box flex={1} display="flex" justifyContent="center">
-          <img src="/icone.svg" alt="Logo" style={{ width: "450px", height: "450px", filter: "invert(16%) sepia(90%) saturate(400%) hue-rotate(-5deg)" }} />
+          <img 
+            src="/icone.svg" 
+            alt="Logo" 
+            style={{ 
+              width: "450px", 
+              height: "450px", 
+              filter: "invert(16%) sepia(90%) saturate(400%) hue-rotate(-5deg)" 
+            }} 
+          />
         </Box>
 
         <Box flex={1} display="flex" justifyContent="flex-start">
@@ -125,16 +113,16 @@ export const PerfilCliente: React.FC<PerfilClienteProps> = () => {
               {editMode ? "Editar Perfil" : "Seu Perfil"}
             </Typography>
 
-            <Box component="form" onSubmit={handleFormSubmit} noValidate>
+            <Box component="form" onSubmit={handleSubmit} noValidate>
               <Stack spacing={2}>
                 <Typography variant="h6" sx={{ color: theme.palette.primary.main }}>
                   Informações Pessoais
                 </Typography>
 
                 <TextField
-                  name="Nome"
+                  name="nome"
                   label="Nome Completo"
-                  value={editMode ? cliente.nome || "" : ""}
+                  value={perfil.nome || ""}
                   required
                   onChange={handleChange}
                   error={!!errors.nome}
@@ -168,13 +156,15 @@ export const PerfilCliente: React.FC<PerfilClienteProps> = () => {
                     <Box flex={1}>
                       <TextField
                         label="Telefone"
-                        value={editMode ? telefoneFormatado || "" : telefoneFormatadoBackup || ""}
+                        value={telefoneFormatado || ""}
                         onChange={handleTelefoneChange}
                         error={!!errors.telefone}
-                        helperText={errors.telefone}
-                        inputProps={{ maxLength: 15 }}
+                        helperText={errors.telefone}                     
                         fullWidth
                         disabled={!editMode}
+                        inputProps={{ 
+                          maxLength: 15
+                        }}
                         sx={{ 
                           backgroundColor: editMode ? "white" : "#f8f8f8",
                           "& .MuiInputBase-input.Mui-disabled": {
@@ -189,10 +179,10 @@ export const PerfilCliente: React.FC<PerfilClienteProps> = () => {
                 <TextField
                   name="email"
                   label="Email"
-                  value={editMode ? auth.email || "" : authBackup.email || ""}
+                  value={perfil.email || ""}
                   required
                   type="email"
-                  onChange={handleAuthChange}
+                  onChange={handleChange}
                   error={!!errors.email}
                   helperText={errors.email}
                   fullWidth
@@ -209,40 +199,57 @@ export const PerfilCliente: React.FC<PerfilClienteProps> = () => {
                   Senha
                 </Typography>
 
-                <TextField
-                  name="senha"
-                  label="Senha"
-                  type="password"
-                  value={editMode ? auth.senha || "" : "••••••••"}
-                  required
-                  onChange={handleAuthChange}
-                  error={!!errors.senha}
-                  helperText={errors.senha}
-                  fullWidth
-                  disabled={!editMode}
-                  sx={{ 
-                    backgroundColor: editMode ? "white" : "#f8f8f8",
-                    "& .MuiInputBase-input.Mui-disabled": {
-                      WebkitTextFillColor: "#000000",
-                    }
-                  }}
-                />
+                {editMode ? (
+                  <>
+                    <TextField
+                      name="password"
+                      label="Nova Senha"
+                      type="password"
+                      value={perfil.password || ""}
+                      onChange={handleChange}
+                      error={!!errors.password}
+                      helperText={errors.password || "Deixe em branco para manter a senha atual"}
+                      fullWidth
+                    />
 
-                {editMode && (
+                    <TextField
+                      label="Confirmar Nova Senha"
+                      type="password"
+                      value={confirmacaoSenha || ""}
+                      onChange={handleConfirmacaoSenhaChange}
+                      error={!!errors.confirmacaoSenha}
+                      helperText={errors.confirmacaoSenha}
+                      fullWidth
+                    />
+                  </>
+                ) : (
                   <TextField
-                    label="Confirmar Senha"
-                    required
+                    label="Senha"
                     type="password"
-                    value={confirmacaoSenha || ""}
-                    onChange={handleConfirmacaoSenhaChange}
-                    error={!!errors.confirmacaoSenha}
-                    helperText={errors.confirmacaoSenha}
+                    value="••••••••"
                     fullWidth
+                    disabled
+                    sx={{ 
+                      backgroundColor: "#f8f8f8",
+                      "& .MuiInputBase-input.Mui-disabled": {
+                        WebkitTextFillColor: "#000000",
+                      }
+                    }}
                   />
                 )}
 
                 <Box display="flex" justifyContent="space-between" alignItems="center" mt={3}>
-                  <Button variant="outlined" size="large" onClick={toggleEditMode} sx={{ borderColor: theme.palette.primary.main, color: theme.palette.primary.main, "&:hover": { bgcolor: "#f8f8f8" } }} disabled={loading}>
+                  <Button 
+                    variant="outlined" 
+                    size="large" 
+                    onClick={toggleEditMode} 
+                    sx={{ 
+                      borderColor: theme.palette.primary.main, 
+                      color: theme.palette.primary.main, 
+                      "&:hover": { bgcolor: "#f8f8f8" } 
+                    }} 
+                    disabled={loading}
+                  >
                     {editMode ? "Cancelar" : "Editar Perfil"}
                   </Button>
 
@@ -252,7 +259,11 @@ export const PerfilCliente: React.FC<PerfilClienteProps> = () => {
                       variant="contained" 
                       size="large" 
                       startIcon={loading && <CircularProgress size={20} color="inherit" />}
-                      sx={{ bgcolor: theme.palette.primary.main, color: "#fff", "&:hover": { bgcolor: "#600000" } }} 
+                      sx={{ 
+                        bgcolor: theme.palette.primary.main, 
+                        color: "#fff", 
+                        "&:hover": { bgcolor: "#600000" } 
+                      }} 
                       disabled={loading || showSuccessAnimation}
                     >
                       {loading ? "Salvando..." : "Salvar Alterações"}

@@ -11,5 +11,6 @@ router.get('/servico/salao/:salaoId', ServicoController.getServicosBySalao);
 router.post('/servico', ServicoController.create);
 router.put('/servico/update/:id', ServicoController.update);
 router.delete('/servico/delete/:id', ServicoController.delete);
+router.get('/servico/find/:nome/:salaoId', ServicoController.findServicoByNomeAndSalaoId);
 
 export default router;

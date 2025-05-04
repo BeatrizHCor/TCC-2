@@ -18,32 +18,35 @@ const PortfolioCabeleireiro: React.FC = () => {
   const [modalMode, setModalMode] = useState<'adicionar' | 'editar'>('adicionar');
   const [editingIndex, setEditingIndex] = useState<number | null>(null);
   const [fotos, setFotos] = useState<(string | null)[]>(fotosMock);
+  const [isEditing, setIsEditing] = useState(false);
 
   const handleOpenAdicionar = () => {
+    setIsEditing(true);
     setModalMode('adicionar');
     setEditingIndex(null);
     setModalOpen(true);
   };
 
   const handleEditFoto = (index: number) => {
+    setIsEditing(true);
     setModalMode('editar');
     setEditingIndex(index);
     setModalOpen(true);
   };
 
   const handleSave = (image: string | null) => {
+    const newFotos = [...fotos];
+
     if (modalMode === 'adicionar') {
-      const newFotos = [...fotos];
       const emptyIndex = newFotos.findIndex(f => f === null);
       if (emptyIndex !== -1) {
         newFotos[emptyIndex] = image;
       }
-      setFotos(newFotos);
     } else if (editingIndex !== null) {
-      const newFotos = [...fotos];
       newFotos[editingIndex] = image;
-      setFotos(newFotos);
     }
+
+    setFotos(newFotos);
     setModalOpen(false);
   };
 
@@ -52,8 +55,8 @@ const PortfolioCabeleireiro: React.FC = () => {
       const newFotos = [...fotos];
       newFotos[editingIndex] = null;
       setFotos(newFotos);
-      setModalOpen(false);
     }
+    setModalOpen(false);
   };
 
   return (
@@ -70,11 +73,17 @@ const PortfolioCabeleireiro: React.FC = () => {
               sx={{ backgroundColor: theme.palette.primary.main }}
               onClick={handleOpenAdicionar}
             >
-              Adicionar Foto
+              Editar
             </Button>
-            <Button variant="contained" sx={{ backgroundColor: theme.palette.primary.main }}>
-              Salvar
-            </Button>
+            {isEditing && (
+              <Button
+                variant="contained"
+                sx={{ backgroundColor: theme.palette.primary.main }}
+                onClick={() => setIsEditing(false)}
+              >
+                Salvar
+              </Button>
+            )}
           </Box>
         </Box>
 
@@ -104,25 +113,27 @@ const PortfolioCabeleireiro: React.FC = () => {
                 backgroundImage: foto ? `url(${foto})` : 'none',
                 backgroundSize: 'cover',
                 backgroundPosition: 'center',
-                '&:hover .edit-button': { opacity: 1 },
+                '&:hover .edit-button': { opacity: isEditing ? 1 : 0 },
               }}
             >
-              <IconButton
-                className="edit-button"
-                onClick={() => handleEditFoto(index)}
-                sx={{
-                  position: 'absolute',
-                  top: 10,
-                  right: 10,
-                  opacity: 0,
-                  transition: 'opacity 0.3s',
-                  color: '#fff',
-                  backgroundColor: 'rgba(0, 0, 0, 0.5)',
-                  '&:hover': { backgroundColor: 'rgba(0, 0, 0, 0.7)' },
-                }}
-              >
-                <EditIcon />
-              </IconButton>
+              {isEditing && (
+                <IconButton
+                  className="edit-button"
+                  onClick={() => handleEditFoto(index)}
+                  sx={{
+                    position: 'absolute',
+                    top: 10,
+                    right: 10,
+                    opacity: 0,
+                    transition: 'opacity 0.3s',
+                    color: '#fff',
+                    backgroundColor: 'rgba(0, 0, 0, 0.5)',
+                    '&:hover': { backgroundColor: 'rgba(0, 0, 0, 0.7)' },
+                  }}
+                >
+                  <EditIcon />
+                </IconButton>
+              )}
             </Box>
           ))}
         </Box>

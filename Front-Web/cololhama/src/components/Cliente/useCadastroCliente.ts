@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { userTypes } from '../../models/tipo-usuario.enum';
 import { ClienteService } from '../../services/ClienteService';
@@ -31,7 +31,6 @@ export const useClienteCadastro = (salaoId: string) => {
   const [loading, setLoading] = useState(false);
   const [cpfFormatado, setCpfFormatado] = useState('');
   const [telefoneFormatado, setTelefoneFormatado] = useState('');
-  const [saveSuccess, setSaveSuccess] = useState(false);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
@@ -58,17 +57,23 @@ export const useClienteCadastro = (salaoId: string) => {
     const maskedValue = telefoneMask(e.target.value);
     setTelefoneFormatado(maskedValue);
 
-    const numericValue = Number(maskedValue.replace(/\D/g, ''));
-    setCadastro(prev => ({ ...prev, telefone: numericValue.toString() }));
+    const numericValue = maskedValue.replace(/\D/g, '');
+    setCadastro(prev => ({ ...prev, telefone: numericValue }));
 
     if (errors.telefone) {
       setErrors(prev => ({ ...prev, telefone: undefined }));
     }
   };
+
   const handleConfirmacaoSenhaChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const value = event.target.value;
     setConfirmacaoSenha(value);
+    
+    if (errors.confirmacaoSenha) {
+      setErrors(prev => ({ ...prev, confirmacaoSenha: undefined }));
+    }
   };
+
   const validateForm = async () => {
     const newErrors: FormErrors = {};
 
@@ -102,7 +107,6 @@ export const useClienteCadastro = (salaoId: string) => {
     }
 
     setErrors(newErrors);
-
     return Object.keys(newErrors).length === 0;
   };
 
@@ -126,7 +130,7 @@ export const useClienteCadastro = (salaoId: string) => {
       }
 
       setLoading(false);
-      window.location.href = '/';
+      navigate('/');
     } catch (error) {
       console.error('Erro ao cadastrar:', error);
       alert('Erro ao cadastrar: ' + JSON.stringify(error));
@@ -141,16 +145,10 @@ export const useClienteCadastro = (salaoId: string) => {
     confirmacaoSenha,
     errors,
     loading,
-    saveSuccess,
-    setSaveSuccess,
     handleChange,
     handleCPFChange,
     handleTelefoneChange,
     handleSubmit,
-    handleConfirmacaoSenhaChange,
-    setCadastro,
-    setConfirmacaoSenha,
-    setErrors,
-    setTelefoneFormatado,
+    handleConfirmacaoSenhaChange
   };
 };

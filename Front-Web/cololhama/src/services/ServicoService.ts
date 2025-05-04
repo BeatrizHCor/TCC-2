@@ -2,7 +2,7 @@ import axios from "axios";
 import { Servico } from "../models/servicoModel";
 
 const api = axios.create({
-  baseURL:  import.meta.env.APIGATEWAY_URL || "http://localhost:3002",
+  baseURL:  import.meta.env.APIGATEWAY_URL || "http://localhost:5000",
   headers: {
     "Content-Type": "application/json",
   },
@@ -52,21 +52,29 @@ class ServicoService {
     page: number = 1,
     limit: number = 10,
     salaoId: string,
+    nome?: string,
     precoMin?: number,
     precoMax?: number,
     includeRelations: boolean = false
   ): Promise<ServicoPaginadoResponse> {
     try {
+      console.log("Buscando serviços com o nome:", nome);
+      console.log("Buscando serviços com o salãoId:", salaoId);
+      console.log("Buscando serviços com o preço mínimo:", precoMin);
+      console.log("Buscando serviços  com o preço máximo:", precoMax);
+      console.log("Buscando serviços com o includeRelations:", includeRelations); 
       const response = await api.get(`/servico/page`, {
         params: {
           page,
           limit,
+          nome,
           precoMin,
           precoMax,
           includeRelations,
           salaoId,
         },
       });
+      console.log("Serviços recebidos:", response.data);
       return response.data;
     } catch (error) {
       console.error("Erro ao buscar serviços:", error);
@@ -135,6 +143,33 @@ class ServicoService {
       throw error;
     }
   }
+
+  static async getServicoByNomeAndSalao(
+    nome: string,
+    salaoId: string
+  ): Promise<Servico> {
+    try {
+      const response = await api.get(`/servico/nome/${nome}/${salaoId}`);
+      return response.data;
+    } catch (error) {
+      console.error(`Erro ao buscar serviço com nome ${nome} do salão ${salaoId}:`, error);
+      throw error;
+    }
+  }
+
+  static async findServicoByNomeAndSalaoId(
+    nome: string,
+    salaoId: string
+  ): Promise<Servico[]> {
+    try {
+      const response = await api.get(`/servico/find/${nome}/${salaoId}`);
+      return response.data;
+    } catch (error) {
+      console.error(`Erro ao buscar serviço com nome ${nome} do salão ${salaoId}:`, error);
+      throw error;
+    }
+  }
+
 }
 
 export default ServicoService;

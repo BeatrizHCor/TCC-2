@@ -9,20 +9,29 @@ class CabeleireiroService {
     salaoId: string | null = null,
     name: string | null = null
   ) => {
+    let whereCondition: Prisma.CabeleireiroWhereInput = {};
+    if (name && name.trim() !== '' && typeof name === 'string' && name.trim().length > 0 && name !== 'null') {
+      whereCondition.Nome = {
+        contains: name,
+        mode: 'insensitive',
+      };
+    if (salaoId) {
+        whereCondition.SalaoId = salaoId;
+      }
+    }
+  console.log("whereCondition final:", JSON.stringify(whereCondition));
+
     return await prisma.cabeleireiro.findMany({
       ...(skip !== null ? { skip } : {}),
       ...(limit !== null ? { take: limit } : {}),
-      where: {
-        SalaoId: salaoId ? salaoId : Prisma.skip,
-        Nome: name ? name : Prisma.skip,
-      },
+      where: whereCondition,
       ...(include
-        ? {
-            include: {
-              Agendamentos: true,
-            },
-          }
-        : {}),
+      ? {
+        include: {
+          Agendamentos: true,
+        },
+        }
+      : {}),
     });
   };
 
@@ -41,7 +50,8 @@ class CabeleireiroService {
         skip,
         limit,
         includeRelations,
-        salaoId
+        salaoId,
+        name
       ),
     ]);
 

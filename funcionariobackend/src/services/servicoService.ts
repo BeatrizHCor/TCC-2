@@ -1,20 +1,27 @@
 import prisma from "../config/database";
-import { PrismaClient } from "@prisma/client";
+import { Prisma } from "@prisma/client";
 
 class ServicoService {
   static async getServicos(
     skip: number | null = null,
     limit: number | null = null,
+    nome?: string,
     precoMin?: number,
     precoMax?: number,
     include = false,
     salaoId: string | null = null
   ) {
-    let whereCondition: any = {};
-
+    let whereCondition: Prisma.ServicoWhereInput = {};
+    if (nome && nome.trim() !== '' && typeof nome === 'string' && nome.trim().length > 0 && nome !== 'null') {
+      whereCondition.Nome = {
+        contains: nome,
+        mode: 'insensitive',
+      };
     if (salaoId) {
-      whereCondition.SalaoId = salaoId;
+        whereCondition.SalaoId = salaoId;
+      }
     }
+  console.log("whereCondition final:", JSON.stringify(whereCondition));
 
     if (precoMin != null && !isNaN(precoMin)) {
       whereCondition.PrecoMin = { gte: precoMin };
@@ -46,13 +53,13 @@ class ServicoService {
         ServicoAtendimento: true,
       };
     }
-    console.log("Query gerada:", query);
     return await prisma.servico.findMany(query);
   }
   
   static async getServicoPage(
     page = 1,
     limit = 10,
+    nome?: string,
     precoMin?: number,
     precoMax?: number,
     includeRelations = false,
@@ -63,8 +70,8 @@ class ServicoService {
     const skip = (pageNum - 1) * limitNum;
   
     const [total, servicos] = await Promise.all([
-      ServicoService.getServicos(null, null, precoMin, precoMax, false, salaoId),
-      ServicoService.getServicos(skip, limitNum, precoMin, precoMax, includeRelations, salaoId),
+      ServicoService.getServicos(null, null, nome, precoMin, precoMax, false, salaoId),
+      ServicoService.getServicos(skip, limitNum, nome, precoMin, precoMax, includeRelations, salaoId),
     ]);
   
     return {
@@ -221,6 +228,22 @@ class ServicoService {
     } catch (error) {
       console.error('Erro ao buscar serviços do salão:', error);
       throw new Error("Erro ao buscar serviços do salão");
+    }
+  }
+  static async findServicoByNomeAndSalaoId(nome: string, salaoId: string) {
+    try {
+      return await prisma.servico.findMany({
+        where: {
+          SalaoId: salaoId,
+          Nome: {
+            contains: nome,
+            mode: 'insensitive',
+          },
+        },
+      });
+    } catch (error) {
+      console.error('Erro ao buscar serviço pelo nome', error);
+      throw new Error("Erro ao buscar serviço pelo nome e salão");
     }
   }
 }

@@ -10,11 +10,11 @@ import {
   StyleSheet,
   KeyboardAvoidingView,
   Platform,
-} from 'react-native';
-import { MaterialIcons } from '@expo/vector-icons';
-import { useClienteCadastro } from '../hooks/useCadastroCliente';
-import theme from '@/theme/theme';
-import { useRouter } from 'expo-router';
+} from "react-native";
+import { MaterialIcons } from "@expo/vector-icons";
+import { useClienteCadastro } from "../hooks/useCadastroCliente";
+import theme from "@/theme/theme";
+import { useRouter } from "expo-router";
 
 interface ClienteCadastroProps {
   salaoId?: string;
@@ -48,7 +48,7 @@ export const ClienteCadastro: React.FC<ClienteCadastroProps> = ({
     >
       <View style={styles.header}>
         <Image
-          source={require("../assets/images/logo.png")}
+          source={require("../../assets/images/logo.png")}
           style={styles.logo}
         />
         <Text style={styles.headerTitle}>Cadastre-se</Text>

@@ -5,7 +5,6 @@ import {
   Button,
   Typography,
   Paper,
-  InputAdornment,
   CircularProgress,
   Dialog,
   DialogActions,
@@ -13,37 +12,37 @@ import {
   DialogContentText,
   DialogTitle
 } from "@mui/material";
-import { useNavigate, useLocation, useParams } from "react-router-dom";
-import { useManterServico } from "./useManterServico";
-import theme from "../../styles/theme";
+import { useNavigate, useParams } from "react-router-dom";
+import { useManterCabeleireiro } from "./useManterCabelereiro";
 import SaveIcon from "@mui/icons-material/Save";
 import DeleteIcon from "@mui/icons-material/Delete";
 import ArrowBackIcon from "@mui/icons-material/ArrowBack";
 import "../../styles/styles.global.css";
 
-const ManterServico: React.FC = () => {
+const ManterCabeleireiro: React.FC = () => {
   const navigate = useNavigate();
-  const location = useLocation();
-  const { servicoId: servicoId } = useParams();
+const { cabeleireiroId: cabeleireiroId } = useParams();
 
   const [openDeleteDialog, setOpenDeleteDialog] = useState(false);
 
   const {
     nome,
     setNome,
-    descricao,
-    setDescricao,
-    precoMin,
-    setPrecoMin,
-    precoMax,
-    setPrecoMax,
+    cpf,
+    setCpf,
+    email,
+    setEmail,
+    telefone,
+    setTelefone,
+    mei,
+    setMei,
     salaoId,
     isLoading,
     isEditing,
     validationErrors,
     handleSubmit,
     handleDelete
-  } = useManterServico(servicoId);
+  } = useManterCabeleireiro(cabeleireiroId);
 
   const handleOpenDeleteDialog = () => {
     setOpenDeleteDialog(true);
@@ -57,7 +56,7 @@ const ManterServico: React.FC = () => {
     await handleDelete();
     handleCloseDeleteDialog();
   };
-
+console.log("salaoId", salaoId, "cabeleireiroId", cabeleireiroId);
   if (!salaoId) {
     return (
       <Box sx={{ p: 3, textAlign: "center" }}>
@@ -80,7 +79,7 @@ const ManterServico: React.FC = () => {
     <Box sx={{ width: "100%", p: 3 }}>
       <Paper elevation={3} sx={{ p: 3, maxWidth: "800px", mx: "auto" }}>
         <Typography variant="h5" sx={{ mb: 3 }}>
-          {isEditing ? "Editar Serviço" : "Novo Serviço"}
+          {isEditing ? "Editar Cabeleireiro" : "Novo Cabeleireiro"}
         </Typography>
 
         <form onSubmit={handleSubmit}>
@@ -89,7 +88,7 @@ const ManterServico: React.FC = () => {
               <TextField
                 fullWidth
                 required
-                label="Nome do Serviço"
+                label="Nome do Cabeleireiro"
                 value={nome}
                 onChange={(e) => setNome(e.target.value)}
                 error={Boolean(validationErrors.nome)}
@@ -100,13 +99,12 @@ const ManterServico: React.FC = () => {
             <Box>
               <TextField
                 fullWidth
-                multiline
-                rows={4}
-                label="Descrição"
-                value={descricao}
-                onChange={(e) => setDescricao(e.target.value)}
-                error={Boolean(validationErrors.descricao)}
-                helperText={validationErrors.descricao}
+                required
+                label="CPF"
+                value={cpf}
+                onChange={(e) => setCpf(e.target.value)}
+                error={Boolean(validationErrors.cpf)}
+                helperText={validationErrors.cpf}
               />
             </Box>
 
@@ -115,19 +113,12 @@ const ManterServico: React.FC = () => {
                 <TextField
                   fullWidth
                   required
-                  type="number"
-                  label="Preço Mínimo"
-                  value={precoMin}
-                  onChange={(e) => setPrecoMin(Number(e.target.value))}
-                  slotProps={{
-                    input: {
-                    startAdornment: (
-                      <InputAdornment position="start">R$</InputAdornment>
-                    ),
-                   }
-                  }}
-                  error={Boolean(validationErrors.precoMin)}
-                  helperText={validationErrors.precoMin}
+                  label="Email"
+                  type="email"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  error={Boolean(validationErrors.email)}
+                  helperText={validationErrors.email}
                 />
               </Box>
 
@@ -135,21 +126,24 @@ const ManterServico: React.FC = () => {
                 <TextField
                   fullWidth
                   required
-                  type="number"
-                  label="Preço Máximo"
-                  value={precoMax}
-                  onChange={(e) => setPrecoMax(Number(e.target.value))}               
-                  slotProps={{
-                    input: {
-                    startAdornment: (
-                      <InputAdornment position="start">R$</InputAdornment>
-                    ),
-                   }
-                  }}
-                  error={Boolean(validationErrors.precoMax)}
-                  helperText={validationErrors.precoMax}
+                  label="Telefone"
+                  value={telefone}
+                  onChange={(e) => setTelefone(e.target.value)}
+                  error={Boolean(validationErrors.telefone)}
+                  helperText={validationErrors.telefone}
                 />
               </Box>
+            </Box>
+
+            <Box>
+              <TextField
+                fullWidth
+                label="MEI (Microempreendedor Individual)"
+                value={mei}
+                onChange={(e) => setMei(e.target.value)}
+                error={Boolean(validationErrors.mei)}
+                helperText={validationErrors.mei}
+              />
             </Box>
 
             <Box sx={{ display: "flex", gap: 2, justifyContent: "space-between", mt: 2 }}>
@@ -179,14 +173,13 @@ const ManterServico: React.FC = () => {
                   startIcon={isLoading ? <CircularProgress size={20} color="inherit" /> : <SaveIcon />}
                   disabled={isLoading}
                 >
-                  {isEditing ? "Salvar Alterações" : "Cadastrar Serviço"}
+                  {isEditing ? "Salvar Alterações" : "Cadastrar Cabeleireiro"}
                 </Button>
               </Box>
             </Box>
           </Box>
         </form>
       </Paper>
-
 
       <Dialog
         open={openDeleteDialog}
@@ -195,7 +188,7 @@ const ManterServico: React.FC = () => {
         <DialogTitle>Confirmar exclusão</DialogTitle>
         <DialogContent>
           <DialogContentText>
-            Tem certeza que deseja excluir este serviço? Esta ação não pode ser desfeita.
+            Tem certeza que deseja excluir este cabeleireiro? Esta ação não pode ser desfeita.
           </DialogContentText>
         </DialogContent>
         <DialogActions>
@@ -209,4 +202,4 @@ const ManterServico: React.FC = () => {
   );
 };
 
-export default ManterServico;
+export default ManterCabeleireiro;

@@ -16,7 +16,7 @@ import {
 import { MaterialIcons } from "@expo/vector-icons";
 import theme from "../../theme/theme";
 import { useRouter } from "expo-router";
-import { AuthContext } from "../contexts/AuthContext";
+import { AuthContext } from "./contexts/AuthContext";
 
 export default function Login() {
   const [email, setEmail] = useState("");
@@ -24,7 +24,7 @@ export default function Login() {
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
   const router = useRouter();
-  const {doLogin} = useContext(AuthContext)
+  const { doLogin } = useContext(AuthContext);
   const validateEmail = (email: string) =>
     /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
 
@@ -33,11 +33,11 @@ export default function Login() {
       Alert.alert("Erro", "Formato de email inválido");
       return;
     }
-
     setLoading(true);
     try {
       await doLogin(email, senha)
       Alert.alert("Login", "Login realizado com sucesso!");
+      router.push("/VisualizarCabeleireiros");
     } catch {
       Alert.alert("Erro", "Email ou senha inválidos.");
     } finally {
@@ -58,7 +58,7 @@ export default function Login() {
         >
           <View style={styles.header}>
             <Image
-              source={require("../assets/images/logo.png")}
+              source={require("../../assets/images/logo.png")}
               style={styles.logo}
               resizeMode="contain"
             />

@@ -1,6 +1,7 @@
 import express from "express";
 import "dotenv/config";
 import dotenv from "dotenv";
+dotenv.config();
 import { Router, Request, Response } from "express";
 import RoutesLogin from "./routes/RoutesLogin";
 import RoutesCustomer from "./routes/RoutesCustomer";
@@ -9,9 +10,7 @@ import RoutesCabeleireiro from "./routes/RoutesCabeleireiro";
 
 const app = express();
 const port = process.env.PORT;
-const frontURL = process.env.FRONT_URL || "http://localhost:5173";
 const route = Router();
-dotenv.config();
 app.use(express.json());
 
 route.get("/", (req: Request, res: Response) => {
@@ -20,7 +19,6 @@ route.get("/", (req: Request, res: Response) => {
 
 const cors = require("cors");
 app.use(cors());
-
 
 app.use(route);
 app.use(RoutesCabeleireiro);
