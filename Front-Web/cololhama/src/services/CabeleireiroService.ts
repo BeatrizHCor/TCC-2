@@ -1,5 +1,7 @@
 import axios from "axios";
 import { Cabeleireiro } from "../models/cabelereiroModel";
+//import { c } from "vite/dist/node/moduleRunnerTransport.d-CXw_Ws6P";
+import { Password } from "@mui/icons-material";
 
 const api = axios.create({
   baseURL: import.meta.env.APIGATEWAY_URL || "http://localhost:5000",
@@ -28,7 +30,7 @@ api.interceptors.response.use(
   (response) => {
     const tokenHeader = response.headers["authorization"]?.replace("Bearer ", "");
     const currentToken = localStorage.getItem("token");
-    if (tokenHeader !== currentToken) {
+    if (tokenHeader !== currentToken && currentToken) {
       console.log("Atualizando token na memória local");
       localStorage.setItem("token", tokenHeader);
       axios.defaults.headers.common["Authorization"] = `Bearer ${tokenHeader}`;
@@ -49,18 +51,26 @@ interface CabeleireiroPageResponse {
 }
 export const CabeleireiroService = {
   async cadastrarCabeleireiro(
-    cabeleireiro: Cabeleireiro
+    CPF: string, 
+    Nome: string, 
+    Email: string, 
+    Telefone: string, 
+    Mei: string,
+    SalaoId: string, 
+    Password: string, 
+    userType: string = "Cabeleireiro", 
   ): Promise<Cabeleireiro> {
     try {
-      const novoCabeleireiro = {
-        CPF: cabeleireiro.cpf,
-        Nome: cabeleireiro.nome,
-        Email: cabeleireiro.email,
-        Telefone: String(cabeleireiro.telefone),
-        Mei: String(cabeleireiro.mei),
-        SalaoId: cabeleireiro.salaoId,
-      };
-      const response = await api.post("/cabeleireiro", novoCabeleireiro);
+      const response = await api.post("/cabeleireiro", {
+        CPF,
+        Nome,
+        Email,
+        Telefone,
+        SalaoId,
+        Password,
+        userType,
+        Mei
+      });
       return response.data;
     } catch (error) {
       console.error("Erro ao cadastrar cabeleireiro:", error);
@@ -138,16 +148,7 @@ export const CabeleireiroService = {
       const response = await api.get(`/cabeleireiro/ID/${id}`, {
         params: { include: includeRelations },
       });   
-      const cabeleireiro: Cabeleireiro = {
-        id: response.data.ID,
-        cpf: response.data.CPF,
-        nome: response.data.Nome,
-        email: response.data.Email,
-        telefone: response.data.Telefone,
-        mei: response.data.MEI,
-        salaoId: response.data.SalaoId,
-        dataCadastro: response.data.DataCadastro,
-      };
+      const cabeleireiro: Cabeleireiro = response.data;
       return cabeleireiro;
     } catch (error) {
       console.error("Erro ao buscar cabeleireiro por ID:", error);
@@ -164,16 +165,26 @@ export const CabeleireiroService = {
       throw error;
     }
   },
-  async updateCabeleireiro(cabeleireiro: Cabeleireiro): Promise<Cabeleireiro> {
+  async UpdateCabeleireiro(
+    ID: string,
+    CPF: string,
+    Nome: string,
+    Email: string,
+    Telefone: string,
+    Mei: string,
+    SalaoId: string,
+    Password: string,
+  ): Promise<Cabeleireiro> {
     try {
-      const response = await api.put("/cabeleireiro", {
-        id: cabeleireiro.id,
-        CPF: cabeleireiro.cpf,
-        Nome: cabeleireiro.nome,
-        Email: cabeleireiro.email,
-        Telefone: String(cabeleireiro.telefone),
-        Mei: String(cabeleireiro.mei),
-        SalaoId: cabeleireiro.salaoId,
+      const response = await api.put(`/cabeleireiro`, {
+        ID, 
+        CPF, 
+        Nome, 
+        Email, 
+        Telefone, 
+        Mei, 
+        SalaoId,
+        Password
       });
       return response.data;
     } catch (error) {

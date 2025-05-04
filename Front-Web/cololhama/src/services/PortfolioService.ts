@@ -1,0 +1,73 @@
+import axios from "axios";
+import { Funcionario } from "../models/funcionarioModel";
+import { get } from "http";
+
+const api = axios.create({
+  baseURL: import.meta.env.IMAGEM_URL || "http://localhost:6000",
+  timeout: 100000,
+  headers: {
+    "Content-Type": "application/json",
+  },
+});
+// set os dados do usuario para autenticação no header de cada requisição
+api.interceptors.request.use(
+  (config) => {
+    const usuario = localStorage.getItem("usuario"); 
+    if (usuario) {
+      const { userID, userType } = JSON.parse(usuario); 
+      config.headers.userID = userID; 
+      config.headers.userType = userType; 
+    }
+    return config;
+  },
+  (error) => Promise.reject(error)
+);
+
+// verifique se a resposta contém um novo token e atualiza
+api.interceptors.response.use( 
+  (response) => {
+    const tokenHeader = response.headers["authorization"]?.replace("Bearer ", "");
+    const currentToken = localStorage.getItem("token");    
+    if (tokenHeader !== currentToken && currentToken) {
+      console.log("Atualizando token na memória local");
+      localStorage.setItem("token", tokenHeader);
+      axios.defaults.headers.common["Authorization"] = `Bearer ${tokenHeader}`;
+    }
+    return response;
+  },
+  (error) => {
+    console.error("Erro na resposta da API:", error);
+    return Promise.reject(error);
+  }
+);
+
+
+export const uploadPortfolio= async (
+  file: File,
+  portfolioId: string,
+  descricao: string
+) => {
+  const formData = new FormData();
+  formData.append("imagem", file);
+  formData.append("PortfolioId", portfolioId);
+  formData.append("Descricao", descricao);
+
+  const response = await api.post(`/portfolio`, formData, {
+    headers: {
+      "Content-Type": "multipart/form-data",
+    },
+  });
+
+  return response.data;
+};
+
+export const getImagemById = async (id: string) => {
+  const response = await api.get(`/imagem/ID/${id}`);
+  return response.data;
+};
+
+export const getImagensByPortfolio = async (portfolioId: string) => {
+  const response = await api.get(`/portfolio/${portfolioId}`);
+  return response.data;
+};
+

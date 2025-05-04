@@ -73,3 +73,11 @@ export const findLoginbyEmail = (Email: string, SalaoId: string) => {
     },
   });
 };
+
+export const deleteLogin = (UsuarioID: string) => {
+  return prisma.authControl.delete({
+    where: {
+      UsuarioID,
+    },
+  });
+}

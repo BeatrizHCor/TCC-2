@@ -3,6 +3,7 @@ import {
   registerLogin,
   verifyPasswordAndReturnToken,
   verifyTokenAndRefresh,
+  deleteAuth
 } from "./Controller";
 
 const RoutesLogin = Router();
@@ -13,12 +14,16 @@ RoutesLogin.get("/login", (req: Request, res: Response) => {
 
 RoutesLogin.post("/register", (req: Request, res: Response) => {
   let { userID, email, password, salaoId, userType } = req.body;
+  console.log("Password recebido:", password);
+  if (typeof password !== "string" || password.trim() === "") {
+    res.status(400).json({ message: "Password inválido" });
+  }
   registerLogin(userID, email, password, salaoId, userType)
     .then((r) => {
       if (r) {
-        res.status(201).json({ message: "login created" });;
+        res.status(201).json({ status: 201, message: "login created"  });;
       } else {
-        res.status(403).json({ message: "problema ao criar login" });;
+        res.status(403).json({ status: 403, message: "problema ao criar login" });;
       }
     })
     .catch((e) => {
@@ -45,6 +50,22 @@ RoutesLogin.post("/authenticate", async (req: Request, res: Response) => {
   } else {
     res.status(403).send();
   }
+});
+
+RoutesLogin.delete("/login", (req: Request, res: Response) => {
+  let { userID } = req.body;
+  deleteAuth(userID)
+    .then((r) => {
+      if (r) {
+        res.status(200).json({ message: "login deleted" });
+      } else {
+        res.status(403).json({ message: "problema ao deletar login" });
+      }
+    })
+    .catch((e) => {
+      console.log(e);
+      res.status(500).json({ message: "erro" });
+    });
 });
 
 export default RoutesLogin;
