@@ -2,8 +2,8 @@ import { Router, Request, Response } from "express";
 import {
   registerLogin,
   verifyPasswordAndReturnToken,
-  verifyTokenAndRefresh,
-  deleteAuth
+  verifyTokenAndType,
+  deleteAuth,
 } from "./Controller";
 
 const RoutesLogin = Router();
@@ -21,14 +21,16 @@ RoutesLogin.post("/register", (req: Request, res: Response) => {
   registerLogin(userID, email, password, salaoId, userType)
     .then((r) => {
       if (r) {
-        res.status(201).json({ status: 201, message: "login created"  });;
+        res.status(201).json({ status: 201, message: "login created" });
       } else {
-        res.status(403).json({ status: 403, message: "problema ao criar login" });;
+        res
+          .status(403)
+          .json({ status: 403, message: "problema ao criar login" });
       }
     })
     .catch((e) => {
       console.log(e);
-      res.status(500).json({ message: "erro" });;
+      res.status(500).json({ message: "erro" });
     });
 });
 
@@ -44,7 +46,7 @@ RoutesLogin.post("/login", async (req: Request, res: Response) => {
 
 RoutesLogin.post("/authenticate", async (req: Request, res: Response) => {
   let { userID, token, userType } = req.body;
-  let newToken = await verifyTokenAndRefresh(token, userID, userType);
+  let newToken = await verifyTokenAndType(token, userID, userType);
   if (newToken) {
     res.send(newToken).status(200);
   } else {
