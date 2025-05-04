@@ -18,7 +18,7 @@ const storage = multer.diskStorage({
 const upload = multer({ storage });
 
 router.post("/portfolio", upload.single("imagem"), ImagemController.uploadPortfolio);
-router.get("/imagem/:id", ImagemController.getById);
-router.get("/portfolio/:portfolioId/imagens", ImagemController.getByPortfolio);
+router.get("/imagem/ID/:id", ImagemController.getById);
+router.get("/portfolio/:portfolioId", ImagemController.getByPortfolio);
 
 export default router;

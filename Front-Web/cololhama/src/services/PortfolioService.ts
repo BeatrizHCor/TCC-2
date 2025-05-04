@@ -3,7 +3,7 @@ import { Funcionario } from "../models/funcionarioModel";
 import { get } from "http";
 
 const api = axios.create({
-  baseURL: import.meta.env.APIGATEWAY_URL || "http://localhost:5000",
+  baseURL: import.meta.env.IMAGEM_URL || "http://localhost:6000",
   timeout: 100000,
   headers: {
     "Content-Type": "application/json",
@@ -40,3 +40,34 @@ api.interceptors.response.use(
     return Promise.reject(error);
   }
 );
+
+
+export const uploadPortfolio= async (
+  file: File,
+  portfolioId: string,
+  descricao: string
+) => {
+  const formData = new FormData();
+  formData.append("imagem", file);
+  formData.append("PortfolioId", portfolioId);
+  formData.append("Descricao", descricao);
+
+  const response = await api.post(`/portfolio`, formData, {
+    headers: {
+      "Content-Type": "multipart/form-data",
+    },
+  });
+
+  return response.data;
+};
+
+export const getImagemById = async (id: string) => {
+  const response = await api.get(`/imagem/ID/${id}`);
+  return response.data;
+};
+
+export const getImagensByPortfolio = async (portfolioId: string) => {
+  const response = await api.get(`/portfolio/${portfolioId}`);
+  return response.data;
+};
+

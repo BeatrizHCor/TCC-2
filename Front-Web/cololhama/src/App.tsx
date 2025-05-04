@@ -35,12 +35,12 @@ const App: React.FC = () => {
             <Route path="/login" element={<LoginPage />} />
             <Route path="/perfil" element={<PerfilCliente />} />
             <Route path="/listaClientes" element={<VisualizarClientesPage />} />
+
             <Route path="/servicos" element={<VisualizarServicoPage />} />
             <Route path="/servico/editar/novo" element={<NovoServicoPage />} />
             <Route path="/servico/editar/:servicoId" element={<EditarServicoPage />} />
-            <Route path="/cabelereiros" element={<VisualizarCabeleireiroPage />} />
-            <Route path="/funcionarios" element={<VisualizarFuncionarioPage />} />
-            <Route path="/portfolio" element={<PortfolioCabeleireiro />} />
+            
+            <Route path="/portfolio" element={<PortfolioCabeleireiro />} />           
             <Route path="/cabeleireiros" element={<VisualizarCabeleireiroPage />}/>
             <Route path="/cabeleireiro/editar/:cabeleireiroId" element={<ManterCabeleireiroPage/>}/>
             <Route path="/cabeleireiro/novo" element={<ManterCabeleireiroPage/>}/>

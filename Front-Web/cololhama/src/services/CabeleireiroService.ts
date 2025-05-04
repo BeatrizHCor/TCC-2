@@ -1,6 +1,6 @@
 import axios from "axios";
 import { Cabeleireiro } from "../models/cabelereiroModel";
-import { c } from "vite/dist/node/moduleRunnerTransport.d-CXw_Ws6P";
+//import { c } from "vite/dist/node/moduleRunnerTransport.d-CXw_Ws6P";
 import { Password } from "@mui/icons-material";
 
 const api = axios.create({
