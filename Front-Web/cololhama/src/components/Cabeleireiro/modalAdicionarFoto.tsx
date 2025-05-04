@@ -135,7 +135,7 @@ const ModalAdicionarFoto: React.FC<ModalAdicionarFotoProps> = ({
             marginBottom: 3,
           }}
         >
-          Trocar imagem
+          Selecionar imagem
           <input type="file" accept="image/*" hidden onChange={handleUpload} />
         </Button>
 
@@ -154,7 +154,7 @@ const ModalAdicionarFoto: React.FC<ModalAdicionarFotoProps> = ({
         {mode === "adicionar" && (
           <>
             <Typography variant="body1" mb={1}>
-              Ou escolha uma imagem de atendimento
+              Ou escolha uma imagem de um atendimento
             </Typography>
 
             <Select
@@ -213,7 +213,7 @@ const ModalAdicionarFoto: React.FC<ModalAdicionarFotoProps> = ({
               },
             }}
           >
-            Passar para o portfólio
+            Salvar no portfólio
           </Button>
         </Box>
       </StyledBox>
