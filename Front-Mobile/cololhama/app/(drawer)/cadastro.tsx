@@ -180,7 +180,7 @@ export const ClienteCadastro: React.FC<ClienteCadastroProps> = ({
           </TouchableOpacity>
 
           <TouchableOpacity
-            onPress={() => router.replace("/Login")}
+            onPress={() => router.replace("/login")}
             style={styles.link}
             activeOpacity={0.7}
           >

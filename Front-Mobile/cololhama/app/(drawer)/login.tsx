@@ -35,7 +35,7 @@ export default function Login() {
     }
     setLoading(true);
     try {
-      await doLogin(email, senha)
+      await doLogin(email, senha);
       Alert.alert("Login", "Login realizado com sucesso!");
       router.push("/VisualizarCabeleireiros");
     } catch {
@@ -113,7 +113,7 @@ export default function Login() {
               )}
             </TouchableOpacity>
 
-            <TouchableOpacity onPress={() => router.push("/Cadastro")}>
+            <TouchableOpacity onPress={() => router.push("/cadastro")}>
               <Text style={styles.link}>Não tem uma conta? Cadastre-se</Text>
             </TouchableOpacity>
           </View>

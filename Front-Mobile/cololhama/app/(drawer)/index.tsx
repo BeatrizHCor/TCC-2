@@ -6,6 +6,6 @@ import { Redirect } from "expo-router";
 export default function Index() {
   const { token } = useContext(AuthContext);
   return (
-    <Redirect href={`${token === "" ? "/Login" : "/VisualizarServicos"}`} />
+    <Redirect href={`${token === "" ? "/login" : "/VisualizarServicos"}`} />
   );
 }
