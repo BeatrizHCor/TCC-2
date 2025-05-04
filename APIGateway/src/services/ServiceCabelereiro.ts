@@ -22,13 +22,15 @@ export const getCabeleireiroPage = async (
   page: number,
   limit: number,
   includeRelations: boolean = false,
-  salaoId: number,
-  name: string | null
+  salaoId?: number,
+  name?: string | null
 ) => {
   console.log(CabeleireiroURL);
   let responseCabeleireiros = await fetch(
     CabeleireiroURL +
-      `/cabeleireiro/page?page=${page}&limit=${limit}&includeRelations=${includeRelations}&salaoId=${salaoId}&name=${name}`,
+      `/cabeleireiro/page?page=${page}&limit=${limit}&includeRelations=${includeRelations}` +
+      `${salaoId ? "&salaoID=" + String(salaoId) : ""}` +
+      `${name ? "&name=" + String(name) : ""}`,
     {
       method: "GET",
     }

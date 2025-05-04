@@ -1,15 +1,12 @@
 import { Router, Request, Response } from "express";
+import { postLogin, registerLogin } from "../services/Service";
 import {
-  postLogin,
-  registerLogin,
-} from "../services/Service";
- import {
   deleteCabeleireiro,
   getCabeleireiroById,
   getCabeleireiroPage,
   postCabeleireiro,
   updateCabeleireiro,
- } from "../services/ServiceCabelereiro";
+} from "../services/ServiceCabelereiro";
 
 const RoutesCabeleireiro = Router();
 
@@ -19,25 +16,26 @@ RoutesCabeleireiro.post(
   async (req: Request, res: Response) => {
     let { CPF, Nome, Email, Telefone, SalaoId, Password, userType, Mei } =
       req.body;
-    try {console.log("tipo de user", typeof userType, userType);
+    try {
+      console.log("tipo de user", typeof userType, userType);
 
       let cabeleireiro = await postCabeleireiro({
         CPF: CPF,
         Nome: Nome,
         Email: Email,
         Telefone: Telefone,
-        Mei: Mei,   
+        Mei: Mei,
         SalaoId: SalaoId,
       });
-      console.log("resultado create no controler",cabeleireiro);
+      console.log("resultado create no controler", cabeleireiro);
       let register = await registerLogin(
         cabeleireiro.ID!,
         Email,
         String(Password),
         SalaoId,
-        userType,
+        userType
       );
-      console.log("resultado register no controler",register);
+      console.log("resultado register no controler", register);
       if (register.status !== 201) {
         console.log("Register failed");
         let cabeleireiroDelete = await deleteCabeleireiro(cabeleireiro.ID!);
@@ -60,14 +58,14 @@ RoutesCabeleireiro.post(
 RoutesCabeleireiro.get(
   "/cabeleireiro/page",
   async (req: Request, res: Response) => {
-    let { page, limit, includeRelations, salaoId, name } = req.query;
+    let { page, limit, includeRelations, salaoId, nome } = req.query;
     try {
       let cabeleireiros = await getCabeleireiroPage(
         Number(page),
         Number(limit),
         Boolean(includeRelations === "true"),
-        Number(salaoId),
-        String(name)
+        salaoId ? Number(salaoId) : undefined,
+        nome ? String(nome) : undefined
       );
       res.status(200).send(cabeleireiros);
     } catch (e) {
@@ -83,7 +81,7 @@ RoutesCabeleireiro.get(
     let { id } = req.params;
     const includeRelations = req.query.include === "true";
     try {
-      let cabeleireiro = await getCabeleireiroById(id,includeRelations);
+      let cabeleireiro = await getCabeleireiroById(id, includeRelations);
       res.status(200).send(cabeleireiro);
     } catch (e) {
       console.log(e);
@@ -106,27 +104,24 @@ RoutesCabeleireiro.delete(
   }
 );
 
-RoutesCabeleireiro.put(
-  "/cabeleireiro",
-  async (req: Request, res: Response) => {
-    let { ID, CPF, Nome, Email, Telefone, Mei, SalaoId , Password} = req.body;
-    try {
-      let cabeleireiro = await updateCabeleireiro(
-        Email,
-        CPF,
-        Telefone,
-        SalaoId,
-        Mei,
-        Nome,
-        ID,
-      );
-      res.status(200).send(cabeleireiro);
-    } catch (e) {
-      console.log(e);
-      res.status(500).send("Error updating Cabeleireiros");
-    }
+RoutesCabeleireiro.put("/cabeleireiro", async (req: Request, res: Response) => {
+  let { ID, CPF, Nome, Email, Telefone, Mei, SalaoId, Password } = req.body;
+  try {
+    let cabeleireiro = await updateCabeleireiro(
+      Email,
+      CPF,
+      Telefone,
+      SalaoId,
+      Mei,
+      Nome,
+      ID
+    );
+    res.status(200).send(cabeleireiro);
+  } catch (e) {
+    console.log(e);
+    res.status(500).send("Error updating Cabeleireiros");
   }
-);
+});
 
 //Todas as outras funções vão usar a função de authenticate no Service para verificar se o usuário é quem diz ser, pra depois permitir.
 export default RoutesCabeleireiro;
