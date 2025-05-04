@@ -6,12 +6,13 @@ class CabeleireiroController {
     try {
       const { page, limit, includeRelations, salaoId, name } = req.query;
       console.log(typeof name);
+      console.log(name);
       const cabeleireiros = await CabeleireiroService.getCabeleireiroPage(
         Number(page),
         Number(limit),
         includeRelations === "true",
         salaoId ? String(salaoId) : null,
-        name !== "undefined" ? String(name) : null
+        name ? String(name) : null
       );
       res.json(cabeleireiros);
     } catch (error) {
