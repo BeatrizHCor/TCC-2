@@ -1,6 +1,6 @@
 import axios from "axios";
 import AsyncStorage from "@react-native-async-storage/async-storage";
-import { Servico } from "../models/servicoModel";
+import { Cabeleireiro } from "../models/cabeleireiroModel";
 
 const API_URL = process.env.EXPO_PUBLIC_API_URL; // Coloquei em um .env . Favor usar .env em URLS e em id de salão e outras coisas, ta feio demais ficar colocando essas coisas em hardcode gente. De verdade, to cansada de arrumar
 
@@ -57,75 +57,73 @@ api.interceptors.response.use(
   }
 );
 
-interface ServicoPaginadoResponse {
-  data: Servico[];
+interface CabeleireiroPaginadoResponse {
+  data: Cabeleireiro[];
   total: number;
   page: number;
   limit: number;
 }
 
-class ServicoService {
-  static async getServicosPaginados(
+class CabeleireiroService {
+  static async getCabeleireiroPaginados(
     page: number = 1,
     limit: number = 10,
     salaoId: string,
     nome?: string,
-    precoMin?: number | "",
-    precoMax?: number | "",
     includeRelations: boolean = false
-  ): Promise<ServicoPaginadoResponse> {
+  ): Promise<CabeleireiroPaginadoResponse> {
     try {
-      console.log("Buscando serviços com:", {
+      console.log("Buscando cabeleireiro com:", {
         page,
         limit,
         salaoId,
         nome,
-        precoMin,
-        precoMax,
         includeRelations,
       });
 
-      const response = await api.get("/servico/page", {
+      const response = await api.get("/cabeleireiro/page", {
         params: {
           page,
           limit,
           nome,
-          precoMin: precoMin === "" ? undefined : precoMin,
-          precoMax: precoMax === "" ? undefined : precoMax,
           includeRelations,
           salaoId,
         },
       });
 
-      console.log("Serviços recebidos:", response.data);
+      console.log("Cabeleireiros recebidos:", response.data);
       return response.data;
     } catch (error) {
-      console.error("Erro ao buscar serviços:", error);
+      console.error("Erro ao buscar cabeleireirosleilos:", error);
       throw error;
     }
   }
 
-  static async getServicoById(id: string): Promise<Servico> {
+  static async getCabeleireiroById(id: string): Promise<Cabeleireiro> {
     try {
-      const response = await api.get(`/servico/ID/${id}`);
-      const servico: Servico = {
-        id: response.data.ID,
-        salaoId: response.data.SalaoId,
+      const response = await api.get(`/cabeleireiro/ID/${id}`);
+      const cabeleireiro: Cabeleireiro = {
+        ID: response.data.ID,
+        SalaoId: response.data.SalaoId,
         Nome: response.data.Nome,
-        PrecoMin: response.data.PrecoMin,
-        PrecoMax: response.data.PrecoMax,
-        Descricao: response.data.Descricao,
+        CPF: response.data.CPF,
+        Email: response.data.Email,
+        Telefone: response.data.Telefone,
+        Mei: response.data.Mei,
+        DataCadastro: response.data.DataCadastro,
       };
-      return servico;
+      return cabeleireiro;
     } catch (error) {
       console.error(`Erro ao buscar serviço com ID ${id}:`, error);
       throw error;
     }
   }
 
-  static async getServicosBySalao(salaoId: string): Promise<Servico[]> {
+  static async getCabeleireiroBySalao(
+    salaoId: string
+  ): Promise<Cabeleireiro[]> {
     try {
-      const response = await api.get(`/servico/salao/${salaoId}`);
+      const response = await api.get(`/cabeleireiro/salao/${salaoId}`);
       return response.data;
     } catch (error) {
       console.error(`Erro ao buscar serviços para o salão ${salaoId}:`, error);
@@ -133,9 +131,11 @@ class ServicoService {
     }
   }
 
-  static async createServico(servicoData: Servico): Promise<Servico> {
+  static async createCabeleireiro(
+    cabeleireiroData: Cabeleireiro
+  ): Promise<Cabeleireiro> {
     try {
-      const response = await api.post("/servico", servicoData);
+      const response = await api.post("/cabeleireiro", cabeleireiroData);
       return response.data;
     } catch (error) {
       console.error("Erro ao criar serviço:", error);
@@ -143,12 +143,15 @@ class ServicoService {
     }
   }
 
-  static async updateServico(
+  static async updateCabeleireiro(
     id: string,
-    servicoData: Servico
-  ): Promise<Servico> {
+    cabeleireiroData: Cabeleireiro
+  ): Promise<Cabeleireiro> {
     try {
-      const response = await api.put(`/servico/update/${id}`, servicoData);
+      const response = await api.put(
+        `/cabeleireiro/update/${id}`,
+        cabeleireiroData
+      );
       return response.data;
     } catch (error) {
       console.error(`Erro ao atualizar serviço com ID ${id}:`, error);
@@ -156,21 +159,21 @@ class ServicoService {
     }
   }
 
-  static async deleteServico(id: string): Promise<void> {
+  static async deleteCabeleireiro(id: string): Promise<void> {
     try {
-      await api.delete(`/servico/delete/${id}`);
+      await api.delete(`/cabeleireiro/delete/${id}`);
     } catch (error) {
       console.error(`Erro ao excluir serviço com ID ${id}:`, error);
       throw error;
     }
   }
 
-  static async getServicoByNomeAndSalao(
+  static async getCabeleireiroByNomeAndSalao(
     nome: string,
     salaoId: string
-  ): Promise<Servico> {
+  ): Promise<Cabeleireiro> {
     try {
-      const response = await api.get(`/servico/nome/${nome}/${salaoId}`);
+      const response = await api.get(`/cabeleireiro/nome/${nome}/${salaoId}`);
       return response.data;
     } catch (error) {
       console.error(
@@ -181,12 +184,12 @@ class ServicoService {
     }
   }
 
-  static async findServicoByNomeAndSalaoId(
+  static async findCabeleireiroByNomeAndSalaoId(
     nome: string,
     salaoId: string
-  ): Promise<Servico[]> {
+  ): Promise<Cabeleireiro[]> {
     try {
-      const response = await api.get(`/servico/find/${nome}/${salaoId}`);
+      const response = await api.get(`/cabeleireiro/find/${nome}/${salaoId}`);
       return response.data;
     } catch (error) {
       console.error(
@@ -198,4 +201,4 @@ class ServicoService {
   }
 }
 
-export default ServicoService;
+export default CabeleireiroService;

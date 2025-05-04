@@ -1,5 +1,5 @@
 import { Cabeleireiro } from "../models/cabelereiroModel";
-import 'dotenv/config';
+import "dotenv/config";
 
 const CabeleireiroURL = process.env.CABELEREIRO_URL || "http://localhost:4002";
 
@@ -25,6 +25,7 @@ export const getCabeleireiroPage = async (
   salaoId: number,
   name: string | null
 ) => {
+  console.log(CabeleireiroURL);
   let responseCabeleireiros = await fetch(
     CabeleireiroURL +
       `/cabeleireiro/page?page=${page}&limit=${limit}&includeRelations=${includeRelations}&salaoId=${salaoId}&name=${name}`,
@@ -40,50 +41,55 @@ export const getCabeleireiroPage = async (
 };
 
 export const deleteCabeleireiro = async (id: string) => {
-  let responseCabeleireiro = await fetch(CabeleireiroURL + `/cabeleireiro/delete/${id}`, {
-    method: "DELETE",
-  });
+  let responseCabeleireiro = await fetch(
+    CabeleireiroURL + `/cabeleireiro/delete/${id}`,
+    {
+      method: "DELETE",
+    }
+  );
   if (responseCabeleireiro.ok) {
     return (await responseCabeleireiro.json()) as Cabeleireiro;
   } else {
     throw new Error("Error in deleting Cabeleireiro");
   }
-}  
+};
 
 export const updateCabeleireiro = async (
-    Email: string,
-    CPF: string,
-    Telefone: string,
-    SalaoId: string,
-    Mei: string | undefined,
-    Nome: string,
-    ID: string | undefined
+  Email: string,
+  CPF: string,
+  Telefone: string,
+  SalaoId: string,
+  Mei: string | undefined,
+  Nome: string,
+  ID: string | undefined
 ) => {
-    let responseCabeleireiro = await fetch(CabeleireiroURL + "/cabeleireiro", {
-        method: "PUT",
-        headers: {
-            "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ Email, CPF, Telefone, SalaoId, Mei, Nome, ID }),
-    });
-    if (responseCabeleireiro.ok) {
-        return (await responseCabeleireiro.json()) as Cabeleireiro;
-    } else {
-        throw new Error("Error in updating Cabeleireiro");
-    }
+  let responseCabeleireiro = await fetch(CabeleireiroURL + "/cabeleireiro", {
+    method: "PUT",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({ Email, CPF, Telefone, SalaoId, Mei, Nome, ID }),
+  });
+  if (responseCabeleireiro.ok) {
+    return (await responseCabeleireiro.json()) as Cabeleireiro;
+  } else {
+    throw new Error("Error in updating Cabeleireiro");
+  }
 };
 
-export const getCabeleireiroById = async (id: string, includeRelations: boolean) => {
-    let responseCabeleireiro = await fetch(
-        CabeleireiroURL + `/cabeleireiro/ID/${id}`, 
-        {
-            method: "GET",
-        }
-    );
-    if (responseCabeleireiro.ok) {
-        return (await responseCabeleireiro.json()) as Cabeleireiro;
-    } else {
-        throw new Error("Error in getting Cabeleireiro by ID");
+export const getCabeleireiroById = async (
+  id: string,
+  includeRelations: boolean
+) => {
+  let responseCabeleireiro = await fetch(
+    CabeleireiroURL + `/cabeleireiro/ID/${id}`,
+    {
+      method: "GET",
     }
+  );
+  if (responseCabeleireiro.ok) {
+    return (await responseCabeleireiro.json()) as Cabeleireiro;
+  } else {
+    throw new Error("Error in getting Cabeleireiro by ID");
+  }
 };
-

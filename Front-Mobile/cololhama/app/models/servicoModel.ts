@@ -1,8 +1,8 @@
 export interface Servico {
   id?: string;
   salaoId?: string;
-  nome: string;
-  descricao: string;
-  precoMin?: number;
-  precoMax?: number;
+  Nome: string;
+  Descricao: string;
+  PrecoMin?: number;
+  PrecoMax?: number;
 }

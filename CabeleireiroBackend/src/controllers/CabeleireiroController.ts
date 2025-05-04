@@ -5,12 +5,13 @@ class CabeleireiroController {
   static findAllPaginated = async (req: Request, res: Response) => {
     try {
       const { page, limit, includeRelations, salaoId, name } = req.query;
+      console.log(typeof name);
       const cabeleireiros = await CabeleireiroService.getCabeleireiroPage(
         Number(page),
         Number(limit),
         includeRelations === "true",
         salaoId ? String(salaoId) : null,
-        name ? String(name) : null
+        name !== "undefined" ? String(name) : null
       );
       res.json(cabeleireiros);
     } catch (error) {

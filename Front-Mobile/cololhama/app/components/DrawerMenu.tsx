@@ -49,7 +49,7 @@ export const DrawerMenu = () => {
         name="VisualizarCabeleireiros"
         options={{
           drawerLabel: "Cabeleireiro",
-          drawerItemStyle: { display: requiresLogged() },
+          title: "Cabeleireiros",
         }}
       />
     </Drawer>
