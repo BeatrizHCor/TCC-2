@@ -16,7 +16,7 @@ import {
 import { MaterialIcons } from "@expo/vector-icons";
 import theme from "../../theme/theme";
 import { useRouter } from "expo-router";
-import { AuthContext } from "./contexts/AuthContext";
+import { AuthContext } from "../contexts/AuthContext";
 
 export default function Login() {
   const [email, setEmail] = useState("");
