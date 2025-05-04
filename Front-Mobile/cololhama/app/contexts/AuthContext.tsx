@@ -34,8 +34,20 @@ export const AuthContextProvider = ({ children }: ComponentProps) => {
   const [token, setToken] = useState("");
   const [userId, setuserId] = useState("");
   const [userType, setUserType] = useState<userTypeEnum>(userTypeEnum.Cliente);
+  const url = process.env.EXPO_PUBLIC_API_URL;
+  const salaoId = process.env.EXPO_PUBLIC_SALO_ID;
+  const doLogin = async (email: string, password: string) => {
+    console.log(url);
+    let response = await fetch(url + "/login", {
+      method: "POST",
+      body: JSON.stringify({ email, password, salaoId }),
+      headers: {
+        "Content-Type": "application/json",
+      },
+    });
 
-  const doLogin = async (email: string, password: string) => {};
+    console.log(response);
+  };
 
   const doAuthenticate = async () => {};
 
