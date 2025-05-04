@@ -48,7 +48,7 @@ class CabeleireiroController {
         Telefone,
         SalaoId
       );
-      if (!cabeleireiro) {
+      if (!cabeleireiro || cabeleireiro === null) {
         res
           .status(404)
           .json({ message: "Cabeleireiro não pode ser registrado" });

@@ -12,6 +12,8 @@ interface ValidationErrors {
   email?: string;
   telefone?: string;
   mei?: string;
+  password?: string;
+  confirmPassword?: string;
 }
 
 export const useManterCabeleireiro = (cabeleireiroId?: string) => {
@@ -21,6 +23,8 @@ export const useManterCabeleireiro = (cabeleireiroId?: string) => {
   const [telefone, setTelefone] = useState("");
   const [mei, setMei] = useState("");
   const [salaoId, setSalaoId] = useState<string | null>(null);
+  const [password, setPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
   
   const [isLoading, setIsLoading] = useState(false);
   const [validationErrors, setValidationErrors] = useState<ValidationErrors>({});
@@ -47,12 +51,12 @@ export const useManterCabeleireiro = (cabeleireiroId?: string) => {
       try {
         const cabeleireiro = await CabeleireiroService.getCabeleireiroById(cabeleireiroId);
         console.log("Cabeleireiro:", cabeleireiro);
-        setNome(cabeleireiro.nome || "");
-        setCpf(cabeleireiro.cpf || "");
-        setEmail(cabeleireiro.email || "");
-        setTelefone(cabeleireiro.telefone || "");
-        setMei(cabeleireiro.mei || "");
-        setSalaoId(cabeleireiro.salaoId || null);
+        setNome(cabeleireiro.Nome || "");
+        setCpf(cabeleireiro.CPF || "");
+        setEmail(cabeleireiro.Email || "");
+        setTelefone(cabeleireiro.Telefone || "");
+        setMei(cabeleireiro.Mei || "");
+        setSalaoId(cabeleireiro.SalaoId || null);
       } catch (error) {
         console.error("Erro ao buscar cabeleireiro:", error);
         navigate("/cabeleireiros", { replace: true });
@@ -92,6 +96,19 @@ export const useManterCabeleireiro = (cabeleireiroId?: string) => {
     if (!telefone.trim()) {
       errors.telefone = "Telefone é obrigatório";
     }
+
+    if (!mei.trim()) {
+      errors.mei = "MEI é obrigatório";
+    }
+    if (!isEditing && !password.trim()) {
+      errors.password = "Senha é obrigatória";
+    }
+    if (!isEditing && !confirmPassword.trim()) {
+      errors.confirmPassword = "Confirmação de senha é obrigatória";
+    } else if (password !== confirmPassword) {
+      errors.confirmPassword = "As senhas não coincidem";
+    }
+
     
     setValidationErrors(errors);
     return Object.keys(errors).length === 0;
@@ -113,20 +130,27 @@ export const useManterCabeleireiro = (cabeleireiroId?: string) => {
     setIsLoading(true);
     
     try {
-      const cabeleireiroData: Cabeleireiro = {
-        id: cabeleireiroId || undefined,
-        nome: nome,
-        cpf: cpf,
-        email: email,
-        telefone: telefone,
-        mei: mei,
-        salaoId: salaoId,
-      };
-      
       if (isEditing && cabeleireiroId) {
-        await CabeleireiroService.updateCabeleireiro(cabeleireiroData);
-      } else {
-        await CabeleireiroService.cadastrarCabeleireiro(cabeleireiroData);
+        await CabeleireiroService.UpdateCabeleireiro(
+          cabeleireiroId,
+          cpf,
+          nome,
+          email,
+          telefone,
+          mei,
+          salaoId,
+          password
+        );
+      } else {      
+        await CabeleireiroService.cadastrarCabeleireiro(
+          cpf,
+          nome,
+          email,
+          telefone,
+          mei,
+          salaoId,
+          password
+        );
       }
       
       navigate(-1);
@@ -164,6 +188,10 @@ export const useManterCabeleireiro = (cabeleireiroId?: string) => {
     telefone,
     setTelefone,
     mei,
+    password,
+    confirmPassword,
+    setPassword,
+    setConfirmPassword,
     setMei,
     salaoId,
     isLoading,

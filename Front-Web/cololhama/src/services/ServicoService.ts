@@ -27,7 +27,7 @@ api.interceptors.response.use(
   (response) => {
     const tokenHeader = response.headers["authorization"]?.replace("Bearer ", "");
     const currentToken = localStorage.getItem("token");
-    if (tokenHeader !== currentToken) {
+    if (tokenHeader !== currentToken && currentToken) {
       console.log("Atualizando token na memória local");
       localStorage.setItem("token", tokenHeader);
       axios.defaults.headers.common["Authorization"] = `Bearer ${tokenHeader}`;
