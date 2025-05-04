@@ -1,6 +1,12 @@
 // app/useCadastroCliente.ts
 import { useState } from 'react';
 import { Alert } from 'react-native';
+import { handleFetch } from './handleFetch';
+import { router } from 'expo-router';
+
+
+const urlAPI  = process.env.EXPO_PUBLIC_API_URL
+
 
 export const useClienteCadastro = (salaoId: string) => {
   const [form, setForm] = useState({
@@ -127,7 +133,7 @@ export const useClienteCadastro = (salaoId: string) => {
     return newErrors;
   };
 
-  const handleSubmit = () => {
+  const handleSubmit = async () => {
     const validationErrors = validateForm();
     
     if (Object.keys(validationErrors).length > 0) {
@@ -135,17 +141,17 @@ export const useClienteCadastro = (salaoId: string) => {
       return;
     }
     
-    setLoading(true);
+    let r = await handleFetch(urlAPI!, 'Post', {Nome: form.nome,
+       CPF: form.cpf, 
+       Email: form.email, 
+       Telefone: form.telefone, 
+       SalaoId: process.env.EXPO_PUBLIC_SALAOID})
 
-    // Simulate API call
-    setTimeout(() => {
-      setLoading(false);
-      Alert.alert(
-        "Sucesso",
-        "Cadastro realizado com sucesso!",
-        [{ text: "OK" }]
-      );
-    }, 1500);
+    if(r){
+      router.push('/ogin')
+    }
+       
+    
   };
 
   return {
