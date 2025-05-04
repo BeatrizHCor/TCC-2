@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 import {
   View,
   Text,
@@ -6,209 +6,109 @@ import {
   FlatList,
   TouchableOpacity,
   ActivityIndicator,
+  StyleSheet,
 } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
-import { useLocalSearchParams } from "expo-router";
-
-type Servico = {
-  id: string;
-  nome: string;
-  descricao: string;
-  precoMin?: number;
-  precoMax?: number;
-};
+import { useLocalSearchParams, useRouter } from "expo-router";
+import { useVisualizarCabeleireiros } from "../hooks/useVisualizarCabeleireiros";
 
 export default function VisualizarCabeleireiroScreen() {
-  const { salaoId } = useLocalSearchParams() as { salaoId: string };
+  const salaoId = process.env.EXPO_PUBLIC_SALO_ID || "1";
+  const router = useRouter();
+
   const [page, setPage] = useState(1);
   const [limit] = useState(10);
 
   const [nomeFilter, setNomeFilter] = useState("");
-  const [precoMinFilter, setPrecoMinFilter] = useState<number | "">("");
-  const [precoMaxFilter, setPrecoMaxFilter] = useState<number | "">("");
 
-  const [servicos, setServicos] = useState<Servico[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
-  const [hasMore, setHasMore] = useState(true);
+  const [nomeInput, setNomeInput] = useState("");
 
-  const mockServicos: Servico[] = Array.from({ length: 50 }, (_, i) => ({
-    id: `${i + 1}`,
-    nome: `Serviço ${i + 1}`,
-    descricao: `Descrição do serviço ${i + 1}`,
-    precoMin: 50 + i * 5,
-    precoMax: 100 + i * 5,
-  }));
+  const {
+    cabeleireiros,
+    totalCabeleireiro,
+    isLoading,
+    error,
+    handleEditarCabeleireiro,
+  } = useVisualizarCabeleireiros(page, limit, salaoId, nomeFilter);
 
-  useEffect(() => {
-    setIsLoading(true);
+  const hasMore = totalCabeleireiro > page * limit;
 
-    const timeout = setTimeout(() => {
-      const filtered = mockServicos.filter((servico) => {
-        const matchNome = servico.nome
-          .toLowerCase()
-          .includes(nomeFilter.toLowerCase());
-        const matchMin =
-          precoMinFilter === "" || servico.precoMin! >= precoMinFilter;
-        const matchMax =
-          precoMaxFilter === "" || servico.precoMax! <= precoMaxFilter;
-        return matchNome && matchMin && matchMax;
-      });
-
-      const start = (page - 1) * limit;
-      const paginated = filtered.slice(start, start + limit);
-      setHasMore(start + limit < filtered.length);
-
-      if (page === 1) {
-        setServicos(paginated);
-      } else {
-        setServicos((prev) => [...prev, ...paginated]);
-      }
-
-      setIsLoading(false);
-    }, 500);
-
-    return () => clearTimeout(timeout);
-  }, [page, nomeFilter, precoMinFilter, precoMaxFilter]);
-
-  const handleEditarServico = (id: string) => {
-    console.log("Editar serviço:", id);
-    // router.push(`/servicos/editar/${id}`);
-  };
-
-  const handleFiltroChange = (
-    nome: string,
-    precoMin: number | "",
-    precoMax: number | ""
-  ) => {
+  const aplicarFiltros = () => {
     setPage(1);
-    setHasMore(true);
-    setNomeFilter(nome);
-    setPrecoMinFilter(precoMin);
-    setPrecoMaxFilter(precoMax);
+    setNomeFilter(nomeInput);
   };
+
+  const handleEditarCabeleireiroPress = (id: string) => {
+    handleEditarCabeleireiro(id);
+  };
+
+  if (error) {
+    return (
+      <View style={styles.container}>
+        <Text style={styles.errorText}>{error}</Text>
+        <TouchableOpacity
+          style={styles.retryButton}
+          onPress={() => aplicarFiltros()}
+        >
+          <Text style={styles.retryButtonText}>Tentar Novamente</Text>
+        </TouchableOpacity>
+      </View>
+    );
+  }
 
   return (
-    <View style={{ flex: 1, padding: 16, backgroundColor: "#fff" }}>
-      <Text
-        style={{
-          fontSize: 22,
-          fontWeight: "bold",
-          color: "#c62828",
-          marginBottom: 16,
-        }}
-      >
-        Serviços do Salão {salaoId}
-      </Text>
+    <View style={styles.container}>
+      <Text style={styles.pageTitle}>Cabeleireiros do Salão {salaoId}</Text>
 
       <TextInput
         placeholder="Buscar por nome"
-        value={nomeFilter}
-        onChangeText={(text) =>
-          handleFiltroChange(text, precoMinFilter, precoMaxFilter)
-        }
-        style={{
-          borderWidth: 1,
-          borderColor: "#ccc",
-          padding: 8,
-          borderRadius: 8,
-          marginBottom: 8,
-        }}
+        value={nomeInput}
+        onChangeText={setNomeInput}
+        style={styles.input}
       />
 
-      <View style={{ flexDirection: "row", gap: 8 }}>
-        <TextInput
-          placeholder="Preço mínimo"
-          value={precoMinFilter?.toString()}
-          onChangeText={(text) =>
-            handleFiltroChange(
-              nomeFilter,
-              text === "" ? "" : Number(text),
-              precoMaxFilter
-            )
-          }
-          keyboardType="numeric"
-          style={{
-            flex: 1,
-            borderWidth: 1,
-            borderColor: "#ccc",
-            padding: 8,
-            borderRadius: 8,
-          }}
-        />
-        <TextInput
-          placeholder="Preço máximo"
-          value={precoMaxFilter?.toString()}
-          onChangeText={(text) =>
-            handleFiltroChange(
-              nomeFilter,
-              precoMinFilter,
-              text === "" ? "" : Number(text)
-            )
-          }
-          keyboardType="numeric"
-          style={{
-            flex: 1,
-            borderWidth: 1,
-            borderColor: "#ccc",
-            padding: 8,
-            borderRadius: 8,
-          }}
-        />
-      </View>
+      <TouchableOpacity style={styles.applyButton} onPress={aplicarFiltros}>
+        <Text style={styles.applyButtonText}>Aplicar Filtros</Text>
+      </TouchableOpacity>
 
       {isLoading && page === 1 ? (
-        <ActivityIndicator
-          size="large"
-          color="#c62828"
-          style={{ marginTop: 32 }}
-        />
+        <ActivityIndicator size="large" color="#c62828" style={styles.loader} />
       ) : (
         <FlatList
-          data={servicos}
-          keyExtractor={(item) => item.id}
-          style={{ marginTop: 16 }}
-          renderItem={({ item }) => (
-            <View
-              style={{
-                padding: 12,
-                marginBottom: 10,
-                borderWidth: 1.5,
-                borderColor: "#ef5350",
-                borderRadius: 8,
-                backgroundColor: "#fff8f8",
-              }}
-            >
-              <Text
-                style={{ fontWeight: "bold", fontSize: 16, color: "#b71c1c" }}
-              >
-                {item.nome}
-              </Text>
-              <Text style={{ marginBottom: 4 }}>{item.descricao}</Text>
-              <Text>Preço Mín: R$ {item.precoMin?.toFixed(2) ?? "N/A"}</Text>
-              <Text>Preço Máx: R$ {item.precoMax?.toFixed(2) ?? "N/A"}</Text>
+          data={cabeleireiros}
+          keyExtractor={(item) => item.ID || Math.random().toString()}
+          style={styles.list}
+          renderItem={({ item }) => {
+            console.log("Exibindo serviço:", item);
+            return (
+              <View style={styles.card}>
+                <Text style={styles.cardTitle}>{item.Nome}</Text>
+                <Text style={styles.cardDescription}>{item.Nome}</Text>
 
-              <TouchableOpacity
-                onPress={() => handleEditarServico(item.id)}
-                style={{
-                  marginTop: 8,
-                  flexDirection: "row",
-                  alignItems: "center",
-                  gap: 4,
-                  paddingVertical: 6,
-                }}
-              >
-                <Ionicons name="create-outline" size={18} color="#d32f2f" />
-                <Text style={{ color: "#d32f2f" }}>Editar</Text>
-              </TouchableOpacity>
-            </View>
-          )}
+                <TouchableOpacity
+                  onPress={() => item.ID && handleEditarCabeleireiro(item.ID)}
+                  style={styles.editButton}
+                >
+                  <Ionicons name="create-outline" size={18} color="#d32f2f" />
+                  <Text style={styles.editButtonText}>Editar</Text>
+                </TouchableOpacity>
+              </View>
+            );
+          }}
           onEndReached={() => {
-            if (hasMore && !isLoading) setPage((prev) => prev + 1);
+            if (hasMore && !isLoading) {
+              setPage((prev) => prev + 1);
+            }
           }}
           onEndReachedThreshold={0.5}
+          ListEmptyComponent={() => (
+            <View style={styles.emptyContainer}>
+              <Text style={styles.emptyText}>Nenhum serviço encontrado.</Text>
+            </View>
+          )}
           ListFooterComponent={
             isLoading && page > 1 ? (
-              <ActivityIndicator color="#c62828" style={{ margin: 16 }} />
+              <ActivityIndicator color="#c62828" style={styles.footerLoader} />
             ) : null
           }
         />
@@ -216,3 +116,117 @@ export default function VisualizarCabeleireiroScreen() {
     </View>
   );
 }
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    padding: 16,
+    backgroundColor: "#fff",
+  },
+  pageTitle: {
+    fontSize: 22,
+    fontWeight: "bold",
+    color: "#c62828",
+    marginBottom: 16,
+  },
+  input: {
+    borderWidth: 1,
+    borderColor: "#ccc",
+    padding: 12,
+    borderRadius: 8,
+    marginBottom: 12,
+    backgroundColor: "#fff",
+  },
+  filterRow: {
+    flexDirection: "row",
+    gap: 10,
+    marginBottom: 16,
+  },
+  inputHalf: {
+    flex: 1,
+    borderWidth: 1,
+    borderColor: "#ccc",
+    padding: 12,
+    borderRadius: 8,
+    backgroundColor: "#fff",
+  },
+  applyButton: {
+    backgroundColor: "#c62828",
+    padding: 12,
+    borderRadius: 8,
+    alignItems: "center",
+    marginBottom: 20,
+  },
+  applyButtonText: {
+    color: "#fff",
+    fontWeight: "bold",
+  },
+  list: {
+    flex: 1,
+  },
+  card: {
+    padding: 16,
+    marginBottom: 16,
+    borderWidth: 1.5,
+    borderColor: "#ef5350",
+    borderRadius: 8,
+    backgroundColor: "#fff8f8",
+  },
+  cardTitle: {
+    fontWeight: "bold",
+    fontSize: 16,
+    color: "#b71c1c",
+    marginBottom: 4,
+  },
+  cardDescription: {
+    marginBottom: 8,
+    color: "#333",
+  },
+  cardPrice: {
+    fontSize: 14,
+    color: "#333",
+    marginBottom: 2,
+  },
+  editButton: {
+    marginTop: 12,
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 6,
+    paddingVertical: 6,
+  },
+  editButtonText: {
+    color: "#d32f2f",
+    fontWeight: "500",
+  },
+  loader: {
+    marginTop: 32,
+  },
+  footerLoader: {
+    margin: 16,
+  },
+  emptyContainer: {
+    padding: 32,
+    alignItems: "center",
+  },
+  emptyText: {
+    fontSize: 16,
+    color: "#666",
+    textAlign: "center",
+  },
+  errorText: {
+    fontSize: 16,
+    color: "#c62828",
+    textAlign: "center",
+    marginBottom: 20,
+  },
+  retryButton: {
+    backgroundColor: "#c62828",
+    padding: 12,
+    borderRadius: 8,
+    alignItems: "center",
+  },
+  retryButtonText: {
+    color: "#fff",
+    fontWeight: "bold",
+  },
+});
