@@ -14,7 +14,7 @@ import {
   ScrollView,
 } from "react-native";
 import { MaterialIcons } from "@expo/vector-icons";
-import theme from "../theme/theme";
+import theme from "../../theme/theme";
 import { useRouter } from "expo-router";
 import { AuthContext } from "./contexts/AuthContext";
 
@@ -57,7 +57,7 @@ export default function Login() {
         >
           <View style={styles.header}>
             <Image
-              source={require("../assets/images/logo.png")}
+              source={require("../../assets/images/logo.png")}
               style={styles.logo}
               resizeMode="contain"
             />

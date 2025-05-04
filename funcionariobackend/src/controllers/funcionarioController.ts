@@ -6,9 +6,11 @@ class FuncionarioController {
   static async getFuncionariosPage(req: Request, res: Response): Promise<void> {
     try {
       const { page, limit, includeRelations, salaoId } = req.query;
+      const nome = req.query.nome ? String(req.query.nome) : null;
       const funcionarios = await FuncionarioService.getFuncionarioPage(
-        Number(page),
-        Number(limit),
+        page ? Number(page): 1,
+        limit ? Number(limit): 10,
+        nome ? String(nome) : null,
         includeRelations === "true",
         salaoId ? String(salaoId) : null
       );
@@ -21,10 +23,11 @@ class FuncionarioController {
 
   static async findAll(req: Request, res: Response): Promise<void> {
     try {
-      const { limit, includeRelations, salaoId } = req.query;
+      const { limit, nome, includeRelations, salaoId } = req.query;
       const funcionarios = await FuncionarioService.getFuncionarios(
         null,
         Number(limit),
+        nome ? String(nome) : null,
         includeRelations === 'true',
         salaoId ? String(salaoId) : null
       );
@@ -57,7 +60,7 @@ class FuncionarioController {
   static async findByID(req: Request, res: Response): Promise<void> {
     try {
       const { id } = req.params;
-      const includeRelations = req.query.include === "true"; // Converte include para booleano
+      const includeRelations = req.query.include === "true";
       const funcionario = await FuncionarioService.findById(id, includeRelations);
 
       if (!funcionario) {
@@ -125,8 +128,8 @@ class FuncionarioController {
 
   static async delete(req: Request, res: Response): Promise<void> {
     try {
-      const { email, salaoId } = req.params;
-      await FuncionarioService.delete(email, salaoId);
+      const { id } = req.params;
+      await FuncionarioService.deleteById(id);
       res.status(204).send();
     } catch (error) {
       console.log(error);

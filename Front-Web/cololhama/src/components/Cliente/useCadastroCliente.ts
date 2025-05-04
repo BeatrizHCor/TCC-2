@@ -1,10 +1,7 @@
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Cliente } from '../../models/clienteModel';
 import { userTypes } from '../../models/tipo-usuario.enum';
-import { AuthControl } from '../../models/authModel';
 import { ClienteService } from '../../services/ClienteService';
-import { LoginService } from '../../services/LoginService';
 import { cpfMask, telefoneMask, validarCPF, validarEmail, validarSenha, validarTelefone } from '../../utils/validations';
 
 interface FormErrors {
@@ -12,81 +9,45 @@ interface FormErrors {
   nome?: string;
   email?: string;
   telefone?: string;
-  senha?: string;
+  password?: string;
   confirmacaoSenha?: string;
 }
 
 export const useClienteCadastro = (salaoId: string) => {
   const navigate = useNavigate();
- 
-  const [cliente, setCliente] = useState<Cliente>({
+
+  const [cadastro, setCadastro] = useState({
     CPF: '',
     nome: '',
     email: '',
     telefone: '',
     salaoId: salaoId,
-    agendamentos: [],
-    historicoSimulacao: []
+    password: '',
+    userType: userTypes.CLIENTE,
   });
-  
-  const [auth, setAuth] = useState<AuthControl>({
-    usuarioID: '',
-    email: '',
-    salaoId: salaoId,
-    senha: '',
-    type: userTypes.CLIENTE
-  });
-  
+
   const [confirmacaoSenha, setConfirmacaoSenha] = useState('');
   const [errors, setErrors] = useState<FormErrors>({});
   const [loading, setLoading] = useState(false);
   const [cpfFormatado, setCpfFormatado] = useState('');
   const [telefoneFormatado, setTelefoneFormatado] = useState('');
-  const [saveSuccess, setSaveSuccess] = useState(false);
-
-  useEffect(() => {
-    setAuth(prev => ({ ...prev, email: cliente.email }));
-  }, [cliente.email]);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
-    setCliente(prev => ({ ...prev, [name]: value }));
-    
+    setCadastro(prev => ({ ...prev, [name]: value }));
+
     if (errors[name as keyof FormErrors]) {
       setErrors(prev => ({ ...prev, [name]: undefined }));
-    }
-  };
-
-  const handleAuthChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const { name, value } = e.target;
-    setAuth(prev => ({ ...prev, [name]: value }));
-    
-    if (name === 'senha' && errors.senha) {
-      setErrors(prev => ({ ...prev, senha: undefined }));
-    }
-    
-    if (name === 'email') {
-      setCliente(prev => ({ ...prev, email: value }));
-      if (errors.email) {
-        setErrors(prev => ({ ...prev, email: undefined }));
-      }
-    }
-  };
-
-  const handleConfirmacaoSenhaChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setConfirmacaoSenha(e.target.value);
-    if (errors.confirmacaoSenha) {
-      setErrors(prev => ({ ...prev, confirmacaoSenha: undefined }));
     }
   };
 
   const handleCPFChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const maskedValue = cpfMask(e.target.value);
     setCpfFormatado(maskedValue);
-    
+
     const numericValue = maskedValue.replace(/\D/g, '');
-    setCliente(prev => ({ ...prev, CPF: numericValue }));
-    
+    setCadastro(prev => ({ ...prev, CPF: numericValue }));
+
     if (errors.CPF) {
       setErrors(prev => ({ ...prev, CPF: undefined }));
     }
@@ -95,122 +56,99 @@ export const useClienteCadastro = (salaoId: string) => {
   const handleTelefoneChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const maskedValue = telefoneMask(e.target.value);
     setTelefoneFormatado(maskedValue);
-    
-    const numericValue = Number(maskedValue.replace(/\D/g, ''));
-    setCliente(prev => ({ ...prev, telefone: numericValue.toString() }));
-    
+
+    const numericValue = maskedValue.replace(/\D/g, '');
+    setCadastro(prev => ({ ...prev, telefone: numericValue }));
+
     if (errors.telefone) {
       setErrors(prev => ({ ...prev, telefone: undefined }));
     }
   };
+
+  const handleConfirmacaoSenhaChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const value = event.target.value;
+    setConfirmacaoSenha(value);
+    
+    if (errors.confirmacaoSenha) {
+      setErrors(prev => ({ ...prev, confirmacaoSenha: undefined }));
+    }
+  };
+
   const validateForm = async () => {
     const newErrors: FormErrors = {};
-  
-    if (!cliente.nome.trim()) {
+
+    if (!cadastro.nome.trim()) {
       newErrors.nome = 'Nome é obrigatório';
     }
-  
-    if (!validarCPF(cliente.CPF)) {
+
+    if (!validarCPF(cadastro.CPF)) {
       newErrors.CPF = 'CPF inválido';
     } else {
-      const cpfExiste = await ClienteService.verificarClienteCpfExistente(cliente.CPF, salaoId);
-      console.log("Verificando CPF:", cliente.CPF);
-      console.log("Resultado da checagem do CPF:", cpfExiste);
+      const cpfExiste = await ClienteService.getClienteByCpfAndSalao(cadastro.CPF, salaoId);
       if (cpfExiste) {
         newErrors.CPF = 'CPF já cadastrado';
       }
     }
-  
-    if (!validarTelefone(cliente.telefone)) {
+
+    if (!validarTelefone(cadastro.telefone)) {
       newErrors.telefone = 'Telefone inválido';
     }
-  
-    if (!cliente.email || !validarEmail(cliente.email)) {
+
+    if (!cadastro.email || !validarEmail(cadastro.email)) {
       newErrors.email = 'Email inválido';
     }
-  
-    if (!auth.senha || !validarSenha(auth.senha)) {
-      newErrors.senha = 'Senha fraca';
+
+    if (!cadastro.password || !validarSenha(cadastro.password)) {
+      newErrors.password = 'Senha fraca';
     }
-  
-    if (!confirmacaoSenha || confirmacaoSenha !== auth.senha) {
+
+    if (!confirmacaoSenha || confirmacaoSenha !== cadastro.password) {
       newErrors.confirmacaoSenha = 'As senhas não coincidem';
     }
-  
+
     setErrors(newErrors);
-  
-    console.log("Erros de validação:", newErrors);
-  
     return Object.keys(newErrors).length === 0;
   };
-  
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
-  
-    console.log("Iniciando envio de formulário...");
-  
+
     const isValid = await validateForm();
-  
+
     if (!isValid) {
       setLoading(false);
-      console.log("Formulário inválido.");
       return;
     }
-  
+
     try {
-      console.log("Cadastrando cliente...");
-      const clienteResponse = await ClienteService.cadastrarCliente(cliente);
-      
-      if (!clienteResponse) {
+      const response = await ClienteService.cadastrarCliente(cadastro);
+
+      if (!response) {
         console.error("Erro ao cadastrar cliente.");
         return;
       }
-      
-      console.log("Buscando cliente ID...");
-      const clienteCadastrado = await ClienteService.getByCpfandSalao(cliente.CPF, cliente.salaoId);
-      
-      if (clienteCadastrado && clienteCadastrado.id) {
-        setAuth((prev) => ({ ...prev, usuarioID: clienteCadastrado.id }));
-      } else {
-        console.error("Cliente não encontrado após cadastro.");
-      }
-      
-      console.log("Cadastrando login...");
-      await LoginService.cadastrar(auth);
-  
-      console.log("Realizando login automático...");
-      await LoginService.login(auth.email, auth.senha, auth.salaoId);
-  
+
       setLoading(false);
-      window.location.href = '/home';
+      navigate('/');
     } catch (error) {
       console.error('Erro ao cadastrar:', error);
       alert('Erro ao cadastrar: ' + JSON.stringify(error));
       setLoading(false);
     }
   };
-  
+
   return {
-    cliente,
-    auth,
+    cadastro,
     cpfFormatado,
     telefoneFormatado,
     confirmacaoSenha,
     errors,
     loading,
-    saveSuccess,
-    setSaveSuccess,
     handleChange,
-    handleAuthChange,
     handleCPFChange,
     handleTelefoneChange,
-    handleConfirmacaoSenhaChange,
     handleSubmit,
-    setCliente,
-    setAuth,
-    setConfirmacaoSenha,
-    setErrors,
-    setTelefoneFormatado,
+    handleConfirmacaoSenhaChange
   };
 };

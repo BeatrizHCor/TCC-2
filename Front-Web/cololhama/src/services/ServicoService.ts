@@ -2,18 +2,43 @@ import axios from "axios";
 import { Servico } from "../models/servicoModel";
 
 const api = axios.create({
-  baseURL:  'http://localhost:3002',
+  baseURL:  import.meta.env.APIGATEWAY_URL || "http://localhost:5000",
   headers: {
     "Content-Type": "application/json",
   },
 });
-interface ServicoData {
-  Nome: string;
-  SalaoId: string;
-  PrecoMin: number;
-  PrecoMax: number;
-  Descricao: string;  
-}
+
+// set os dados do usuario para autenticação no header de cada requisição
+api.interceptors.request.use(
+  (config) => {
+    const usuario = localStorage.getItem("usuario"); 
+    if (usuario) {
+      const { userID, userType } = JSON.parse(usuario); 
+      config.headers.userID = userID; 
+      config.headers.userType = userType; 
+    }
+    return config;
+  },
+  (error) => Promise.reject(error)
+);
+
+// verifique se a resposta contém um novo token e atualiza
+api.interceptors.response.use(
+  (response) => {
+    const tokenHeader = response.headers["authorization"]?.replace("Bearer ", "");
+    const currentToken = localStorage.getItem("token");
+    if (tokenHeader !== currentToken) {
+      console.log("Atualizando token na memória local");
+      localStorage.setItem("token", tokenHeader);
+      axios.defaults.headers.common["Authorization"] = `Bearer ${tokenHeader}`;
+    }
+    return response;
+  },
+  (error) => {
+    console.error("Erro na resposta da API:", error);
+    return Promise.reject(error);
+  }
+);
 
 interface ServicoPaginadoResponse {
   data: Servico[];
@@ -27,20 +52,29 @@ class ServicoService {
     page: number = 1,
     limit: number = 10,
     salaoId: string,
+    nome?: string,
     precoMin?: number,
-    precoMax?: number
+    precoMax?: number,
+    includeRelations: boolean = false
   ): Promise<ServicoPaginadoResponse> {
     try {
+      console.log("Buscando serviços com o nome:", nome);
+      console.log("Buscando serviços com o salãoId:", salaoId);
+      console.log("Buscando serviços com o preço mínimo:", precoMin);
+      console.log("Buscando serviços  com o preço máximo:", precoMax);
+      console.log("Buscando serviços com o includeRelations:", includeRelations); 
       const response = await api.get(`/servico/page`, {
         params: {
           page,
           limit,
+          nome,
           precoMin,
           precoMax,
-          includeRelations: false,
+          includeRelations,
           salaoId,
         },
       });
+      console.log("Serviços recebidos:", response.data);
       return response.data;
     } catch (error) {
       console.error("Erro ao buscar serviços:", error);
@@ -77,17 +111,10 @@ class ServicoService {
   }
 
   static async createServico(
-    servicoData: Omit<Servico, "ID">
+    servicoData: Servico
   ): Promise<Servico> {
     try {
-      const servicoCreate: ServicoData = {
-        Nome: servicoData.nome || "",
-        SalaoId: servicoData.salaoId || "",
-        PrecoMin: servicoData.precoMin || 0,
-        PrecoMax: servicoData.precoMax || 0,
-        Descricao: servicoData.descricao || "",
-      }
-      const response = await api.post(`/servico`, servicoCreate);
+      const response = await api.post(`/servico`, servicoData);
       return response.data;
     } catch (error) {
       console.error("Erro ao criar serviço:", error);
@@ -97,17 +124,10 @@ class ServicoService {
 
   static async updateServico(
     id: string,
-    servicoData: Partial<Servico>
+    servicoData: Servico,
   ): Promise<Servico> {
-    try {
-      const servicoEditado: ServicoData = {
-        Nome: servicoData.nome || "",
-        SalaoId: servicoData.salaoId || "",
-        PrecoMin: servicoData.precoMin || 0,
-        PrecoMax: servicoData.precoMax || 0,
-        Descricao: servicoData.descricao || "",
-      }
-      const response = await api.put(`/servico/update/${id}`, servicoEditado);
+    try {      
+      const response = await api.put(`/servico/update/${id}`, servicoData);
       return response.data;
     } catch (error) {
       console.error(`Erro ao atualizar serviço com ID ${id}:`, error);
@@ -123,6 +143,33 @@ class ServicoService {
       throw error;
     }
   }
+
+  static async getServicoByNomeAndSalao(
+    nome: string,
+    salaoId: string
+  ): Promise<Servico> {
+    try {
+      const response = await api.get(`/servico/nome/${nome}/${salaoId}`);
+      return response.data;
+    } catch (error) {
+      console.error(`Erro ao buscar serviço com nome ${nome} do salão ${salaoId}:`, error);
+      throw error;
+    }
+  }
+
+  static async findServicoByNomeAndSalaoId(
+    nome: string,
+    salaoId: string
+  ): Promise<Servico[]> {
+    try {
+      const response = await api.get(`/servico/find/${nome}/${salaoId}`);
+      return response.data;
+    } catch (error) {
+      console.error(`Erro ao buscar serviço com nome ${nome} do salão ${salaoId}:`, error);
+      throw error;
+    }
+  }
+
 }
 
 export default ServicoService;

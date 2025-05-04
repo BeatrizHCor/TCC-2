@@ -1,7 +1,7 @@
 import { Router, Request, Response } from "express";
 
 const RoutesLogin = Router();
-const loginURL = process.env.AuthURL || "";
+const loginURL = process.env.AUTH_URL || "http://localhost:3000";
 //Acabei misturando o que é route com o que é controller, separar pra deixar o código mais bonito depois.
 
 RoutesLogin.post("/login", async (req: Request, res: Response) => {
@@ -32,22 +32,6 @@ RoutesLogin.post("/authenticate", async (req: Request, res: Response) => {
   }
 });
 
-RoutesLogin.post("/register", async (req: Request, res: Response) => {
-  console.log(req.headers);
-  console.log(req.body);
-  let response = await fetch(loginURL + "/register", {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify(req.body),
-  });
-  if (response.ok) {
-    res.status(200).send("login created");
-  } else {
-    res.status(403).send();
-  }
-});
 
 //Logout não implementado no AuthService
 RoutesLogin.post("/logout", async (req: Request, res: Response) => {

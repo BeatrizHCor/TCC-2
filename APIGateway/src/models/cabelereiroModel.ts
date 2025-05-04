@@ -11,7 +11,8 @@ export interface Cabeleireiro {
     mei?: string;
     salaoId: string; 
     portfolio?: Portfolio; 
-    agendamentos: Agendamentos[];
-    holerite: Holerite[];
+    agendamentos?: Agendamentos[];
+    holerite?: Holerite[];
+    dataCadastro?: Date;
   }
   

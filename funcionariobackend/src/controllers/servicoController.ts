@@ -4,10 +4,11 @@ import ServicoService from "../services/servicoService";
 class ServicoController {
   static async getServicosPage(req: Request, res: Response): Promise<void> {
     try {
-      const { page, limit, includeRelations, precoMin, precoMax, salaoId } = req.query;
+      const { page, limit, includeRelations, nome, precoMin, precoMax, salaoId } = req.query;
       const servicos = await ServicoService.getServicoPage(
-        Number(page),
-        Number(limit),
+        page ? Number(page): 0,
+        limit ? Number(limit): 10,
+        nome ? String(nome) : undefined,
         Number(precoMin),
         Number(precoMax),
         includeRelations === "true",
@@ -28,6 +29,7 @@ class ServicoController {
         Number(limit),
         undefined,
         undefined,
+        undefined,
         includeRelations === 'true',
         salaoId ? String(salaoId) : null
       );
@@ -40,9 +42,13 @@ class ServicoController {
 
   static async create(req: Request, res: Response): Promise<void> {
     try {
-      const { DataCreateService } = req.body;
+      const DataCreateService = req.body;
       const newServico = await ServicoService.create(
-        DataCreateService
+        DataCreateService.nome,
+        DataCreateService.precoMin,
+        DataCreateService.precoMax,
+        DataCreateService.descricao,
+        DataCreateService.salaoId
    
       );
       res.status(201).json(newServico);
@@ -94,7 +100,14 @@ class ServicoController {
     try {
       const { id } = req.params;
       const updateData = req.body;
-      const updatedServico = await ServicoService.update(id, updateData);
+      const updatedServico = await ServicoService.update(
+        id, 
+        updateData.nome,
+        updateData.precoMin,
+        updateData.precoMax,
+        updateData.descricao,
+        updateData.salaoId
+   );
       res.json(updatedServico);
     } catch (error) {
       console.log(error);
@@ -122,6 +135,17 @@ class ServicoController {
         includeRelations === "true"
       );
       res.json(servicos);
+    } catch (error) {
+      console.log(error);
+      res.status(500).send("something went wrong");
+    }
+  }
+
+  static async findServicoByNomeAndSalaoId(req: Request, res: Response): Promise<void> {
+    try {
+      const { Nome, SalaoId } = req.params;
+      const servico  = await ServicoService.findServicoByNomeAndSalaoId(Nome, SalaoId);
+      res.json(servico);
     } catch (error) {
       console.log(error);
       res.status(500).send("something went wrong");

@@ -3,7 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { Servico } from "../../models/servicoModel";
 import ServicoService from "../../services/ServicoService";
 //import { useAuth } from "../../contexts/AuthContext"; 
-const salaoId = 1;
+const salaoId = import.meta.env.SALAO_ID || "1"; // ID do salão, pode ser obtido de outra forma se necessário
 interface ValidationErrors {
   nome?: string;
   descricao?: string;
@@ -106,7 +106,7 @@ export const useManterServico = (servicoId?: string) => {
     setIsLoading(true);
     
     try {
-      const servicoData: Omit<Servico, 'id'> = {
+      const servicoData: Servico = {
         nome,
         salaoId,      
         precoMin,

@@ -1,28 +1,27 @@
 import prisma from "../config/database";
-import { PrismaClient } from "@prisma/client";
-
-interface ServicoData {
-  Nome: string;
-  PrecoMin: number;
-  PrecoMax: number;
-  Descricao: string;
-  SalaoId: string;
-}
+import { Prisma } from "@prisma/client";
 
 class ServicoService {
   static async getServicos(
     skip: number | null = null,
     limit: number | null = null,
+    nome?: string,
     precoMin?: number,
     precoMax?: number,
     include = false,
     salaoId: string | null = null
   ) {
-    let whereCondition: any = {};
-
+    let whereCondition: Prisma.ServicoWhereInput = {};
+    if (nome && nome.trim() !== '' && typeof nome === 'string' && nome.trim().length > 0 && nome !== 'null') {
+      whereCondition.Nome = {
+        contains: nome,
+        mode: 'insensitive',
+      };
     if (salaoId) {
-      whereCondition.SalaoId = salaoId;
+        whereCondition.SalaoId = salaoId;
+      }
     }
+  console.log("whereCondition final:", JSON.stringify(whereCondition));
 
     if (precoMin != null && !isNaN(precoMin)) {
       whereCondition.PrecoMin = { gte: precoMin };
@@ -54,13 +53,13 @@ class ServicoService {
         ServicoAtendimento: true,
       };
     }
-    console.log("Query gerada:", query);
     return await prisma.servico.findMany(query);
   }
   
   static async getServicoPage(
     page = 1,
     limit = 10,
+    nome?: string,
     precoMin?: number,
     precoMax?: number,
     includeRelations = false,
@@ -71,8 +70,8 @@ class ServicoService {
     const skip = (pageNum - 1) * limitNum;
   
     const [total, servicos] = await Promise.all([
-      ServicoService.getServicos(null, null, precoMin, precoMax, false, salaoId),
-      ServicoService.getServicos(skip, limitNum, precoMin, precoMax, includeRelations, salaoId),
+      ServicoService.getServicos(null, null, nome, precoMin, precoMax, false, salaoId),
+      ServicoService.getServicos(skip, limitNum, nome, precoMin, precoMax, includeRelations, salaoId),
     ]);
   
     return {
@@ -83,23 +82,27 @@ class ServicoService {
     };
   }
   
-  static async create(DadosServico: ServicoData
+  static async create(
+    Nome: string,
+    PrecoMin: number,
+    PrecoMax: number,
+    Descricao: string,
+    SalaoId: string
   ) {
- 
-    if (DadosServico.PrecoMin > DadosServico.PrecoMax) {
+    if (PrecoMin > PrecoMax) {
       throw new Error('Preço mínimo não pode ser maior que o preço máximo');
     }
 
-    console.log('Dados enviados para criação:', { Nome: DadosServico.Nome, PrecoMin: DadosServico.PrecoMin, PrecoMax: DadosServico.PrecoMax, Descricao: DadosServico.Descricao, SalaoId: DadosServico.SalaoId });
+    console.log('Dados enviados para criação:', { Nome, PrecoMin, PrecoMax, Descricao, SalaoId });
     
     try {
       const servico = await prisma.servico.create({
         data: {
-          Nome: DadosServico.Nome,
-          SalaoId: DadosServico.SalaoId,
-          PrecoMin: DadosServico.PrecoMin,
-          PrecoMax: DadosServico.PrecoMax,
-          Descricao: DadosServico.Descricao,          
+          Nome,
+          SalaoId,
+          PrecoMin,
+          PrecoMax,
+          Descricao,          
         },
       });
       
@@ -155,23 +158,33 @@ class ServicoService {
     }
   }
 
-  static async update(ID: string, data: ServicoData) {
+  static async update(
+    ID: string, 
+    Nome: string,
+    PrecoMin: number,
+    PrecoMax: number,
+    Descricao: string,
+    SalaoId: string) {
     try {
       const existingServico = await this.findById(ID);
       
       if (!existingServico) {
         throw new Error("Serviço não encontrado");
       }
-
-      if (data.PrecoMin > data.PrecoMax) {
+      if (PrecoMin > PrecoMax) {
         throw new Error('Preço mínimo não pode ser maior que o preço máximo');
       }
-
       return await prisma.servico.update({
         where: {
           ID: ID,
         },
-        data: data,
+        data: {
+          Nome,
+          PrecoMin,
+          PrecoMax,
+          Descricao,
+          SalaoId,
+        },
       });
     } catch (error) {
       console.error('Erro ao atualizar serviço:', error);
@@ -215,6 +228,22 @@ class ServicoService {
     } catch (error) {
       console.error('Erro ao buscar serviços do salão:', error);
       throw new Error("Erro ao buscar serviços do salão");
+    }
+  }
+  static async findServicoByNomeAndSalaoId(nome: string, salaoId: string) {
+    try {
+      return await prisma.servico.findMany({
+        where: {
+          SalaoId: salaoId,
+          Nome: {
+            contains: nome,
+            mode: 'insensitive',
+          },
+        },
+      });
+    } catch (error) {
+      console.error('Erro ao buscar serviço pelo nome', error);
+      throw new Error("Erro ao buscar serviço pelo nome e salão");
     }
   }
 }

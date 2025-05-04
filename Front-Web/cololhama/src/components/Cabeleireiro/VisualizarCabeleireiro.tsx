@@ -10,34 +10,61 @@ import {
   TablePagination,
   Paper,
   TextField,
-  MenuItem,
-  Select,
-  FormControl,
-  InputLabel,
+  Button,
+  Typography,
 } from "@mui/material";
-import { Cliente } from "../../models/clienteModel";
+import EditIcon from "@mui/icons-material/Edit";
 import { useVisualizarCabeleireiros } from "./useVisualizarCabeleireiro";
 import "../../styles/styles.global.css";
 import { Cabeleireiro } from "../../models/cabelereiroModel";
+import { Link } from "react-router-dom";
+import theme from "../../styles/theme";
 
+const SalaoID = import.meta.env.SALAO_ID || "1"; // importa o ID do salão aqui
 const colunas = [
   { id: "nome", label: "Nome" },
   { id: "email", label: "Email" },
   { id: "telefone", label: "Telefone" },
+  { id: "mei", label: "MEI" },
+  { id: "portif", label: "Portifólio" },
+  { id: "acoes", label: "Ações", clienteVisivel: false }
 ];
 
-export const VisualizarCabeleireiro: React.FC = () => {
+interface VisualizarCabeleireiroProps {
+  salaoId: string;
+  isCliente?: boolean;
+}
+
+export const VisualizarCabeleireiro: React.FC <VisualizarCabeleireiroProps> = ({
+  salaoId,
+  isCliente = false,
+}) => {
+  const usuario = localStorage.getItem("usuario");
+  isCliente = !!(usuario && JSON.parse(usuario)?.userType === "Cliente");
+  salaoId = SalaoID;
   const [page, setPage] = useState(0);
   const [rowsPerPage, setRowsPerPage] = useState(10);
-  const [colunaBusca, setColunaBusca] = useState("nome");
   const [termoBusca, setTermoBusca] = useState("");
 
-  const { cabeleireiros, totalCabeleireiros, isLoading, error } =
-    useVisualizarCabeleireiros(page + 1, rowsPerPage, "1");
+  const { cabeleireiros, totalCabeleireiros, handleEditarCabeleireiro, isLoading, error } =
+    useVisualizarCabeleireiros(
+      page + 1, 
+      rowsPerPage, 
+      SalaoID, 
+      termoBusca
+    );
 
   const handleChangePage = (_: unknown, newPage: number) => {
     setPage(newPage);
   };
+  const[NomeFiltroInput, setNomeFilterInput ]= useState("");
+  const handleNomeFilterInput = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setNomeFilterInput(e.target.value);
+  };
+  const aplicarFiltroNome = () => {
+    setTermoBusca(NomeFiltroInput);
+    setPage(0);
+  }
 
   const handleChangeRowsPerPage = (
     event: React.ChangeEvent<HTMLInputElement>
@@ -46,70 +73,99 @@ export const VisualizarCabeleireiro: React.FC = () => {
     setPage(0);
   };
 
-  const handleColunaBuscaChange = (event: any) => {
-    setColunaBusca(event.target.value);
-  };
 
-  const handleTermoBuscaChange = (
-    event: React.ChangeEvent<HTMLInputElement>
-  ) => {
-    setTermoBusca(event.target.value);
-    setPage(0);
-  };
-  /*
-  const formatarData = (data: string) => {
-    return new Date(data).toLocaleDateString('pt-BR');
-  };
-*/
   if (isLoading) return <Box>Carregando...</Box>;
   if (error) return <Box>Erro ao carregar cabeleireiro: {error}</Box>;
+ 
+  const colunasVisiveis = isCliente
+    ? colunas.filter((coluna) => coluna.clienteVisivel !== false)
+    : colunas;
 
   return (
     <Box sx={{ width: "100%", p: 2 }}>
-      <Box sx={{ display: "flex", mb: 2 }}>
-        <FormControl variant="outlined" sx={{ minWidth: 120, mr: 1 }}>
-          <InputLabel id="coluna-busca-label">Buscar por</InputLabel>
-          <Select
-            labelId="coluna-busca-label"
-            value={colunaBusca}
-            onChange={handleColunaBuscaChange}
-            label="Buscar por"
-          >
-            {colunas.map((coluna) => (
-              <MenuItem key={coluna.id} value={coluna.id}>
-                {coluna.label}
-              </MenuItem>
-            ))}
-          </Select>
-        </FormControl>
-        <TextField
+      <Typography variant="h5" sx={{ mb: 3 }}>
+        Cabelereiros
+      </Typography>
+      <Box sx={{ display: "flex", mb: 2, gap: 2 }}>
+      <TextField
           variant="outlined"
-          label="Buscar"
-          value={termoBusca}
-          onChange={handleTermoBuscaChange}
-          fullWidth
+          label="Buscar por nome"
+          value={NomeFiltroInput} 
+          onChange={handleNomeFilterInput}
+          sx={{ maxWidth: "50%", flexGrow: 1 }}
         />
+        <Button
+          variant="contained"
+          onClick={aplicarFiltroNome}
+        >
+          Buscar
+        </Button>
+        {!isCliente &&(
+        <Button
+          component={Link}
+          variant="outlined"
+          to = "/cabeleireiro/novo" 
+          sx ={{
+            color: theme.palette.primary.main,
+            borderBlockColor: theme.palette.primary.main,
+            borderColor: theme.palette.primary.main,
+            borderWidth: 1,
+          }}     
+        >
+          Novo Cabelereiro
+        </Button>
+        )}
       </Box>
-
       <Paper sx={{ width: "100%", mb: 2 }}>
         <TableContainer>
           <Table>
             <TableHead>
               <TableRow>
-                {colunas.map((coluna) => (
+                {colunasVisiveis.map((coluna) => (
                   <TableCell key={coluna.id}>{coluna.label}</TableCell>
                 ))}
               </TableRow>
             </TableHead>
             <TableBody>
-              {cabeleireiros.map((cabeleireiro: Cabeleireiro) => (
-                <TableRow key={cabeleireiro.id}>
-                  <TableCell>{cabeleireiro.nome}</TableCell>
-                  <TableCell>{cabeleireiro.email}</TableCell>
-                  <TableCell>{cabeleireiro.telefone}</TableCell>
-                  <TableCell>{cabeleireiro.mei}</TableCell>
+              {cabeleireiros.length === 0 ? (
+                <TableRow>
+                  <TableCell colSpan={colunasVisiveis.length} align="center">
+                    Nenhum serviço encontrado.
+                  </TableCell>
                 </TableRow>
-              ))}
+              ) : (
+                cabeleireiros.map((cabeleireiro: Cabeleireiro) => (
+                  <TableRow key={cabeleireiro.id}>
+                    <TableCell>{cabeleireiro.nome}</TableCell>
+                    <TableCell>{cabeleireiro.email}</TableCell>
+                    <TableCell>{cabeleireiro.telefone}</TableCell>
+                    <TableCell>{cabeleireiro.mei}</TableCell>
+                    <TableCell>
+                        <Button
+                          startIcon={<EditIcon />}
+                          variant="outlined"
+                          size="small"
+                        >
+                          Portifólio
+                        </Button>
+                    </TableCell>
+                    {!isCliente && (
+                      <TableCell>
+                        <Button
+                          startIcon={<EditIcon />}
+                          variant="outlined"
+                          size="small" 
+                          onClick={() => {
+                            cabeleireiro.id && handleEditarCabeleireiro(cabeleireiro.id);
+                          }}                
+                        >
+                          Editar
+                        </Button>
+                      </TableCell>
+                    )}
+                  </TableRow>
+                ))
+              )}
             </TableBody>
           </Table>
         </TableContainer>

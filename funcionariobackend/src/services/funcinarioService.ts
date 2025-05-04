@@ -1,3 +1,4 @@
+import { Prisma } from "@prisma/client";
 import prisma from "../config/database";
 
 interface FuncionarioData {
@@ -14,13 +15,26 @@ class FuncionarioService {
   static async getFuncionarios(
     skip: number | null = null,
     limit: number | null = null,
+    nome: string | null = null,
     include = false,
     salaoId: string | null = null
   ) {
+    let whereCondition: Prisma.FuncionarioWhereInput = {};
+    if (nome && nome.trim() !== '' && typeof nome === 'string' && nome.trim().length > 0 && nome !== 'null') {
+      whereCondition.Nome = {
+        contains: nome,
+        mode: 'insensitive',
+      };
+    if (salaoId) {
+        whereCondition.SalaoId = salaoId;
+      }
+    }
+  console.log("whereCondition final:", JSON.stringify(whereCondition));
+
     return await prisma.funcionario.findMany({
       ...(skip !== null ? { skip } : {}),
       ...(limit !== null ? { take: limit } : {}),
-      ...(salaoId !== null ? { where: { SalaoId: salaoId } } : {}),
+      where: whereCondition,           
       ...(include
         ? {
             include: {
@@ -37,14 +51,15 @@ class FuncionarioService {
   static async getFuncionarioPage(
     page = 1,
     limit = 10,
+    nome: string | null = null,
     includeRelations = false,
     salaoId: string | null = null
   ) {
     const skip = (page - 1) * limit;
 
     const [total, funcionarios] = await Promise.all([
-      FuncionarioService.getFuncionarios(null, null, false, salaoId),
-      FuncionarioService.getFuncionarios(skip, limit, includeRelations, salaoId),
+      FuncionarioService.getFuncionarios(null, null, nome, false, salaoId),
+      FuncionarioService.getFuncionarios(skip, limit, nome, includeRelations, salaoId),
     ]);
 
     return {
@@ -64,16 +79,11 @@ class FuncionarioService {
     Auxiliar: boolean,
     Salario: number
   ) {
-    console.log('Iniciando criação do funcionário com os dados:', { CPF, Nome, Email, Telefone, SalaoId, Auxiliar, Salario });
-    if (!CPF || !Nome || !Email || !Telefone || !SalaoId || Salario === undefined || Auxiliar === undefined) {
-      throw new Error('Parâmetros inválidos para criação do funcionário');
-    }
     const existingFuncionario = await this.findByEmailandSalao(Email, SalaoId);
     if (existingFuncionario) {
       console.error('Funcionário já cadastrado neste salão:', { Email, SalaoId });
       throw new Error('Funcionário já cadastrado neste salão');
     }
-    console.log('Dados enviados para criação:', { CPF, Nome, Email, Telefone, SalaoId, Auxiliar, Salario });
     try {
       const funcionario = await prisma.funcionario.create({
         data: {
@@ -204,6 +214,18 @@ class FuncionarioService {
           Email: Email,
           SalaoId: salaoId,
         },
+      },
+    });
+  }
+
+  static async deleteById(ID: string) {
+    const existingFuncionario = await this.findById(ID);
+    if (!existingFuncionario) {
+      throw new Error("Funcionário não encontrado");
+    }
+    return await prisma.funcionario.delete({
+      where: {
+        ID: ID,
       },
     });
   }
