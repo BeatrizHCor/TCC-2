@@ -2,20 +2,9 @@ import express from "express";
 import multer from "multer";
 import path from "path";
 import { ImagemController } from "../controllers/ImagemController";
+import { upload } from "../middleware/multer";
 
 const router = express.Router();
-
-const storage = multer.diskStorage({
-  destination: (_req, _file, cb) => {
-    cb(null, path.join(__dirname, "..", "uploads"));
-  },
-  filename: (_req, file, cb) => {
-    const uniqueName = Date.now() + "-" + file.originalname;
-    cb(null, uniqueName);
-  },
-});
-
-const upload = multer({ storage });
 
 router.post("/portfolio", upload.single("imagem"), ImagemController.uploadPortfolio);
 router.get("/imagem/ID/:id", ImagemController.getById);

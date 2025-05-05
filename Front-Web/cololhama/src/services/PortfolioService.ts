@@ -3,7 +3,7 @@ import { Funcionario } from "../models/funcionarioModel";
 import { get } from "http";
 
 const api = axios.create({
-  baseURL: import.meta.env.IMAGEM_URL || "http://localhost:6000",
+  baseURL: import.meta.env.VITE_IMAGEM_URL || "http://localhost:8080",
   timeout: 100000,
   headers: {
     "Content-Type": "application/json",
@@ -41,33 +41,49 @@ api.interceptors.response.use(
   }
 );
 
+class PortfolioService {
+  static async uploadPortfolio(
+    file: File,
+    portfolioId: string,
+    descricao: string
+  ) {
+    try {
+      const formData = new FormData();
+      formData.append("imagem", file, file.name);
+      formData.append("PortfolioId", portfolioId);
+      formData.append("Descricao", descricao);
+      console.log("Dados do FormData:", formData.get("PortfolioId"), formData.get("Descricao"), formData.get("imagem"));
+      const response = await api.post(`/portfolio`, formData);
 
-export const uploadPortfolio= async (
-  file: File,
-  portfolioId: string,
-  descricao: string
-) => {
-  const formData = new FormData();
-  formData.append("imagem", file);
-  formData.append("PortfolioId", portfolioId);
-  formData.append("Descricao", descricao);
+      return response.data;
+    } catch (error) {
+      console.error("Erro ao fazer upload:", error);
+      throw new Error("Erro ao fazer upload.");
+    }
+  }
 
-  const response = await api.post(`/portfolio`, formData, {
-    headers: {
-      "Content-Type": "multipart/form-data",
-    },
-  });
+  static async getImagemById(id: string) {
+    try {
+      const response = await api.get(`/imagem/ID/${id}`);
+      return response.data;
+    } catch (error) {
+      console.error("Erro ao buscar imagem por ID:", error);
+      throw new Error("Erro ao buscar imagem por ID.");
+    }
+  }
 
-  return response.data;
-};
-
-export const getImagemById = async (id: string) => {
-  const response = await api.get(`/imagem/ID/${id}`);
-  return response.data;
-};
-
-export const getImagensByPortfolio = async (portfolioId: string) => {
-  const response = await api.get(`/portfolio/${portfolioId}`);
-  return response.data;
-};
-
+  static async getImagensByPortfolio(portfolioId: string) {
+    try {
+      const response = await api.get(`/portfolio/${portfolioId}`);
+      return response.data;
+    } catch (error) {
+      if (axios.isAxiosError(error)) {
+        console.error("Erro completo:", error.response || error.message);
+      } else {
+        console.error("Erro desconhecido:", error);
+      }
+      throw new Error("Erro ao buscar imagens por portfolio.");
+    }
+  }
+}
+export default PortfolioService;

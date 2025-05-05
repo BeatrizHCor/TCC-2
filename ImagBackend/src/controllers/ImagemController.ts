@@ -9,7 +9,7 @@ export class ImagemController {
       if (!req.file) {
         res.status(400).json({ error: "Nenhum arquivo enviado." });
       }
-    
+      console.log('Arquivo recebido controler:', req.file);
       const imagem = await ImagemService.uploadImagemPortfolio(
         req.file!,
         PortfolioId,
@@ -18,8 +18,10 @@ export class ImagemController {
 
       res.status(201).json(imagem);
     } catch (error) {
+      if (!res.headersSent) {
       console.error("Erro ao fazer upload:", error);
       res.status(500).json({ error: "Erro interno ao salvar imagem." });
+    }
     }
   }
 
