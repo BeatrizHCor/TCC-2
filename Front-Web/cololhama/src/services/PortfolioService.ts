@@ -1,5 +1,4 @@
 import axios from "axios";
-import { Funcionario } from "../models/funcionarioModel";
 import { get } from "http";
 
 const api = axios.create({

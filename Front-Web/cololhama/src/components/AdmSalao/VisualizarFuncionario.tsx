@@ -87,11 +87,11 @@ export const VisualizarFuncionarios: React.FC = () => {
             </TableHead>
             <TableBody>
               {funcionarios.map((funcionario: Funcionario) => (
-                <TableRow key={funcionario.id}>
-                  <TableCell>{funcionario.nome}</TableCell>
-                  <TableCell>{funcionario.email}</TableCell>
-                  <TableCell>{funcionario.telefone}</TableCell>
-                  <TableCell>{funcionario.dataCadastro ? new Date(funcionario.dataCadastro).toLocaleDateString('pt-BR') : 'N/A'}</TableCell>      
+                <TableRow key={funcionario.ID}>
+                  <TableCell>{funcionario.Nome}</TableCell>
+                  <TableCell>{funcionario.Email}</TableCell>
+                  <TableCell>{funcionario.Telefone}</TableCell>
+                  <TableCell>{funcionario.DataCadastro ? new Date(funcionario.DataCadastro).toLocaleDateString('pt-BR') : 'N/A'}</TableCell>      
                 </TableRow>
               ))}
             </TableBody>

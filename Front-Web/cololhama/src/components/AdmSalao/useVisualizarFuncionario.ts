@@ -27,14 +27,14 @@ export const useVisualizarFuncionarios = (
           salaoId
         );
         const listaFuncionarios: Funcionario[] = (response.data || []).map((item: any) => ({
-          id: item.ID ?? "",
-          cpf: item.CPF ?? "",
-          nome: item.Nome ?? "",
-          email: item.Email ?? "",
-          telefone: item.Telefone ?? "",
-          salaoId: item.SalaoId ?? "",
-          auxiliar: item.Auxiliar ?? false,
-          dataCadastro: item.DataCadastro ?? "",
+          ID: item.ID ?? "",
+          CPF: item.CPF ?? "",
+          Nome: item.Nome ?? "",
+          Email: item.Email ?? "",
+          Telefone: item.Telefone ?? "",
+          SalaoId: item.SalaoId ?? "",
+          Auxiliar: item.Auxiliar ?? false,
+          DataCadastro: item.DataCadastro ?? "",
         }));
         setFuncionarios(listaFuncionarios);
         setTotalFuncionarios(response.total);
