@@ -29,13 +29,13 @@ const ManterServico: React.FC = () => {
   const [openDeleteDialog, setOpenDeleteDialog] = useState(false);
 
   const {
-    nome,
+    Nome,
     setNome,
-    descricao,
+    Descricao,
     setDescricao,
-    precoMin,
+    PrecoMin,
     setPrecoMin,
-    precoMax,
+    PrecoMax,
     setPrecoMax,
     salaoId,
     isLoading,
@@ -90,7 +90,7 @@ const ManterServico: React.FC = () => {
                 fullWidth
                 required
                 label="Nome do Serviço"
-                value={nome}
+                value={Nome}
                 onChange={(e) => setNome(e.target.value)}
                 error={Boolean(validationErrors.nome)}
                 helperText={validationErrors.nome}
@@ -103,7 +103,7 @@ const ManterServico: React.FC = () => {
                 multiline
                 rows={4}
                 label="Descrição"
-                value={descricao}
+                value={Descricao}
                 onChange={(e) => setDescricao(e.target.value)}
                 error={Boolean(validationErrors.descricao)}
                 helperText={validationErrors.descricao}
@@ -117,7 +117,7 @@ const ManterServico: React.FC = () => {
                   required
                   type="number"
                   label="Preço Mínimo"
-                  value={precoMin}
+                  value={PrecoMin}
                   onChange={(e) => setPrecoMin(Number(e.target.value))}
                   slotProps={{
                     input: {
@@ -137,7 +137,7 @@ const ManterServico: React.FC = () => {
                   required
                   type="number"
                   label="Preço Máximo"
-                  value={precoMax}
+                  value={PrecoMax}
                   onChange={(e) => setPrecoMax(Number(e.target.value))}               
                   slotProps={{
                     input: {

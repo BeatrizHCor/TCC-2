@@ -40,12 +40,12 @@ export const useVisualizarServicos = (
         );
 
         const servicosFormatados: Servico[] = (response.data || []).map((item: any) => ({
-          id: item.ID ?? "",
-          salaoId: item.SalaoId ?? "",
-          nome: item.Nome ?? "",
-          descricao: item.Descricao ?? "",
-          precoMin: item.PrecoMin ?? 0,
-          precoMax: item.PrecoMax ?? 0,
+          ID: item.ID ?? "",
+          SalaoId: item.SalaoId ?? "",
+          Nome: item.Nome ?? "",
+          Descricao: item.Descricao ?? "",
+          PrecoMin: item.PrecoMin ?? 0,
+          PrecoMax: item.PrecoMax ?? 0,
         })
       );
         console.log("Serviços formatados:", servicosFormatados);

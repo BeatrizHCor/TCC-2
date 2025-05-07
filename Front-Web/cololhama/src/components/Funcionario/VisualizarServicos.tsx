@@ -211,19 +211,19 @@ export const VisualizarServicos: React.FC<VisualizarServicosProps> = ({
               </TableRow>
               ) : (
               servicos.map((servicos: Servico, index) => (
-                <TableRow key={servicos.id ?? `row-${index}`}>
-                  <TableCell>{servicos.nome || "—"} </TableCell>
-                  <TableCell>{servicos.descricao || "—"}</TableCell>
+                <TableRow key={servicos.ID ?? `row-${index}`}>
+                  <TableCell>{servicos.Nome || "—"} </TableCell>
+                  <TableCell>{servicos.Descricao || "—"}</TableCell>
                   <TableCell>
                     R${" "}           
-                    {servicos.precoMin !== undefined
-                      ? servicos.precoMin.toFixed(2)
+                    {servicos.PrecoMin !== undefined
+                      ? servicos.PrecoMin.toFixed(2)
                       : "N/A"}
                   </TableCell>
                   <TableCell>
                     R${" "}
-                    {servicos.precoMax !== undefined
-                      ? servicos.precoMax.toFixed(2)
+                    {servicos.PrecoMax !== undefined
+                      ? servicos.PrecoMax.toFixed(2)
                       : "N/A"}
                   </TableCell>
                   {!isCliente && (
@@ -233,7 +233,7 @@ export const VisualizarServicos: React.FC<VisualizarServicosProps> = ({
                         variant="outlined"
                         size="small"
                         onClick={() =>
-                          servicos.id && handleEditarServico(servicos.id)
+                          servicos.ID && handleEditarServico(servicos.ID)
                         }
                       >
                         Editar

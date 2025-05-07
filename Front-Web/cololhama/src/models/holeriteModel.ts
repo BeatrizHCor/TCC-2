@@ -1,8 +1,8 @@
 export interface Holerite {
-    id?: string; 
-    data: Date;
-    valor: number;
-    funcionarioID?: string;
-    salaoId: string;
-    cabeleireiroID?: string;
+    ID?: string; 
+    Data: Date;
+    Valor: number;
+    FuncionarioID?: string;
+    SalaoId: string;
+    CabeleireiroID?: string;
   }
