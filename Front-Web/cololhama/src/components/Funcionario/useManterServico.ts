@@ -13,11 +13,11 @@ interface ValidationErrors {
 
 export const useManterServico = (servicoId?: string) => {
 
-  const [nome, setNome] = useState("");
-  const [descricao, setDescricao] = useState("");
-  const [precoMin, setPrecoMin] = useState<number>(0);
-  const [precoMax, setPrecoMax] = useState<number>(0);
-  const [salaoId, setSalaoId] = useState<string | null>(null);
+  const [Nome, setNome] = useState("");
+  const [Descricao, setDescricao] = useState("");
+  const [PrecoMin, setPrecoMin] = useState<number>(0);
+  const [PrecoMax, setPrecoMax] = useState<number>(0);
+  const [SalaoId, setSalaoId] = useState<string | null>(null);
   
 
   const [isLoading, setIsLoading] = useState(false);
@@ -48,11 +48,11 @@ export const useManterServico = (servicoId?: string) => {
         const servico = await ServicoService.getServicoById(servicoId);
         
         
-        setNome(servico.nome || "");
-        setDescricao(servico.descricao || "");
-        setPrecoMin(servico.precoMin || 0);
-        setPrecoMax(servico.precoMax || 0);
-        setSalaoId(servico.salaoId || null);
+        setNome(servico.Nome || "");
+        setDescricao(servico.Descricao || "");
+        setPrecoMin(servico.PrecoMin || 0);
+        setPrecoMax(servico.PrecoMax || 0);
+        setSalaoId(servico.SalaoId || null);
       } catch (error) {
         console.error("Erro ao buscar serviço:", error);
         navigate("/servicos", { replace: true });
@@ -74,15 +74,15 @@ export const useManterServico = (servicoId?: string) => {
   const validateForm = (): boolean => {
     const errors: ValidationErrors = {};
     
-    if (!nome.trim()) {
+    if (!Nome.trim()) {
       errors.nome = "Nome do serviço é obrigatório";
     }
     
-    if (precoMin < 0) {
+    if (PrecoMin < 0) {
       errors.precoMin = "Preço mínimo não pode ser negativo";
     }
     
-    if (precoMax < precoMin) {
+    if (PrecoMax < PrecoMin) {
       errors.precoMax = "Preço máximo deve ser maior que o preço mínimo";
     }
     
@@ -107,11 +107,11 @@ export const useManterServico = (servicoId?: string) => {
     
     try {
       const servicoData: Servico = {
-        nome,
-        salaoId,      
-        precoMin,
-        precoMax,
-        descricao,
+        Nome,
+        SalaoId: salaoId,      
+        PrecoMin,
+        PrecoMax,
+        Descricao,
       };
       
       if (isEditing && servicoId) {
@@ -148,13 +148,13 @@ export const useManterServico = (servicoId?: string) => {
   };
 
   return {
-    nome,
+    Nome,
     setNome,
-    descricao,
+    Descricao,
     setDescricao,
-    precoMin,
+    PrecoMin,
     setPrecoMin,
-    precoMax,
+    PrecoMax,
     setPrecoMax,
     salaoId,
     isLoading,

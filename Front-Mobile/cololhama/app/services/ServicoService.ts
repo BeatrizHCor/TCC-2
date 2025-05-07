@@ -108,14 +108,7 @@ class ServicoService {
   static async getServicoById(id: string): Promise<Servico> {
     try {
       const response = await api.get(`/servico/ID/${id}`);
-      const servico: Servico = {
-        id: response.data.ID,
-        salaoId: response.data.SalaoId,
-        Nome: response.data.Nome,
-        PrecoMin: response.data.PrecoMin,
-        PrecoMax: response.data.PrecoMax,
-        Descricao: response.data.Descricao,
-      };
+      const servico = response.data as Servico;
       return servico;
     } catch (error) {
       console.error(`Erro ao buscar serviço com ID ${id}:`, error);

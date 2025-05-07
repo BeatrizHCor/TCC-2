@@ -1,10 +1,10 @@
 export interface Agendamentos {
-    id?: string;
-    data: Date;
-    status: StatusAgendamento;
-    clienteID: string;
-    salaoId: string;
-    cabeleireiroID: string;
-    atendimentoID?: string;
+    ID?: string;
+    Data: Date;
+    Status: StatusAgendamento;
+    ClienteID: string;
+    SalaoId: string;
+    CabeleireiroID: string;
+    AtendimentoID?: string;
   
   }

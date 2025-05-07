@@ -3,7 +3,8 @@ import {
   postCliente, 
   getClientePage, 
   getClienteByCPF, 
-  deleteCliente } from "../services/ServiceClient";
+  deleteCliente, 
+  updateCliente} from "../services/ServiceClient";
 import {  
   postLogin, 
   registerLogin, } from "../services/Service";
@@ -62,6 +63,28 @@ RoutesCustomer.get(
   }
 });
 
+RoutesCustomer.put(
+  "/cliente/:id", 
+  async (req: Request, res: Response) => {
+  const { id } = req.params;
+  const { CPF, Nome, Email, Telefone, SalaoId } = req.body;
+  const clienteData = {
+    CPF,
+    Nome,
+    Email,
+    Telefone,
+    SalaoId,
+  };
+  try {
+    const cliente = await updateCliente(id, clienteData);
+    res.status(200).json(cliente);
+  } catch (error) {
+    console.error("Erro ao atualizar cliente:", error);
+    res.status(500).json({ message: "Erro interno do servidor" });
+  }
+});
+
+
 RoutesCustomer.get(
   "/cliente/cpf/:cpf/:salaoId", 
   async (req, res) => {
@@ -78,6 +101,23 @@ RoutesCustomer.get(
     res.status(500).json({ message: "Erro interno do servidor" });
   }
 
+});
+
+RoutesCustomer.delete(
+  "/cliente/:email/:salaoId", 
+  async (req, res) => {
+  const { email, salaoId } = req.params;
+  try {
+    const cliente = await deleteCliente(email, salaoId);
+    if (cliente) {
+      res.status(200).json(cliente);
+    } else {
+      res.status(204).json({ message: "Cliente não encontrado" });
+    }
+  } catch (error) {
+    console.error("Erro ao buscar cliente:", error);
+    res.status(500).json({ message: "Erro interno do servidor" });
+  }
 });
 //Todas as outras funções vão usar a função de authenticate no Service para verificar se o usuário é quem diz ser, pra depois permitir.
 export default RoutesCustomer;

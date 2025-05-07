@@ -1,7 +1,7 @@
 export interface AdmSistema {
-    id?: string;
-    cpf: string;
-    nome: string;
-    email: string; 
-    telefone: string;
+    ID?: string;
+    CPF: string;
+    Nome: string;
+    Email: string; 
+    Telefone: string;
   }

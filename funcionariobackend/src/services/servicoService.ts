@@ -89,12 +89,7 @@ class ServicoService {
     Descricao: string,
     SalaoId: string
   ) {
-    if (PrecoMin > PrecoMax) {
-      throw new Error('Preço mínimo não pode ser maior que o preço máximo');
-    }
-
     console.log('Dados enviados para criação:', { Nome, PrecoMin, PrecoMax, Descricao, SalaoId });
-    
     try {
       const servico = await prisma.servico.create({
         data: {

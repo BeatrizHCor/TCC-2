@@ -50,14 +50,14 @@ RoutesFuncionario.post(
         );
         let register = await registerLogin(
             userType,
-            funcionario.id!,
+            funcionario.ID!,
             Email,
             Password,
             SalaoId
             );
         if (!register) {
             console.log("Register failed");
-            let funcionarioDelete = await deleteFuncionario(funcionario.id!);
+            let funcionarioDelete = await deleteFuncionario(funcionario.ID!);
         if (funcionarioDelete) {
             console.log("Funcionario deleted successfully");
             } else {

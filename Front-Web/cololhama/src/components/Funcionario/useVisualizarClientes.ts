@@ -25,13 +25,13 @@ export const useVisualizarClientes = (
           salaoId
         );
         const listaClientes: Cliente[] = (response.data || []).map((item: any) => ({
-          id: item.ID ?? "",
-          nome: item.Nome ?? "",
-          email: item.Email ?? "",
-          telefone: item.Telefone ?? "",
-          dataCadastro: item.DataCadastro ?? "",
+          ID: item.ID ?? "",
+          Nome: item.Nome ?? "",
+          Email: item.Email ?? "",
+          Telefone: item.Telefone ?? "",
+          DataCadastro: item.DataCadastro ?? "",
           CPF: item.CPF ?? "",
-          salaoId: item.SalaoId ?? "",
+          SalaoId: item.SalaoId ?? "",
         }));
    
         setClientes(listaClientes);

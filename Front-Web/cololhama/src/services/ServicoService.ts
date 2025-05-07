@@ -58,11 +58,6 @@ class ServicoService {
     includeRelations: boolean = false
   ): Promise<ServicoPaginadoResponse> {
     try {
-      console.log("Buscando serviços com o nome:", nome);
-      console.log("Buscando serviços com o salãoId:", salaoId);
-      console.log("Buscando serviços com o preço mínimo:", precoMin);
-      console.log("Buscando serviços  com o preço máximo:", precoMax);
-      console.log("Buscando serviços com o includeRelations:", includeRelations); 
       const response = await api.get(`/servico/page`, {
         params: {
           page,
@@ -85,14 +80,7 @@ class ServicoService {
   static async getServicoById(id: string): Promise<Servico> {
     try {
       const response = await api.get(`/servico/ID/${id}`);
-      const servico: Servico = {
-        id: response.data.ID,
-        salaoId: response.data.SalaoId,
-        nome: response.data.Nome,        
-        precoMin: response.data.PrecoMin,
-        precoMax: response.data.PrecoMax,
-        descricao: response.data.Descricao,        
-      };
+      const servico = response.data as Servico;       ;
       return servico;
     } catch (error) {
       console.error(`Erro ao buscar serviço com ID ${id}:`, error);

@@ -154,11 +154,10 @@ class ClienteService {
     }
   }
 
-  static async update(Email: string, salaoId: string, data: ClienteData) {
+  static async update(Id: string, data: ClienteData) {
     try {
-      const existingCliente = await this.findByEmailandSalao(
-        data.Email,
-        data.SalaoId
+      const existingCliente = await this.findById(
+        Id
       );
       if (!existingCliente) {
         throw new Error("Cliente já cadastrado neste salão");
@@ -166,10 +165,7 @@ class ClienteService {
 
       return await prisma.cliente.update({
         where: {
-          Email_SalaoId: {
-            Email: Email,
-            SalaoId: salaoId,
-          },
+          ID: Id,
         },
         data: data,
       });

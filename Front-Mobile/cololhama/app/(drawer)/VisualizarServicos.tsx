@@ -102,7 +102,7 @@ export default function VisualizarServicosScreen() {
       ) : (
         <FlatList
           data={servicos}
-          keyExtractor={(item) => item.id || Math.random().toString()}
+          keyExtractor={(item) => item.ID || Math.random().toString()}
           style={styles.list}
           renderItem={({ item }) => {
             console.log("Exibindo serviço:", item);
@@ -122,7 +122,7 @@ export default function VisualizarServicosScreen() {
                 </Text>
 
                 <TouchableOpacity
-                  onPress={() => item.id && handleEditarServico(item.id)}
+                  onPress={() => item.ID && handleEditarServico(item.ID)}
                   style={styles.editButton}
                 >
                   <Ionicons name="create-outline" size={18} color="#d32f2f" />
