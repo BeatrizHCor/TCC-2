@@ -71,7 +71,6 @@ export const ClienteService = {
       email,
       telefone,
       salaoId,
-      password,
       userType,
     });
     try {
@@ -163,6 +162,41 @@ export const ClienteService = {
       throw error;
     }
   },
-};
+
+  async getClienteById(clienteId: string): Promise<Cliente> {
+    try {
+      const response = await api.get(`/cliente/ID/${clienteId}`);
+      return response.data;
+    } catch (error) {
+      console.error("Erro ao buscar cliente por ID:", error);
+      throw error;
+    }
+  },
+
+  async atualizarCliente(
+    id: string,
+    CPF: string,
+    Nome: string,
+    Email: string,
+    Telefone: string,
+    SalaoId: string
+  ): Promise<Cliente> {
+  try {
+    const response = await api.put(`/cliente/${id}`, {
+      CPF,
+      Nome,
+      Email,
+      Telefone,
+      SalaoId,
+    });
+    return response.data;
+  } catch (error) {
+    console.error("Erro ao atualizar cliente:", error);
+    throw error;
+  }
+
+},
+
+}
 
 export default ClienteService;

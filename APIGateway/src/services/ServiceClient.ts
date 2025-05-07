@@ -102,3 +102,21 @@ export const getClienteById = async (id: string, includeRelations: boolean) => {
       throw new Error("Error in deleting cliente");
     }
   }
+
+  export const updateCliente = async (id: string, data: Cliente) => {
+    let responseCliente = await fetch(
+      CustomerURL + `/cliente/${id}`,
+      {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(data),
+      }
+    );
+    if (responseCliente.ok) {
+      return (await responseCliente.json()) as Cliente;
+    } else {
+      throw new Error("Error in updating cliente");
+    }
+  }

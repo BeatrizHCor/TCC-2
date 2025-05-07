@@ -114,11 +114,11 @@ export const VisualizarClientes: React.FC = () => {
             </TableHead>
             <TableBody>
               {clientes.map((cliente: Cliente) => (
-                <TableRow key={cliente.id}>
-                  <TableCell>{cliente.nome}</TableCell>
-                  <TableCell>{cliente.email}</TableCell>
-                  <TableCell>{cliente.telefone}</TableCell>
-                  <TableCell>{cliente.dataCadastro ? new Date(cliente.dataCadastro).toLocaleDateString('pt-BR') : ''}</TableCell>
+                <TableRow key={cliente.ID}>
+                  <TableCell>{cliente.Nome}</TableCell>
+                  <TableCell>{cliente.Email}</TableCell>
+                  <TableCell>{cliente.Telefone}</TableCell>
+                  <TableCell>{cliente.DataCadastro ? new Date(cliente.DataCadastro).toLocaleDateString('pt-BR') : ''}</TableCell>
                 </TableRow>
               ))}
             </TableBody>
