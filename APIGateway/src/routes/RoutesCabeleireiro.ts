@@ -27,7 +27,10 @@ RoutesCabeleireiro.post(
         Mei: Mei,
         SalaoId: SalaoId,
       });
-      console.log("resultado create no controler", cabeleireiro);
+      if (!cabeleireiro) {
+        console.log("Cabeleireiro not created");
+        throw new Error("Cabeleireiro not created");
+      }
       let register = await registerLogin(
         cabeleireiro.ID!,
         Email,

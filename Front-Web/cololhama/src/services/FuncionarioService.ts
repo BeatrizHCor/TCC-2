@@ -50,7 +50,7 @@ limit: number;
 
 export const FuncionarioService = {
 
-async getFuncionarioPage(
+    async getFuncionarioPage(
         page: number = 1,
         limit: number = 10,
         nome: string | null = null,
@@ -73,7 +73,72 @@ async getFuncionarioPage(
             console.error("Erro ao buscar funcionários:", error);
             throw error;
         }
+    },
+  
+    async cadastrarFuncionario(
+      CPF: string,
+      Nome: string,
+      Email: string,
+      Telefone: string,
+      SalaoId: string,
+      Auxiliar: boolean,
+      Salario: number,
+      Password: string,
+      userType: string = "Funcionario",
+    ): Promise<Funcionario> {
+        try {
+            const response = await api.post<Funcionario>(
+                `/funcionario`, {
+                    CPF,
+                    Nome,
+                    Email,
+                    Telefone,
+                    SalaoId,
+                    Auxiliar,
+                    Salario,
+                    Password,
+                    userType
+                });
+            return response.data;
+        } catch (error) {
+            console.error("Erro ao cadastrar funcionário:", error);
+            throw error;
+        }
+    },
+  
+  async deleteFuncionario(id: string): Promise<void> {
+    try {
+      await api.delete(`/funcionario/delete/${id}`);
+    } catch (error) {
+      console.error("Erro ao deletar funcionário:", error);
+      throw error;
     }
+  },
+
+  async getFuncionarioById(id: string, includeRelations: boolean = false): Promise<Funcionario> {
+    try {
+      const response = await api.get<Funcionario>(`/funcionario/ID/${id}`, {
+        params: { include: includeRelations },
+      });
+      return response.data;
+    } catch (error) {
+      console.error("Erro ao buscar funcionário por ID:", error);
+      throw error;
+    }
+  },
+
+  async updateFuncionario(
+    id: string,
+    funcionarioData: Funcionario
+  ): Promise<Funcionario> {
+    try {
+      const response = await api.put<Funcionario>(`/funcionario/update/${id}`, funcionarioData);
+      return response.data;
+    } catch (error) {
+      console.error("Erro ao atualizar funcionário:", error);
+      throw error;
+    }
+  }
 
 }
 

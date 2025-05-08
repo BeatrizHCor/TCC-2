@@ -130,29 +130,6 @@ class ServicoService {
     }
   }
 
-  static async findByNomeAndSalao(Nome: string, SalaoId: string, include = false) {
-    console.log('Buscando serviço com Nome e SalaoId:', { Nome, SalaoId });
-    try {
-      return await prisma.servico.findFirst({
-        where: {
-          Nome,
-          SalaoId,
-        },
-        ...(include
-          ? {
-              include: {
-                Salao: true,
-                ServicoAtendimento: true,
-              },
-            }
-          : {}),
-      });
-    } catch (error) {
-      console.error('Erro ao localizar serviço:', error);
-      throw new Error('Erro ao localizar serviço');
-    }
-  }
-
   static async update(
     ID: string, 
     Nome: string,

@@ -179,22 +179,18 @@ class FuncionarioService {
     }
   }
 
-  static async update(Email: string, salaoId: string, data: FuncionarioData) {
+  static async update(id: string, data: FuncionarioData) {
     try {
       const existingFuncionario = await this.findByEmailandSalao(
-        Email,
-        salaoId
+        data.Email,
+        data.SalaoId
       );
       if (!existingFuncionario) {
         throw new Error("Funcionário não encontrado");
       }
-
       return await prisma.funcionario.update({
         where: {
-          Email_SalaoId: {
-            Email: Email,
-            SalaoId: salaoId,
-          },
+          ID: id,
         },
         data: data,
       });

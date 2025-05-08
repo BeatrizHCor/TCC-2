@@ -9,7 +9,7 @@ router.get('/funcionario/ID/:id', FuncionarioController.findByID);
 router.get('/funcionario/email/:email/:salaoId', FuncionarioController.findByEmailandSalao);
 router.get('/funcionario/cpf/:cpf/:salaoId', FuncionarioController.findByCpfandSalao);
 router.post('/funcionario', FuncionarioController.create);
-router.put('/funcionario/update/:email/:salaoId', FuncionarioController.update);
+router.put('/funcionario/update/:id', FuncionarioController.update);
 router.delete('/funcionario/delete/:id', FuncionarioController.delete);
 
 export default router;

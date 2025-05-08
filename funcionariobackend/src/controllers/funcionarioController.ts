@@ -112,11 +112,10 @@ class FuncionarioController {
   
   static async update(req: Request, res: Response): Promise<void> {
     try {
-      const { email, salaoId } = req.params;
+      const { id } = req.params;
       const updateData = req.body;
       const updatedFuncionario = await FuncionarioService.update(
-        email,
-        salaoId,
+        id,
         updateData
       );
       res.json(updatedFuncionario);
