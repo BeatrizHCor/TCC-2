@@ -48,18 +48,18 @@ RoutesFuncionario.post(
             Auxiliar,
             Salario
         );
+        console.log(funcionario);
         if (!funcionario) {
-            console.log("Funcionario not created");
             throw new Error("Funcionario not created");
         }
         let register = await registerLogin(
-            userType,
             funcionario.ID!,
             Email,
             Password,
-            SalaoId
+            SalaoId,
+            userType
             );
-        if (!register) {
+        if (register.status !== 201) {
             console.log("Register failed");
             let funcionarioDelete = await deleteFuncionario(funcionario.ID!);
         if (funcionarioDelete) {
@@ -73,7 +73,7 @@ RoutesFuncionario.post(
             res.status(200).send(token);
         } catch (e) {
             console.log(e);
-            res.status(500).send("Error in creating customer");
+            res.status(500).send("Error in creating Funcionario");
         }
     }
 );

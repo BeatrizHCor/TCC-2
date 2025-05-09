@@ -13,7 +13,6 @@ export const postFuncionario = async (
     Auxiliar: boolean,
     Salario: number
 ) => {
-
     let responseFuncionario = await fetch(FuncionarioURL + "/funcionario", {
         method: "POST",
         headers: {

@@ -29,8 +29,6 @@ class FuncionarioService {
         whereCondition.SalaoId = salaoId;
       }
     }
-  console.log("whereCondition final:", JSON.stringify(whereCondition));
-
     return await prisma.funcionario.findMany({
       ...(skip !== null ? { skip } : {}),
       ...(limit !== null ? { take: limit } : {}),
@@ -97,7 +95,7 @@ class FuncionarioService {
         },
       });
       console.log(funcionario);
-      return true;
+      return funcionario;
     } catch (error) {
       console.error('Erro ao criar funcionário:', error);
       throw new Error('Erro ao criar funcionário');

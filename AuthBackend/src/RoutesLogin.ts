@@ -13,12 +13,12 @@ RoutesLogin.get("/login", (req: Request, res: Response) => {
 });
 
 RoutesLogin.post("/register", (req: Request, res: Response) => {
-  let { userID, email, password, salaoId, userType } = req.body;
-  console.log("Password recebido:", password);
-  if (typeof password !== "string" || password.trim() === "") {
+  let { userID, Email, Password, SalaoId, userType } = req.body;
+  console.log("Password recebido:", Password);
+  if (typeof Password !== "string" || Password.trim() === "") {
     res.status(400).json({ message: "Password inválido" });
   }
-  registerLogin(userID, email, password, salaoId, userType)
+  registerLogin(userID, Email, Password, SalaoId, userType)
     .then((r) => {
       if (r) {
         res.status(201).json({ status: 201, message: "login created" });

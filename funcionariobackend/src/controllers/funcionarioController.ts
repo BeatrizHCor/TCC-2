@@ -64,7 +64,7 @@ class FuncionarioController {
       const funcionario = await FuncionarioService.findById(id, includeRelations);
 
       if (!funcionario) {
-        res.status(404).json({ message: 'Funcionário não encontrado' });
+        res.status(204).json({ message: 'Funcionário não encontrado' });
       } else {
         res.json(funcionario);
       }
@@ -84,7 +84,7 @@ class FuncionarioController {
         includeRelations === "true"
       );
       if (!funcionario) {
-        res.status(404).json({ message: 'Funcionário não encontrado' });
+        res.status(204).json({ message: "Funcionário não encontrado" });
       } else {
         res.json(funcionario);
       }
@@ -103,7 +103,11 @@ class FuncionarioController {
         salaoId,
         includeRelations === "true"
       );
-      res.json(funcionario);
+      if (!funcionario) {
+        res.status(204).json({ message: "Funcionário não encontrado" });
+      } else {
+        res.json(funcionario);
+      }
     } catch (error) {
       console.log(error);
       res.status(500).send("something went wrong");
