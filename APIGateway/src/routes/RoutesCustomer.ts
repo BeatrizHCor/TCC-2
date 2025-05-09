@@ -29,7 +29,7 @@ RoutesCustomer.post(
       SalaoId,
       userType
     );
-    if (!register) {
+    if (register.status !== 201) {
       console.log("Register auth failed");
       let clienteDelete = await deleteCliente(
         Email,
