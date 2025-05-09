@@ -50,12 +50,12 @@ limit: number;
 
 export const FuncionarioService = {
 
-    async getFuncionarioPage(
-        page: number = 1,
-        limit: number = 10,
-        nome: string | null = null,
-        includeRelations: boolean = false,
-        salaoId: string
+  async getFuncionarioPage(
+    page: number = 1,
+    limit: number = 10,
+    nome: string | null = null,
+    includeRelations: boolean = false,
+    salaoId: string
     ): Promise<FuncionarioPageResponse> {
         try {console.log("Buscando funcionários com o nome:", nome);
             const response = await api.get<FuncionarioPageResponse>(
@@ -75,16 +75,16 @@ export const FuncionarioService = {
         }
     },
   
-    async cadastrarFuncionario(
-      CPF: string,
-      Nome: string,
-      Email: string,
-      Telefone: string,
-      SalaoId: string,
-      Auxiliar: boolean,
-      Salario: number,
-      Password: string,
-      userType: string = "Funcionario",
+  async cadastrarFuncionario(
+    CPF: string,
+    Nome: string,
+    Email: string,
+    Telefone: string,
+    SalaoId: string,
+    Auxiliar: boolean,
+    Salario: number,
+    Password: string,
+    userType: string = "Funcionario",
     ): Promise<Funcionario> {
         try {
             const response = await api.post<Funcionario>(
