@@ -74,26 +74,6 @@ class ServicoController {
     }
   }
 
-  static async findByNomeAndSalao(req: Request, res: Response): Promise<void> {
-    try {
-      const { nome, salaoId } = req.params;
-      const { includeRelations } = req.query;
-      const servico = await ServicoService.findByNomeAndSalao(
-        nome,
-        salaoId,
-        includeRelations === "true"
-      );
-      
-      if (!servico) {
-        res.status(404).json({ message: 'Serviço não encontrado' });
-      } else {
-        res.json(servico);
-      }
-    } catch (error) {
-      console.log(error);
-      res.status(500).send("something went wrong");
-    }
-  }
 
   static async update(req: Request, res: Response): Promise<void> {
     try {

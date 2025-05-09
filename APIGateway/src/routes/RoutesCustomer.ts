@@ -18,6 +18,10 @@ RoutesCustomer.post(
   let { CPF, Nome, Email, Telefone, SalaoId, Password, userType } = req.body;
   try {
     let cliente = await postCliente(CPF, Nome, Email, Telefone, SalaoId);
+    if (!cliente) {
+      console.log("Cliente not created");
+      throw new Error("Cliente not created");
+    }
     let register = await registerLogin(
       cliente.ID!,
       Email,
@@ -25,7 +29,7 @@ RoutesCustomer.post(
       SalaoId,
       userType
     );
-    if (!register) {
+    if (register.status !== 201) {
       console.log("Register auth failed");
       let clienteDelete = await deleteCliente(
         Email,

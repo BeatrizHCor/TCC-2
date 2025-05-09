@@ -8,9 +8,9 @@ import { getFuncionarioPage,
     updateServico,
     getServicoById, 
     getServicosBySalao,
-    getServicoByNomeAndSalao,
     findServicoByNomeAndSalaoId,
-    getFuncionarioById} from "../services/ServiceFunc";
+    getFuncionarioById,
+    updateFuncionario} from "../services/ServiceFunc";
 import { postLogin, registerLogin } from "../services/Service";
 
 
@@ -48,14 +48,18 @@ RoutesFuncionario.post(
             Auxiliar,
             Salario
         );
+        console.log(funcionario);
+        if (!funcionario) {
+            throw new Error("Funcionario not created");
+        }
         let register = await registerLogin(
-            userType,
             funcionario.ID!,
             Email,
             Password,
-            SalaoId
+            SalaoId,
+            userType
             );
-        if (!register) {
+        if (register.status !== 201) {
             console.log("Register failed");
             let funcionarioDelete = await deleteFuncionario(funcionario.ID!);
         if (funcionarioDelete) {
@@ -69,7 +73,7 @@ RoutesFuncionario.post(
             res.status(200).send(token);
         } catch (e) {
             console.log(e);
-            res.status(500).send("Error in creating customer");
+            res.status(500).send("Error in creating Funcionario");
         }
     }
 );
@@ -110,7 +114,27 @@ RoutesFuncionario.get(
     }
 );
 
+RoutesFuncionario.put(
+    "/funcionario/update/:id",
+    async (req: Request, res: Response) => {
+        const id = req.params.id;
+        const funcionarioData = req.body;
+        try {
+            let funcionarioUpdate = await updateFuncionario(id, funcionarioData);
+            if (funcionarioUpdate) {
+                res.status(200).send(funcionarioUpdate);
+            } else {
+                res.status(404).send("Funcionario not found");
+            }
+        } catch (e) {
+            console.log(e);
+            res.status(500).send("Error in updating Funcionario");
+        }
+    }
+);
 
+RoutesFuncionario
+//--------SERVIÇO--------//
 
 RoutesFuncionario.get(
     "/servico/page",
@@ -217,23 +241,7 @@ RoutesFuncionario.get(
     }
 );
 
-RoutesFuncionario.get(
-    "/servico/nome/:nome/:salaoId",
-    async (req: Request, res: Response) => {
-        const { nome, salaoId } = req.params;
-        try {
-            let servico = await getServicoByNomeAndSalao(nome, salaoId);
-            if (servico) {
-                res.status(200).send(servico);
-            } else {
-                res.status(404).send("Servico not found");
-            }
-        } catch (e) {
-            console.log(e);
-            res.status(500).send("Error in getting Servicos");
-        }
-    }
-);
+
 
 RoutesFuncionario.get(
     "/servico/find/:nome/:salaoId",

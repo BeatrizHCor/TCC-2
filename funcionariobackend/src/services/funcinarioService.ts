@@ -29,8 +29,6 @@ class FuncionarioService {
         whereCondition.SalaoId = salaoId;
       }
     }
-  console.log("whereCondition final:", JSON.stringify(whereCondition));
-
     return await prisma.funcionario.findMany({
       ...(skip !== null ? { skip } : {}),
       ...(limit !== null ? { take: limit } : {}),
@@ -97,7 +95,7 @@ class FuncionarioService {
         },
       });
       console.log(funcionario);
-      return true;
+      return funcionario;
     } catch (error) {
       console.error('Erro ao criar funcionário:', error);
       throw new Error('Erro ao criar funcionário');
@@ -179,22 +177,18 @@ class FuncionarioService {
     }
   }
 
-  static async update(Email: string, salaoId: string, data: FuncionarioData) {
+  static async update(id: string, data: FuncionarioData) {
     try {
       const existingFuncionario = await this.findByEmailandSalao(
-        Email,
-        salaoId
+        data.Email,
+        data.SalaoId
       );
       if (!existingFuncionario) {
         throw new Error("Funcionário não encontrado");
       }
-
       return await prisma.funcionario.update({
         where: {
-          Email_SalaoId: {
-            Email: Email,
-            SalaoId: salaoId,
-          },
+          ID: id,
         },
         data: data,
       });

@@ -13,7 +13,6 @@ export const postFuncionario = async (
     Auxiliar: boolean,
     Salario: number
 ) => {
-
     let responseFuncionario = await fetch(FuncionarioURL + "/funcionario", {
         method: "POST",
         headers: {
@@ -95,6 +94,8 @@ export const getFuncionarioById = async (id: string) => {
     }
 }
 
+
+// -------------SERVIÇOS----------------
 export const getServicoPage = async (
     page: string,
     limit: string,
@@ -183,16 +184,6 @@ export const getServicosBySalao = async (salaoId: string) => {
     }
 }
 
-export const getServicoByNomeAndSalao = async (nome: string, salaoId: string) => {
-    let responseServico = await fetch(FuncionarioURL + `/servico/nome/${nome}/${salaoId}`, {
-        method: "GET",
-    });
-    if (responseServico.ok) {
-        return (await responseServico.json()) as Servico;
-    } else {
-        throw new Error("Error in getting Servico by Nome and Salão ID");
-    }
-}
 
 export const findServicoByNomeAndSalaoId = async (nome: string, salaoId: string) => {
     let responseServico = await fetch(FuncionarioURL + `/servico/find/${nome}/${salaoId}`, {

@@ -24,7 +24,7 @@
   },
   "scripts": {
     "start": "node dist/server.js",
-    "dev": "ts-node src/server.ts",
+    "dev": "ts-node-dev --inspect=9233 --transpile-only --ignore-watch node_modules src/server.ts",
     "build": "tsc"
   },
   "eslintConfig": {

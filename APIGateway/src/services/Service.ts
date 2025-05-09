@@ -11,9 +11,9 @@ const loginURL = process.env.AUTH_URL || "http://localhost:3000";
 
 export const registerLogin = async (
   userID: string,
-  email: string,
-  password: string,
-  salaoId: string,
+  Email: string,
+  Password: string,
+  SalaoId: string,
   userType: userTypes
 ) => {
   let responseRegister = await fetch(loginURL + "/register", {
@@ -23,15 +23,17 @@ export const registerLogin = async (
     },
     body: JSON.stringify({
       userID,
-      email,
-      password,
-      salaoId,
+      Email,
+      Password,
+      SalaoId,
       userType,
     }),
   });
   if (responseRegister.ok) {
+    console.log("Register response", responseRegister);
     return await responseRegister.json();
   } else {;
+    console.log("Register failed", responseRegister.status);
     return responseRegister.status;
   }
 };

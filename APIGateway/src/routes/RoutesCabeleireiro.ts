@@ -27,7 +27,9 @@ RoutesCabeleireiro.post(
         Mei: Mei,
         SalaoId: SalaoId,
       });
-      console.log("resultado create no controler", cabeleireiro);
+      if (!cabeleireiro) {
+        throw new Error("Cabeleireiro not created");
+      }
       let register = await registerLogin(
         cabeleireiro.ID!,
         Email,
@@ -35,7 +37,7 @@ RoutesCabeleireiro.post(
         SalaoId,
         userType
       );
-      console.log("resultado register no controler", register);
+  
       if (register.status !== 201) {
         console.log("Register failed");
         let cabeleireiroDelete = await deleteCabeleireiro(cabeleireiro.ID!);
