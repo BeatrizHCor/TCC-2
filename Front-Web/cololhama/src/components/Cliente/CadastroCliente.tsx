@@ -103,9 +103,13 @@ export const ClienteCadastro: React.FC<ClienteCadastroProps> = () => {
                         error={!!errors.CPF}
                         helperText={errors.CPF}
                         fullWidth
-                        inputProps={{ 
-                          maxLength: 14 
-                        }}
+                      slotProps={{
+                        input: {
+                          sx: {
+                            maxLength: 14
+                          }
+                        }
+                      }}
                       />
                     </Box>
                     <Box flex={1}>
@@ -117,9 +121,13 @@ export const ClienteCadastro: React.FC<ClienteCadastroProps> = () => {
                         error={!!errors.telefone}
                         helperText={errors.telefone}
                         fullWidth
-                        inputProps={{ 
-                          maxLength: 15
-                        }}
+                        slotProps={{
+                          input: {
+                            sx: {
+                              maxLength: 15
+                            }
+                          }                        
+                      }}
                       />
                     </Box>
                   </Box>
