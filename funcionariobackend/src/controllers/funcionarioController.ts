@@ -117,10 +117,22 @@ class FuncionarioController {
   static async update(req: Request, res: Response): Promise<void> {
     try {
       const { id } = req.params;
-      const updateData = req.body;
+      const {        Nome,
+        CPF,
+        Email,
+        Telefone,
+        SalaoId,
+        Auxiliar,
+        Salario} = req.body;
       const updatedFuncionario = await FuncionarioService.update(
         id,
-        updateData
+                Nome,
+        CPF,
+        Email,
+        Telefone,
+        SalaoId,
+        Auxiliar,
+        Salario
       );
       res.json(updatedFuncionario);
     } catch (error) {

@@ -177,12 +177,18 @@ class FuncionarioService {
     }
   }
 
-  static async update(id: string, data: FuncionarioData) {
+  static async update(
+        id: string,         
+        Nome: string,
+        CPF: string,
+        Email: string,
+        Telefone: string,
+        SalaoId: string,
+        Auxiliar: boolean,
+        Salario: number
+  ) {
     try {
-      const existingFuncionario = await this.findByEmailandSalao(
-        data.Email,
-        data.SalaoId
-      );
+      const existingFuncionario = await this.findById(id)
       if (!existingFuncionario) {
         throw new Error("Funcionário não encontrado");
       }
@@ -190,7 +196,15 @@ class FuncionarioService {
         where: {
           ID: id,
         },
-        data: data,
+        data: {
+          Nome,
+          CPF,
+          Email,
+          Telefone,
+          SalaoId,
+          Auxiliar,
+          Salario
+        },
       });
     } catch (error) {
       throw new Error("Erro ao atualizar funcionário");

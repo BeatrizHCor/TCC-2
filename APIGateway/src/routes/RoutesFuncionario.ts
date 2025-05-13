@@ -118,9 +118,25 @@ RoutesFuncionario.put(
     "/funcionario/update/:id",
     async (req: Request, res: Response) => {
         const id = req.params.id;
-        const funcionarioData = req.body;
+        const {
+        Nome
+        ,CPF,
+        Email,
+        Telefone,
+        SalaoId,
+        Auxiliar,
+        Salario,
+        password} = req.body;
         try {
-            let funcionarioUpdate = await updateFuncionario(id, funcionarioData);
+            let funcionarioUpdate = await updateFuncionario(
+            id,         
+            Nome,
+            CPF,
+            Email,
+            Telefone,
+            SalaoId,
+            Auxiliar,
+            Salario);
             if (funcionarioUpdate) {
                 res.status(200).send(funcionarioUpdate);
             } else {
