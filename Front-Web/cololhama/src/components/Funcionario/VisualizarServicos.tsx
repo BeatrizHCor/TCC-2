@@ -45,6 +45,7 @@ export const VisualizarServicos: React.FC<VisualizarServicosProps> = ({
 }) => {
   const usuario = localStorage.getItem("usuario");
   isCliente = !!(usuario && JSON.parse(usuario)?.userType === "Cliente");
+  salaoId = SalaoID;
 
   const [page, setPage] = useState(0);
   const [rowsPerPage, setRowsPerPage] = useState(10);

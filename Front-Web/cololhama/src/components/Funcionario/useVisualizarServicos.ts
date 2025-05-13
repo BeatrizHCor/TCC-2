@@ -10,7 +10,6 @@ interface UseVisualizarServicosResult {
   error: string | null;
   handleEditarServico: (servicoId: string) => void;
 }
-
 export const useVisualizarServicos = (
   page: number, 
   limit: number, 
@@ -62,7 +61,7 @@ export const useVisualizarServicos = (
   }, [page, limit, salaoId, nomeFilter, precoMinFilter, precoMaxFilter]);
 
   const handleEditarServico = (servicoId: string) => {
-   // navigate(`/servico/editar/${servicoId}`);
+   navigate(`/servico/editar/${servicoId}`);
   };
 
   return {
