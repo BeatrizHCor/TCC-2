@@ -129,10 +129,27 @@ export const FuncionarioService = {
 
   async updateFuncionario(
     id: string,
-    funcionarioData: Funcionario
+    Nome: string,
+    CPF: string,
+    Email: string,
+    Telefone: string,
+    SalaoId: string,
+    Auxiliar: boolean,
+    Salario: number = 0,
+    password: string
+
   ): Promise<Funcionario> {
     try {
-      const response = await api.put<Funcionario>(`/funcionario/update/${id}`, funcionarioData);
+      const response = await api.put<Funcionario>(`/funcionario/update/${id}`, {
+        Nome,
+        CPF,
+        Email,
+        Telefone,
+        SalaoId,
+        Auxiliar,
+        Salario,
+        password,
+      });
       return response.data;
     } catch (error) {
       console.error("Erro ao atualizar funcionário:", error);

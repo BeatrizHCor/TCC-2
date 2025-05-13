@@ -24,7 +24,7 @@ import "../../styles/styles.global.css";
 
 const ManterFuncionario: React.FC = () => {
   const navigate = useNavigate();
-  const { id } = useParams<{ id: string }>();
+  const { funcionarioId: funcionarioId } = useParams();
   const [openDeleteDialog, setOpenDeleteDialog] = useState(false);
 
   const {
@@ -50,7 +50,7 @@ const ManterFuncionario: React.FC = () => {
     validationErrors,
     handleSubmit,
     handleDelete
-  } = useManterFuncionario(id);
+  } = useManterFuncionario(funcionarioId);
 
   const handleOpenDeleteDialog = () => {
     setOpenDeleteDialog(true);
@@ -65,7 +65,6 @@ const ManterFuncionario: React.FC = () => {
     handleCloseDeleteDialog();
   };
 
-  // Formatar CPF enquanto digita
   const handleCpfChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const rawValue = e.target.value.replace(/\D/g, '');
     let formattedValue = '';
@@ -98,7 +97,13 @@ const ManterFuncionario: React.FC = () => {
     
     setTelefone(formattedValue);
   };
-
+  while (!salaoId && isLoading) {
+    return (
+      <Box sx={{ p: 3, textAlign: "center" }}>
+        <CircularProgress />
+      </Box>
+    );
+  }
   if (!salaoId) {
     return (
       <Box sx={{ p: 3, textAlign: "center" }}>
@@ -118,7 +123,7 @@ const ManterFuncionario: React.FC = () => {
   }
 
   return (
-    <Box sx={{ width: "90%", p: 3 }}>
+    <Box sx={{ width: "100%", p: 3 }}>
       <Paper elevation={3} sx={{ p: 3, maxWidth: "800px", mx: "auto" }}>
         <Typography variant="h5" sx={{ mb: 3 }}>
           {isEditing ? "Editar Funcionário" : "Novo Funcionário"}
@@ -138,8 +143,8 @@ const ManterFuncionario: React.FC = () => {
                 disabled={isLoading}
               />
             </Box>
-
-            <Box sx={{ xs: 12, sm: 6 }}>
+          <Box sx={{ display: "flex", gap: 3 }}>
+            <Box sx={{ flex: 1 }}>
               <TextField
                 fullWidth
                 required
@@ -156,25 +161,10 @@ const ManterFuncionario: React.FC = () => {
                           }
                         }
                       }}
-                disabled={isLoading || isEditing}
-              />
-            </Box>
-
-            <Box sx={{ xs: 12, sm: 6 }}>
-              <TextField
-                fullWidth
-                required
-                type="email"
-                label="Email"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                error={Boolean(validationErrors.email)}
-                helperText={validationErrors.email}
                 disabled={isLoading}
               />
             </Box>
-
-            <Box sx={{ xs: 12, sm: 6 }}>
+            <Box sx={{ flex: 1 }}>
               <TextField
                 fullWidth
                 required
@@ -194,8 +184,22 @@ const ManterFuncionario: React.FC = () => {
                 disabled={isLoading}
               />
             </Box>
-
-            <Box sx={{ xs: 12, sm: 6 }}>
+          </Box>
+              <Box sx={{ xs: 12, sm: 6 }}>
+              <TextField
+                fullWidth
+                required
+                type="email"
+                label="Email"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                error={Boolean(validationErrors.email)}
+                helperText={validationErrors.email}
+                disabled={isLoading}
+              />
+            </Box>
+          <Box sx={{ display: "flex", gap: 3 }}>
+            <Box sx={{ flex: 1}}>
               <FormControlLabel
                 control={
                   <Switch
@@ -207,8 +211,7 @@ const ManterFuncionario: React.FC = () => {
                 label="Funcionário Auxiliar"
               />
             </Box>
-
-            <Box sx={{ xs: 12, sm: 6 }}>
+            <Box sx={{ flex: 1}}>
               <TextField
                 fullWidth
                 type="number"
@@ -225,10 +228,10 @@ const ManterFuncionario: React.FC = () => {
                 disabled={isLoading}
               />
             </Box>
-
+          </Box>
             {!isEditing && (
-              <>
-                <Box sx={{ xs: 12, sm: 6 }}>
+              <Box sx={{ display: "flex", gap: 3 }}>
+                <Box sx={{flex: 1 }}>
                   <TextField
                     fullWidth
                     required
@@ -242,7 +245,7 @@ const ManterFuncionario: React.FC = () => {
                   />
                 </Box>
 
-                <Box sx={{ xs: 12, sm: 6 }}>
+                <Box sx={{ flex: 1 }}>
                   <TextField
                     fullWidth
                     required
@@ -255,7 +258,7 @@ const ManterFuncionario: React.FC = () => {
                     disabled={isLoading}
                   />
                 </Box>
-              </>
+              </Box>
             )}
 
             {isEditing && (
@@ -312,7 +315,6 @@ const ManterFuncionario: React.FC = () => {
         </form>
       </Paper>
 
-      {/* Dialog de confirmação para deletar */}
       <Dialog
         open={openDeleteDialog}
         onClose={handleCloseDeleteDialog}

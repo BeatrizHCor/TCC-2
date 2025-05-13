@@ -37,7 +37,7 @@ export const useManterFuncionario = (funcionarioId?: string) => {
  
 
   const user = {
-    role: "admin",
+    role: "AdmSalao",
     salaoId: SalaoId,
   }; // Simulando o usuário autenticado
 
@@ -70,19 +70,18 @@ export const useManterFuncionario = (funcionarioId?: string) => {
       }
     };
 
-    if (user && user.role === "admin") {
+    if (user && (user.role === "AdmSalao" || user.role === "AdmSistema")) {
       setSalaoId(user.salaoId); 
       
       if (funcionarioId) {
         fetchFuncionario();
       }
     }
-  }, [funcionarioId, navigate, user]);
+  }, [funcionarioId]);
 
   const validateForm = (): boolean => {
     const errors: ValidationErrors = {};
     
-    // Validação de campos obrigatórios e formatos
     if (!nome.trim()) {
       errors.nome = "Nome do funcionário é obrigatório";
     }
@@ -107,7 +106,7 @@ export const useManterFuncionario = (funcionarioId?: string) => {
       errors.salario = "Salário não pode ser negativo";
     }
 
-    // Validações para senha apenas em modo de criação
+
     if (!isEditing && !password.trim()) {
       errors.password = "Senha é obrigatória";
     }
@@ -136,19 +135,18 @@ export const useManterFuncionario = (funcionarioId?: string) => {
     
     setIsLoading(true);
     
-    try {
-      const funcionarioData: Partial<Funcionario> = {
-        Nome: nome,
-        CPF: cpf,
-        Email: email,
-        Telefone: telefone,
-        SalaoId: salaoId,
-        Auxiliar: auxiliar,
-        Salario: salario
-      };
-      
+    try {      
       if (isEditing && funcionarioId) {
-    // await FuncionarioService.updateFuncionario(funcionarioId, funcionarioData, password);
+        await FuncionarioService.updateFuncionario(
+          funcionarioId, 
+          nome,
+          cpf,
+          email,
+          telefone,
+          salaoId,
+          auxiliar,
+          salario,
+          password);
       } else {
         await FuncionarioService.cadastrarFuncionario(
           cpf,

@@ -21,7 +21,7 @@ import "../../styles/styles.global.css";
 
 const ManterCabeleireiro: React.FC = () => {
   const navigate = useNavigate();
-const { cabeleireiroId: cabeleireiroId } = useParams();
+  const { cabeleireiroId: cabeleireiroId } = useParams();
 
   const [openDeleteDialog, setOpenDeleteDialog] = useState(false);
 
@@ -60,6 +60,39 @@ const { cabeleireiroId: cabeleireiroId } = useParams();
     await handleDelete();
     handleCloseDeleteDialog();
   };
+
+  const handleTelefoneChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const rawValue = e.target.value.replace(/\D/g, '');
+    let formattedValue = '';
+    
+    if (rawValue.length <= 2) {
+      formattedValue = rawValue;
+    } else if (rawValue.length <= 7) {
+      formattedValue = `(${rawValue.slice(0, 2)}) ${rawValue.slice(2)}`;
+    } else {
+      formattedValue = `(${rawValue.slice(0, 2)}) ${rawValue.slice(2, 7)}-${rawValue.slice(7, 11)}`;
+    }
+    
+    setTelefone(formattedValue);
+  };
+
+  const handleCpfChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const rawValue = e.target.value.replace(/\D/g, '');
+    let formattedValue = '';
+    
+    if (rawValue.length <= 3) {
+      formattedValue = rawValue;
+    } else if (rawValue.length <= 6) {
+      formattedValue = `${rawValue.slice(0, 3)}.${rawValue.slice(3)}`;
+    } else if (rawValue.length <= 9) {
+      formattedValue = `${rawValue.slice(0, 3)}.${rawValue.slice(3, 6)}.${rawValue.slice(6)}`;
+    } else {
+      formattedValue = `${rawValue.slice(0, 3)}.${rawValue.slice(3, 6)}.${rawValue.slice(6, 9)}-${rawValue.slice(9, 11)}`;
+    }
+    
+    setCpf(formattedValue);
+  };
+
   while (!salaoId && isLoading) {
     return (
       <Box sx={{ p: 3, textAlign: "center" }}>
@@ -105,32 +138,39 @@ const { cabeleireiroId: cabeleireiroId } = useParams();
                 helperText={validationErrors.nome}
               />
             </Box>
-
             <Box>
+              <TextField
+                fullWidth
+                required
+                label="Email"
+                type="email"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                error={Boolean(validationErrors.email)}
+                helperText={validationErrors.email}
+                />
+            </Box>
+            <Box sx={{ display: "flex", gap: 3 }}>
+            <Box sx={{ flex: 1 }}>
               <TextField
                 fullWidth
                 required
                 label="CPF"
                 value={cpf}
-                onChange={(e) => setCpf(e.target.value)}
+                onChange={handleCpfChange}
                 error={Boolean(validationErrors.cpf)}
                 helperText={validationErrors.cpf}
+                placeholder="000.000.000-00"
+                 slotProps={{
+                        input: {
+                          sx: {
+                            maxLength: 14
+                          }
+                        }
+                      }}
+                disabled={isLoading || isEditing}
               />
             </Box>
-
-            <Box sx={{ display: "flex", gap: 3 }}>
-              <Box sx={{ flex: 1 }}>
-                <TextField
-                  fullWidth
-                  required
-                  label="Email"
-                  type="email"
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  error={Boolean(validationErrors.email)}
-                  helperText={validationErrors.email}
-                />
-              </Box>
 
               <Box sx={{ flex: 1 }}>
                 <TextField
@@ -138,9 +178,18 @@ const { cabeleireiroId: cabeleireiroId } = useParams();
                   required
                   label="Telefone"
                   value={telefone}
-                  onChange={(e) => setTelefone(e.target.value)}
+                  onChange={handleTelefoneChange}
                   error={Boolean(validationErrors.telefone)}
                   helperText={validationErrors.telefone}
+                  placeholder="(00) 00000-0000"
+                  slotProps={{
+                        input: {
+                          sx: {
+                            maxLength: 15
+                          }
+                        }
+                      }}
+                disabled={isLoading}
                 />
               </Box>
             </Box>

@@ -23,7 +23,6 @@ import "../../styles/styles.global.css";
 
 const ManterServico: React.FC = () => {
   const navigate = useNavigate();
-  const location = useLocation();
   const { servicoId: servicoId } = useParams();
 
   const [openDeleteDialog, setOpenDeleteDialog] = useState(false);
