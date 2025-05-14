@@ -62,11 +62,11 @@ class ServicoService {
         params: {
           page,
           limit,
+          salaoId,
           nome,
           precoMin,
           precoMax,
-          includeRelations,
-          salaoId,
+          includeRelations,          
         },
       });
       console.log("Serviços recebidos:", response.data);
@@ -99,9 +99,20 @@ class ServicoService {
   }
 
   static async createServico(
-    servicoData: Servico
+      Nome: string,
+      SalaoId: string,      
+      PrecoMin: number = 0,
+      PrecoMax: number = 0,
+      Descricao: string,
   ): Promise<Servico> {
     try {
+      const servicoData: Servico = {
+        Nome: Nome,
+        SalaoId: SalaoId,    
+        PrecoMin: PrecoMin,
+        PrecoMax: PrecoMax,
+        Descricao: Descricao,
+      };
       const response = await api.post(`/servico`, servicoData);
       return response.data;
     } catch (error) {
@@ -112,9 +123,20 @@ class ServicoService {
 
   static async updateServico(
     id: string,
-    servicoData: Servico,
+    Nome: string,
+    SalaoId: string,      
+    PrecoMin: number = 0,
+    PrecoMax: number = 0,
+    Descricao: string,
   ): Promise<Servico> {
-    try {      
+    try {   
+      const servicoData: Servico = {
+        Nome: Nome,
+        SalaoId: SalaoId,    
+        PrecoMin: PrecoMin,
+        PrecoMax: PrecoMax,
+        Descricao: Descricao,
+      };
       const response = await api.put(`/servico/update/${id}`, servicoData);
       return response.data;
     } catch (error) {
@@ -125,7 +147,10 @@ class ServicoService {
 
   static async deleteServico(id: string): Promise<void> {
     try {
-      await api.delete(`/servico/delete/${id}`);
+      const response = await api.delete(`/servico/delete/${id}`);
+      if (response.status === 200){
+        console.log("Serviço deletedo: ", response.data.Nome)
+      }
     } catch (error) {
       console.error(`Erro ao excluir serviço com ID ${id}:`, error);
       throw error;

@@ -1,6 +1,7 @@
 import axios from "axios";
 import { AuthControl } from "../models/authModel";
 import { stringify } from "querystring";
+import { userTypes } from "../models/tipo-usuario.enum";
 
 const api = axios.create({
   baseURL: import.meta.env.APIGATEWAY_URL || "http://localhost:4000",
@@ -24,17 +25,22 @@ export class LoginService {
         salaoID: salaoId,
       });
       if (response.data.token) {
-        localStorage.setItem("token", response.data.token);
-        localStorage.setItem("usuario", JSON.parse(response.data.userID, response.data.userType));
-        axios.defaults.headers.common[
-          "Authorization"
-        ] = `Bearer ${response.data.token}`;
+        const { token, userID, userType } = response.data;
+        LoginService.SetSession(token, userID, userType);
       }
       return response.data;
     } catch (error) {
       console.error("Erro ao realizar login:", error);
       throw error;
     }
+  }
+
+  static SetSession(token:any, userID:string, userType:string): void {
+      localStorage.setItem("token", token);
+      localStorage.setItem("usuario", JSON.stringify({ userID, userType }));
+      axios.defaults.headers.common[
+          "Authorization"
+      ] = `Bearer ${token}`;
   }
 
   static logout(): void {

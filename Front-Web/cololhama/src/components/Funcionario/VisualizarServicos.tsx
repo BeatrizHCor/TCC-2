@@ -45,6 +45,7 @@ export const VisualizarServicos: React.FC<VisualizarServicosProps> = ({
 }) => {
   const usuario = localStorage.getItem("usuario");
   isCliente = !!(usuario && JSON.parse(usuario)?.userType === "Cliente");
+  salaoId = SalaoID;
 
   const [page, setPage] = useState(0);
   const [rowsPerPage, setRowsPerPage] = useState(10);
@@ -85,7 +86,7 @@ export const VisualizarServicos: React.FC<VisualizarServicosProps> = ({
   const [precoMaxInput, setPrecoMaxInput] = useState<Number | "" >(""); 
   const handlePrecoMaxInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const onlyNumbers = e.target.value.replace(/\D/g, "");
-    setPrecoMaxInput(Number(onlyNumbers)); 
+    setPrecoMaxInput(onlyNumbers === "" ? "" : Number(onlyNumbers)); 
   };
   const aplicarFiltroPrecoMax = () => {
     setPrecoMaxFilter(Number(precoMaxInput));

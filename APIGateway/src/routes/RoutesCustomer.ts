@@ -22,6 +22,7 @@ RoutesCustomer.post(
       console.log("Cliente not created");
       throw new Error("Cliente not created");
     }
+    console.log("Cliente ID: ", cliente.ID);
     let register = await registerLogin(
       cliente.ID!,
       Email,
@@ -29,11 +30,9 @@ RoutesCustomer.post(
       SalaoId,
       userType
     );
-    if (register.status !== 201) {
+    if (register !== 201) {
       console.log("Register auth failed");
-      let clienteDelete = await deleteCliente(
-        Email,
-        SalaoId);
+      let clienteDelete = await deleteCliente(cliente.ID!);
       if (clienteDelete) {
         console.log("Cliente deleted successfully");
       }else{
@@ -41,7 +40,6 @@ RoutesCustomer.post(
       }
       throw new Error("Login registration failed");
     }
-
     let token = await postLogin(Email, Password, SalaoId);
     res.status(200).send(token);
   } catch (e) {
@@ -108,11 +106,11 @@ RoutesCustomer.get(
 });
 
 RoutesCustomer.delete(
-  "/cliente/:email/:salaoId", 
+  "/cliente/:id", 
   async (req, res) => {
-  const { email, salaoId } = req.params;
+  const { id } = req.params;
   try {
-    const cliente = await deleteCliente(email, salaoId);
+    const cliente = await deleteCliente(id);
     if (cliente) {
       res.status(200).json(cliente);
     } else {

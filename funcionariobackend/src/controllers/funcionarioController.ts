@@ -117,10 +117,23 @@ class FuncionarioController {
   static async update(req: Request, res: Response): Promise<void> {
     try {
       const { id } = req.params;
-      const updateData = req.body;
+      const {        
+        Nome,
+        CPF,
+        Email,
+        Telefone,
+        SalaoId,
+        Auxiliar,
+        Salario} = req.body;
       const updatedFuncionario = await FuncionarioService.update(
         id,
-        updateData
+                Nome,
+        CPF,
+        Email,
+        Telefone,
+        SalaoId,
+        Auxiliar,
+        Salario
       );
       res.json(updatedFuncionario);
     } catch (error) {
@@ -132,8 +145,8 @@ class FuncionarioController {
   static async delete(req: Request, res: Response): Promise<void> {
     try {
       const { id } = req.params;
-      await FuncionarioService.deleteById(id);
-      res.status(204).send();
+      const funcionarioDeletado = await FuncionarioService.deleteById(id);
+      res.status(200).json(funcionarioDeletado);
     } catch (error) {
       console.log(error);
       res.status(500).send("something went wrong");

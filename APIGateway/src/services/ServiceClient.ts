@@ -89,9 +89,9 @@ export const getClienteById = async (id: string, includeRelations: boolean) => {
     }
   }
   
-  export const deleteCliente = async (email:string, salaoId:string) => { 
+  export const deleteCliente = async (id:string) => { 
     let responseCliente = await fetch(
-      CustomerURL + `/cliente/delete/${email}/${salaoId}`,
+      CustomerURL + `/cliente/delete/${id}`,
       {
         method: "DELETE",
       }

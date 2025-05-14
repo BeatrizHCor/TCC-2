@@ -48,10 +48,10 @@ RoutesFuncionario.post(
             Auxiliar,
             Salario
         );
-        console.log(funcionario);
         if (!funcionario) {
             throw new Error("Funcionario not created");
         }
+        console.log("Funcionario ID:",funcionario.ID);    
         let register = await registerLogin(
             funcionario.ID!,
             Email,
@@ -59,8 +59,8 @@ RoutesFuncionario.post(
             SalaoId,
             userType
             );
-        if (register.status !== 201) {
-            console.log("Register failed");
+        if (register !== 201) {
+            console.log("Register auth failed, deleting user");
             let funcionarioDelete = await deleteFuncionario(funcionario.ID!);
         if (funcionarioDelete) {
             console.log("Funcionario deleted successfully");
@@ -69,8 +69,8 @@ RoutesFuncionario.post(
             }
             throw new Error("Login registration failed");
             }
-            let token = await postLogin(Email, Password, SalaoId);
-            res.status(200).send(token);
+        let token = await postLogin(Email, Password, SalaoId);
+        res.status(200).send(token);
         } catch (e) {
             console.log(e);
             res.status(500).send("Error in creating Funcionario");
@@ -118,9 +118,25 @@ RoutesFuncionario.put(
     "/funcionario/update/:id",
     async (req: Request, res: Response) => {
         const id = req.params.id;
-        const funcionarioData = req.body;
+        const {
+        Nome
+        ,CPF,
+        Email,
+        Telefone,
+        SalaoId,
+        Auxiliar,
+        Salario,
+        password} = req.body;
         try {
-            let funcionarioUpdate = await updateFuncionario(id, funcionarioData);
+            let funcionarioUpdate = await updateFuncionario(
+            id,         
+            Nome,
+            CPF,
+            Email,
+            Telefone,
+            SalaoId,
+            Auxiliar,
+            Salario);
             if (funcionarioUpdate) {
                 res.status(200).send(funcionarioUpdate);
             } else {
@@ -141,13 +157,13 @@ RoutesFuncionario.get(
     async (req: Request, res: Response) => {
         const page = (req.query.page as string) || '0';
         const limit = (req.query.limit as string) || '10';
-        const nome = req.query.nome as string || null;
-        const precoMin: number | null = null;
-        const precoMax: number | null = null;
+        const nome = req.query.nome as string || undefined;
+        const precoMin = req.query.precoMin ? parseFloat(req.query.precoMin as string) : undefined;
+        const precoMax = req.query.precoMax ? parseFloat(req.params.precoMax as string) : undefined;
         const includeRelations = req.query.include === "true" ? true : false;
         const salaoId = req.query.salaoId as string || '';
          try {
-            const funcionarios = await getServicoPage(page, limit, nome, precoMin, precoMax, includeRelations, salaoId);
+            const funcionarios = await getServicoPage(page, limit, salaoId, nome, precoMin, precoMax, includeRelations);
             res.json(funcionarios);
         } catch (error) {
           console.error("Erro ao buscar funcionarios:", error);

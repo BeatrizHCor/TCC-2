@@ -1,18 +1,27 @@
 import { useState, useEffect } from 'react';
 import { Funcionario } from '../../models/funcionarioModel';
 import FuncionarioService from '../../services/FuncionarioService';
+import { useNavigate } from 'react-router-dom';
 
+interface UseVisualizarFuncionariosResult {
+  funcionarios: Funcionario[];
+  totalFuncionarios: number;
+  isLoading: boolean;
+  error: string | null;
+  handleEditarFuncionario: (funcionarioId: string) => void;
+}
+ 
 export const useVisualizarFuncionarios = (
   page: number = 1,
   limit: number = 10,
   nomeFilter: string = "",
   salaoId: string
-) => {
+): UseVisualizarFuncionariosResult => {
   const [funcionarios, setFuncionarios] = useState<Funcionario[]>([]);
   const [totalFuncionarios, setTotalFuncionarios] = useState<number>(0);
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
-
+  const navigate = useNavigate();
   useEffect(() => {
     const buscarFuncionarios = async () => {
       setIsLoading(true);
@@ -49,10 +58,16 @@ export const useVisualizarFuncionarios = (
     buscarFuncionarios();
   }, [page, limit, nomeFilter, salaoId]);
 
+  const handleEditarFuncionario = (funcionarioId: string) => {
+    navigate(`/funcionario/editar/${funcionarioId}`);
+  };
+
   return {
     funcionarios,
     totalFuncionarios,
     isLoading,
     error,
+    handleEditarFuncionario,
+
   };
 };

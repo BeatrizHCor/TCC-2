@@ -5,8 +5,6 @@ class CabeleireiroController {
   static findAllPaginated = async (req: Request, res: Response) => {
     try {
       const { page, limit, includeRelations, salaoId, name } = req.query;
-      console.log(typeof name);
-      console.log(name);
       const cabeleireiros = await CabeleireiroService.getCabeleireiroPage(
         Number(page),
         Number(limit),
@@ -97,7 +95,7 @@ class CabeleireiroController {
       if (!cabeleireiro) {
         res.status(404).json({ message: "Cabeleireiro não pode ser deletado" });
       } else {
-        res.json(cabeleireiro);
+        res.status(200).json(cabeleireiro);
       }
     } catch (e) {
       console.log(e);

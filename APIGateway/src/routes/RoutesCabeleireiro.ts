@@ -10,15 +10,12 @@ import {
 
 const RoutesCabeleireiro = Router();
 
-//Lógica feita, ainda não testado. Da pra deixar o código mais limpo mas a idéia é esse fluxo. No fim ja retorna um token.
 RoutesCabeleireiro.post(
   "/cabeleireiro",
   async (req: Request, res: Response) => {
     let { CPF, Nome, Email, Telefone, SalaoId, Password, userType, Mei } =
       req.body;
     try {
-      console.log("tipo de user", typeof userType, userType);
-
       let cabeleireiro = await postCabeleireiro({
         CPF: CPF,
         Nome: Nome,
@@ -30,6 +27,7 @@ RoutesCabeleireiro.post(
       if (!cabeleireiro) {
         throw new Error("Cabeleireiro not created");
       }
+      console.log("Cabeleireiro ID: ", cabeleireiro.ID);
       let register = await registerLogin(
         cabeleireiro.ID!,
         Email,
@@ -38,7 +36,7 @@ RoutesCabeleireiro.post(
         userType
       );
   
-      if (register.status !== 201) {
+      if (register !== 201) {
         console.log("Register failed");
         let cabeleireiroDelete = await deleteCabeleireiro(cabeleireiro.ID!);
         if (cabeleireiroDelete) {

@@ -11,13 +11,13 @@ import NavBar from "./components/UI/NavBar";
 import PerfilCliente from "./components/Cliente/perfilCliente";
 import VisualizarClientesPage from "./pages/Funcionario/VisualizarClientePage";
 import VisualizarServicoPage from "./pages/Funcionario/VisualizarServicoPage";
-import EditarServicoPage from "./pages/Funcionario/EditarServicoPage";
-import NovoServicoPage from "./pages/Funcionario/NovoServicePage";
 import VisualizarCabeleireiroPage from "./pages/Cabeleireiro/VisualizarCabeleireiroPage";
 import PortfolioCabeleireiro from "./components/Cabeleireiro/portfolioCabeleireiro";
 import VisualizarFuncionarioPage from "./pages/AdmSalao/VisualizarFuncionario";
 import ManterCabeleireiroPage from "./pages/Cabeleireiro/ManterCabelereiroPage";
 import PortfolioPage from "./components/Cabeleireiro/PortfolioPage";
+import ManterFuncionarioPage from "./pages/AdmSalao/ManterFuncionario";
+import ManterServicoPage from "./pages/Funcionario/ManterServicoPage";
 
 const App: React.FC = () => {
   const isAuthenticated = false;
@@ -38,17 +38,19 @@ const App: React.FC = () => {
             <Route path="/listaClientes" element={<VisualizarClientesPage />} />
 
             <Route path="/servicos" element={<VisualizarServicoPage />} />
-            <Route path="/servico/editar/novo" element={<NovoServicoPage />} />
-            <Route path="/servico/editar/:servicoId" element={<EditarServicoPage />} />
+            <Route path="/servico/editar/novo" element={<ManterServicoPage />} />
+            <Route path="/servico/editar/:servicoId" element={<ManterServicoPage />} />
             
             <Route path="/portfolio/:portfolioId" element={<PortfolioPage />} />  
             <Route path="/portfolio" element={<PortfolioCabeleireiro />} />           
             <Route path="/cabeleireiros" element={<VisualizarCabeleireiroPage />}/>
-            <Route path="/cabeleireiro/editar/:cabeleireiroId" element={<ManterCabeleireiroPage/>}/>
             <Route path="/cabeleireiro/novo" element={<ManterCabeleireiroPage/>}/>
+            <Route path="/cabeleireiro/editar/:cabeleireiroId" element={<ManterCabeleireiroPage/>}/>
             
-            <Route path ="/funcionarios" element={<VisualizarFuncionarioPage />} />
-          </>
+            <Route path="/funcionarios" element={<VisualizarFuncionarioPage />} />
+            <Route path="/funcionario/novo" element={<ManterFuncionarioPage />} />
+            <Route path="/funcionario/editar/:funcionarioId" element={<ManterFuncionarioPage/>} />
+          </>   
         )}
       </Routes>
     </ThemeProvider>

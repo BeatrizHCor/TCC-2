@@ -69,20 +69,37 @@ export const deleteFuncionario = async (id: string) => {
     }
 }
 
-export const updateFuncionario = async (id: string, funcionarioData: Funcionario) => {
+export const updateFuncionario = async (
+    id: string,
+    Nome: string,
+    CPF: string,
+    Email: string,
+    Telefone: string,
+    SalaoId: string,
+    Auxiliar: boolean,
+    Salario: number
+) => {
     let responseFuncionario = await fetch(FuncionarioURL + `/funcionario/update/${id}`, {
         method: "PUT",
         headers: {
             "Content-Type": "application/json",
         },
-        body: JSON.stringify(funcionarioData),
+        body: JSON.stringify(
+            {       Nome,
+                    CPF,
+                    Email,
+                    Telefone,
+                    SalaoId,
+                    Auxiliar,
+                    Salario           
+            }),
     });
-    if (responseFuncionario.ok) {  
+    if (responseFuncionario.ok) {
         return (await responseFuncionario.json()) as Funcionario;
-    }    else {
+    } else {
         throw new Error("Error in updating Funcionario");
     }
-}
+};
 export const getFuncionarioById = async (id: string) => {
     let responseFuncionario = await fetch(FuncionarioURL + `/funcionario/ID/${id}`, {
         method: "GET",
@@ -99,15 +116,15 @@ export const getFuncionarioById = async (id: string) => {
 export const getServicoPage = async (
     page: string,
     limit: string,
-    nome: string | null = null,
-    precoMin: number | null = null,
-    precoMax: number | null = null,
-    includeRelations: boolean = false,
-    salaoId: string
+    salaoId: string,
+    nome?: string,
+    precoMin?: number,
+    precoMax?: number,
+    includeRelations: boolean = false
   ) => {
     let responseServicos = await fetch(
       FuncionarioURL +
-      `/servico/page?page=${page}&limit=${limit}&nome=${nome}&precoMin=${precoMin}&precoMax=${precoMax}&includeRelations=${includeRelations}&salaoId=${salaoId}`,
+      `/servico/page?page=${page}&limit=${limit}&salaoId=${salaoId}&nome=${nome}&precoMin=${precoMin}&precoMax=${precoMax}&includeRelations=${includeRelations}`,
       {
       method: "GET",
       }

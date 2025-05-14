@@ -10,7 +10,6 @@ interface UseVisualizarServicosResult {
   error: string | null;
   handleEditarServico: (servicoId: string) => void;
 }
-
 export const useVisualizarServicos = (
   page: number, 
   limit: number, 
@@ -28,7 +27,8 @@ export const useVisualizarServicos = (
     const fetchServicos = async () => {
       setIsLoading(true);
       setError(null);
-
+      console.log("Preço min: ", precoMinFilter);
+      console.log("preço max: ", precoMaxFilter);
       try {
         const response = await ServicoService.getServicosPaginados(
           page,
@@ -62,7 +62,7 @@ export const useVisualizarServicos = (
   }, [page, limit, salaoId, nomeFilter, precoMinFilter, precoMaxFilter]);
 
   const handleEditarServico = (servicoId: string) => {
-   // navigate(`/servico/editar/${servicoId}`);
+   navigate(`/servico/editar/${servicoId}`);
   };
 
   return {

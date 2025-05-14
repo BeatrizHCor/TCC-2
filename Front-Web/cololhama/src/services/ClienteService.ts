@@ -1,5 +1,6 @@
 import axios from "axios";
 import { Cliente } from "../models/clienteModel";
+import { LoginService } from "./LoginService";
 
 const api = axios.create({
   baseURL: import.meta.env.APIGATEWAY_URL || "http://localhost:5000",
@@ -84,12 +85,8 @@ export const ClienteService = {
         userType: userType,
       });
       if (response.data.token) {
-        localStorage.setItem("token", response.data.token);
-        localStorage.setItem("usuario", JSON.stringify({ email, salaoId }));
-
-        axios.defaults.headers.common[
-          "Authorization"
-        ] = `Bearer ${response.data.token}`;
+       const { token, userID, userType } = response.data;
+        LoginService.SetSession(token, userID, userType);
       }
       return !!response.data;
     } catch (error) {
@@ -98,7 +95,7 @@ export const ClienteService = {
     }
   },
 
-  async verificarClienteEmailExistente(
+  async getClienteByEmailAndSalao(
     email: string,
     salaoId: string
   ): Promise<boolean> {

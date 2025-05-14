@@ -122,8 +122,8 @@ class ClienteController {
 
   static async delete(req: Request, res: Response): Promise<void> {
     try {
-      const { email, salaoId } = req.params;
-      await ClienteService.delete(email, salaoId);
+      const { id } = req.params;
+      await ClienteService.delete(id);
       res.status(204).send();
     } catch (error) {
       console.log(error);

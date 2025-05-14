@@ -1,6 +1,7 @@
 import axios from "axios";
 import { Funcionario } from "../models/funcionarioModel";
 import { get } from "http";
+import { LoginService } from "./LoginService";
 
 const api = axios.create({
   baseURL: import.meta.env.APIGATEWAY_URL || "http://localhost:5000",
@@ -86,20 +87,24 @@ export const FuncionarioService = {
     Password: string,
     userType: string = "Funcionario",
     ): Promise<Funcionario> {
-        try {
-            const response = await api.post<Funcionario>(
-                `/funcionario`, {
-                    CPF,
-                    Nome,
-                    Email,
-                    Telefone,
-                    SalaoId,
-                    Auxiliar,
-                    Salario,
-                    Password,
-                    userType
-                });
-            return response.data;
+      try {
+        const response = await api.post(
+          `/funcionario`, {
+            CPF,
+            Nome,
+            Email,
+            Telefone,
+            SalaoId,
+            Auxiliar,
+            Salario,
+            Password,
+            userType
+          });
+        if (response.data.token) {
+        const { token, userID, userType } = response.data;
+        LoginService.SetSession(token, userID, userType);
+        }
+          return response.data;
         } catch (error) {
             console.error("Erro ao cadastrar funcionário:", error);
             throw error;
@@ -108,7 +113,10 @@ export const FuncionarioService = {
   
   async deleteFuncionario(id: string): Promise<void> {
     try {
-      await api.delete(`/funcionario/delete/${id}`);
+      const response = await api.delete(`/funcionario/delete/${id}`);
+      if (response.status === 200){
+        console.log("Funcionario deletedo: ", response.data.Nome)
+      }
     } catch (error) {
       console.error("Erro ao deletar funcionário:", error);
       throw error;
@@ -129,10 +137,27 @@ export const FuncionarioService = {
 
   async updateFuncionario(
     id: string,
-    funcionarioData: Funcionario
+    Nome: string,
+    CPF: string,
+    Email: string,
+    Telefone: string,
+    SalaoId: string,
+    Auxiliar: boolean,
+    Salario: number = 0,
+    password: string
+
   ): Promise<Funcionario> {
     try {
-      const response = await api.put<Funcionario>(`/funcionario/update/${id}`, funcionarioData);
+      const response = await api.put<Funcionario>(`/funcionario/update/${id}`, {
+        Nome,
+        CPF,
+        Email,
+        Telefone,
+        SalaoId,
+        Auxiliar,
+        Salario,
+        password,
+      });
       return response.data;
     } catch (error) {
       console.error("Erro ao atualizar funcionário:", error);

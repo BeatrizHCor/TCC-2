@@ -15,8 +15,8 @@ export const useManterServico = (servicoId?: string) => {
 
   const [Nome, setNome] = useState("");
   const [Descricao, setDescricao] = useState("");
-  const [PrecoMin, setPrecoMin] = useState<number>(0);
-  const [PrecoMax, setPrecoMax] = useState<number>(0);
+  const [PrecoMin, setPrecoMin] = useState<number | undefined>(undefined);
+  const [PrecoMax, setPrecoMax] = useState<number | undefined>(undefined);
   const [SalaoId, setSalaoId] = useState<string | null>(null);
   
 
@@ -78,11 +78,11 @@ export const useManterServico = (servicoId?: string) => {
       errors.nome = "Nome do serviço é obrigatório";
     }
     
-    if (PrecoMin < 0) {
+    if (PrecoMin && PrecoMin < 0) {
       errors.precoMin = "Preço mínimo não pode ser negativo";
     }
     
-    if (PrecoMax < PrecoMin) {
+    if (PrecoMax && PrecoMin && PrecoMax < PrecoMin) {
       errors.precoMax = "Preço máximo deve ser maior que o preço mínimo";
     }
     
@@ -105,19 +105,22 @@ export const useManterServico = (servicoId?: string) => {
     
     setIsLoading(true);
     
-    try {
-      const servicoData: Servico = {
-        Nome,
-        SalaoId: salaoId,      
-        PrecoMin,
-        PrecoMax,
-        Descricao,
-      };
-      
+    try {      
       if (isEditing && servicoId) {
-        await ServicoService.updateServico(servicoId, servicoData);
+        await ServicoService.updateServico(
+          servicoId,
+          Nome,
+          salaoId,      
+          PrecoMin,
+          PrecoMax,
+          Descricao);
       } else {
-        await ServicoService.createServico(servicoData);
+        await ServicoService.createServico(
+          Nome,
+          salaoId,      
+          PrecoMin,
+          PrecoMax,
+          Descricao);
       }
       
       navigate(-1);
