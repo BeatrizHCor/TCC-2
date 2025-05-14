@@ -116,8 +116,8 @@ const ManterServico: React.FC = () => {
                   required
                   type="number"
                   label="Preço Mínimo"
-                  value={PrecoMin}
-                  onChange={(e) => setPrecoMin(Number(e.target.value))}
+                  value={PrecoMin === undefined ? '' : PrecoMin}
+                  onChange={(e) => setPrecoMin(e.target.value ? Number(e.target.value) : undefined)}             
                   slotProps={{
                     input: {
                     startAdornment: (
@@ -136,8 +136,8 @@ const ManterServico: React.FC = () => {
                   required
                   type="number"
                   label="Preço Máximo"
-                  value={PrecoMax}
-                  onChange={(e) => setPrecoMax(Number(e.target.value))}               
+                  value={PrecoMax === undefined ? '' : PrecoMax}
+                  onChange={(e) => setPrecoMax(e.target.value ? Number(e.target.value) : undefined)}               
                   slotProps={{
                     input: {
                     startAdornment: (

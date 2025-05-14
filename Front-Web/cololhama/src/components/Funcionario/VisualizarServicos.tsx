@@ -86,7 +86,7 @@ export const VisualizarServicos: React.FC<VisualizarServicosProps> = ({
   const [precoMaxInput, setPrecoMaxInput] = useState<Number | "" >(""); 
   const handlePrecoMaxInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const onlyNumbers = e.target.value.replace(/\D/g, "");
-    setPrecoMaxInput(Number(onlyNumbers)); 
+    setPrecoMaxInput(onlyNumbers === "" ? "" : Number(onlyNumbers)); 
   };
   const aplicarFiltroPrecoMax = () => {
     setPrecoMaxFilter(Number(precoMaxInput));

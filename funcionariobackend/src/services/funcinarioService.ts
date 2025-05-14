@@ -1,15 +1,6 @@
 import { Prisma } from "@prisma/client";
 import prisma from "../config/database";
 
-interface FuncionarioData {
-  CPF: string;
-  Nome: string;
-  Email: string;
-  Telefone: string;
-  SalaoId: string;
-  Auxiliar: boolean;
-  Salario: number;
-}
 
 class FuncionarioService {
   static async getFuncionarios(
