@@ -62,11 +62,11 @@ class ServicoService {
         params: {
           page,
           limit,
+          salaoId,
           nome,
           precoMin,
           precoMax,
-          includeRelations,
-          salaoId,
+          includeRelations,          
         },
       });
       console.log("Serviços recebidos:", response.data);
@@ -147,7 +147,10 @@ class ServicoService {
 
   static async deleteServico(id: string): Promise<void> {
     try {
-      await api.delete(`/servico/delete/${id}`);
+      const response = await api.delete(`/servico/delete/${id}`);
+      if (response.status === 200){
+        console.log("Serviço deletedo: ", response.data.Nome)
+      }
     } catch (error) {
       console.error(`Erro ao excluir serviço com ID ${id}:`, error);
       throw error;

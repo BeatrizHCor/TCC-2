@@ -117,7 +117,8 @@ class FuncionarioController {
   static async update(req: Request, res: Response): Promise<void> {
     try {
       const { id } = req.params;
-      const {        Nome,
+      const {        
+        Nome,
         CPF,
         Email,
         Telefone,
@@ -144,8 +145,8 @@ class FuncionarioController {
   static async delete(req: Request, res: Response): Promise<void> {
     try {
       const { id } = req.params;
-      await FuncionarioService.deleteById(id);
-      res.status(204).send();
+      const funcionarioDeletado = await FuncionarioService.deleteById(id);
+      res.status(200).json(funcionarioDeletado);
     } catch (error) {
       console.log(error);
       res.status(500).send("something went wrong");

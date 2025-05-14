@@ -116,15 +116,15 @@ export const getFuncionarioById = async (id: string) => {
 export const getServicoPage = async (
     page: string,
     limit: string,
-    nome: string | null = null,
-    precoMin: number | null = null,
-    precoMax: number | null = null,
-    includeRelations: boolean = false,
-    salaoId: string
+    salaoId: string,
+    nome?: string,
+    precoMin?: number,
+    precoMax?: number,
+    includeRelations: boolean = false
   ) => {
     let responseServicos = await fetch(
       FuncionarioURL +
-      `/servico/page?page=${page}&limit=${limit}&nome=${nome}&precoMin=${precoMin}&precoMax=${precoMax}&includeRelations=${includeRelations}&salaoId=${salaoId}`,
+      `/servico/page?page=${page}&limit=${limit}&salaoId=${salaoId}&nome=${nome}&precoMin=${precoMin}&precoMax=${precoMax}&includeRelations=${includeRelations}`,
       {
       method: "GET",
       }

@@ -27,7 +27,8 @@ export const useVisualizarServicos = (
     const fetchServicos = async () => {
       setIsLoading(true);
       setError(null);
-
+      console.log("Preço min: ", precoMinFilter);
+      console.log("preço max: ", precoMaxFilter);
       try {
         const response = await ServicoService.getServicosPaginados(
           page,

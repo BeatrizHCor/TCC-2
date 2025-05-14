@@ -113,7 +113,10 @@ export const FuncionarioService = {
   
   async deleteFuncionario(id: string): Promise<void> {
     try {
-      await api.delete(`/funcionario/delete/${id}`);
+      const response = await api.delete(`/funcionario/delete/${id}`);
+      if (response.status === 200){
+        console.log("Funcionario deletedo: ", response.data.Nome)
+      }
     } catch (error) {
       console.error("Erro ao deletar funcionário:", error);
       throw error;

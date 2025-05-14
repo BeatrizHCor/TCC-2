@@ -4,11 +4,11 @@ import ServicoService from "../services/servicoService";
 class ServicoController {
   static async getServicosPage(req: Request, res: Response): Promise<void> {
     try {
-      const { page, limit, includeRelations, nome, precoMin, precoMax, salaoId } = req.query;
+      const { page, limit, salaoId, nome, precoMin, precoMax, includeRelations } = req.query;
       const servicos = await ServicoService.getServicoPage(
         page ? Number(page): 0,
         limit ? Number(limit): 10,
-        nome ? String(nome) : undefined,
+        nome ? String(nome) : '',
         Number(precoMin),
         Number(precoMax),
         includeRelations === "true",
@@ -27,7 +27,7 @@ class ServicoController {
       const servicos = await ServicoService.getServicos(
         undefined,
         Number(limit),
-        undefined,
+        '',
         undefined,
         undefined,
         includeRelations === 'true',
@@ -96,8 +96,8 @@ class ServicoController {
   static async delete(req: Request, res: Response): Promise<void> {
     try {
       const { id } = req.params;
-      await ServicoService.delete(id);
-      res.status(204).send();
+      const servicoDeletado = await ServicoService.delete(id);
+      res.status(200).send(servicoDeletado);
     } catch (error) {
       console.log(error);
       res.status(500).json({ message: error instanceof Error ? error.message : "Erro ao excluir serviço" });

@@ -19,8 +19,6 @@ class CabeleireiroService {
         whereCondition.SalaoId = salaoId;
       }
     }
-  console.log("whereCondition final:", JSON.stringify(whereCondition));
-
     return await prisma.cabeleireiro.findMany({
       ...(skip !== null ? { skip } : {}),
       ...(limit !== null ? { take: limit } : {}),
@@ -67,7 +65,7 @@ class CabeleireiroService {
     try {
       return await prisma.cabeleireiro.findUnique({
         where: {
-          ID,
+          ID: ID,
         },
         ...(include
           ? {
@@ -128,7 +126,7 @@ class CabeleireiroService {
           SalaoId,
         },
         where: {
-          ID,
+          ID: ID,
         },
       });
     } catch (e) {
@@ -140,7 +138,7 @@ class CabeleireiroService {
     try {
       return await prisma.cabeleireiro.delete({
         where: {
-          ID,
+          ID: ID,
         },
       });
     } catch (e) {

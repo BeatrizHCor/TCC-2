@@ -12,22 +12,21 @@ class ServicoService {
     salaoId: string | null = null
   ) {
     let whereCondition: Prisma.ServicoWhereInput = {};
-    if (nome && nome.trim() !== '' && typeof nome === 'string' && nome.trim().length > 0 && nome !== 'null') {
+    if (nome !== undefined && nome.trim() !== '' && typeof nome === 'string' && nome.trim().length > 0 && nome !== 'null') {
       whereCondition.Nome = {
         contains: nome,
         mode: 'insensitive',
       };
-    if (salaoId) {
+    if (salaoId !== null) {
         whereCondition.SalaoId = salaoId;
       }
     }
-  console.log("whereCondition final:", JSON.stringify(whereCondition));
 
-    if (precoMin != null && !isNaN(precoMin)) {
+    if (precoMin !== undefined && precoMin != null && !isNaN(precoMin)) {
       whereCondition.PrecoMin = { gte: precoMin };
     }
 
-    if (precoMax != null && !isNaN(precoMax)) {
+    if (precoMax !== undefined && precoMax != null && !isNaN(precoMax)) {
       whereCondition.PrecoMax = { lte: precoMax };
     }
 
@@ -52,7 +51,7 @@ class ServicoService {
         Salao: true,
         ServicoAtendimento: true,
       };
-    }
+    } console.log("whereCondition final:", JSON.stringify(whereCondition));
     return await prisma.servico.findMany(query);
   }
   

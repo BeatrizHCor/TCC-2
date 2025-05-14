@@ -11,6 +11,7 @@ import {
   Paper,
   TextField,
   Button,
+  Typography,
 } from '@mui/material';
 import EditIcon from "@mui/icons-material/Edit";
 import { Funcionario } from '../../models/funcionarioModel';
@@ -75,6 +76,9 @@ export const VisualizarFuncionarios: React.FC<VisualizarFuncionariosProps> = ({
 
   return (
     <Box sx={{ width: '100%', p: 2 }}>
+      <Typography variant="h5" sx={{ mb: 3 }}>
+        Funcionários
+      </Typography>
       <Box sx={{ display: 'flex', mb: 2 , gap: 2}}>
       <TextField
           variant="outlined"

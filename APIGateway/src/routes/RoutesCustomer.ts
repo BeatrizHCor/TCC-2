@@ -40,7 +40,6 @@ RoutesCustomer.post(
       }
       throw new Error("Login registration failed");
     }
-
     let token = await postLogin(Email, Password, SalaoId);
     res.status(200).send(token);
   } catch (e) {
