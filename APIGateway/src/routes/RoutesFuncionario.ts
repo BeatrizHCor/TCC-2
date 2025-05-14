@@ -48,10 +48,10 @@ RoutesFuncionario.post(
             Auxiliar,
             Salario
         );
-        console.log(funcionario);
         if (!funcionario) {
             throw new Error("Funcionario not created");
         }
+        console.log("Funcionario ID:",funcionario.ID);    
         let register = await registerLogin(
             funcionario.ID!,
             Email,
@@ -59,8 +59,8 @@ RoutesFuncionario.post(
             SalaoId,
             userType
             );
-        if (register.status !== 201) {
-            console.log("Register failed");
+        if (register !== 201) {
+            console.log("Register auth failed, deleting user");
             let funcionarioDelete = await deleteFuncionario(funcionario.ID!);
         if (funcionarioDelete) {
             console.log("Funcionario deleted successfully");

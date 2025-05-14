@@ -1,6 +1,7 @@
 import axios from "axios";
 import { Funcionario } from "../models/funcionarioModel";
 import { get } from "http";
+import { LoginService } from "./LoginService";
 
 const api = axios.create({
   baseURL: import.meta.env.APIGATEWAY_URL || "http://localhost:5000",
@@ -86,20 +87,24 @@ export const FuncionarioService = {
     Password: string,
     userType: string = "Funcionario",
     ): Promise<Funcionario> {
-        try {
-            const response = await api.post<Funcionario>(
-                `/funcionario`, {
-                    CPF,
-                    Nome,
-                    Email,
-                    Telefone,
-                    SalaoId,
-                    Auxiliar,
-                    Salario,
-                    Password,
-                    userType
-                });
-            return response.data;
+      try {
+        const response = await api.post(
+          `/funcionario`, {
+            CPF,
+            Nome,
+            Email,
+            Telefone,
+            SalaoId,
+            Auxiliar,
+            Salario,
+            Password,
+            userType
+          });
+        if (response.data.token) {
+        const { token, userID, userType } = response.data;
+        LoginService.SetSession(token, userID, userType);
+        }
+          return response.data;
         } catch (error) {
             console.error("Erro ao cadastrar funcionário:", error);
             throw error;

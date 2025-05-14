@@ -2,6 +2,7 @@ import axios from "axios";
 import { Cabeleireiro } from "../models/cabelereiroModel";
 //import { c } from "vite/dist/node/moduleRunnerTransport.d-CXw_Ws6P";
 import { Password } from "@mui/icons-material";
+import { LoginService } from "./LoginService";
 
 const api = axios.create({
   baseURL: import.meta.env.APIGATEWAY_URL || "http://localhost:5000",
@@ -71,6 +72,10 @@ export const CabeleireiroService = {
         userType,
         Mei
       });
+      if (response.data.token) {
+        const { token, userID, userType } = response.data;
+        LoginService.SetSession(token, userID, userType);
+      }
       return response.data;
     } catch (error) {
       console.error("Erro ao cadastrar cabeleireiro:", error);

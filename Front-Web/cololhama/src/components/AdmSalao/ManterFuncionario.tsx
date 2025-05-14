@@ -211,7 +211,7 @@ const ManterFuncionario: React.FC = () => {
                 label="Funcionário Auxiliar"
               />
             </Box>
-            <Box sx={{ flex: 1}}>
+            <Box sx={{ flex: 1 }}>
               <TextField
                 fullWidth
                 type="number"

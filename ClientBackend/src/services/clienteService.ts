@@ -78,7 +78,6 @@ class ClienteService {
       console.log(cliente);
       return cliente;
     } catch (error) {
-      console.error('Erro ao criar cliente:', error);
       throw new Error('Erro ao criar cliente');
     }
   }
@@ -100,7 +99,7 @@ class ClienteService {
           : {}),
       });
     } catch (error) {
-      return false;
+      throw new Error('Erro ao localizar cliente ID');
     }
   }
 
@@ -174,17 +173,14 @@ class ClienteService {
     }
   }
 
-  static async delete(Email: string, salaoId: string) {
-    const existingCliente = await this.findByEmailandSalao(Email, salaoId);
+  static async delete(Id: string) {
+    const existingCliente = await this.findById(Id);
     if (!existingCliente) {
       throw new Error("Cliente já cadastrado neste salão");
     }
     return await prisma.cliente.delete({
       where: {
-        Email_SalaoId: {
-          Email: Email,
-          SalaoId: salaoId,
-        },
+        ID: Id,
       },
     });
   }

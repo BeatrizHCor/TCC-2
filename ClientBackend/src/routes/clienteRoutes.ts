@@ -11,6 +11,6 @@ router.get('/cliente/email/:email/:salaoId', ClienteController.findByEmailandSal
 router.get('/cliente/cpf/:cpf/:salaoId', ClienteController.findByCpfandSalao);
 router.post('/cliente', ClienteController.create);
 router.put('/cliente/update/:id', ClienteController.update);
-router.delete('/cliente/delete/:email/:salaoId', ClienteController.delete);
+router.delete('/cliente/delete/:id', ClienteController.delete);
 
 export default router;

@@ -30,8 +30,8 @@ export const registerLogin = async (
     }),
   });
   if (responseRegister.ok) {
-    console.log("Register response", responseRegister);
-    return await responseRegister.json();
+    console.log("Register response", responseRegister.ok);
+    return await responseRegister.status;
   } else {;
     console.log("Register failed", responseRegister.status);
     return responseRegister.status;
