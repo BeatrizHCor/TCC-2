@@ -39,7 +39,7 @@ export const postFuncionario = async (
 export const getFuncionarioPage = async (
   page: string,
   limit: string,
-  nome: string | null = null,
+  nome: string,
   includeRelations: boolean = false, 
   salaoId: string
 ) => {  
@@ -117,9 +117,9 @@ export const getServicoPage = async (
     page: string,
     limit: string,
     salaoId: string,
-    nome?: string,
-    precoMin?: number,
-    precoMax?: number,
+    nome: string,
+    precoMin: string,
+    precoMax: string,
     includeRelations: boolean = false
   ) => {
     let responseServicos = await fetch(

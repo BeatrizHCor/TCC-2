@@ -21,7 +21,7 @@ RoutesFuncionario.get(
     async (req: Request, res: Response) => {
         const page = (req.query.page as string) || '0';
         const limit = (req.query.limit as string) || '10';
-        const nome = (req.query.nome as string) || null;
+        const nome = (req.query.nome as string) || '';
         const includeRelations = req.query.include === "true" ? true : false;
         const salaoId = req.query.salaoId as string || '';
          try {
@@ -157,9 +157,9 @@ RoutesFuncionario.get(
     async (req: Request, res: Response) => {
         const page = (req.query.page as string) || '0';
         const limit = (req.query.limit as string) || '10';
-        const nome = req.query.nome as string || undefined;
-        const precoMin = req.query.precoMin ? parseFloat(req.query.precoMin as string) : undefined;
-        const precoMax = req.query.precoMax ? parseFloat(req.params.precoMax as string) : undefined;
+        const nome = req.query.nome as string || '';
+        const precoMin = req.query.precoMin as string || '';
+        const precoMax = req.query.precoMax as string || '';
         const includeRelations = req.query.include === "true" ? true : false;
         const salaoId = req.query.salaoId as string || '';
          try {
