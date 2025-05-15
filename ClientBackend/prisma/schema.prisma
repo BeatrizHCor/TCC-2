@@ -187,6 +187,8 @@ model Agendamentos {
 
 enum StatusAgendamento {
   Agendado
+  Concluido
+  Cancelado
 }
 
 model Holerite {

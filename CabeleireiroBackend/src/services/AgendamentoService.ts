@@ -8,35 +8,35 @@ class AgendamentoService{
         limit: number | null = null,
         include = false,
         salaoId: string | null = null,
-        dia: number,
-        mes: number,
-        ano: number
+        dia: number = 0,
+        mes: number = 0,
+        ano: number = 0
     ) => {
         let whereCondition: Prisma.AgendamentosWhereInput = {};
-
-        if (salaoId) {
+      console.log("Valores d,m,a: ",dia,mes,ano)
+        if (salaoId !== null) {
         whereCondition.SalaoId = salaoId;
         }
 
-        if (dia !== 0 && mes !== 0 && ano !== 0) {
-        const dataInicial = new Date(ano, mes - 1, dia, 0, 0, 0);
-        const dataFinal = new Date(ano, mes - 1, dia, 23, 59, 59);
+        if (dia !== 0 && !Number.isNaN(dia) && mes !== 0 && !Number.isNaN(mes) && ano !== 0 && !Number.isNaN(ano)) {
+        const dataInicial = new Date(Date.UTC(ano, mes - 1, dia, 0, 0, 0));
+        const dataFinal = new Date(Date.UTC(ano, mes - 1, dia, 23, 59, 59));
 
         whereCondition.Data = {
             gte: dataInicial,
             lte: dataFinal,
         };
-        } else if (ano !== 0 && mes !== 0) {
-        const dataInicio = new Date(ano, mes - 1, 1, 0, 0, 0);
-        const dataFim = new Date(ano, mes, 0, 23, 59, 59); //  dia 0 do mês seguinte = último dia do mês atual
+        } else if (ano !== 0 && !Number.isNaN(ano) && mes !== 0 && !Number.isNaN(mes)) {
+        const dataInicio = new Date(Date.UTC(ano, mes - 1, 1, 0, 0, 0));
+        const dataFim = new Date(Date.UTC(ano, mes, 0, 23, 59, 59)); //  dia 0 do mês seguinte = último dia do mês atual
 
         whereCondition.Data = {
             gte: dataInicio,
             lte: dataFim,
         };
-        } else if (ano !== 0) {
-        const dataInicio = new Date(ano, 0, 1, 0, 0, 0);   
-        const dataFim = new Date(ano, 11, 31, 23, 59, 59);  
+        } else if (ano !== 0 && !Number.isNaN(ano)) {
+        const dataInicio = new Date(Date.UTC(ano, 0, 1, 0, 0, 0));   
+        const dataFim = new Date(Date.UTC(ano, 11, 31, 23, 59, 59));  
 
         whereCondition.Data = {
             gte: dataInicio,
