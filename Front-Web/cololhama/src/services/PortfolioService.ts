@@ -2,7 +2,7 @@ import axios from "axios";
 import { get } from "http";
 
 const api = axios.create({
-  baseURL: import.meta.env.VITE_IMAGEM_URL || "http://localhost:8080",
+  baseURL: import.meta.env.VITE_IMAGEM_URL || "http://localhost:4000",
   timeout: 100000,
   headers: {
     "Content-Type": "application/json",
