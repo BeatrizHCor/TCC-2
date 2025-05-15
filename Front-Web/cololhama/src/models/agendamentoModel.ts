@@ -1,6 +1,7 @@
 import { Atendimento } from "./atendimentoModal";
 import { Cabeleireiro } from "./cabelereiroModel";
 import { Cliente } from "./clienteModel";
+import { StatusAgendamento } from "./StatusAgendamento.enum";
 
 export interface Agendamentos {
     ID?: string;
