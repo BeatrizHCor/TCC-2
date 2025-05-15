@@ -65,39 +65,42 @@ const ManterFuncionario: React.FC = () => {
     handleCloseDeleteDialog();
   };
 
-  const handleCpfChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const rawValue = e.target.value.replace(/\D/g, '');
-    let formattedValue = '';
-    
-    if (rawValue.length <= 3) {
-      formattedValue = rawValue;
-    } else if (rawValue.length <= 6) {
-      formattedValue = `${rawValue.slice(0, 3)}.${rawValue.slice(3)}`;
-    } else if (rawValue.length <= 9) {
-      formattedValue = `${rawValue.slice(0, 3)}.${rawValue.slice(3, 6)}.${rawValue.slice(6)}`;
-    } else {
-      formattedValue = `${rawValue.slice(0, 3)}.${rawValue.slice(3, 6)}.${rawValue.slice(6, 9)}-${rawValue.slice(9, 11)}`;
-    }
-    
-    setCpf(formattedValue);
-  };
+const handleCpfChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const rawValue = e.target.value.replace(/\D/g, '');
+  // Limit to 11 digits (CPF length)
+  const limitedValue = rawValue.slice(0, 11);
+  let formattedValue = '';
+  
+  if (limitedValue.length <= 3) {
+    formattedValue = limitedValue;
+  } else if (limitedValue.length <= 6) {
+    formattedValue = `${limitedValue.slice(0, 3)}.${limitedValue.slice(3)}`;
+  } else if (limitedValue.length <= 9) {
+    formattedValue = `${limitedValue.slice(0, 3)}.${limitedValue.slice(3, 6)}.${limitedValue.slice(6)}`;
+  } else {
+    formattedValue = `${limitedValue.slice(0, 3)}.${limitedValue.slice(3, 6)}.${limitedValue.slice(6, 9)}-${limitedValue.slice(9, 11)}`;
+  }
+  
+  setCpf(formattedValue);
+};
 
-  // Formatar telefone enquanto digita
-  const handleTelefoneChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const rawValue = e.target.value.replace(/\D/g, '');
-    let formattedValue = '';
-    
-    if (rawValue.length <= 2) {
-      formattedValue = rawValue;
-    } else if (rawValue.length <= 7) {
-      formattedValue = `(${rawValue.slice(0, 2)}) ${rawValue.slice(2)}`;
-    } else {
-      formattedValue = `(${rawValue.slice(0, 2)}) ${rawValue.slice(2, 7)}-${rawValue.slice(7, 11)}`;
-    }
-    
-    setTelefone(formattedValue);
-  };
-  while (!salaoId && isLoading) {
+  // formata telefone enquanto digita
+const handleTelefoneChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const rawValue = e.target.value.replace(/\D/g, '');
+  const limitedValue = rawValue.slice(0, 11);
+  let formattedValue = '';
+  
+  if (limitedValue.length <= 2) {
+    formattedValue = limitedValue;
+  } else if (limitedValue.length <= 7) {
+    formattedValue = `(${limitedValue.slice(0, 2)}) ${limitedValue.slice(2)}`;
+  } else {
+    formattedValue = `(${limitedValue.slice(0, 2)}) ${limitedValue.slice(2, 7)}-${limitedValue.slice(7, 11)}`;
+  }
+  
+  setTelefone(formattedValue);
+};
+  if (!salaoId && isLoading) {
     return (
       <Box sx={{ p: 3, textAlign: "center" }}>
         <CircularProgress />
@@ -131,7 +134,7 @@ const ManterFuncionario: React.FC = () => {
 
         <form onSubmit={handleSubmit}>
           <Box  sx={{ display: "flex", gap: 2, flexDirection: "column" }}>
-            <Box sx={{ xs: 12, sm: 6 }}>
+            <Box sx={{ width: { xs: '100%', sm: '50%' } }}>
               <TextField
                 fullWidth
                 required
@@ -185,7 +188,7 @@ const ManterFuncionario: React.FC = () => {
               />
             </Box>
           </Box>
-              <Box sx={{ xs: 12, sm: 6 }}>
+              <Box sx={{ width: { xs: '100%', sm: '50%' } }}>
               <TextField
                 fullWidth
                 required
@@ -217,7 +220,7 @@ const ManterFuncionario: React.FC = () => {
                 type="number"
                 label="Salário"
                 value={salario === undefined ? '' : salario}
-                onChange={(e) => setSalario(e.target.value ? Number(e.target.value) : undefined)}
+                onChange={(e) => setSalario(e.target.value !== '' ? Number(e.target.value) : undefined)}
                 error={Boolean(validationErrors.salario)}
                 helperText={validationErrors.salario}
                  slotProps={{
@@ -261,22 +264,38 @@ const ManterFuncionario: React.FC = () => {
               </Box>
             )}
 
-            {isEditing && (
-              <Box sx={{ xs: 12, sm: 6 }}>
-                <TextField
-                  fullWidth
-                  type="password"
-                  label="Nova Senha (opcional)"
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                  error={Boolean(validationErrors.password)}
-                  helperText={validationErrors.password}
-                  disabled={isLoading}
-                />
-              </Box>
-            )}
+              {isEditing && (
+                <Box sx={{ display: "flex", gap: 3 }}>
+                  <Box sx={{ flex: 1 }}>
+                    <TextField
+                      fullWidth
+                      type="password"
+                      label="Nova Senha (opcional)"
+                      value={password}
+                      onChange={(e) => setPassword(e.target.value)}
+                      error={Boolean(validationErrors.password)}
+                      helperText={validationErrors.password}
+                      disabled={isLoading}
+                    />
+                  </Box>
+                  {password && (
+                    <Box sx={{ flex: 1 }}>
+                      <TextField
+                        fullWidth
+                        type="password"
+                        label="Confirmar Nova Senha"
+                        value={confirmPassword}
+                        onChange={(e) => setConfirmPassword(e.target.value)}
+                        error={Boolean(validationErrors.confirmPassword)}
+                        helperText={validationErrors.confirmPassword}
+                        disabled={isLoading}
+                      />
+                    </Box>
+                  )}
+                </Box>
+              )}
 
-            <Box sx={{ xs: 12 }}>
+            <Box sx={{ width: '100%' }}>
               <Box sx={{ display: "flex", gap: 2, justifyContent: "space-between", mt: 2 }}>
                 <Button
                   variant="outlined"

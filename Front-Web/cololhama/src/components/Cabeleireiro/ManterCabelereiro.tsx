@@ -21,7 +21,7 @@ import "../../styles/styles.global.css";
 
 const ManterCabeleireiro: React.FC = () => {
   const navigate = useNavigate();
-  const { cabeleireiroId: cabeleireiroId } = useParams();
+  const { cabeleireiroId } = useParams();
 
   const [openDeleteDialog, setOpenDeleteDialog] = useState(false);
 

@@ -51,7 +51,7 @@ class ServicoService {
         Salao: true,
         ServicoAtendimento: true,
       };
-    } console.log("whereCondition final:", JSON.stringify(whereCondition));
+    }
     return await prisma.servico.findMany(query);
   }
   

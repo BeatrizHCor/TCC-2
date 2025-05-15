@@ -127,7 +127,7 @@ class FuncionarioController {
         Salario} = req.body;
       const updatedFuncionario = await FuncionarioService.update(
         id,
-                Nome,
+        Nome,
         CPF,
         Email,
         Telefone,
