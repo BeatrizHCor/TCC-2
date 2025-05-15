@@ -2,15 +2,14 @@ import axios from "axios";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { Cabeleireiro } from "../models/cabeleireiroModel";
 
-const API_URL = process.env.EXPO_PUBLIC_API_URL; // Coloquei em um .env . Favor usar .env em URLS e em id de salão e outras coisas, ta feio demais ficar colocando essas coisas em hardcode gente. De verdade, to cansada de arrumar
+const API_URL = process.env.EXPO_PUBLIC_API_URL || "http://localhost:5000"; 
 
 const api = axios.create({
   baseURL: API_URL,
   headers: {
     "Content-Type": "application/json",
   },
-}); // Porque tem um axios instalado aqui? A gente tem a Fetch api do js e ja tem um hook pra isso.
-
+}); 
 api.interceptors.request.use(
   async (config) => {
     try {
