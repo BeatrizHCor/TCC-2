@@ -9,13 +9,10 @@ export interface Agendamentos {
     Status: StatusAgendamento;
     ClienteID: string;
     Cliente: Cliente;
-    Cliente: Cliente;
     SalaoId: string;
     CabeleireiroID: string;
-    Cabeleireiro?: Cabeleireiro;
-    Cabeleireiro?: Cabeleireiro;
+    Cabeleireiro?: Cabeleireiro;  
     AtendimentoID?: string;
-    Atendimento: Atendimento;
     Atendimento: Atendimento;
   
   }
