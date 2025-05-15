@@ -1,8 +1,11 @@
+import { HistoricoSimulacao } from "./historicoSimulacaoModel";
+
 export interface Imagem {
-    id?: string;
-    portfolioId?: string;
-    historicoSimulacaoId?: string;
-    endereco: string;
-    descricao?: string;
+    ID?: string;
+    PortfolioId?: string;
+    HistoricoSimulacaoId?: string;
+    HistoricoSimulacao: HistoricoSimulacao;
+    Endereco: string;
+    Descricao?: string;
   }
   

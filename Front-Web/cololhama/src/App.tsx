@@ -18,6 +18,7 @@ import ManterCabeleireiroPage from "./pages/Cabeleireiro/ManterCabelereiroPage";
 import PortfolioPage from "./components/Cabeleireiro/PortfolioPage";
 import ManterFuncionarioPage from "./pages/AdmSalao/ManterFuncionario";
 import ManterServicoPage from "./pages/Funcionario/ManterServicoPage";
+import VisualizarAgendamentoPage from "./pages/Cabeleireiro/VisulaizarAgendamentoPage";
 
 const App: React.FC = () => {
   const isAuthenticated = false;
@@ -50,6 +51,8 @@ const App: React.FC = () => {
             <Route path="/funcionarios" element={<VisualizarFuncionarioPage />} />
             <Route path="/funcionario/novo" element={<ManterFuncionarioPage />} />
             <Route path="/funcionario/editar/:funcionarioId" element={<ManterFuncionarioPage/>} />
+          
+            <Route path="/agendamentos" element={<VisualizarAgendamentoPage/>}/>
           </>   
         )}
       </Routes>
