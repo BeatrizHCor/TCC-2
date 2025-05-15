@@ -15,7 +15,7 @@ class CabeleireiroController {
       res.json(cabeleireiros);
     } catch (error) {
       console.log(error);
-      res.status(404).json({ message: "Cabeleireiro não encontrado" });
+      res.status(204).json({ message: "Cabeleireiro não encontrado" });
     }
   };
 
@@ -28,13 +28,13 @@ class CabeleireiroController {
         includeRelations
       );
       if (!cabeleireiro) {
-        res.status(404).json({ message: "Cabeleireiro não encontrado" });
+        res.status(204).json({ message: "Cabeleireiro não encontrado" });
       } else {
         res.json(cabeleireiro);
       }
     } catch (e) {
       console.log(e);
-      res.status(404).json({ message: "Cabeleireiro não encontrado" });
+      res.status(204).json({ message: "Cabeleireiro não encontrado" });
     }
   };
   static create = async (req: Request, res: Response) => {
