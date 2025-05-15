@@ -5,9 +5,9 @@ class ServicoService {
   static async getServicos(
     skip: number | null = null,
     limit: number | null = null,
-    nome?: string,
-    precoMin?: number,
-    precoMax?: number,
+    nome: string,
+    precoMin: number,
+    precoMax: number,
     include = false,
     salaoId: string | null = null
   ) {
@@ -22,11 +22,11 @@ class ServicoService {
       }
     }
 
-    if (precoMin !== undefined && precoMin != null && !isNaN(precoMin)) {
+    if (precoMin !== 0 && precoMin != null && !isNaN(precoMin)) {
       whereCondition.PrecoMin = { gte: precoMin };
     }
 
-    if (precoMax !== undefined && precoMax != null && !isNaN(precoMax)) {
+    if (precoMax !== 0 && precoMax != null && !isNaN(precoMax)) {
       whereCondition.PrecoMax = { lte: precoMax };
     }
 
@@ -51,16 +51,16 @@ class ServicoService {
         Salao: true,
         ServicoAtendimento: true,
       };
-    } console.log("whereCondition final:", JSON.stringify(whereCondition));
+    }
     return await prisma.servico.findMany(query);
   }
   
   static async getServicoPage(
-    page = 1,
-    limit = 10,
-    nome?: string,
-    precoMin?: number,
-    precoMax?: number,
+    page: number,
+    limit: number,
+    nome: string,
+    precoMin: number,
+    precoMax: number,
     includeRelations = false,
     salaoId: string | null = null
   ) {

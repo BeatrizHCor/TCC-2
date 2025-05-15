@@ -3,8 +3,9 @@ import { useNavigate } from "react-router-dom";
 import FuncionarioService from "../../services/FuncionarioService";
 import { validarCPF, validarEmail } from "../../utils/validations";
 import { Funcionario } from "../../models/funcionarioModel";
-
-const SalaoId = import.meta.env.SALAO_ID || "1"; 
+// LEMBRETE: tratamento de erros a serem devidamente colocados, 
+// qundo terminar replicar logica para outras paginas de CRUD
+const SalaoId: string = import.meta.env.SALAO_ID || "1";
 
 interface ValidationErrors {
   nome?: string;
@@ -62,10 +63,12 @@ export const useManterFuncionario = (funcionarioId?: string) => {
         setAuxiliar(funcionario.Auxiliar || false);
         setSalario(funcionario.Salario);
         setSalaoId(funcionario.SalaoId || null);
-      } catch (error) {
-        console.error("Erro ao buscar funcionário:", error);
-        navigate("/funcionarios", { replace: true });
-      } finally {
+} catch (error) {
+   console.error("Erro ao buscar funcionário:", error);
+  // Add a toast notification or error state here
+  // e.g., toast.error("Não foi possível carregar os dados do funcionário.");
+   navigate("/funcionarios", { replace: true });
+ } finally {
         setIsLoading(false);
       }
     };
@@ -102,9 +105,12 @@ export const useManterFuncionario = (funcionarioId?: string) => {
       errors.telefone = "Telefone é obrigatório";
     }
 
-    if (salario !== undefined && salario < 0) {
-      errors.salario = "Salário não pode ser negativo";
-    }
+if (salario !== undefined && salario < 0) {
+   errors.salario = "Salário não pode ser negativo";
+ }
+if (salario !== undefined && isNaN(Number(salario))) {
+  errors.salario = "Salário deve ser um número válido";
+}
 
 
     if (!isEditing && !password.trim()) {
@@ -161,10 +167,17 @@ export const useManterFuncionario = (funcionarioId?: string) => {
       }
       
       navigate("/funcionarios");
-    } catch (error) {
-      console.error("Erro ao salvar funcionário:", error);
-      // Adicione aqui um tratamento de erro mais específico se necessário
-    } finally {
+} catch (error) {
+   console.error("Erro ao salvar funcionário:", error);
+  // Add a more specific error handler - for example:
+  if (error instanceof Error) {
+    // Set a specific error message to show to the user
+    const errorMessage = error.message.includes("CPF já cadastrado") 
+      ? "Este CPF já está em uso" 
+      : "Erro ao salvar funcionário. Tente novamente.";
+    // Show error to user (e.g., through a state variable or toast notification)
+  }
+ } finally {
       setIsLoading(false);
     }
   };

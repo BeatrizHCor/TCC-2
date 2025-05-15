@@ -53,8 +53,8 @@ class ServicoService {
     limit: number = 10,
     salaoId: string,
     nome?: string,
-    precoMin?: number,
-    precoMax?: number,
+    precoMin: number = 0,
+    precoMax: number = 0,
     includeRelations: boolean = false
   ): Promise<ServicoPaginadoResponse> {
     try {

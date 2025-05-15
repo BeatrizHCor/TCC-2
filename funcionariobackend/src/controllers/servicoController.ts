@@ -28,8 +28,8 @@ class ServicoController {
         undefined,
         Number(limit),
         '',
-        undefined,
-        undefined,
+        0,
+        0,
         includeRelations === 'true',
         salaoId ? String(salaoId) : null
       );
