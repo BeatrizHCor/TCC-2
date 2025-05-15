@@ -2,7 +2,7 @@ import axios from "axios";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { Servico } from "../models/servicoModel";
 
-const API_URL = process.env.EXPO_PUBLIC_API_URL; // Coloquei em um .env . Favor usar .env em URLS e em id de salão e outras coisas, ta feio demais ficar colocando essas coisas em hardcode gente. De verdade, to cansada de arrumar
+const API_URL = process.env.EXPO_PUBLIC_API_URL || "http://localhost:5000";// Coloquei em um .env . Favor usar .env em URLS e em id de salão e outras coisas, ta feio demais ficar colocando essas coisas em hardcode gente. De verdade, to cansada de arrumar
 
 const api = axios.create({
   baseURL: API_URL,
@@ -70,8 +70,8 @@ class ServicoService {
     limit: number = 10,
     salaoId: string,
     nome?: string,
-    precoMin?: number | "",
-    precoMax?: number | "",
+    precoMin: number = 0,
+    precoMax: number = 0,
     includeRelations: boolean = false
   ): Promise<ServicoPaginadoResponse> {
     try {
@@ -90,8 +90,8 @@ class ServicoService {
           page,
           limit,
           nome,
-          precoMin: precoMin === "" ? undefined : precoMin,
-          precoMax: precoMax === "" ? undefined : precoMax,
+          precoMin,
+          precoMax,
           includeRelations,
           salaoId,
         },
