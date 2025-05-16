@@ -1,7 +1,7 @@
 export interface PagamentosAssinatura {
-    id?: string;
-    data: Date;
-    valor: number;
-    salaoId: string;
-    status: StatusPagamento;
+    ID?: string;
+    Data: Date;
+    Valor: number;
+    SalaoId: string;
+    Status: StatusPagamento;
   }

@@ -48,8 +48,7 @@ export class ImagemService {
       let fotos = await prisma.imagem.findMany({
         where: { PortfolioId: portfolioId },
       });
-  
-      // Mapear as imagens para adicionar informações de tamanho do arquivo e o conteúdo do arquivo
+
       const fotosComConteudo = fotos.map((foto: { Endereco: string; }) => {
         try {
           const filePath = path.normalize(path.join(__dirname, "..", "..", foto.Endereco));
@@ -57,10 +56,10 @@ export class ImagemService {
             const fileStat = fs.statSync(filePath);
             const fileSizeInBytes = fileStat.size;
             const fileSizeInMB = fileSizeInBytes / (1024 * 1024); // Convertendo para MB
-            const fileContent = fs.readFileSync(filePath, { encoding: "base64" }); // Ler o arquivo como Base64
+            const fileContent = fs.readFileSync(filePath, { encoding: "base64" }); // ler o arquivo como Base64
             return { ...foto, fileSize: fileSizeInMB, fileContent };
           }
-          // Se o arquivo não existir, retornar a foto sem o conteúdo
+
           return { ...foto, fileSize: null, fileContent: null };
         } catch (err) {
           console.error(`Erro ao processar arquivo ${foto.Endereco}:`, err);

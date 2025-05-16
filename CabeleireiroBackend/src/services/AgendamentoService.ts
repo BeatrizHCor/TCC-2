@@ -28,7 +28,7 @@ class AgendamentoService{
         };
         } else if (ano !== 0 && !Number.isNaN(ano) && mes !== 0 && !Number.isNaN(mes)) {
         const dataInicio = new Date(Date.UTC(ano, mes - 1, 1, 0, 0, 0));
-        const dataFim = new Date(Date.UTC(ano, mes, 0, 23, 59, 59)); //  dia 0 do mês seguinte = último dia do mês atual
+        const dataFim = new Date(Date.UTC(ano, mes, 0, 23, 59, 59)); 
 
         whereCondition.Data = {
             gte: dataInicio,

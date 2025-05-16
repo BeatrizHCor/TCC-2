@@ -3,20 +3,19 @@ import AgendamentoService from '../../services/AgendamentoService';
 import { Agendamentos } from '../../models/agendamentoModel';
 
 export const useVisualizarAgendamentos = (salaoId: string, dataFiltro: Date | null) => {
-  // Estados
   const [agendamentos, setAgendamentos] = useState<Agendamentos[]>([]);
   const [loading, setLoading] = useState<boolean>(false);
   const [totalAgendamentos, setTotalAgendamentos] = useState<number>(0);
   const [paginaAtual, setPaginaAtual] = useState<number>(1);
   const [limitePorPagina, setLimitePorPagina] = useState<number>(10);
 
-  // Função para carregar agendamentos
+ 
   const carregarAgendamentos = async () => {
     if (!salaoId) return;
     
     setLoading(true);
     try {
-      // Extrair ano, mês e dia do filtro de data
+    
       const ano = dataFiltro !== null ? dataFiltro.getFullYear() : undefined;
       const mes = dataFiltro !== null ? dataFiltro.getMonth() + 1 : undefined;
       const dia = dataFiltro !== null ? dataFiltro.getDate() : undefined;
@@ -35,13 +34,12 @@ export const useVisualizarAgendamentos = (salaoId: string, dataFiltro: Date | nu
       setTotalAgendamentos(resultado.total);
     } catch (error) {
       console.error('Erro ao carregar agendamentos:', error);
-      // Aqui você poderia adicionar uma notificação de erro
+
     } finally {
       setLoading(false);
     }
   };
 
-  // Carregar agendamentos ao iniciar e quando o filtro mudar
   useEffect(() => {
     carregarAgendamentos();
   }, [salaoId, dataFiltro, paginaAtual, limitePorPagina]);
