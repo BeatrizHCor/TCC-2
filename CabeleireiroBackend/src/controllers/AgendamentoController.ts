@@ -5,15 +5,16 @@ class AgendamentoController{
   static findAllPaginated = async (req: Request, res: Response) => {
     try {
       const { page, limit, includeRelations, salaoId, dia, mes, ano } = req.query;
-      const cabeleireiros = await AgendamentoService.getAgendamentosPage(
+      const agendamentos = await AgendamentoService.getAgendamentosPage(
         Number(page),
         Number(limit),
         includeRelations === "true",
         salaoId ? String(salaoId) : null,
-        dia ? Number(dia) : 0,
-        mes ? Number(mes) : 0,
-        ano ? Number(ano) : 0,
+        dia !== undefined ? Number(dia) : 0,
+        mes !== undefined ? Number(mes) : 0,
+        ano !== undefined ? Number(ano) : 0,
       );
+      res.status(200).json(agendamentos);
     } catch (error) {
       console.log(error);
       res.status(204).json({ message: "Agendamentos não encontrado" });

@@ -44,7 +44,7 @@ export class ImagemService {
 
   static async getImagensPorPortfolio(portfolioId: string) {
     try {
-      // Buscar imagens do portfólio
+
       let fotos = await prisma.imagem.findMany({
         where: { PortfolioId: portfolioId },
       });
