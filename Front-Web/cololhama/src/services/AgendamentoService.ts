@@ -3,7 +3,7 @@ import { Agendamentos } from "../models/agendamentoModel";
 
 
 const api = axios.create({
-  baseURL:  import.meta.env.CABELEREIRO_URL || "http://localhost:3005",
+  baseURL:  import.meta.env.APIGATEWAY_URL || "http://localhost:5000",
   headers: {
     "Content-Type": "application/json",
   },

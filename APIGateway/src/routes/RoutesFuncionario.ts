@@ -178,7 +178,7 @@ RoutesFuncionario.post(
         let ServicoData = req.body;
         try {           
             let servico = await postServico(ServicoData);
-            res.status(200).send(servico);
+            res.status(201).send(servico);
         } catch (e) {
             console.log(e);
             res.status(500).send("Error in creating customer");
