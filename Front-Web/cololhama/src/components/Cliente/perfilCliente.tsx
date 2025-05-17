@@ -43,20 +43,6 @@ export const PerfilCliente: React.FC<PerfilClienteProps> = () => {
   const [editMode, setEditMode] = useState(false);
   const [showSuccessAnimation, setShowSuccessAnimation] = useState(false);
 
-  useEffect(() => {
-    if (saveSuccess) {
-      setShowSuccessAnimation(true);
-
-      const timer = setTimeout(() => {
-        setShowSuccessAnimation(false);
-        setSaveSuccess(false);
-        setEditMode(false);
-      }, 1500);
-
-      return () => clearTimeout(timer);
-    }
-  }, [saveSuccess, setSaveSuccess]);
-
   const toggleEditMode = () => {
     setEditMode(!editMode);
   };
@@ -201,25 +187,6 @@ export const PerfilCliente: React.FC<PerfilClienteProps> = () => {
                       </Box>
                     </Box>
                   </Box>
-
-                  <TextField
-                    name="Email"
-                    label="Email"
-                    value={perfil.Email || ""}
-                    required
-                    type="email"
-                    onChange={handleChange}
-                    error={!!errors.email}
-                    helperText={errors.email}
-                    fullWidth
-                    disabled={!editMode}
-                    sx={{
-                      backgroundColor: editMode ? "white" : "#f8f8f8",
-                      "& .MuiInputBase-input.Mui-disabled": {
-                        WebkitTextFillColor: "#000000",
-                      },
-                    }}
-                  />
 
                   <Typography
                     variant="h6"

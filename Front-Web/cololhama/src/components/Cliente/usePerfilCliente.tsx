@@ -17,7 +17,7 @@ interface FormErrors {
   confirmacaoSenha?: string;
 }
 
-export const usePerfilCliente = (id: string) => {
+export const usePerfilCliente = (ClienteId: string) => {
   const [perfil, setPerfil] = useState<Cliente>({
     CPF: "",
     Nome: "",
@@ -38,7 +38,7 @@ export const usePerfilCliente = (id: string) => {
     const fetchPerfil = async () => {
       setLoading(true);
       try {
-        const clienteData = await ClienteService.getClienteById(id);
+        const clienteData = await ClienteService.getClienteById(ClienteId);
 
         if (clienteData) {
           setPerfil(clienteData);
@@ -52,9 +52,10 @@ export const usePerfilCliente = (id: string) => {
         setIsInitialized(true);
       }
     };
-
-    fetchPerfil();
-  }, []);
+    if (ClienteId) {
+      fetchPerfil();
+    }
+  }, [ClienteId]);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
@@ -119,13 +120,14 @@ export const usePerfilCliente = (id: string) => {
     }
 
     try {
-      const response = { success: true };
-
-      if (!response.success) {
-        console.error("Erro ao atualizar perfil.");
-        return;
-      }
-
+      const response = await ClienteService.atualizarCliente(
+        ClienteId,
+        perfil.CPF,
+        perfil.Nome,
+        perfil.Email,
+        perfil.Telefone,
+        perfil.SalaoId
+      );
       setSaveSuccess(true);
     } catch (error) {
       console.error("Erro ao atualizar perfil:", error);

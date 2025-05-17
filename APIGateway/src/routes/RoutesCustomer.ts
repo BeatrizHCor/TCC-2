@@ -3,6 +3,7 @@ import {
   postCliente,
   getClientePage,
   getClienteById,
+  getClienteByCPF,
   deleteCliente,
   updateCliente,
 } from "../services/ServiceClient";
@@ -26,7 +27,7 @@ RoutesCustomer.post("/cliente", async (req: Request, res: Response) => {
       SalaoId,
       userType
     );
-    if (register !== 201) {
+    if (!register) {
       console.log("Register auth failed");
       let clienteDelete = await deleteCliente(cliente.ID!);
       if (clienteDelete) {
@@ -87,6 +88,21 @@ RoutesCustomer.get("/cliente/:id", async (req, res) => {
   const { id } = req.params;
   try {
     const cliente = await getClienteById(id);
+    if (cliente) {
+      res.status(200).json(cliente);
+    } else {
+      res.status(204).json({ message: "Cliente não encontrado" });
+    }
+  } catch (error) {
+    console.error("Erro ao buscar cliente:", error);
+    res.status(500).json({ message: "Erro interno do servidor" });
+  }
+});
+
+RoutesCustomer.get("/cliente/cpf/:cpf/:salaoId", async (req, res) => {
+  const { cpf, salaoId } = req.params;
+  try {
+    const cliente = await getClienteByCPF(cpf, salaoId);
     if (cliente) {
       res.status(200).json(cliente);
     } else {

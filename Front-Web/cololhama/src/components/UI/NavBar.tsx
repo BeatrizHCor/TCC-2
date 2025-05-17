@@ -71,7 +71,7 @@ const NavBar: React.FC = () => {
           ))}
         </Box>
 
-        {!userId && (
+        {!userId ? (
           <Box sx={{ display: "flex", gap: 2 }}>
             <Box sx={{ position: "relative", overflow: "hidden" }}>
               <Button
@@ -123,6 +123,39 @@ const NavBar: React.FC = () => {
             >
               Login
             </Button>
+          </Box>
+        ) : (
+          <Box sx={{ display: "flex", gap: 2 }}>
+            <Box sx={{ position: "relative", overflow: "hidden" }}>
+              <Button
+                color="inherit"
+                component={Link}
+                to="/perfil"
+                sx={{
+                  textTransform: "none",
+                  color: theme.palette.customColors?.lightGray,
+                  fontFamily: '"The Seasons", serif',
+                  fontSize: "1rem",
+                  transition: "0.3s ease-in-out",
+                  "&::after": {
+                    content: '""',
+                    display: "block",
+                    width: "0%",
+                    height: "2px",
+                    backgroundColor: "#fff",
+                    position: "absolute",
+                    bottom: 0,
+                    left: 0,
+                    transition: "width 0.3s ease-in-out",
+                  },
+                  "&:hover::after": {
+                    width: "100%",
+                  },
+                }}
+              >
+                Meu Perfil
+              </Button>
+            </Box>
           </Box>
         )}
       </Toolbar>

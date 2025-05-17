@@ -1,5 +1,6 @@
 import "dotenv/config";
 import { Cliente } from "../models/clienteModel";
+import { response } from "express";
 
 const CustomerURL = process.env.CUSTOMER_URL || "http://localhost:4001";
 
@@ -58,6 +59,21 @@ export const getClienteById = async (id: string, includeRelations = false) => {
   }
 };
 
+export const getClienteByCPF = async (cpf: string, salaoId: string) => {
+  console.log(CustomerURL + `/cliente/cpf/${cpf}/${salaoId}`);
+  let responseCliente = await fetch(
+    CustomerURL + `/cliente/cpf/${cpf}/${salaoId}`,
+    {
+      method: "GET",
+    }
+  );
+  if (responseCliente.ok) {
+    return (await responseCliente.json()) as Cliente;
+  } else {
+    throw new Error("Error in getting cliente by CPF");
+  }
+};
+
 export const deleteCliente = async (id: string) => {
   let responseCliente = await fetch(CustomerURL + `/cliente/delete/${id}`, {
     method: "DELETE",
@@ -70,6 +86,8 @@ export const deleteCliente = async (id: string) => {
 };
 
 export const updateCliente = async (id: string, data: Cliente) => {
+  console.log(CustomerURL + `/cliente/${id}`);
+  console.log(data);
   let responseCliente = await fetch(CustomerURL + `/cliente/${id}`, {
     method: "PUT",
     headers: {

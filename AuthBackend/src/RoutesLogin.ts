@@ -35,8 +35,9 @@ RoutesLogin.post("/register", (req: Request, res: Response) => {
 });
 
 RoutesLogin.post("/login", async (req: Request, res: Response) => {
-  let { email, password, salaoID } = req.body;
-  let token = await verifyPasswordAndReturnToken(email, password, salaoID);
+  let { Email, password, SalaoID } = req.body;
+  console.log(req.body);
+  let token = await verifyPasswordAndReturnToken(Email, password, SalaoID);
   if (token) {
     res.send(token).status(200);
   } else {

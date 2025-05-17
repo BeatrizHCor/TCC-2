@@ -11,6 +11,7 @@ const AuthGuard = ({ children }: PropsAuthGuard) => {
 
   useEffect(() => {
     checkLocalStorage().then((e) => {
+      console.log(e);
       if (!e) {
         setReroute(true);
       }
@@ -19,7 +20,7 @@ const AuthGuard = ({ children }: PropsAuthGuard) => {
 
   return (
     <>
-      {reroute ? null : <Navigate to={"/login"} />}
+      {!reroute ? null : <Navigate to={"/login"} />}
       {children}
     </>
   );

@@ -3,11 +3,8 @@ import { userTypes } from "../models/tipo-usuario.enum";
 import { accessSync } from "fs";
 import e from "express";
 
-
 const CustomerURL = process.env.CUSTOMER_URL || "http://localhost:4001";
 const loginURL = process.env.AUTH_URL || "http://localhost:3000";
-
-
 
 export const registerLogin = async (
   userID: string,
@@ -31,11 +28,10 @@ export const registerLogin = async (
   });
   if (responseRegister.ok) {
     console.log("Register response for user", userID, ":", responseRegister.ok);
-    return responseRegister.status;
-  } else {;
+  } else {
     console.log("Register failed", responseRegister.status);
-    return responseRegister.status;
   }
+  return responseRegister.ok;
 };
 
 export const postLogin = async (
@@ -81,7 +77,3 @@ export const authenticate = async (
   }
 };
 //Todas as outras funções vão usar a função de authenticate no Service para verificar se o usuário é quem diz ser, pra depois permitir.
-
-
-
-

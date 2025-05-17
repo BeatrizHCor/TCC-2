@@ -2,7 +2,6 @@ import { Request, Response } from "express";
 import ClienteService from "../services/clienteService";
 
 class ClienteController {
-
   static async getClientesPage(req: Request, res: Response): Promise<void> {
     try {
       const { page, limit, includeRelations, salaoId } = req.query;
@@ -15,44 +14,42 @@ class ClienteController {
       res.json(clientes);
     } catch (error) {
       console.log(error);
-      res.status(404).json({ message: 'Cliente não encontrado' });
+      res.status(404).json({ message: "Cliente não encontrado" });
     }
   }
 
-    static async findAll(req: Request, res: Response): Promise<void> {
-      try {
-        const { limit, includeRelations, salaoId } = req.query;
-        const clientes = await ClienteService.getClientes(
-          null,
-          Number(limit),
-          includeRelations === 'true',
-          salaoId ? String(salaoId) : null
-        );
-        res.json(clientes);
-      } catch (error) {
-        console.log(error);
-        res.status(500).send("something went wrong");
-      }
+  static async findAll(req: Request, res: Response): Promise<void> {
+    try {
+      const { limit, includeRelations, salaoId } = req.query;
+      const clientes = await ClienteService.getClientes(
+        null,
+        Number(limit),
+        includeRelations === "true",
+        salaoId ? String(salaoId) : null
+      );
+      res.json(clientes);
+    } catch (error) {
+      console.log(error);
+      res.status(500).send("something went wrong");
     }
+  }
 
-
-    static async create(req: Request, res: Response): Promise<void> {
-      try {
-        let { CPF, Nome, Email, Telefone, SalaoId } = req.body;
-        const newCliente = await ClienteService.create(
-          CPF,
-          Nome,
-          Email,
-          Telefone,
-          SalaoId
-          
-        );
-        res.status(201).json(newCliente);
-      } catch (error) {
-        console.log(error);
-        res.status(500).send("something went wrong");
-      }
+  static async create(req: Request, res: Response): Promise<void> {
+    try {
+      let { CPF, Nome, Email, Telefone, SalaoId } = req.body;
+      const newCliente = await ClienteService.create(
+        CPF,
+        Nome,
+        Email,
+        Telefone,
+        SalaoId
+      );
+      res.status(201).json(newCliente);
+    } catch (error) {
+      console.log(error);
+      res.status(500).send("something went wrong");
     }
+  }
 
   static async findByID(req: Request, res: Response): Promise<void> {
     try {
@@ -61,10 +58,11 @@ class ClienteController {
       const cliente = await ClienteService.findById(id, includeRelations);
 
       if (!cliente) {
-        res.status(404).json({ message: 'Cliente não encontrado' });
-      }else{
+        res.status(404).json({ message: "Cliente não encontrado" });
+      } else {
         res.json(cliente);
-      }} catch (error) {
+      }
+    } catch (error) {
       console.log(error);
       res.status(500).send("something went wrong");
     }
@@ -80,16 +78,17 @@ class ClienteController {
         includeRelations
       );
       if (!cliente) {
-        res.status(404).json({ message: 'Cliente não encontrado' });
-      }else{
+        res.status(404).json({ message: "Cliente não encontrado" });
+      } else {
         res.json(cliente);
-      }} catch (error) {
+      }
+    } catch (error) {
       console.log(error);
       res.status(500).send("something went wrong");
     }
   }
 
-  static async findByCpfandSalao(req: Request, res: Response): Promise<void>  {
+  static async findByCpfandSalao(req: Request, res: Response): Promise<void> {
     try {
       const { cpf, salaoId } = req.params;
       const { includeRelations } = req.query;
@@ -101,18 +100,15 @@ class ClienteController {
       res.json(cliente);
     } catch (error) {
       console.log(error);
-
     }
   }
-  
-  static async update(req: Request, res: Response): Promise<void>  {
+
+  static async update(req: Request, res: Response): Promise<void> {
     try {
       const { id } = req.params;
       const updateData = req.body;
-      const updatedCliente = await ClienteService.update(
-        id,
-        updateData
-      );
+      console.log(id, updateData);
+      const updatedCliente = await ClienteService.update(id, updateData);
       res.json(updatedCliente);
     } catch (error) {
       console.log(error);

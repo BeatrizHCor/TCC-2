@@ -1,5 +1,5 @@
 import "../../styles/styles.global.css";
-import React from 'react';
+import React from "react";
 import {
   Container,
   Paper,
@@ -12,16 +12,16 @@ import {
   IconButton,
   LinearProgress,
   Alert,
-  Link as MuiLink
-} from '@mui/material';
-import { Visibility, VisibilityOff } from '@mui/icons-material';
-import { Link } from 'react-router-dom';
-import { useClienteCadastro } from './useCadastroCliente';
-import theme from "../../styles/theme"; 
+  Link as MuiLink,
+} from "@mui/material";
+import { Visibility, VisibilityOff } from "@mui/icons-material";
+import { Link } from "react-router-dom";
+import { useClienteCadastro } from "./useCadastroCliente";
+import theme from "../../styles/theme";
 
 interface ClienteCadastroProps {}
 
-const salaoId = "1"; // Consider using environment variable here
+const salaoId = import.meta.env.VITE_SALAO_ID || "1";
 
 export const ClienteCadastro: React.FC<ClienteCadastroProps> = () => {
   const {
@@ -34,7 +34,7 @@ export const ClienteCadastro: React.FC<ClienteCadastroProps> = () => {
     handleCPFChange,
     handleTelefoneChange,
     handleSubmit,
-    handleConfirmacaoSenhaChange
+    handleConfirmacaoSenhaChange,
   } = useClienteCadastro(salaoId);
 
   const [showPassword, setShowPassword] = React.useState(false);
@@ -50,38 +50,65 @@ export const ClienteCadastro: React.FC<ClienteCadastroProps> = () => {
 
   return (
     <Container maxWidth="lg">
-      <Box display="flex" justifyContent="center" alignItems="center" height="90vh">
-        
+      <Box
+        display="flex"
+        justifyContent="center"
+        alignItems="center"
+        height="90vh"
+      >
         <Box flex={1} display="flex" justifyContent="center">
-          <img 
-            src="/icone.svg" 
-            alt="Logo" 
-            style={{ 
-              width: "450px", 
-              height: "450px", 
-              filter: "invert(16%) sepia(90%) saturate(400%) hue-rotate(-5deg)" 
-            }} 
+          <img
+            src="/icone.svg"
+            alt="Logo"
+            style={{
+              width: "450px",
+              height: "450px",
+              filter: "invert(16%) sepia(90%) saturate(400%) hue-rotate(-5deg)",
+            }}
           />
         </Box>
 
-        <Box flex={1} display="flex" justifyContent="flex-start" sx={{ mt: 10 }}>
+        <Box
+          flex={1}
+          display="flex"
+          justifyContent="flex-start"
+          sx={{ mt: 10 }}
+        >
           <Paper elevation={3} sx={{ p: 5, width: 520 }}>
             {loading && <LinearProgress />}
-            
-            <Typography variant="h4" component="h1" gutterBottom sx={{ color: theme.palette.primary.main }}>
+
+            <Typography
+              variant="h4"
+              component="h1"
+              gutterBottom
+              sx={{ color: theme.palette.primary.main }}
+            >
               Cadastre-se
             </Typography>
-            
-            <Typography variant="body1" color="textSecondary" component="p" sx={{ marginBottom: '16px' }}>
+
+            <Typography
+              variant="body1"
+              color="textSecondary"
+              component="p"
+              sx={{ marginBottom: "16px" }}
+            >
               Preencha os campos abaixo
             </Typography>
-            
-            <Box component="form" onSubmit={handleSubmit} noValidate sx={{ mt: 1 }}>
+
+            <Box
+              component="form"
+              onSubmit={handleSubmit}
+              noValidate
+              sx={{ mt: 1 }}
+            >
               <Stack spacing={2}>
-                <Typography variant="h6" sx={{ color: theme.palette.primary.main }}>
+                <Typography
+                  variant="h6"
+                  sx={{ color: theme.palette.primary.main }}
+                >
                   Informações Pessoais
                 </Typography>
-                
+
                 <TextField
                   name="nome"
                   label="Nome Completo"
@@ -103,9 +130,9 @@ export const ClienteCadastro: React.FC<ClienteCadastroProps> = () => {
                         error={!!errors.CPF}
                         helperText={errors.CPF}
                         fullWidth
-                      slotProps={{
-                        input: {sx: {maxLength: 14}}
-                      }}
+                        slotProps={{
+                          input: { sx: { maxLength: 14 } },
+                        }}
                       />
                     </Box>
                     <Box flex={1}>
@@ -118,14 +145,13 @@ export const ClienteCadastro: React.FC<ClienteCadastroProps> = () => {
                         helperText={errors.telefone}
                         fullWidth
                         slotProps={{
-                          input: {sx: {maxLength: 15}
-                          }                        
-                      }}
+                          input: { sx: { maxLength: 15 } },
+                        }}
                       />
                     </Box>
                   </Box>
                 </Box>
-                
+
                 <TextField
                   name="email"
                   label="Email"
@@ -137,7 +163,10 @@ export const ClienteCadastro: React.FC<ClienteCadastroProps> = () => {
                   fullWidth
                 />
 
-                <Typography variant="h6" sx={{ color: theme.palette.primary.main, mt: 2 }}>
+                <Typography
+                  variant="h6"
+                  sx={{ color: theme.palette.primary.main, mt: 2 }}
+                >
                   Senha
                 </Typography>
 
@@ -156,11 +185,18 @@ export const ClienteCadastro: React.FC<ClienteCadastroProps> = () => {
                         InputProps={{
                           endAdornment: (
                             <InputAdornment position="end">
-                              <IconButton onClick={handleClickShowPassword} edge="end">
-                                {showPassword ? <VisibilityOff /> : <Visibility />}
+                              <IconButton
+                                onClick={handleClickShowPassword}
+                                edge="end"
+                              >
+                                {showPassword ? (
+                                  <VisibilityOff />
+                                ) : (
+                                  <Visibility />
+                                )}
                               </IconButton>
                             </InputAdornment>
-                          )
+                          ),
                         }}
                       />
                     </Box>
@@ -177,11 +213,18 @@ export const ClienteCadastro: React.FC<ClienteCadastroProps> = () => {
                         InputProps={{
                           endAdornment: (
                             <InputAdornment position="end">
-                              <IconButton onClick={handleClickShowConfirmPassword} edge="end">
-                                {showConfirmPassword ? <VisibilityOff /> : <Visibility />}
+                              <IconButton
+                                onClick={handleClickShowConfirmPassword}
+                                edge="end"
+                              >
+                                {showConfirmPassword ? (
+                                  <VisibilityOff />
+                                ) : (
+                                  <Visibility />
+                                )}
                               </IconButton>
                             </InputAdornment>
-                          )
+                          ),
                         }}
                       />
                     </Box>
@@ -189,26 +232,32 @@ export const ClienteCadastro: React.FC<ClienteCadastroProps> = () => {
                 </Box>
 
                 <Alert severity="info" sx={{ mt: 2 }}>
-                  A senha deve conter pelo menos 8 caracteres, incluindo letras maiúsculas, minúsculas, números e caracteres especiais.
+                  A senha deve conter pelo menos 8 caracteres, incluindo letras
+                  maiúsculas, minúsculas, números e caracteres especiais.
                 </Alert>
-                
-                <Box display="flex" justifyContent="space-between" alignItems="center" mt={3}>
+
+                <Box
+                  display="flex"
+                  justifyContent="space-between"
+                  alignItems="center"
+                  mt={3}
+                >
                   <MuiLink component={Link} to="/login" variant="body2">
                     Já possui uma conta? Faça login
                   </MuiLink>
-                  
+
                   <Button
                     type="submit"
                     variant="contained"
                     size="large"
-                    sx={{ 
-                      bgcolor: theme.palette.primary.main, 
-                      color: "#fff", 
-                      "&:hover": { bgcolor: "#600000" } 
+                    sx={{
+                      bgcolor: theme.palette.primary.main,
+                      color: "#fff",
+                      "&:hover": { bgcolor: "#600000" },
                     }}
                     disabled={loading}
                   >
-                    {loading ? 'Cadastrando...' : 'CADASTRAR'}
+                    {loading ? "Cadastrando..." : "CADASTRAR"}
                   </Button>
                 </Box>
               </Stack>
