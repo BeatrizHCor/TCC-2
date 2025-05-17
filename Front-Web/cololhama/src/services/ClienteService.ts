@@ -132,6 +132,30 @@ export const ClienteService = {
     }
   },
 
+  async getClienteByCpfAndSalao(
+    cpf: string,
+    salaoId: string
+  ): Promise<boolean> {
+    try {
+      const path = `/cliente/cpf/${cpf}/${salaoId}`;
+      console.log(`Verificando cliente por CPF no caminho: ${path}`);
+      const response = await api.get(path);
+      if (response.status === 204) {
+        console.log("Cliente não encontrado, retornando false.");
+        return false;
+      }
+      console.log("Resposta do servidor:", response.data);
+      return !!response.data;
+    } catch (error) {
+      if (axios.isAxiosError(error) && error.response?.status === 404) {
+        console.log("Cliente não encontrado, retornando false.");
+        return false;
+      }
+      console.error("Erro ao verificar cliente por CPF:", error);
+      throw error;
+    }
+  },
+
   async getClienteById(clienteId: string): Promise<Cliente> {
     try {
       const response = await api.get(`/cliente/${clienteId}`);

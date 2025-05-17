@@ -8,6 +8,7 @@ interface PropsAuthGuard {
 const AuthGuard = ({ children }: PropsAuthGuard) => {
   const { checkLocalStorage } = useContext(AuthContext);
   const [reroute, setReroute] = useState(false);
+
   useEffect(() => {
     checkLocalStorage().then((e) => {
       if (!e) {
