@@ -2,7 +2,6 @@ import axios from "axios";
 import { Cabeleireiro } from "../models/cabelereiroModel";
 //import { c } from "vite/dist/node/moduleRunnerTransport.d-CXw_Ws6P";
 import { Password } from "@mui/icons-material";
-import { LoginService } from "./LoginService";
 
 const api = axios.create({
   baseURL: import.meta.env.APIGATEWAY_URL || "http://localhost:5000",
@@ -15,11 +14,11 @@ const api = axios.create({
 // set os dados do usuario para autenticação no header de cada requisição
 api.interceptors.request.use(
   (config) => {
-    const usuario = localStorage.getItem("usuario"); 
+    const usuario = localStorage.getItem("usuario");
     if (usuario) {
-      const { userID, userType } = JSON.parse(usuario); 
-      config.headers.userID = userID; 
-      config.headers.userType = userType; 
+      const { userID, userType } = JSON.parse(usuario);
+      config.headers.userID = userID;
+      config.headers.userType = userType;
     }
     return config;
   },
@@ -29,7 +28,10 @@ api.interceptors.request.use(
 // verifique se a resposta contém um novo token e atualiza
 api.interceptors.response.use(
   (response) => {
-    const tokenHeader = response.headers["authorization"]?.replace("Bearer ", "");
+    const tokenHeader = response.headers["authorization"]?.replace(
+      "Bearer ",
+      ""
+    );
     const currentToken = localStorage.getItem("token");
     if (tokenHeader !== currentToken && currentToken) {
       console.log("Atualizando token na memória local");
@@ -52,14 +54,14 @@ interface CabeleireiroPageResponse {
 }
 export const CabeleireiroService = {
   async cadastrarCabeleireiro(
-    CPF: string, 
-    Nome: string, 
-    Email: string, 
-    Telefone: string, 
+    CPF: string,
+    Nome: string,
+    Email: string,
+    Telefone: string,
     Mei: string,
-    SalaoId: string, 
-    Password: string, 
-    userType: string = "Cabeleireiro", 
+    SalaoId: string,
+    Password: string,
+    userType: string = "Cabeleireiro"
   ): Promise<Cabeleireiro> {
     try {
       const response = await api.post("/cabeleireiro", {
@@ -70,11 +72,10 @@ export const CabeleireiroService = {
         SalaoId,
         Password,
         userType,
-        Mei
+        Mei,
       });
       if (response.data.token) {
         const { token, userID, userType } = response.data;
-        LoginService.SetSession(token, userID, userType);
       }
       return response.data;
     } catch (error) {
@@ -125,7 +126,7 @@ export const CabeleireiroService = {
     limit: number = 10,
     includeRelations: boolean = false,
     salaoId: string,
-    name?: string 
+    name?: string
   ): Promise<CabeleireiroPageResponse> {
     try {
       const response = await api.get(`/cabeleireiro/page`, {
@@ -134,7 +135,7 @@ export const CabeleireiroService = {
           limit,
           includeRelations,
           salaoId,
-          name
+          name,
         },
       });
 
@@ -152,7 +153,7 @@ export const CabeleireiroService = {
     try {
       const response = await api.get(`/cabeleireiro/ID/${id}`, {
         params: { include: includeRelations },
-      });   
+      });
       const cabeleireiro: Cabeleireiro = response.data;
       return cabeleireiro;
     } catch (error) {
@@ -161,7 +162,7 @@ export const CabeleireiroService = {
     }
   },
 
- async deleteCabeleireiro(id: string): Promise<Cabeleireiro> {
+  async deleteCabeleireiro(id: string): Promise<Cabeleireiro> {
     try {
       const response = await api.delete(`/cabeleireiro/delete/${id}`);
       return response.data;
@@ -178,26 +179,25 @@ export const CabeleireiroService = {
     Telefone: string,
     Mei: string,
     SalaoId: string,
-    Password: string,
+    Password: string
   ): Promise<Cabeleireiro> {
     try {
       const response = await api.put(`/cabeleireiro`, {
-        ID, 
-        CPF, 
-        Nome, 
-        Email, 
-        Telefone, 
-        Mei, 
+        ID,
+        CPF,
+        Nome,
+        Email,
+        Telefone,
+        Mei,
         SalaoId,
-        Password
+        Password,
       });
       return response.data;
     } catch (error) {
       console.error("Erro ao atualizar cabeleireiro:", error);
       throw error;
     }
-  }
-
+  },
 };
 
 export default CabeleireiroService;

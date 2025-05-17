@@ -1,27 +1,38 @@
-import React from "react";
+import React, { useContext } from "react";
 import { AppBar, Toolbar, Button, Box } from "@mui/material";
 import { Link } from "react-router-dom";
 import ContentCutIcon from "@mui/icons-material/ContentCut";
 import theme from "../../styles/theme";
+import { AuthContext } from "../../contexts/AuthContext";
 
-interface NavBarProps {
-  isAuthenticated: boolean;
-}
-
-const NavBar: React.FC<NavBarProps> = ({ isAuthenticated }) => {
+const NavBar: React.FC = () => {
+  const { userId } = useContext(AuthContext);
   return (
     <AppBar
       position="static"
-      sx={{ backgroundColor: theme.palette.customColors?.black, padding: "5px 20px" }}
+      sx={{
+        backgroundColor: theme.palette.customColors?.black,
+        padding: "5px 20px",
+      }}
     >
-      <Toolbar sx={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-
+      <Toolbar
+        sx={{
+          display: "flex",
+          justifyContent: "space-between",
+          alignItems: "center",
+        }}
+      >
         <Box sx={{ display: "flex", alignItems: "center" }}>
-          <ContentCutIcon sx={{ color: theme.palette.customColors?.goldenBorder, marginRight: "10px" }} />
+          <ContentCutIcon
+            sx={{
+              color: theme.palette.customColors?.goldenBorder,
+              marginRight: "10px",
+            }}
+          />
         </Box>
 
         <Box sx={{ display: "flex", gap: 3 }}>
-          {["/servicos", "/cabeleireiros", "/sobre", "/perfil"].map((route, index) => (
+          {["/servicos", "/cabeleireiros", "/sobre"].map((route, index) => (
             <Box key={index} sx={{ position: "relative", overflow: "hidden" }}>
               <Button
                 color="inherit"
@@ -32,14 +43,14 @@ const NavBar: React.FC<NavBarProps> = ({ isAuthenticated }) => {
                   color: theme.palette.customColors?.lightGray,
                   transition: "0.3s ease-in-out",
                   "&:hover": {
-                    color: "#fff", 
+                    color: "#fff",
                   },
                   "&::after": {
                     content: '""',
                     display: "block",
                     width: "0%",
                     height: "2px",
-                    backgroundColor: "#fff", 
+                    backgroundColor: "#fff",
                     position: "absolute",
                     bottom: 0,
                     left: 0,
@@ -50,13 +61,17 @@ const NavBar: React.FC<NavBarProps> = ({ isAuthenticated }) => {
                   },
                 }}
               >
-                {route === "/servicos" ? "Serviços" : route === "/cabeleireiros" ? "Cabeleireiros" : route === "/perfil" ? "Perfil" : "Sobre Nós" }
+                {route === "/servicos"
+                  ? "Serviços"
+                  : route === "/cabeleireiros"
+                  ? "Cabeleireiros"
+                  : "Sobre Nós"}
               </Button>
             </Box>
           ))}
         </Box>
 
-        {!isAuthenticated && (
+        {!userId && (
           <Box sx={{ display: "flex", gap: 2 }}>
             <Box sx={{ position: "relative", overflow: "hidden" }}>
               <Button

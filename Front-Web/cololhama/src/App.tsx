@@ -19,44 +19,56 @@ import PortfolioPage from "./components/Cabeleireiro/PortfolioPage";
 import ManterFuncionarioPage from "./pages/AdmSalao/ManterFuncionario";
 import ManterServicoPage from "./pages/Funcionario/ManterServicoPage";
 import VisualizarAgendamentoPage from "./pages/Cabeleireiro/VisulaizarAgendamentoPage";
+import { AuthContextProvider } from "./contexts/AuthContext";
 
 const App: React.FC = () => {
-  const isAuthenticated = false;
-
   return (
-    <ThemeProvider theme={theme}>
-      <CssBaseline />
-      <NavBar isAuthenticated={isAuthenticated} />
+    <AuthContextProvider>
+      <ThemeProvider theme={theme}>
+        <CssBaseline />
+        <NavBar />
 
-      <Routes>
-        <Route path="/" element={<HomePage />} />
+        <Routes>
+          <Route path="/" element={<HomePage />} />
+          <Route path="/perfil" element={<PerfilCliente />} />
 
-        {!isAuthenticated && (
-          <>
-            <Route path="/cadastro" element={<CadastroPage />} />
-            <Route path="/login" element={<LoginPage />} />
-            <Route path="/perfil" element={<PerfilCliente />} />
-            <Route path="/listaClientes" element={<VisualizarClientesPage />} />
+          <Route path="/cadastro" element={<CadastroPage />} />
+          <Route path="/login" element={<LoginPage />} />
+          <Route path="/listaClientes" element={<VisualizarClientesPage />} />
 
-            <Route path="/servicos" element={<VisualizarServicoPage />} />
-            <Route path="/servico/editar/novo" element={<ManterServicoPage />} />
-            <Route path="/servico/editar/:servicoId" element={<ManterServicoPage />} />
-            
-            <Route path="/portfolio/:portfolioId" element={<PortfolioPage />} />  
-            <Route path="/portfolio" element={<PortfolioCabeleireiro />} />           
-            <Route path="/cabeleireiros" element={<VisualizarCabeleireiroPage />}/>
-            <Route path="/cabeleireiro/novo" element={<ManterCabeleireiroPage/>}/>
-            <Route path="/cabeleireiro/editar/:cabeleireiroId" element={<ManterCabeleireiroPage/>}/>
-            
-            <Route path="/funcionarios" element={<VisualizarFuncionarioPage />} />
-            <Route path="/funcionario/novo" element={<ManterFuncionarioPage />} />
-            <Route path="/funcionario/editar/:funcionarioId" element={<ManterFuncionarioPage/>} />
-          
-            <Route path="/agendamentos" element={<VisualizarAgendamentoPage/>}/>
-          </>   
-        )}
-      </Routes>
-    </ThemeProvider>
+          <Route path="/servicos" element={<VisualizarServicoPage />} />
+          <Route path="/servico/editar/novo" element={<ManterServicoPage />} />
+          <Route
+            path="/servico/editar/:servicoId"
+            element={<ManterServicoPage />}
+          />
+
+          <Route path="/portfolio/:portfolioId" element={<PortfolioPage />} />
+          <Route path="/portfolio" element={<PortfolioCabeleireiro />} />
+          <Route
+            path="/cabeleireiros"
+            element={<VisualizarCabeleireiroPage />}
+          />
+          <Route
+            path="/cabeleireiro/novo"
+            element={<ManterCabeleireiroPage />}
+          />
+          <Route
+            path="/cabeleireiro/editar/:cabeleireiroId"
+            element={<ManterCabeleireiroPage />}
+          />
+
+          <Route path="/funcionarios" element={<VisualizarFuncionarioPage />} />
+          <Route path="/funcionario/novo" element={<ManterFuncionarioPage />} />
+          <Route
+            path="/funcionario/editar/:funcionarioId"
+            element={<ManterFuncionarioPage />}
+          />
+
+          <Route path="/agendamentos" element={<VisualizarAgendamentoPage />} />
+        </Routes>
+      </ThemeProvider>
+    </AuthContextProvider>
   );
 };
 

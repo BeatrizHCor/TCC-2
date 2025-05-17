@@ -1,6 +1,13 @@
-import { useState, useEffect } from 'react';
-import { ClienteService } from '../../services/ClienteService';
-import { cpfMask, telefoneMask, validarEmail, validarSenha, validarTelefone } from '../../utils/validations';
+import { useState, useEffect } from "react";
+import { ClienteService } from "../../services/ClienteService";
+import {
+  cpfMask,
+  telefoneMask,
+  validarEmail,
+  validarSenha,
+  validarTelefone,
+} from "../../utils/validations";
+import { Cliente } from "../../models/clienteModel";
 
 interface FormErrors {
   nome?: string;
@@ -10,32 +17,20 @@ interface FormErrors {
   confirmacaoSenha?: string;
 }
 
-interface ClienteData {
-  CPF: string;
-  nome: string;
-  email: string;
-  telefone: string;
-  salaoId: string;
-  password: string;
-  userType: string;
-}
-
-export const usePerfilCliente = (salaoId: string) => {
-  const [perfil, setPerfil] = useState<ClienteData>({
-    CPF: '',
-    nome: '',
-    email: '',
-    telefone: '',
-    salaoId: salaoId,
-    password: '',
-    userType: '',
+export const usePerfilCliente = (id: string) => {
+  const [perfil, setPerfil] = useState<Cliente>({
+    CPF: "",
+    Nome: "",
+    Email: "",
+    Telefone: "",
+    SalaoId: "",
   });
 
-  const [confirmacaoSenha, setConfirmacaoSenha] = useState('');
+  const [confirmacaoSenha, setConfirmacaoSenha] = useState("");
   const [errors, setErrors] = useState<FormErrors>({});
   const [loading, setLoading] = useState(false);
-  const [cpfFormatado, setCpfFormatado] = useState('');
-  const [telefoneFormatado, setTelefoneFormatado] = useState('');
+  const [cpfFormatado, setCpfFormatado] = useState("");
+  const [telefoneFormatado, setTelefoneFormatado] = useState("");
   const [saveSuccess, setSaveSuccess] = useState(false);
   const [isInitialized, setIsInitialized] = useState(false);
 
@@ -43,24 +38,15 @@ export const usePerfilCliente = (salaoId: string) => {
     const fetchPerfil = async () => {
       setLoading(true);
       try {
-        // Simulando a resposta da API para carregar o perfil
-        const clienteData = {
-          CPF: '123.456.789-00',
-          nome: 'Fulaninha Banana',
-          email: 'email@email.com',
-          telefone: '11987654321',
-          salaoId: salaoId,
-          password: 'Senha123*',
-          userType: 'cliente',
-        };
+        const clienteData = await ClienteService.getClienteById(id);
 
         if (clienteData) {
           setPerfil(clienteData);
           setCpfFormatado(cpfMask(clienteData.CPF));
-          setTelefoneFormatado(telefoneMask(clienteData.telefone));
+          setTelefoneFormatado(telefoneMask(clienteData.Telefone));
         }
       } catch (error) {
-        console.error('Erro ao carregar perfil:', error);
+        console.error("Erro ao carregar perfil:", error);
       } finally {
         setLoading(false);
         setIsInitialized(true);
@@ -68,14 +54,14 @@ export const usePerfilCliente = (salaoId: string) => {
     };
 
     fetchPerfil();
-  }, [salaoId]);
+  }, []);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
-    setPerfil(prev => ({ ...prev, [name]: value }));
+    setPerfil((prev) => ({ ...prev, [name]: value }));
 
     if (errors[name as keyof FormErrors]) {
-      setErrors(prev => ({ ...prev, [name]: undefined }));
+      setErrors((prev) => ({ ...prev, [name]: undefined }));
     }
   };
 
@@ -83,46 +69,38 @@ export const usePerfilCliente = (salaoId: string) => {
     const maskedValue = telefoneMask(e.target.value);
     setTelefoneFormatado(maskedValue);
 
-    const numericValue = maskedValue.replace(/\D/g, '');
-    setPerfil(prev => ({ ...prev, telefone: numericValue }));
+    const numericValue = maskedValue.replace(/\D/g, "");
+    setPerfil((prev) => ({ ...prev, Telefone: numericValue }));
 
     if (errors.telefone) {
-      setErrors(prev => ({ ...prev, telefone: undefined }));
+      setErrors((prev) => ({ ...prev, telefone: undefined }));
     }
   };
 
-  const handleConfirmacaoSenhaChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+  const handleConfirmacaoSenhaChange = (
+    event: React.ChangeEvent<HTMLInputElement>
+  ) => {
     const value = event.target.value;
     setConfirmacaoSenha(value);
 
     if (errors.confirmacaoSenha) {
-      setErrors(prev => ({ ...prev, confirmacaoSenha: undefined }));
+      setErrors((prev) => ({ ...prev, confirmacaoSenha: undefined }));
     }
   };
 
   const validateForm = () => {
     const newErrors: FormErrors = {};
 
-    if (!perfil.nome?.trim()) {
-      newErrors.nome = 'Nome é obrigatório';
+    if (!perfil.Nome?.trim()) {
+      newErrors.nome = "Nome é obrigatório";
     }
 
-    if (!validarTelefone(perfil.telefone)) {
-      newErrors.telefone = 'Telefone inválido';
+    if (!validarTelefone(perfil.Telefone)) {
+      newErrors.telefone = "Telefone inválido";
     }
 
-    if (!perfil.email || !validarEmail(perfil.email)) {
-      newErrors.email = 'Email inválido';
-    }
-
-    if (perfil.password) {
-      if (!validarSenha(perfil.password)) {
-        newErrors.password = 'Senha fraca';
-      }
-
-      if (!confirmacaoSenha || confirmacaoSenha !== perfil.password) {
-        newErrors.confirmacaoSenha = 'As senhas não coincidem';
-      }
+    if (!perfil.Email || !validarEmail(perfil.Email)) {
+      newErrors.email = "Email inválido";
     }
 
     setErrors(newErrors);
@@ -141,7 +119,6 @@ export const usePerfilCliente = (salaoId: string) => {
     }
 
     try {
-      // Simulando a resposta da API para atualizar o perfil
       const response = { success: true };
 
       if (!response.success) {
@@ -151,8 +128,8 @@ export const usePerfilCliente = (salaoId: string) => {
 
       setSaveSuccess(true);
     } catch (error) {
-      console.error('Erro ao atualizar perfil:', error);
-      alert('Erro ao atualizar perfil: ' + JSON.stringify(error));
+      console.error("Erro ao atualizar perfil:", error);
+      alert("Erro ao atualizar perfil: " + JSON.stringify(error));
     } finally {
       setLoading(false);
     }

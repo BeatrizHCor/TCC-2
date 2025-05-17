@@ -1,9 +1,7 @@
 import "dotenv/config";
 import { Cliente } from "../models/clienteModel";
 
-
 const CustomerURL = process.env.CUSTOMER_URL || "http://localhost:4001";
-
 
 export const postCliente = async (
   CPF: string,
@@ -46,77 +44,42 @@ export const getClientePage = async (
   }
 };
 
+export const getClienteById = async (id: string, includeRelations = false) => {
+  let responseCliente = await fetch(
+    CustomerURL + `/cliente/ID/${id}?include=${includeRelations}`,
+    {
+      method: "GET",
+    }
+  );
+  if (responseCliente.ok) {
+    return (await responseCliente.json()) as Cliente;
+  } else {
+    throw new Error("Error in getting cliente");
+  }
+};
 
-export const getClienteById = async (id: string, includeRelations: boolean) => {
-    let responseCliente = await fetch(
-      CustomerURL + `/cliente/ID/${id}?include=${includeRelations}`,
-      {
-        method: "GET",
-      }
-    );
-    if (responseCliente.ok) {
-      return (await responseCliente.json()) as Cliente;
-    } else {
-      throw new Error("Error in getting cliente");
-    }
-  };
-  
-  export const getClienteByCPF = async (cpf: string, salaoId: string) => {
-    let responseCliente = await fetch(
-      CustomerURL + `/cliente/cpf/${cpf}/${salaoId}`,
-      {
-        method: "GET",
-      }
-    );
-    if (responseCliente.ok) {
-      return (await responseCliente.json()) as Cliente;
-    } else {
-      throw new Error("Error in getting cliente by CPF");
-    }
-  };  
-  
-  export const getClienteByEmail = async (email: string, salaoId: string) => {
-    let responseCliente = await fetch(
-      CustomerURL + `/cliente/email/${email}/${salaoId}`,
-      {
-        method: "GET",
-      }
-    );
-    if (responseCliente.ok) {
-      return (await responseCliente.json()) as Cliente;
-    } else {
-      throw new Error("Error in getting cliente by email");
-    }
+export const deleteCliente = async (id: string) => {
+  let responseCliente = await fetch(CustomerURL + `/cliente/delete/${id}`, {
+    method: "DELETE",
+  });
+  if (responseCliente.ok) {
+    return (await responseCliente.json()) as Cliente;
+  } else {
+    throw new Error("Error in deleting cliente");
   }
-  
-  export const deleteCliente = async (id:string) => { 
-    let responseCliente = await fetch(
-      CustomerURL + `/cliente/delete/${id}`,
-      {
-        method: "DELETE",
-      }
-    );
-    if (responseCliente.ok) {
-      return (await responseCliente.json()) as Cliente;
-    } else {
-      throw new Error("Error in deleting cliente");
-    }
-  }
+};
 
-  export const updateCliente = async (id: string, data: Cliente) => {
-    let responseCliente = await fetch(
-      CustomerURL + `/cliente/${id}`,
-      {
-        method: "PUT",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(data),
-      }
-    );
-    if (responseCliente.ok) {
-      return (await responseCliente.json()) as Cliente;
-    } else {
-      throw new Error("Error in updating cliente");
-    }
+export const updateCliente = async (id: string, data: Cliente) => {
+  let responseCliente = await fetch(CustomerURL + `/cliente/${id}`, {
+    method: "PUT",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify(data),
+  });
+  if (responseCliente.ok) {
+    return (await responseCliente.json()) as Cliente;
+  } else {
+    throw new Error("Error in updating cliente");
   }
+};

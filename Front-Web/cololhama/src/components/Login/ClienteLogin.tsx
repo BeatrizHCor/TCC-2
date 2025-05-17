@@ -1,5 +1,5 @@
 import "../../styles/styles.global.css";
-import React, { useState } from "react";
+import React, { useContext, useState } from "react";
 import {
   Container,
   Paper,
@@ -16,12 +16,12 @@ import {
 } from "@mui/material";
 import { Visibility, VisibilityOff } from "@mui/icons-material";
 import { Link, useNavigate } from "react-router-dom";
-import { LoginService } from "../../services/LoginService";
 import theme from "../../styles/theme";
+import { AuthContext } from "../../contexts/AuthContext";
 
 export const ClienteLogin: React.FC = () => {
   const navigate = useNavigate();
-
+  const { doLogin } = useContext(AuthContext);
   const [email, setEmail] = useState("");
   const [senha, setSenha] = useState("");
   const [showPassword, setShowPassword] = useState(false);
@@ -58,7 +58,7 @@ export const ClienteLogin: React.FC = () => {
     setError(null);
 
     try {
-      await LoginService.login(email, senha, "salaoId");
+      await doLogin(email, senha);
       navigate("/dashboard");
     } catch (err) {
       setError("Email ou senha inválidos. Tente novamente.");
@@ -71,13 +71,29 @@ export const ClienteLogin: React.FC = () => {
 
   return (
     <Container maxWidth="lg">
-      <Box display="flex" justifyContent="center" alignItems="center" height="90vh">
-        <Box display="flex" flexDirection={{ xs: 'column', md: 'row' }} gap={2} alignItems="center" width="100%">
+      <Box
+        display="flex"
+        justifyContent="center"
+        alignItems="center"
+        height="90vh"
+      >
+        <Box
+          display="flex"
+          flexDirection={{ xs: "column", md: "row" }}
+          gap={2}
+          alignItems="center"
+          width="100%"
+        >
           <Box flex={1} display="flex" justifyContent="center">
             <Paper elevation={3} sx={{ p: 5, width: "100%", maxWidth: 400 }}>
               {loading && <LinearProgress />}
 
-              <Typography variant="h4" component="h1" gutterBottom sx={{ color: theme.palette.primary.main }}>
+              <Typography
+                variant="h4"
+                component="h1"
+                gutterBottom
+                sx={{ color: theme.palette.primary.main }}
+              >
                 Login
               </Typography>
 
@@ -85,7 +101,11 @@ export const ClienteLogin: React.FC = () => {
                 Acesse sua conta
               </Typography>
 
-              {error && <Alert severity="error" sx={{ mb: 2 }}>{error}</Alert>}
+              {error && (
+                <Alert severity="error" sx={{ mb: 2 }}>
+                  {error}
+                </Alert>
+              )}
 
               <Box component="form" onSubmit={handleSubmit} noValidate>
                 <Stack spacing={2}>
@@ -113,7 +133,10 @@ export const ClienteLogin: React.FC = () => {
                     InputProps={{
                       endAdornment: (
                         <InputAdornment position="end">
-                          <IconButton onClick={handleClickShowPassword} edge="end">
+                          <IconButton
+                            onClick={handleClickShowPassword}
+                            edge="end"
+                          >
                             {showPassword ? <VisibilityOff /> : <Visibility />}
                           </IconButton>
                         </InputAdornment>
@@ -121,7 +144,11 @@ export const ClienteLogin: React.FC = () => {
                     }}
                   />
 
-                  <Box display="flex" justifyContent="space-between" alignItems="center">
+                  <Box
+                    display="flex"
+                    justifyContent="space-between"
+                    alignItems="center"
+                  >
                     <MuiLink component={Link} to="/cadastro" variant="body2">
                       Não tem uma conta? Cadastre-se
                     </MuiLink>
@@ -131,9 +158,13 @@ export const ClienteLogin: React.FC = () => {
                       variant="contained"
                       size="large"
                       sx={{
-                        bgcolor: isLoginDisabled ? "#ccc" : theme.palette.primary.main,
+                        bgcolor: isLoginDisabled
+                          ? "#ccc"
+                          : theme.palette.primary.main,
                         color: isLoginDisabled ? "#000" : "#fff",
-                        "&:hover": { bgcolor: isLoginDisabled ? "#ccc" : "#600000" },
+                        "&:hover": {
+                          bgcolor: isLoginDisabled ? "#ccc" : "#600000",
+                        },
                       }}
                       disabled={isLoginDisabled || loading}
                     >
@@ -152,7 +183,8 @@ export const ClienteLogin: React.FC = () => {
               style={{
                 width: "450px",
                 height: "450px",
-                filter: "invert(16%) sepia(90%) saturate(400%) hue-rotate(-5deg)",
+                filter:
+                  "invert(16%) sepia(90%) saturate(400%) hue-rotate(-5deg)",
               }}
             />
           </Box>

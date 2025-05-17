@@ -1,6 +1,5 @@
 import axios from "axios";
 import { Cliente } from "../models/clienteModel";
-import { LoginService } from "./LoginService";
 
 const api = axios.create({
   baseURL: import.meta.env.APIGATEWAY_URL || "http://localhost:5000",
@@ -12,11 +11,11 @@ const api = axios.create({
 // set os dados do usuario para autenticação no header de cada requisição
 api.interceptors.request.use(
   (config) => {
-    const usuario = localStorage.getItem("usuario"); 
+    const usuario = localStorage.getItem("usuario");
     if (usuario) {
-      const { userID, userType } = JSON.parse(usuario); 
-      config.headers.userID = userID; 
-      config.headers.userType = userType; 
+      const { userID, userType } = JSON.parse(usuario);
+      config.headers.userID = userID;
+      config.headers.userType = userType;
     }
     return config;
   },
@@ -26,7 +25,10 @@ api.interceptors.request.use(
 // verifique se a resposta contém um novo token e atualiza
 api.interceptors.response.use(
   (response) => {
-    const tokenHeader = response.headers["authorization"]?.replace("Bearer ", "");
+    const tokenHeader = response.headers["authorization"]?.replace(
+      "Bearer ",
+      ""
+    );
     const currentToken = localStorage.getItem("token");
     if (tokenHeader !== currentToken && currentToken) {
       console.log("Atualizando token na memória local");
@@ -40,7 +42,6 @@ api.interceptors.response.use(
     return Promise.reject(error);
   }
 );
-
 
 interface ClientePageResponse {
   data: Cliente[];
@@ -85,8 +86,7 @@ export const ClienteService = {
         userType: userType,
       });
       if (response.data.token) {
-       const { token, userID, userType } = response.data;
-        LoginService.SetSession(token, userID, userType);
+        const { token, userID, userType } = response.data;
       }
       return !!response.data;
     } catch (error) {
@@ -95,12 +95,9 @@ export const ClienteService = {
     }
   },
 
-  async getClienteByEmailAndSalao(
-    email: string,
-    salaoId: string
-  ): Promise<boolean> {
+  async getClienteByID(ID: string): Promise<boolean> {
     try {
-      const response = await api.get(`/cliente/email/${email}/${salaoId}`);
+      const response = await api.get(`/cliente/${ID}`);
       return !!response.data;
     } catch (error) {
       if (axios.isAxiosError(error) && error.response?.status === 404) {
@@ -111,31 +108,6 @@ export const ClienteService = {
       throw error;
     }
   },
-
-  async getClienteByCpfAndSalao(
-    cpf: string,
-    salaoId: string
-  ): Promise<boolean> {
-    try {
-      const path = `/cliente/cpf/${cpf}/${salaoId}`;
-      console.log(`Verificando cliente por CPF no caminho: ${path}`);
-      const response = await api.get(path);
-      if (response.status === 204) {
-        console.log("Cliente não encontrado, retornando false.");
-        return false;
-      }
-      console.log("Resposta do servidor:", response.data);
-      return !!response.data;
-    } catch (error) {
-      if (axios.isAxiosError(error) && error.response?.status === 404) {
-        console.log("Cliente não encontrado, retornando false.");
-        return false;
-      }
-      console.error("Erro ao verificar cliente por CPF:", error);
-      throw error;
-    }
-  },
-
 
   async getClientePage(
     page: number = 1,
@@ -162,7 +134,7 @@ export const ClienteService = {
 
   async getClienteById(clienteId: string): Promise<Cliente> {
     try {
-      const response = await api.get(`/cliente/ID/${clienteId}`);
+      const response = await api.get(`/cliente/${clienteId}`);
       return response.data;
     } catch (error) {
       console.error("Erro ao buscar cliente por ID:", error);
@@ -178,22 +150,20 @@ export const ClienteService = {
     Telefone: string,
     SalaoId: string
   ): Promise<Cliente> {
-  try {
-    const response = await api.put(`/cliente/${id}`, {
-      CPF,
-      Nome,
-      Email,
-      Telefone,
-      SalaoId,
-    });
-    return response.data;
-  } catch (error) {
-    console.error("Erro ao atualizar cliente:", error);
-    throw error;
-  }
-
-},
-
-}
+    try {
+      const response = await api.put(`/cliente/${id}`, {
+        CPF,
+        Nome,
+        Email,
+        Telefone,
+        SalaoId,
+      });
+      return response.data;
+    } catch (error) {
+      console.error("Erro ao atualizar cliente:", error);
+      throw error;
+    }
+  },
+};
 
 export default ClienteService;

@@ -10,12 +10,18 @@ class CabeleireiroService {
     name: string | null = null
   ) => {
     let whereCondition: Prisma.CabeleireiroWhereInput = {};
-    if (name && name.trim() !== '' && typeof name === 'string' && name.trim().length > 0 && name !== 'null') {
+    if (
+      name &&
+      name.trim() !== "" &&
+      typeof name === "string" &&
+      name.trim().length > 0 &&
+      name !== "null"
+    ) {
       whereCondition.Nome = {
         contains: name,
-        mode: 'insensitive',
+        mode: "insensitive",
       };
-    if (salaoId) {
+      if (salaoId) {
         whereCondition.SalaoId = salaoId;
       }
     }
@@ -24,12 +30,12 @@ class CabeleireiroService {
       ...(limit !== null ? { take: limit } : {}),
       where: whereCondition,
       ...(include
-      ? {
-        include: {
-          Agendamentos: true,
-        },
-        }
-      : {}),
+        ? {
+            include: {
+              Agendamentos: true,
+            },
+          }
+        : {}),
     });
   };
 

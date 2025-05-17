@@ -22,6 +22,7 @@ interface AuthContextInterface {
   doLogin: (email: string, password: string) => Promise<void>;
   doAuthenticate: () => Promise<void>;
   doLogout: () => void;
+  checkLocalStorage: () => Promise<boolean>;
 }
 
 export const AuthContext = createContext({
@@ -31,14 +32,15 @@ export const AuthContext = createContext({
   doLogin: async () => {},
   doAuthenticate: async () => {},
   doLogout: () => {},
+  checkLocalStorage: async () => true,
 } as AuthContextInterface);
 
 export const AuthContextProvider = ({ children }: ComponentProps) => {
   const [token, setToken] = useState("");
   const [userId, setuserId] = useState("");
   const [userType, setUserType] = useState<userTypeEnum | undefined>();
-  const url = process.env.EXPO_PUBLIC_API_URL;
-  const salaoId = process.env.EXPO_PUBLIC_SALO_ID;
+  const url = import.meta.env.VITE_GATEWAY_URL;
+  const salaoId = import.meta.env.VITE_SALAO_ID;
 
   const doLogin = async (email: string, password: string) => {
     let response = await fetch(url + "/login", {
@@ -81,7 +83,15 @@ export const AuthContextProvider = ({ children }: ComponentProps) => {
 
   return (
     <AuthContext.Provider
-      value={{ token, userId, userType, doLogin, doAuthenticate, doLogout }}
+      value={{
+        token,
+        userId,
+        userType,
+        doLogin,
+        doAuthenticate,
+        doLogout,
+        checkLocalStorage,
+      }}
     >
       {children}
     </AuthContext.Provider>

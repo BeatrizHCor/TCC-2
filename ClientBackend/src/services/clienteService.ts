@@ -1,7 +1,6 @@
 import prisma from "../config/database";
 import { PrismaClient } from "@prisma/client";
 
-
 interface ClienteData {
   CPF: string;
   Nome: string;
@@ -62,8 +61,8 @@ class ClienteService {
   ) {
     const existingCliente = await this.findByEmailandSalao(Email, SalaoId);
     if (existingCliente) {
-      console.error('Cliente já cadastrado neste salão:', { Email, SalaoId });
-      throw new Error('Cliente já cadastrado neste salão');
+      console.error("Cliente já cadastrado neste salão:", { Email, SalaoId });
+      throw new Error("Cliente já cadastrado neste salão");
     }
     try {
       const cliente = await prisma.cliente.create({
@@ -78,7 +77,7 @@ class ClienteService {
       console.log(cliente);
       return cliente;
     } catch (error) {
-      throw new Error('Erro ao criar cliente');
+      throw new Error("Erro ao criar cliente");
     }
   }
 
@@ -86,7 +85,7 @@ class ClienteService {
     try {
       return await prisma.cliente.findUnique({
         where: {
-          ID: ID,
+          ID,
         },
         ...(include
           ? {
@@ -99,31 +98,36 @@ class ClienteService {
           : {}),
       });
     } catch (error) {
-      throw new Error('Erro ao localizar cliente ID');
+      throw new Error("Erro ao localizar cliente ID");
     }
   }
 
-  static async findByEmailandSalao(Email: string, salaoId: string, include = false) {
-   try {
-    return await prisma.cliente.findUnique({
-      where: {
-        Email_SalaoId: {
-          Email: Email,
-          SalaoId: salaoId
-        }
-      },
-      ...(include ? {
-        include: {
-          Salao: true,
-          Agendamentos: true,
-          HistoricoSimulacao: true
-        }
-      } : {})
-    });
-    }
-    catch (error) {
-      console.error('Erro ao localizar cliente:', error);
-      throw new Error('Erro ao localizar cliente');
+  static async findByEmailandSalao(
+    Email: string,
+    salaoId: string,
+    include = false
+  ) {
+    try {
+      return await prisma.cliente.findUnique({
+        where: {
+          Email_SalaoId: {
+            Email: Email,
+            SalaoId: salaoId,
+          },
+        },
+        ...(include
+          ? {
+              include: {
+                Salao: true,
+                Agendamentos: true,
+                HistoricoSimulacao: true,
+              },
+            }
+          : {}),
+      });
+    } catch (error) {
+      console.error("Erro ao localizar cliente:", error);
+      throw new Error("Erro ao localizar cliente");
     }
   }
 
@@ -155,9 +159,7 @@ class ClienteService {
 
   static async update(Id: string, data: ClienteData) {
     try {
-      const existingCliente = await this.findById(
-        Id
-      );
+      const existingCliente = await this.findById(Id);
       if (!existingCliente) {
         throw new Error("Cliente já cadastrado neste salão");
       }

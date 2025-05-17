@@ -1,20 +1,16 @@
 import { Router, Request, Response } from "express";
-import { 
-  postCliente, 
-  getClientePage, 
-  getClienteByCPF, 
-  deleteCliente, 
-  updateCliente} from "../services/ServiceClient";
-import {  
-  postLogin, 
-  registerLogin, } from "../services/Service";
+import {
+  postCliente,
+  getClientePage,
+  getClienteById,
+  deleteCliente,
+  updateCliente,
+} from "../services/ServiceClient";
+import { postLogin, registerLogin } from "../services/Service";
 
 const RoutesCustomer = Router();
 
-
-RoutesCustomer.post(
-  "/cliente", 
-  async (req: Request, res: Response) => {
+RoutesCustomer.post("/cliente", async (req: Request, res: Response) => {
   let { CPF, Nome, Email, Telefone, SalaoId, Password, userType } = req.body;
   try {
     let cliente = await postCliente(CPF, Nome, Email, Telefone, SalaoId);
@@ -35,7 +31,7 @@ RoutesCustomer.post(
       let clienteDelete = await deleteCliente(cliente.ID!);
       if (clienteDelete) {
         console.log("Cliente deleted successfully");
-      }else{
+      } else {
         console.log("Failed to delete cliente after register failure");
       }
       throw new Error("Login registration failed");
@@ -48,16 +44,19 @@ RoutesCustomer.post(
   }
 });
 
-RoutesCustomer.get(
-  "/cliente/page", 
-  async (req: Request, res: Response) => {
-  const page = (req.query.page as string) || '0';
-  const limit = (req.query.limit as string) || '10';
+RoutesCustomer.get("/cliente/page", async (req: Request, res: Response) => {
+  const page = (req.query.page as string) || "0";
+  const limit = (req.query.limit as string) || "10";
   const includeRelations = req.query.include === "true" ? true : false;
-  const salaoId = req.query.salaoId as string || '';
+  const salaoId = (req.query.salaoId as string) || "";
 
   try {
-    const clientes = await getClientePage(page, limit, includeRelations, salaoId);
+    const clientes = await getClientePage(
+      page,
+      limit,
+      includeRelations,
+      salaoId
+    );
     res.json(clientes);
   } catch (error) {
     console.error("Erro ao buscar clientes:", error);
@@ -65,9 +64,7 @@ RoutesCustomer.get(
   }
 });
 
-RoutesCustomer.put(
-  "/cliente/:id", 
-  async (req: Request, res: Response) => {
+RoutesCustomer.put("/cliente/:id", async (req: Request, res: Response) => {
   const { id } = req.params;
   const { CPF, Nome, Email, Telefone, SalaoId } = req.body;
   const clienteData = {
@@ -86,13 +83,10 @@ RoutesCustomer.put(
   }
 });
 
-
-RoutesCustomer.get(
-  "/cliente/cpf/:cpf/:salaoId", 
-  async (req, res) => {
-  const { cpf, salaoId } = req.params;
+RoutesCustomer.get("/cliente/:id", async (req, res) => {
+  const { id } = req.params;
   try {
-    const cliente = await getClienteByCPF(cpf, salaoId);
+    const cliente = await getClienteById(id);
     if (cliente) {
       res.status(200).json(cliente);
     } else {
@@ -102,12 +96,9 @@ RoutesCustomer.get(
     console.error("Erro ao buscar cliente:", error);
     res.status(500).json({ message: "Erro interno do servidor" });
   }
-
 });
 
-RoutesCustomer.delete(
-  "/cliente/:id", 
-  async (req, res) => {
+RoutesCustomer.delete("/cliente/:id", async (req, res) => {
   const { id } = req.params;
   try {
     const cliente = await deleteCliente(id);
