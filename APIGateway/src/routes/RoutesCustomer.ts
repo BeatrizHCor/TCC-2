@@ -8,6 +8,7 @@ import {
   updateCliente,
 } from "../services/ServiceClient";
 import { authenticate, postLogin, registerLogin } from "../services/Service";
+import { userTypes } from "../models/tipo-usuario.enum";
 
 const RoutesCustomer = Router();
 
@@ -50,15 +51,32 @@ RoutesCustomer.get("/cliente/page", async (req: Request, res: Response) => {
   const limit = (req.query.limit as string) || "10";
   const includeRelations = req.query.include === "true" ? true : false;
   const salaoId = (req.query.salaoId as string) || "";
-
   try {
-    const clientes = await getClientePage(
-      page,
-      limit,
-      includeRelations,
-      salaoId
+    const userInfo = JSON.parse(req.headers.authorization || "{}");
+    let userType = JSON.parse(userInfo).userType;
+    const auth = await authenticate(
+      userInfo.userID,
+      userInfo.token,
+      userInfo.userType
     );
-    res.json(clientes);
+    if (
+      auth &&
+      [
+        userTypes.Funcionario,
+        userTypes.AdmSalao,
+        userTypes.AdmSistema,
+      ].includes(userType)
+    ) {
+      const clientes = await getClientePage(
+        page,
+        limit,
+        includeRelations,
+        salaoId
+      );
+      res.json(clientes);
+    } else {
+      res.status(403);
+    }
   } catch (error) {
     console.error("Erro ao buscar clientes:", error);
     res.status(500).json({ message: "Erro interno do servidor" });
