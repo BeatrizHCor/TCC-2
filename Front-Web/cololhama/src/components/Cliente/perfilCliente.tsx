@@ -17,6 +17,7 @@ import { usePerfilCliente } from "./usePerfilCliente";
 import theme from "../../styles/theme";
 import { AuthContext } from "../../contexts/AuthContext";
 import AuthGuard from "../../utils/AuthGuard";
+import { userTypes } from "../../models/tipo-usuario.enum";
 
 interface PerfilClienteProps {}
 
@@ -63,7 +64,7 @@ export const PerfilCliente: React.FC<PerfilClienteProps> = () => {
   }
 
   return (
-    <AuthGuard>
+    <AuthGuard allowed={[userTypes.CLIENTE, userTypes.ADM_SISTEMA]}>
       <Container maxWidth="lg">
         <Box
           display="flex"

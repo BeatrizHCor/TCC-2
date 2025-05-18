@@ -20,14 +20,14 @@ import { Cabeleireiro } from "../../models/cabelereiroModel";
 import { Link } from "react-router-dom";
 import theme from "../../styles/theme";
 
-const SalaoID = import.meta.env.SALAO_ID || "1"; // importa o ID do salão aqui
+const SalaoID = import.meta.env.VITE_SALAO_ID || "1"; // importa o ID do salão aqui
 const colunas = [
   { id: "nome", label: "Nome" },
   { id: "email", label: "Email" },
   { id: "telefone", label: "Telefone" },
   { id: "mei", label: "MEI" },
   { id: "portif", label: "Portifólio" },
-  { id: "acoes", label: "Ações", clienteVisivel: false }
+  { id: "acoes", label: "Ações", clienteVisivel: false },
 ];
 
 interface VisualizarCabeleireiroProps {
@@ -35,7 +35,7 @@ interface VisualizarCabeleireiroProps {
   isCliente?: boolean;
 }
 
-export const VisualizarCabeleireiro: React.FC <VisualizarCabeleireiroProps> = ({
+export const VisualizarCabeleireiro: React.FC<VisualizarCabeleireiroProps> = ({
   salaoId,
   isCliente = false,
 }) => {
@@ -46,25 +46,25 @@ export const VisualizarCabeleireiro: React.FC <VisualizarCabeleireiroProps> = ({
   const [rowsPerPage, setRowsPerPage] = useState(10);
   const [termoBusca, setTermoBusca] = useState("");
 
-  const { cabeleireiros, totalCabeleireiros, handleEditarCabeleireiro, isLoading, error } =
-    useVisualizarCabeleireiros(
-      page + 1, 
-      rowsPerPage, 
-      SalaoID, 
-      termoBusca
-    );
+  const {
+    cabeleireiros,
+    totalCabeleireiros,
+    handleEditarCabeleireiro,
+    isLoading,
+    error,
+  } = useVisualizarCabeleireiros(page + 1, rowsPerPage, SalaoID, termoBusca);
 
   const handleChangePage = (_: unknown, newPage: number) => {
     setPage(newPage);
   };
-  const[NomeFiltroInput, setNomeFilterInput ]= useState("");
+  const [NomeFiltroInput, setNomeFilterInput] = useState("");
   const handleNomeFilterInput = (e: React.ChangeEvent<HTMLInputElement>) => {
     setNomeFilterInput(e.target.value);
   };
   const aplicarFiltroNome = () => {
     setTermoBusca(NomeFiltroInput);
     setPage(0);
-  }
+  };
 
   const handleChangeRowsPerPage = (
     event: React.ChangeEvent<HTMLInputElement>
@@ -73,10 +73,9 @@ export const VisualizarCabeleireiro: React.FC <VisualizarCabeleireiroProps> = ({
     setPage(0);
   };
 
-
   if (isLoading) return <Box>Carregando...</Box>;
   if (error) return <Box>Erro ao carregar cabeleireiro: {error}</Box>;
- 
+
   const colunasVisiveis = isCliente
     ? colunas.filter((coluna) => coluna.clienteVisivel !== false)
     : colunas;
@@ -87,33 +86,30 @@ export const VisualizarCabeleireiro: React.FC <VisualizarCabeleireiroProps> = ({
         Cabelereiros
       </Typography>
       <Box sx={{ display: "flex", mb: 2, gap: 2 }}>
-      <TextField
+        <TextField
           variant="outlined"
           label="Buscar por nome"
-          value={NomeFiltroInput} 
+          value={NomeFiltroInput}
           onChange={handleNomeFilterInput}
           sx={{ maxWidth: "50%", flexGrow: 1 }}
         />
-        <Button
-          variant="contained"
-          onClick={aplicarFiltroNome}
-        >
+        <Button variant="contained" onClick={aplicarFiltroNome}>
           Buscar
         </Button>
-        {!isCliente &&(
-        <Button
-          component={Link}
-          variant="outlined"
-          to = "/cabeleireiro/novo" 
-          sx ={{
-            color: theme.palette.primary.main,
-            borderBlockColor: theme.palette.primary.main,
-            borderColor: theme.palette.primary.main,
-            borderWidth: 1,
-          }}     
-        >
-          Novo Cabelereiro
-        </Button>
+        {!isCliente && (
+          <Button
+            component={Link}
+            variant="outlined"
+            to="/cabeleireiro/novo"
+            sx={{
+              color: theme.palette.primary.main,
+              borderBlockColor: theme.palette.primary.main,
+              borderColor: theme.palette.primary.main,
+              borderWidth: 1,
+            }}
+          >
+            Novo Cabelereiro
+          </Button>
         )}
       </Box>
       <Paper sx={{ width: "100%", mb: 2 }}>
@@ -141,23 +137,24 @@ export const VisualizarCabeleireiro: React.FC <VisualizarCabeleireiroProps> = ({
                     <TableCell>{cabeleireiro.Telefone}</TableCell>
                     <TableCell>{cabeleireiro.Mei}</TableCell>
                     <TableCell>
-                        <Button
-                          startIcon={<EditIcon />}
-                          variant="outlined"
-                          size="small"
-                        >
-                          Portifólio
-                        </Button>
+                      <Button
+                        startIcon={<EditIcon />}
+                        variant="outlined"
+                        size="small"
+                      >
+                        Portifólio
+                      </Button>
                     </TableCell>
                     {!isCliente && (
                       <TableCell>
                         <Button
                           startIcon={<EditIcon />}
                           variant="outlined"
-                          size="small" 
+                          size="small"
                           onClick={() => {
-                            cabeleireiro.ID && handleEditarCabeleireiro(cabeleireiro.ID);
-                          }}                
+                            cabeleireiro.ID &&
+                              handleEditarCabeleireiro(cabeleireiro.ID);
+                          }}
                         >
                           Editar
                         </Button>

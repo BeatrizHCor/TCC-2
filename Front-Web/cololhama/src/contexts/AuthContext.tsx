@@ -6,6 +6,7 @@ import React, {
   useEffect,
   useState,
 } from "react";
+import { userTypes } from "../models/tipo-usuario.enum";
 
 interface ComponentProps {
   children: ReactNode;
@@ -18,7 +19,7 @@ enum userTypeEnum {
 interface AuthContextInterface {
   token: string;
   userId: string;
-  userType: userTypeEnum | undefined;
+  userType: userTypes | undefined;
   doLogin: (email: string, password: string) => Promise<void>;
   doAuthenticate: () => Promise<void>;
   doLogout: () => void;
@@ -28,7 +29,7 @@ interface AuthContextInterface {
 export const AuthContext = createContext({
   token: "",
   userId: "",
-  userType: userTypeEnum.Cliente,
+  userType: userTypes.CLIENTE,
   doLogin: async () => {},
   doAuthenticate: async () => {},
   doLogout: () => {},
@@ -38,7 +39,7 @@ export const AuthContext = createContext({
 export const AuthContextProvider = ({ children }: ComponentProps) => {
   const [token, setToken] = useState("");
   const [userId, setuserId] = useState("");
-  const [userType, setUserType] = useState<userTypeEnum | undefined>();
+  const [userType, setUserType] = useState<userTypes | undefined>();
   const url = import.meta.env.VITE_GATEWAY_URL;
   const salaoId = import.meta.env.VITE_SALAO_ID || "1";
 

@@ -2,7 +2,7 @@ import axios from "axios";
 import { Servico } from "../models/servicoModel";
 
 const api = axios.create({
-  baseURL:  import.meta.env.APIGATEWAY_URL || "http://localhost:5000",
+  baseURL: import.meta.env.VITE_GATEWAY_URL || "http://localhost:5000",
   headers: {
     "Content-Type": "application/json",
   },
@@ -11,11 +11,11 @@ const api = axios.create({
 // set os dados do usuario para autenticação no header de cada requisição
 api.interceptors.request.use(
   (config) => {
-    const usuario = localStorage.getItem("usuario"); 
+    const usuario = localStorage.getItem("usuario");
     if (usuario) {
-      const { userID, userType } = JSON.parse(usuario); 
-      config.headers.userID = userID; 
-      config.headers.userType = userType; 
+      const { userID, userType } = JSON.parse(usuario);
+      config.headers.userID = userID;
+      config.headers.userType = userType;
     }
     return config;
   },
@@ -25,7 +25,10 @@ api.interceptors.request.use(
 // verifique se a resposta contém um novo token e atualiza
 api.interceptors.response.use(
   (response) => {
-    const tokenHeader = response.headers["authorization"]?.replace("Bearer ", "");
+    const tokenHeader = response.headers["authorization"]?.replace(
+      "Bearer ",
+      ""
+    );
     const currentToken = localStorage.getItem("token");
     if (tokenHeader !== currentToken && currentToken) {
       console.log("Atualizando token na memória local");
@@ -66,7 +69,7 @@ class ServicoService {
           nome,
           precoMin,
           precoMax,
-          includeRelations,          
+          includeRelations,
         },
       });
       console.log("Serviços recebidos:", response.data);
@@ -80,7 +83,7 @@ class ServicoService {
   static async getServicoById(id: string): Promise<Servico> {
     try {
       const response = await api.get(`/servico/ID/${id}`);
-      const servico = response.data as Servico;       ;
+      const servico = response.data as Servico;
       return servico;
     } catch (error) {
       console.error(`Erro ao buscar serviço com ID ${id}:`, error);
@@ -99,16 +102,16 @@ class ServicoService {
   }
 
   static async createServico(
-      Nome: string,
-      SalaoId: string,      
-      PrecoMin: number = 0,
-      PrecoMax: number = 0,
-      Descricao: string,
+    Nome: string,
+    SalaoId: string,
+    PrecoMin: number = 0,
+    PrecoMax: number = 0,
+    Descricao: string
   ): Promise<Servico> {
     try {
       const servicoData: Servico = {
         Nome: Nome,
-        SalaoId: SalaoId,    
+        SalaoId: SalaoId,
         PrecoMin: PrecoMin,
         PrecoMax: PrecoMax,
         Descricao: Descricao,
@@ -124,15 +127,15 @@ class ServicoService {
   static async updateServico(
     id: string,
     Nome: string,
-    SalaoId: string,      
+    SalaoId: string,
     PrecoMin: number = 0,
     PrecoMax: number = 0,
-    Descricao: string,
+    Descricao: string
   ): Promise<Servico> {
-    try {   
+    try {
       const servicoData: Servico = {
         Nome: Nome,
-        SalaoId: SalaoId,    
+        SalaoId: SalaoId,
         PrecoMin: PrecoMin,
         PrecoMax: PrecoMax,
         Descricao: Descricao,
@@ -148,8 +151,8 @@ class ServicoService {
   static async deleteServico(id: string): Promise<void> {
     try {
       const response = await api.delete(`/servico/delete/${id}`);
-      if (response.status === 200){
-        console.log("Serviço deletedo: ", response.data.Nome)
+      if (response.status === 200) {
+        console.log("Serviço deletedo: ", response.data.Nome);
       }
     } catch (error) {
       console.error(`Erro ao excluir serviço com ID ${id}:`, error);
@@ -165,7 +168,10 @@ class ServicoService {
       const response = await api.get(`/servico/nome/${nome}/${salaoId}`);
       return response.data;
     } catch (error) {
-      console.error(`Erro ao buscar serviço com nome ${nome} do salão ${salaoId}:`, error);
+      console.error(
+        `Erro ao buscar serviço com nome ${nome} do salão ${salaoId}:`,
+        error
+      );
       throw error;
     }
   }
@@ -178,11 +184,13 @@ class ServicoService {
       const response = await api.get(`/servico/find/${nome}/${salaoId}`);
       return response.data;
     } catch (error) {
-      console.error(`Erro ao buscar serviço com nome ${nome} do salão ${salaoId}:`, error);
+      console.error(
+        `Erro ao buscar serviço com nome ${nome} do salão ${salaoId}:`,
+        error
+      );
       throw error;
     }
   }
-
 }
 
 export default ServicoService;
