@@ -70,10 +70,9 @@ export const authenticate = async (
     body: JSON.stringify({ userID, token, userType }),
   });
   if (response.ok) {
-    let token = await response.json();
-    return token;
+    return true;
   } else {
-    throw new Error("Error in Authentication");
+    return false;
   }
 };
 //Todas as outras funções vão usar a função de authenticate no Service para verificar se o usuário é quem diz ser, pra depois permitir.

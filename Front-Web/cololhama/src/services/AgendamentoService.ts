@@ -1,22 +1,23 @@
 import axios from "axios";
 import { Agendamentos } from "../models/agendamentoModel";
 
-
+const token = localStorage.getItem("usuario");
 const api = axios.create({
-  baseURL:  import.meta.env.APIGATEWAY_URL || "http://localhost:5000",
+  baseURL: import.meta.env.APIGATEWAY_URL || "http://localhost:5000",
   headers: {
     "Content-Type": "application/json",
+    Authorization: token,
   },
 });
 
 // set os dados do usuario para autenticação no header de cada requisição
 api.interceptors.request.use(
   (config) => {
-    const usuario = localStorage.getItem("usuario"); 
+    const usuario = localStorage.getItem("usuario");
     if (usuario) {
-      const { userID, userType } = JSON.parse(usuario); 
-      config.headers.userID = userID; 
-      config.headers.userType = userType; 
+      const { userID, userType } = JSON.parse(usuario);
+      config.headers.userID = userID;
+      config.headers.userType = userType;
     }
     return config;
   },
@@ -26,7 +27,10 @@ api.interceptors.request.use(
 // verifique se a resposta contém um novo token e atualiza
 api.interceptors.response.use(
   (response) => {
-    const tokenHeader = response.headers["authorization"]?.replace("Bearer ", "");
+    const tokenHeader = response.headers["authorization"]?.replace(
+      "Bearer ",
+      ""
+    );
     const currentToken = localStorage.getItem("token");
     if (tokenHeader !== currentToken && currentToken) {
       console.log("Atualizando token na memória local");
@@ -41,14 +45,14 @@ api.interceptors.response.use(
   }
 );
 
-interface AgendamentoPaginadoResponse{
+interface AgendamentoPaginadoResponse {
   total: number;
   page: number;
   limit: number;
   data: Agendamentos[];
 }
 
-class AgendamentoService{
+class AgendamentoService {
   static async getAgendamentosPaginados(
     page: number = 1,
     limit: number = 10,

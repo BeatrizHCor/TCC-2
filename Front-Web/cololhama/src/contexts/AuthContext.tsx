@@ -69,8 +69,8 @@ export const AuthContextProvider = ({ children }: ComponentProps) => {
 
   const checkLocalStorage = async () => {
     let userStr = localStorage.getItem("usuario");
-    console.log(userStr);
     if (userStr) {
+      console.log(userStr);
       let user = await JSON.parse(userStr);
       setToken(user.token);
       setuserId(user.userID);

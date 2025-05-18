@@ -1,11 +1,13 @@
 import axios from "axios";
 import { Cliente } from "../models/clienteModel";
 
+const token = localStorage.getItem("usuario");
 const api = axios.create({
   baseURL: import.meta.env.VITE_GATEWAY_URL || "http://localhost:5000",
   timeout: 100000,
   headers: {
     "Content-Type": "application/json",
+    Authorization: `${token}`,
   },
 });
 // set os dados do usuario para autenticação no header de cada requisição

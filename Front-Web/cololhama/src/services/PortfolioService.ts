@@ -1,21 +1,22 @@
 import axios from "axios";
 import { get } from "http";
-
+const token = localStorage.getItem("usuario");
 const api = axios.create({
   baseURL: import.meta.env.VITE_IMAGEM_URL || "http://localhost:4000",
   timeout: 100000,
   headers: {
     "Content-Type": "application/json",
+    Authorization: `${token}`,
   },
 });
 // set os dados do usuario para autenticação no header de cada requisição
 api.interceptors.request.use(
   (config) => {
-    const usuario = localStorage.getItem("usuario"); 
+    const usuario = localStorage.getItem("usuario");
     if (usuario) {
-      const { userID, userType } = JSON.parse(usuario); 
-      config.headers.userID = userID; 
-      config.headers.userType = userType; 
+      const { userID, userType } = JSON.parse(usuario);
+      config.headers.userID = userID;
+      config.headers.userType = userType;
     }
     return config;
   },
@@ -23,10 +24,13 @@ api.interceptors.request.use(
 );
 
 // verifique se a resposta contém um novo token e atualiza
-api.interceptors.response.use( 
+api.interceptors.response.use(
   (response) => {
-    const tokenHeader = response.headers["authorization"]?.replace("Bearer ", "");
-    const currentToken = localStorage.getItem("token");    
+    const tokenHeader = response.headers["authorization"]?.replace(
+      "Bearer ",
+      ""
+    );
+    const currentToken = localStorage.getItem("token");
     if (tokenHeader !== currentToken && currentToken) {
       console.log("Atualizando token na memória local");
       localStorage.setItem("token", tokenHeader);
@@ -51,7 +55,12 @@ class PortfolioService {
       formData.append("imagem", file, file.name);
       formData.append("PortfolioId", portfolioId);
       formData.append("Descricao", descricao);
-      console.log("Dados do FormData:", formData.get("PortfolioId"), formData.get("Descricao"), formData.get("imagem"));
+      console.log(
+        "Dados do FormData:",
+        formData.get("PortfolioId"),
+        formData.get("Descricao"),
+        formData.get("imagem")
+      );
       const response = await api.post(`/portfolio`, formData);
 
       return response.data;

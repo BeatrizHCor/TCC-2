@@ -7,7 +7,7 @@ import {
   deleteCliente,
   updateCliente,
 } from "../services/ServiceClient";
-import { postLogin, registerLogin } from "../services/Service";
+import { authenticate, postLogin, registerLogin } from "../services/Service";
 
 const RoutesCustomer = Router();
 
@@ -76,8 +76,18 @@ RoutesCustomer.put("/cliente/:id", async (req: Request, res: Response) => {
     SalaoId,
   };
   try {
-    const cliente = await updateCliente(id, clienteData);
-    res.status(200).json(cliente);
+    const userInfo = JSON.parse(req.headers.authorization || "{}");
+    const auth = await authenticate(
+      userInfo.userID,
+      userInfo.token,
+      userInfo.userType
+    );
+    if (auth) {
+      const cliente = await updateCliente(id, clienteData);
+      res.status(200).json(cliente);
+    } else {
+      res.status(403).json({ message: "Não autorizado a fazer esta chamada" });
+    }
   } catch (error) {
     console.error("Erro ao atualizar cliente:", error);
     res.status(500).json({ message: "Erro interno do servidor" });
@@ -87,11 +97,21 @@ RoutesCustomer.put("/cliente/:id", async (req: Request, res: Response) => {
 RoutesCustomer.get("/cliente/:id", async (req, res) => {
   const { id } = req.params;
   try {
-    const cliente = await getClienteById(id);
-    if (cliente) {
-      res.status(200).json(cliente);
+    const userInfo = JSON.parse(req.headers.authorization || "{}");
+    const auth = await authenticate(
+      userInfo.userID,
+      userInfo.token,
+      userInfo.userType
+    );
+    if (auth) {
+      const cliente = await getClienteById(id);
+      if (cliente) {
+        res.status(200).json(cliente);
+      } else {
+        res.status(204).json({ message: "Cliente não encontrado" });
+      }
     } else {
-      res.status(204).json({ message: "Cliente não encontrado" });
+      res.status(403).json({ message: "Não autorizado a fazer esta chamada" });
     }
   } catch (error) {
     console.error("Erro ao buscar cliente:", error);
