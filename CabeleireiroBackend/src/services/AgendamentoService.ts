@@ -91,29 +91,6 @@ class AgendamentoService{
         };
     };
 
-    static createAgendamento = async(
-    Data: Date,
-    Status: StatusAgendamento = "Agendado",
-    ClienteID: string,
-    SalaoId: string,
-    CabeleireiroID: string,
-
-    ) => {
-      try{
-        return await prisma.agendamentos.create({
-            data: {
-                Data: Data,
-                Status: Status,
-                ClienteID: ClienteID,
-                SalaoId: SalaoId,
-                CabeleireiroID: CabeleireiroID,                
-            },
-        });  
-        } catch(e){
-          console.log(e);
-          return null;
-        }
-    }
 
       static findById = async (ID: string, include = false) => {
     try {
