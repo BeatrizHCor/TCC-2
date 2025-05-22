@@ -29,7 +29,7 @@ class AgendamentoService{
         } else if (ano !== 0 && !Number.isNaN(ano) && mes !== 0 && !Number.isNaN(mes)) {
         const dataInicio = new Date(Date.UTC(ano, mes - 1, 1, 0, 0, 0));
         const dataFim = new Date(Date.UTC(ano, mes, 0, 23, 59, 59)); 
-          //chamada de todas em um mes expeifico 
+          //chamada de todas em um mes expecifico 
         whereCondition.Data = {
             gte: dataInicio,
             lte: dataFim,

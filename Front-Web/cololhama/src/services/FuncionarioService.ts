@@ -3,7 +3,7 @@ import { Funcionario } from "../models/funcionarioModel";
 import { get } from "http";
 const token = localStorage.getItem("usuario");
 const api = axios.create({
-  baseURL: import.meta.env.APIGATEWAY_URL || "http://localhost:5000",
+  baseURL: import.meta.env.VITE_GATEWAY_URL || "http://localhost:5000",
   timeout: 100000,
   headers: {
     "Content-Type": "application/json",
