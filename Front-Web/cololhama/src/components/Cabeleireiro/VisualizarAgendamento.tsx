@@ -1,21 +1,22 @@
 import React, { useState, useMemo } from 'react';
 import { 
-  Box, 
-  Typography, 
-  Switch, 
-  FormControlLabel, 
-  List, 
-  ListItem, 
-  ListItemText, 
-  IconButton, 
-  Dialog, 
-  DialogTitle, 
-  DialogContent, 
-  DialogActions, 
-  Button, 
-  CircularProgress, 
-  Paper, 
+  Box,
+  Typography,
+  Switch,
+  FormControlLabel,
+  List,
+  ListItem,
+  ListItemText,
+  IconButton,
+  Dialog,
+  DialogTitle,
+  DialogContent,
+  DialogActions,
+  Button,
+  CircularProgress,
+  Paper,
   Chip,
+  TablePagination,
 } from '@mui/material';
 import { DatePicker } from '@mui/x-date-pickers/DatePicker';
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
@@ -30,35 +31,34 @@ import { StatusAgendamento } from '../../models/StatusAgendamento.enum'
 
 const VisualizarAgendamento: React.FC = () => {
 
-  const SalaoId = import.meta.env.SALAO_ID || "1";
+  const SalaoId = import.meta.env.VITE_SALAO_ID || "1";
   
   const [modoCalendario, setModoCalendario] = useState<boolean>(false);
   const [agendamentoSelecionado, setAgendamentoSelecionado] = useState<Agendamentos | null>(null);
   const [modalAberto, setModalAberto] = useState<boolean>(false);
   const [dataFiltro, setDataFiltro] = useState<Date | null>(null);
-  
+  const [page, setPage] = useState(0);
+  const [rowsPerPage, setRowsPerPage] = useState(10);
   const getStatusColor = (status: StatusAgendamento): string => {
     switch (status) {
       case StatusAgendamento.Agendado:
-        return '#4caf50'; // Verde
-      case StatusAgendamento.Concluido:
-        return '#9c27b0'; // Roxo
+        return "#7d1e26"; // Verde
+      case StatusAgendamento.Confirmado:
+        return "#4caf50"; // Verde       
+      case StatusAgendamento.Finalizado:
+        return "#9c27b0"; // Roxo
       case StatusAgendamento.Cancelado:
-        return '#f44336'; // Vermelho
+        return "#f44336"; // Vermelho
       default:
-        return '#757575'; // Cinza
+        return "#757575"; // Cinza
     }
   };
 
   const { 
     agendamentos, 
     loading, 
-    totalAgendamentos, 
-    paginaAtual, 
-    setPaginaAtual,
-    limitePorPagina,
-    setLimitePorPagina
-  } = useVisualizarAgendamentos(SalaoId, dataFiltro);
+    totalAgendamentos,
+  } = useVisualizarAgendamentos(page + 1, rowsPerPage, SalaoId, dataFiltro);
 
 
   const eventosCalendario = useMemo(() => {
@@ -88,7 +88,15 @@ const VisualizarAgendamento: React.FC = () => {
       minute: '2-digit'
     });
   };
-
+  const handleChangePage = (_: unknown, newPage: number) => {
+    setPage(newPage);
+  };
+  const handleChangeRowsPerPage = (
+    event: React.ChangeEvent<HTMLInputElement>
+  ) => {
+    setRowsPerPage(parseInt(event.target.value, 10));
+    setPage(0);
+  };
 
   const handleVerDetalhes = (agendamento: Agendamentos) => {
     setAgendamentoSelecionado(agendamento);
@@ -119,7 +127,7 @@ const VisualizarAgendamento: React.FC = () => {
                 value={dataFiltro}
                 onChange={(novaData) => {
                   setDataFiltro(novaData);
-                  setPaginaAtual(1); 
+                  setPage(1); 
                 }}
                 slotProps={{ textField: { size: 'small' } }}
               />
@@ -164,53 +172,67 @@ const VisualizarAgendamento: React.FC = () => {
                   />
                 </Box>
               ) : (
-                <List sx={{ width: '100%' }}>
-                  {agendamentos.length > 0 ? (
-                    agendamentos.map((agendamento) => (
-                      <ListItem
-                        key={agendamento.ID}
-                        divider
-                        secondaryAction={
-                          <IconButton edge="end" onClick={() => handleVerDetalhes(agendamento)}>
-                            <InfoIcon />
-                          </IconButton>
+              <List sx={{ width: '100%' }}>
+                {agendamentos.length > 0 ? (
+                  agendamentos.map((agendamento) => (
+                    <ListItem
+                      key={agendamento.ID}
+                      divider
+                      secondaryAction={
+                        <IconButton edge="end" onClick={() => handleVerDetalhes(agendamento)}>
+                          <InfoIcon />
+                        </IconButton>
+                      }
+                    >
+                      <ListItemText
+                      disableTypography
+                        primary={
+                          <Typography variant="subtitle1" fontWeight="bold">
+                            {agendamento.Cliente?.Nome || `Cliente ${agendamento.ClienteID}`}
+                          </Typography>
                         }
-                      >
-                        <ListItemText
-                          primary={
-                            <Typography variant="subtitle1" fontWeight="bold">
-                              {agendamento.Cliente?.Nome || `Cliente ${agendamento.ClienteID}`}
+                        secondary={
+                          <Box>
+                            <Typography variant="body2" component="span" display="block">
+                              {formatarDataHora(agendamento.Data)}
                             </Typography>
-                          }
-                          secondary={
-                            <>
-                              <Typography variant="body2" component="span" display="block">
-                                {formatarDataHora(agendamento.Data)}
-                              </Typography>
-                              <Typography variant="body2" component="span" display="block">
-                                Profissional: {agendamento.Cabeleireiro?.Nome || `ID: ${agendamento.CabeleireiroID}`}
-                              </Typography>
-                              <Chip 
-                                label={agendamento.Status} 
-                                size="small" 
-                                sx={{ 
-                                  bgcolor: getStatusColor(agendamento.Status),
-                                  color: 'white',
-                                  mt: 1
-                                }} 
-                              />
-                            </>
-                          }
-                        />
-                      </ListItem>
-                    ))
-                  ) : (
-                    <Typography variant="body1" sx={{ textAlign: 'center', py: 4 }}>
-                      Nenhum agendamento encontrado para esta data.
-                    </Typography>
-                  )}
-                </List>
+                            <Typography variant="body2" component="span" display="block">
+                              Profissional: {agendamento.Cabeleireiro?.Nome || `ID: ${agendamento.CabeleireiroID}`}
+                            </Typography>
+                            <Chip 
+                              label={agendamento.Status} 
+                              size="small" 
+                              sx={{ 
+                                bgcolor: getStatusColor(agendamento.Status),
+                                color: 'white',
+                                mt: 1
+                              }} 
+                            />
+                          </Box>
+                        }
+                      />
+                    </ListItem>
+                  ))
+                ) : (
+                  <Typography variant="body2" sx={{ px: 2 }}>
+                    Nenhum agendamento encontrado.
+                  </Typography>
+                )}
+              </List>
               )}
+              <TablePagination
+                rowsPerPageOptions={[5, 10, 25]}
+                component="div"
+                count={totalAgendamentos}
+                rowsPerPage={rowsPerPage}
+                page={page}
+                onPageChange={handleChangePage}
+                onRowsPerPageChange={handleChangeRowsPerPage}
+                labelRowsPerPage="Itens por página:"
+                labelDisplayedRows={({ from, to, count }) =>
+                `${from}-${to} de ${count !== -1 ? count : `mais de ${to}`}`
+              }
+            />
             </Paper>
           )}
           <Dialog open={modalAberto} onClose={handleFecharModal} maxWidth="sm" fullWidth>

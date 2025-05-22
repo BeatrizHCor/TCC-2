@@ -14,11 +14,11 @@ class AgendamentoService{
         ano: number = 0
     ) => {
         let whereCondition: Prisma.AgendamentosWhereInput = {};
+        console.log("Valores d,m,a: ",dia,mes,ano)
+        const range = getRangeByDataInput(ano,mes,dia);
         if (salaoId !== null) {
         whereCondition.SalaoId = salaoId;
         }
-        const range = getRangeByDataInput(ano,mes,dia);
-        console.log(range);
         if (range !== null) {
             whereCondition.Data = {
             gte: range.dataInicial,
@@ -51,7 +51,7 @@ class AgendamentoService{
         ano: number
     ) => {
         const skip = (page - 1) * limit;
-        console.log("Valores service d,m,a: ",dia,mes,ano)
+
         const [total, agendamentos] = await Promise.all([
         AgendamentoService.getAgendamentos(null, null, false, salaoId, dia, mes, ano),
         AgendamentoService.getAgendamentos(
@@ -96,7 +96,7 @@ class AgendamentoService{
     }
   };
 
-   
+ 
     static createAgendamento = async(
         Data: Date,
         Status: StatusAgendamento = "Agendado",
@@ -104,7 +104,7 @@ class AgendamentoService{
         SalaoId: string,
         CabeleireiroID: string,
     ) => {
-      try{;
+      try{
         return await prisma.agendamentos.create({
             data: {
                 Data: Data,

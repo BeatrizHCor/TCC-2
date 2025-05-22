@@ -37,10 +37,10 @@ export const getAgendamentosPage = async (
     mes:number, 
     ano:number
 ) => {
-    console.log(CabeleireiroURL);
+    console.log(dia, mes, ano);
     let responseAgendamentos = await fetch(
         CabeleireiroURL +
-            `/agendamento/page?page=${page}&limit=${limit}&salaoId=${salaoId}&dia=${dia}&mes=${mes}&ano=${ano}}&includeRelations=${includeRelations}`,
+            `/agendamento/page?page=${page}&limit=${limit}&salaoId=${salaoId}&dia=${dia}&mes=${mes}&ano=${ano}&includeRelations=${includeRelations}`,
         {
             method: "GET",
         }
