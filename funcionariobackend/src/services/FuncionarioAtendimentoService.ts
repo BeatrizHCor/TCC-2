@@ -1,6 +1,6 @@
 import { Prisma } from "@prisma/client";
 import prisma from "../config/database";
-import { getRangeByDataInput } from "../utils/CalculoPeriododeTempo";
+import { getRangeByDataInputWithTimezone } from "../utils/CalculoPeriododeTempo";
 interface AtendimentoInput {
   data: Date;
   funcionarioId: string;
@@ -29,13 +29,13 @@ class AtendimentoService {
       where.SalaoId = salaoId;
     }
     console.log("Valores d,m,a: ",dia,mes,ano)
-    const range = getRangeByDataInput(ano,mes,dia);
+    const range = getRangeByDataInputWithTimezone(ano,mes,dia);
     if (range !== null) {
             where.Data = {
             gte: range.dataInicial,
             lte: range.dataFinal,
-    };
-
+      };
+    }
     if (nomeCabeleireiro && nomeCliente) {
     where.Agendamentos = {
         some: {
@@ -81,8 +81,7 @@ class AtendimentoService {
         },
         },
     };
-    }
-  }
+}  
     return prisma.atendimento.findMany({
       ...(skip !== null ? { skip } : {}),
       ...(limit !== null ? { take: limit } : {}),
@@ -144,7 +143,7 @@ class AtendimentoService {
     ]);
 
     return {
-      total: total.length,
+      total: total,
       page,
       limit,
       data: atendimentos,

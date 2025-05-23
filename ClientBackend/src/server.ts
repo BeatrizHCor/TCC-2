@@ -20,7 +20,6 @@ route.get("/", (_req: Request, res: Response) => {
 
 app.use(route);
 app.use(clienteRoutes);
-app.resource(agendamentoClienteRoutes);
 
 app.listen(PORT, () => {
   console.log(`Servidor rodando na porta ${PORT}`);

@@ -1,6 +1,6 @@
 import { Prisma, StatusAgendamento, Agendamentos } from "@prisma/client";
 import prisma from "../config/database";
-import { getRangeByDataInput } from "../utils/CalculoPeriododeTempo";
+import { getRangeByDataInputWithTimezone } from "../utils/CalculoPeriododeTempo";
 
 class AgendamentoService{
 
@@ -15,7 +15,7 @@ class AgendamentoService{
     ) => {
         let whereCondition: Prisma.AgendamentosWhereInput = {};
         console.log("Valores d,m,a: ",dia,mes,ano)
-        const range = getRangeByDataInput(ano,mes,dia);
+        const range = getRangeByDataInputWithTimezone(ano,mes,dia);
         if (salaoId !== null) {
         whereCondition.SalaoId = salaoId;
         }
@@ -95,7 +95,6 @@ class AgendamentoService{
       return false;
     }
   };
-
  
     static createAgendamento = async(
         Data: Date,

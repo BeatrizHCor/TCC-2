@@ -1,6 +1,6 @@
 import { Prisma, StatusAgendamento, Agendamentos } from "@prisma/client";
 import prisma from "../config/database";
-import { getRangeByDataInput } from "../utils/CalculoPeriododeTempo";
+import { getRangeByDataInputWithTimezone } from "../utils/CalculoPeriododeTempo";
 
 class AgendamentoService{
 
@@ -17,7 +17,7 @@ class AgendamentoService{
         if (salaoId !== null) {
         whereCondition.SalaoId = salaoId;
         }
-        const range = getRangeByDataInput(ano,mes,dia);
+        const range = getRangeByDataInputWithTimezone(ano,mes,dia);
         console.log(range);
         if (range !== null) {
             whereCondition.Data = {

@@ -1,33 +1,51 @@
-export function getRangeByDataInput(
+import { toZonedTime } from "date-fns-tz";
+
+export function getRangeByDataInputWithTimezone(
   ano: number,
   mes: number = 0,
-  dia: number = 0
+  dia: number = 0,
+  timezone: string = 'America/Sao_Paulo'
 ): { dataInicial: Date; dataFinal: Date } | null {
-  
-  if (ano <= 0 || Number.isNaN(dia)) {
-    console.log("Ano não fornecido");
+
+  if (ano <= 0 || Number.isNaN(ano)) {
+    console.log("Ano não fornecido ou inválido");
     return null;
   }
-
   if (dia > 0 && mes <= 0) {
     console.log("Não é permitido informar dia sem informar mês.");
     return null;
   }
-
-  if (dia > 0 && !Number.isNaN(dia) && mes > 0 && !Number.isNaN(mes)) {
-    const dataInicial = new Date(Date.UTC(ano, mes - 1, dia, 0, 0, 0));
-    const dataFinal = new Date(Date.UTC(ano, mes - 1, dia, 23, 59, 59));
-    return { dataInicial, dataFinal };
+  if (mes < 0 || mes > 12) {
+    console.log("Mês inválido. Deve estar entre 1 e 12");
+    return null;
   }
 
-  if (mes > 0 && !Number.isNaN(mes)) {
-    const dataInicial = new Date(Date.UTC(ano, mes - 1, 1, 0, 0, 0));
-    const dataFinal = new Date(Date.UTC(ano, mes, 0, 23, 59, 59));
-    return { dataInicial, dataFinal };
+  if (dia > 0 && mes > 0) {
+    const inicio = new Date(ano, mes - 1, dia, 0, 0, 0);
+    const fim = new Date(ano, mes - 1, dia, 23, 59, 59);
+
+    return {
+      dataInicial: toZonedTime(inicio, timezone),
+      dataFinal: toZonedTime(fim, timezone),
+    };
   }
 
-  // filtro para o ano todo
-  const dataInicial = new Date(Date.UTC(ano, 0, 1, 0, 0, 0));
-  const dataFinal = new Date(Date.UTC(ano, 11, 31, 23, 59, 59));
-  return { dataInicial, dataFinal };
+  if (mes > 0) {
+    const inicio = new Date(ano, mes - 1, 1, 0, 0, 0);
+
+    const ultimoDia = new Date(ano, mes, 0).getDate();
+    const fim = new Date(ano, mes - 1, ultimoDia, 23, 59, 59);
+
+    return {
+      dataInicial: toZonedTime(inicio, timezone),
+      dataFinal: toZonedTime(fim, timezone),
+    };
+  }
+  const inicio = new Date(ano, 0, 1, 0, 0, 0);
+  const fim = new Date(ano, 11, 31, 23, 59, 59);
+
+  return {
+    dataInicial: toZonedTime(inicio, timezone),
+    dataFinal: toZonedTime(fim, timezone),
+  };
 }

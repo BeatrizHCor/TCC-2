@@ -20,9 +20,8 @@ class clienteAgendamentoService{
                 CabeleireiroID: CabeleireiroID,                
             },
         });  
-        } catch(e){
-          console.log(e);
-          return null;
+        } catch (error) {
+        throw new Error("Erro ao criar Agendamento");
         }
     }
 
@@ -123,7 +122,7 @@ class clienteAgendamentoService{
         ]);
 
         return {
-        total: total.length,
+        total: total,
         page,
         limit,
         horariosIndisponiveis: agendamentos.map(a => a.Data),

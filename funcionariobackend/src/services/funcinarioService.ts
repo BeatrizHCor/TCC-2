@@ -1,5 +1,6 @@
 import { Prisma } from "@prisma/client";
 import prisma from "../config/database";
+import { isValidString } from "../utils/ValidacaoValoresBusca";
 
 
 class FuncionarioService {
@@ -11,12 +12,12 @@ class FuncionarioService {
     salaoId: string | null = null
   ) {
     let whereCondition: Prisma.FuncionarioWhereInput = {};
-    if (nome && nome.trim() !== '' && typeof nome === 'string' && nome.trim().length > 0 && nome !== 'null') {
+    if (isValidString(nome)) {
       whereCondition.Nome = {
         contains: nome,
         mode: 'insensitive',
       };
-    if (salaoId) {
+    if (isValidString(salaoId)) {
         whereCondition.SalaoId = salaoId;
       }
     }
@@ -45,14 +46,20 @@ class FuncionarioService {
     salaoId: string | null = null
   ) {
     const skip = (page - 1) * limit;
-
+    const where: Prisma.FuncionarioWhereInput = {};
+    if (salaoId !== null) {
+      where.SalaoId = salaoId;
+    }
+    if (isValidString(nome)){
+      where.Nome = { contains: nome, mode: 'insensitive' };
+    }
     const [total, funcionarios] = await Promise.all([
-      FuncionarioService.getFuncionarios(null, null, nome, false, salaoId),
+      prisma.funcionario.count({where}),
       FuncionarioService.getFuncionarios(skip, limit, nome, includeRelations, salaoId),
     ]);
 
     return {
-      total: total.length,
+      total: total,
       page,
       limit,
       data: funcionarios,
