@@ -52,7 +52,11 @@ RoutesCustomer.get("/cliente/page", async (req: Request, res: Response) => {
   const includeRelations = req.query.include === "true" ? true : false;
   const salaoId = (req.query.salaoId as string) || "";
   try {
-    const userInfo = JSON.parse(req.headers.authorization || "{}");
+    const userInfo = JSON.parse(
+      Buffer.from(req.headers.authorization || "", "base64").toString(
+        "utf-8"
+      ) || "{}"
+    );
     let userType = JSON.parse(userInfo).userType;
     const auth = await authenticate(
       userInfo.userID,
@@ -94,7 +98,11 @@ RoutesCustomer.put("/cliente/:id", async (req: Request, res: Response) => {
     SalaoId,
   };
   try {
-    const userInfo = JSON.parse(req.headers.authorization || "{}");
+    const userInfo = JSON.parse(
+      Buffer.from(req.headers.authorization || "", "base64").toString(
+        "utf-8"
+      ) || "{}"
+    );
     const auth = await authenticate(
       userInfo.userID,
       userInfo.token,
@@ -115,7 +123,11 @@ RoutesCustomer.put("/cliente/:id", async (req: Request, res: Response) => {
 RoutesCustomer.get("/cliente/:id", async (req, res) => {
   const { id } = req.params;
   try {
-    const userInfo = JSON.parse(req.headers.authorization || "{}");
+    const userInfo = JSON.parse(
+      Buffer.from(req.headers.authorization || "", "base64").toString(
+        "utf-8"
+      ) || "{}"
+    );
     const auth = await authenticate(
       userInfo.userID,
       userInfo.token,

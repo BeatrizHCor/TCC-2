@@ -6,7 +6,7 @@ const api = axios.create({
   baseURL: import.meta.env.APIGATEWAY_URL || "http://localhost:5000",
   headers: {
     "Content-Type": "application/json",
-    Authorization: token,
+    Authorization: btoa(token || ""),
   },
 });
 

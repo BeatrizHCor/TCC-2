@@ -6,7 +6,7 @@ const api = axios.create({
   timeout: 100000,
   headers: {
     "Content-Type": "application/json",
-    Authorization: `${token}`,
+    Authorization: btoa(token || ""),
   },
 });
 // set os dados do usuario para autenticação no header de cada requisição
