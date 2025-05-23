@@ -73,28 +73,27 @@ class AgendamentoService{
         };
     };
 
-
-      static findById = async (ID: string, include = false) => {
-    try {
-      return await prisma.agendamentos.findUnique({
-        where: {
-          ID: ID,
-        },
-        ...(include
-            ? {
-                include: {
-                Cliente: true,
-                Cabeleireiro: true,
-                Atendimento: true,
-                },
-            }
-            : {}),
-      });
-    } catch (e) {
-      console.log(e);
-      return false;
-    }
-  };
+    static findById = async (ID: string, include = false) => {
+        try {
+          return await prisma.agendamentos.findUnique({
+            where: {
+              ID: ID,
+            },
+            ...(include
+                ? {
+                    include: {
+                    Cliente: true,
+                    Cabeleireiro: true,
+                    Atendimento: true,
+                    },
+                }
+                : {}),
+          });
+        } catch (e) {
+          console.log(e);
+          return false;
+        }
+      };
  
     static createAgendamento = async(
         Data: Date,
