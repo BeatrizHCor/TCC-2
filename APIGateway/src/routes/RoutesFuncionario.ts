@@ -66,7 +66,7 @@ RoutesFuncionario.post("/funcionario", async (req: Request, res: Response) => {
     if (!funcionario) {
       throw new Error("Funcionario not created");
     }
-    console.log("Funcionario ID:", funcionario.ID);
+
     let register = await registerLogin(
       funcionario.ID!,
       Email,

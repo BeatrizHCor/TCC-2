@@ -2,12 +2,14 @@ import axios from "axios";
 import { Cabeleireiro } from "../models/cabelereiroModel";
 //import { c } from "vite/dist/node/moduleRunnerTransport.d-CXw_Ws6P";
 import { Password } from "@mui/icons-material";
+const token = localStorage.getItem("usuario");
 
 const api = axios.create({
   baseURL: import.meta.env.VITE_GATEWAY_URL || "http://localhost:5000",
   timeout: 100000,
   headers: {
     "Content-Type": "application/json",
+    Authorization: btoa(token || ""),
   },
 });
 
