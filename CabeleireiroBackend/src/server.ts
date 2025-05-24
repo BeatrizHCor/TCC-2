@@ -1,6 +1,6 @@
 import dotenv from "dotenv";
 import express, { NextFunction, Request, Response, Router } from "express";
-import clienteRoutes from "./routes/CabeleireiroRoutes";
+import cabeleireiroRoutes from "./routes/CabeleireiroRoutes";
 import agendamentoRoutes from "./routes/AgendamentoRoutes";
 import cors from "cors";
 
@@ -18,7 +18,7 @@ route.get("/", (_req: Request, res: Response) => {
 });
 
 app.use(route);
-app.use(clienteRoutes);
+app.use(cabeleireiroRoutes);
 app.use(agendamentoRoutes);
 
 

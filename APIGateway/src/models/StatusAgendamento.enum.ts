@@ -1,5 +1,6 @@
 enum StatusAgendamento {
     Agendado,
-    Concluido,
+    Confirmado,
+    Finalizado,
     Cancelado
   }

@@ -1,15 +1,17 @@
 import { Agendamentos } from "../models/agendamentoModel";
 import "dotenv/config";
 
-const CabeleireiroURL = process.env.CABELEREIRO_URL || "http://localhost:4002";
+const CabeleireiroURL = process.env.CABELEREIRO_URL || "http://localhost:3005";
+const FuncionarioURL = process.env.FUNC_URL || "http://localhost:3002";
 
+//-----Funcionario
 export const postAgendamento = async (
     Data: Date, 
     ClienteID: string, 
     SalaoId: string, 
     CabeleireiroID: string
 ) => {
-    let responseAgendamento = await fetch(CabeleireiroURL + "/agendamento", {
+    let responseAgendamento = await fetch(FuncionarioURL + "/agendamento", {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
@@ -37,10 +39,10 @@ export const getAgendamentosPage = async (
     mes:number, 
     ano:number
 ) => {
-    console.log(CabeleireiroURL);
+    console.log(dia, mes, ano);
     let responseAgendamentos = await fetch(
-        CabeleireiroURL +
-            `/agendamento/page?page=${page}&limit=${limit}&salaoId=${salaoId}&dia=${dia}&mes=${mes}&ano=${ano}}&includeRelations=${includeRelations}`,
+        FuncionarioURL +
+            `/agendamento/page?page=${page}&limit=${limit}&salaoId=${salaoId}&dia=${dia}&mes=${mes}&ano=${ano}&includeRelations=${includeRelations}`,
         {
             method: "GET",
         }

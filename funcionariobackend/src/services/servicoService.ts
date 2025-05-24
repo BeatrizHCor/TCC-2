@@ -1,5 +1,6 @@
 import prisma from "../config/database";
 import { Prisma } from "@prisma/client";
+import { isValidNumber, isValidString } from "../utils/ValidacaoValoresBusca";
 
 class ServicoService {
   static async getServicos(
@@ -12,21 +13,20 @@ class ServicoService {
     salaoId: string | null = null
   ) {
     let whereCondition: Prisma.ServicoWhereInput = {};
-    if (nome !== undefined && nome.trim() !== '' && typeof nome === 'string' && nome.trim().length > 0 && nome !== 'null') {
+    if (isValidString(nome)) {
       whereCondition.Nome = {
         contains: nome,
         mode: 'insensitive',
       };
-    if (salaoId !== null) {
-        whereCondition.SalaoId = salaoId;
-      }
     }
-
-    if (precoMin !== 0 && precoMin != null && !isNaN(precoMin)) {
+    if (salaoId !== null) {
+      whereCondition.SalaoId = salaoId;
+    }
+    if (precoMin !== 0 && !isNaN(precoMin)) {
       whereCondition.PrecoMin = { gte: precoMin };
     }
 
-    if (precoMax !== 0 && precoMax != null && !isNaN(precoMax)) {
+    if (precoMax !== 0 && !isNaN(precoMax)) {
       whereCondition.PrecoMax = { lte: precoMax };
     }
 
@@ -64,17 +64,30 @@ class ServicoService {
     includeRelations = false,
     salaoId: string | null = null
   ) {
-    const pageNum = isNaN(page) ? 1 : page;
-    const limitNum = isNaN(limit) ? 10 : limit;
+    const pageNum = isValidNumber(page) ? page : 1;
+    const limitNum = isValidNumber(limit) ? limit : 10;
     const skip = (pageNum - 1) * limitNum;
-  
+    const where: Prisma.ServicoWhereInput = {};
+    if (salaoId !== null) {
+      where.SalaoId = salaoId;
+    }
+    if (precoMin !== 0 && isValidNumber(precoMin) ) {
+      where.PrecoMin = { gte: precoMin };
+    }
+    if (precoMin !== 0 && isValidNumber(precoMax)) {
+      where.PrecoMax = { lte: precoMax };
+    }
+    if(isValidString(nome)){
+      where.Nome = { contains: nome, mode: 'insensitive' };
+    }
+
     const [total, servicos] = await Promise.all([
-      ServicoService.getServicos(null, null, nome, precoMin, precoMax, false, salaoId),
+      prisma.servico.count({ where }), 
       ServicoService.getServicos(skip, limitNum, nome, precoMin, precoMax, includeRelations, salaoId),
     ]);
   
     return {
-      total: total.length,
+      total: total,
       page: pageNum,
       limit: limitNum,
       data: servicos,
@@ -88,7 +101,6 @@ class ServicoService {
     Descricao: string,
     SalaoId: string
   ) {
-    console.log('Dados enviados para criação:', { Nome, PrecoMin, PrecoMax, Descricao, SalaoId });
     try {
       const servico = await prisma.servico.create({
         data: {

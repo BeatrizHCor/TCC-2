@@ -1,6 +1,5 @@
+import { Prisma } from "@prisma/client";
 import prisma from "../config/database";
-import { PrismaClient } from "@prisma/client";
-
 interface ClienteData {
   CPF: string;
   Nome: string;
@@ -39,13 +38,17 @@ class ClienteService {
   ) {
     const skip = (page - 1) * limit;
 
+    const where: Prisma.ClienteWhereInput = {};
+    if (salaoId !== null) {
+      where.SalaoId = salaoId;
+    }
     const [total, clientes] = await Promise.all([
-      ClienteService.getClientes(null, null, false, salaoId),
+      prisma.cliente.count({ where }),
       ClienteService.getClientes(skip, limit, includeRelations, salaoId),
     ]);
 
     return {
-      total: total.length,
+      total: total,
       page,
       limit,
       data: clientes,

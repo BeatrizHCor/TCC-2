@@ -1,5 +1,5 @@
 import express from "express";
-import AgendamentoController from "../controllers/AgendamentoController";
+import AgendamentoController from "../controllers/FuncionarioAgendamentoController";
 
 const router = express.Router();
 
