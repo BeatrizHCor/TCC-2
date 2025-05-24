@@ -116,19 +116,65 @@ class AtendimentoService {
     ano: number = 0
   ) {
     const skip = (page - 1) * limit;
-
+    const where: Prisma.AtendimentoWhereInput = {};
+    const range = getRangeByDataInputWithTimezone(ano,mes,dia);
+    if (salaoId !== null) {
+      where.SalaoId = salaoId;
+    }
+    if (range !== null) {
+      where.Data = {
+        gte: range.dataInicial,
+        lte: range.dataFinal,
+      };
+    }
+    if (nomeCabeleireiro && nomeCliente) {
+      where.Agendamentos = {
+        some: {
+          AND: [
+            {
+              Cabeleireiro: {
+                Nome: {
+                  contains: nomeCabeleireiro,
+                  mode: "insensitive",
+                },
+              },
+            },
+            {
+              Cliente: {
+                Nome: {
+                  contains: nomeCliente,
+                  mode: "insensitive",
+                },
+              },
+            },
+          ],
+        },
+      };
+    } else if (nomeCabeleireiro) {
+      where.Agendamentos = {
+        some: {
+          Cabeleireiro: {
+            Nome: {
+              contains: nomeCabeleireiro,
+              mode: "insensitive",
+            },
+          },
+        },
+      };
+    } else if (nomeCliente) {
+      where.Agendamentos = {
+        some: {
+          Cliente: {
+            Nome: {
+              contains: nomeCliente,
+              mode: "insensitive",
+            },
+          },
+        },
+      };
+    }
     const [total, atendimentos] = await Promise.all([
-      AtendimentoService.getAtendimentos(
-        null,
-        null,
-        false,
-        salaoId,
-        nomeCliente,
-        nomeCabeleireiro,
-        dia,
-        mes,
-        ano
-      ),
+      prisma.atendimento.count({ where }),
       AtendimentoService.getAtendimentos(
         skip,
         limit,
@@ -221,7 +267,7 @@ class AtendimentoService {
     return atendimento;
     }
 
-    static async updateAtendimento(id: string, data: AtendimentoInput) {
+  static async updateAtendimento(id: string, data: AtendimentoInput) {
     const {
         data: dataAtendimento,
         funcionarioId,
@@ -231,7 +277,7 @@ class AtendimentoService {
         auxiliarId,
         servicos,
     } = data;
-
+    try{
     const atendimento = await prisma.atendimento.update({
         where: { ID: id },
         data: {
@@ -274,9 +320,12 @@ class AtendimentoService {
         Agendamentos: true,
         },
     });
-
     return atendimento;
+    } catch (error) {
+        console.error("Erro ao atualizar atendimento:", error);
+        throw new Error("Não foi possível atualizar o atendimento");
     }
+  }
 
     static async deleteAtendimento(id: string) {
         try {

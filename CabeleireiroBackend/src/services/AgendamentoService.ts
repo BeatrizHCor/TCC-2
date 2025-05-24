@@ -104,7 +104,7 @@ class AgendamentoService{
         SalaoId: string,
         CabeleireiroID: string,
     ) => {
-      try{;
+      try {
         return await prisma.agendamentos.create({
             data: {
                 Data: Data,
@@ -114,9 +114,9 @@ class AgendamentoService{
                 CabeleireiroID: CabeleireiroID,                
             },
         });  
-        } catch(e){
-          console.log(e);
-          return null;
+        } catch(error){
+          console.error('Error creating agendamento:', error);
+          throw error;
         }
     }
 

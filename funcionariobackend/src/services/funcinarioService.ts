@@ -11,20 +11,20 @@ class FuncionarioService {
     include = false,
     salaoId: string | null = null
   ) {
-    let whereCondition: Prisma.FuncionarioWhereInput = {};
+    let where: Prisma.FuncionarioWhereInput = {};
     if (isValidString(nome)) {
-      whereCondition.Nome = {
+      where.Nome = {
         contains: nome,
         mode: 'insensitive',
       };
-    if (isValidString(salaoId)) {
-        whereCondition.SalaoId = salaoId;
-      }
+    }
+    if (salaoId !== null) {
+        where.SalaoId = salaoId;
     }
     return await prisma.funcionario.findMany({
       ...(skip !== null ? { skip } : {}),
       ...(limit !== null ? { take: limit } : {}),
-      where: whereCondition,           
+      where: where,           
       ...(include
         ? {
             include: {

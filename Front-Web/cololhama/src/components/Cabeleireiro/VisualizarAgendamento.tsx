@@ -71,7 +71,7 @@ const VisualizarAgendamento: React.FC = () => {
         id: agendamento.ID,
         title: `${clienteNome} - ${cabeleireiroNome}`,
         start: dataEvento,
-        end: new Date(dataEvento.getTime() + 60 * 60000), // duração padrão de 1 hora
+        end: new Date(dataEvento.getTime() + 60 * 60000),
         extendedProps: { agendamento },
         backgroundColor: getStatusColor(agendamento.Status),
       };
@@ -95,7 +95,7 @@ const VisualizarAgendamento: React.FC = () => {
     event: React.ChangeEvent<HTMLInputElement>
   ) => {
     setRowsPerPage(parseInt(event.target.value, 10));
-    setPage(0);
+                  setPage(0);
   };
 
   const handleVerDetalhes = (agendamento: Agendamentos) => {
@@ -127,7 +127,7 @@ const VisualizarAgendamento: React.FC = () => {
                 value={dataFiltro}
                 onChange={(novaData) => {
                   setDataFiltro(novaData);
-                  setPage(1); 
+                  setPage(0); 
                 }}
                 slotProps={{ textField: { size: 'small' } }}
               />

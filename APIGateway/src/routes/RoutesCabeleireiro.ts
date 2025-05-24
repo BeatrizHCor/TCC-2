@@ -36,7 +36,7 @@ RoutesCabeleireiro.post(
         userType
       );
   
-      if (register !== 201) {
+      if (!register) {
         console.log("Register failed");
         let cabeleireiroDelete = await deleteCabeleireiro(cabeleireiro.ID!);
         if (cabeleireiroDelete) {

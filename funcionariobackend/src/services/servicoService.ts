@@ -18,9 +18,9 @@ class ServicoService {
         contains: nome,
         mode: 'insensitive',
       };
+    }
     if (salaoId !== null) {
-        whereCondition.SalaoId = salaoId;
-      }
+      whereCondition.SalaoId = salaoId;
     }
     if (precoMin !== 0 && !isNaN(precoMin)) {
       whereCondition.PrecoMin = { gte: precoMin };
@@ -64,19 +64,23 @@ class ServicoService {
     includeRelations = false,
     salaoId: string | null = null
   ) {
-    const NomeBusca = isValidString(nome) ? nome: "";
-    const precoMinBusca = isValidNumber(precoMin) ? precoMin: 0;
-    const precoMaxBusca = isValidNumber(precoMax) ? precoMax: 0;
     const pageNum = isValidNumber(page) ? page : 1;
     const limitNum = isValidNumber(limit) ? limit : 10;
     const skip = (pageNum - 1) * limitNum;
     const where: Prisma.ServicoWhereInput = {};
     if (salaoId !== null) {
       where.SalaoId = salaoId;
-      where.Nome = { contains: NomeBusca, mode: 'insensitive' };
-      where.PrecoMin = { gte: precoMinBusca };
-      where.PrecoMax = { lte: precoMaxBusca };
     }
+    if (precoMin !== 0 && isValidNumber(precoMin) ) {
+      where.PrecoMin = { gte: precoMin };
+    }
+    if (precoMin !== 0 && isValidNumber(precoMax)) {
+      where.PrecoMax = { lte: precoMax };
+    }
+    if(isValidString(nome)){
+      where.Nome = { contains: nome, mode: 'insensitive' };
+    }
+
     const [total, servicos] = await Promise.all([
       prisma.servico.count({ where }), 
       ServicoService.getServicos(skip, limitNum, nome, precoMin, precoMax, includeRelations, salaoId),

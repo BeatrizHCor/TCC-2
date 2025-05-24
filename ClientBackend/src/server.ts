@@ -1,4 +1,4 @@
-import dotenv from "dotenv";
+import dotenv from 'dotenv';
 import  express, { NextFunction, Request, Response, Router }  from 'express';
 import clienteRoutes from "../src/routes/ClienteRoutes";
 import agendamentoRoutes from "../src/routes/AgendamentoClienteRoutes"

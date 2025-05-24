@@ -52,21 +52,33 @@ class AgendamentoService{
     ) => {
         const skip = (page - 1) * limit;
 
+        let where: Prisma.AgendamentosWhereInput = {};
+        const range = getRangeByDataInputWithTimezone(ano,mes,dia);
+        if (salaoId !== null) {
+            where.SalaoId = salaoId;
+        }
+        if (range !== null) {
+            where.Data = {
+                gte: range.dataInicial,
+                lte: range.dataFinal,
+            };
+        }
+        
         const [total, agendamentos] = await Promise.all([
-        AgendamentoService.getAgendamentos(null, null, false, salaoId, dia, mes, ano),
-        AgendamentoService.getAgendamentos(
-            skip,
-            limit,
-            includeRelations,
-            salaoId,
-            dia,
-            mes,
-            ano
-        ),
+            prisma.agendamentos.count({ where: where }),
+            AgendamentoService.getAgendamentos(
+                skip,
+                limit,
+                includeRelations,
+                salaoId,
+                dia,
+                mes,
+                ano
+            ),
         ]);
 
         return {
-        total: total.length,
+        total: total,
         page,
         limit,
         data: agendamentos,

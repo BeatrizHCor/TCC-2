@@ -1,5 +1,6 @@
 import { Prisma, StatusAgendamento, Agendamentos } from "@prisma/client";
 import prisma from "../config/database";
+import { getRangeByDataInputWithTimezone } from "../utils/CalculoPeriododeTempo";
 
 class clienteAgendamentoService{
     
@@ -37,38 +38,13 @@ class clienteAgendamentoService{
     ) => {
         let whereCondition: Prisma.AgendamentosWhereInput = {};
         console.log("Valores d,m,a: ",dia,mes,ano)
-            whereCondition.Status = "Agendado";
-        if (salaoId !== null) {
-            whereCondition.SalaoId = salaoId;
-        }
-        if (clienteId !== null) {
-            whereCondition.ClienteID = clienteId;
-        }
-
-        if (dia !== 0 && !Number.isNaN(dia) && mes !== 0 && !Number.isNaN(mes) && ano !== 0 && !Number.isNaN(ano)) {
-            const dataInicial = new Date(Date.UTC(ano, mes - 1, dia, 0, 0, 0));
-            const dataFinal = new Date(Date.UTC(ano, mes - 1, dia, 23, 59, 59));
-            //chamada de todas em um dia expecifico
+        const range = getRangeByDataInputWithTimezone(ano,mes,dia);
+        console.log(range);
+        if (range !== null) {
             whereCondition.Data = {
-                gte: dataInicial,
-                lte: dataFinal,
-            };
-        } else if (ano !== 0 && !Number.isNaN(ano) && mes !== 0 && !Number.isNaN(mes)) {
-            const dataInicio = new Date(Date.UTC(ano, mes - 1, 1, 0, 0, 0));
-            const dataFim = new Date(Date.UTC(ano, mes, 0, 23, 59, 59)); 
-            //chamada de todas em um mes expecifico 
-            whereCondition.Data = {
-                gte: dataInicio,
-                lte: dataFim,
+            gte: range.dataInicial,
+            lte: range.dataFinal,
         };
-        } else if (ano !== 0 && !Number.isNaN(ano)) {
-            const dataInicio = new Date(Date.UTC(ano, 0, 1, 0, 0, 0));   
-            const dataFim = new Date(Date.UTC(ano, 11, 31, 23, 59, 59));  
-            //chama de todas em um ano 
-            whereCondition.Data = {
-                gte: dataInicio,
-                lte: dataFim,
-            };
         }
         return await prisma.agendamentos.findMany({
         ...(skip !== null ? { skip } : {}),
@@ -126,7 +102,7 @@ class clienteAgendamentoService{
         page,
         limit,
         horariosIndisponiveis: agendamentos.map(a => a.Data),
-        clinteData: agendamentosCliente        
+        clienteData: agendamentosCliente        
         };
     };
 
