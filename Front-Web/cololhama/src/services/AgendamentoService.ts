@@ -3,7 +3,7 @@ import { Agendamentos } from "../models/agendamentoModel";
 
 const token = localStorage.getItem("usuario");
 const api = axios.create({
-  baseURL: import.meta.env.APIGATEWAY_URL || "http://localhost:5000",
+  baseURL: import.meta.env.VITE_GATEWAY_URL || "http://localhost:5000",
   headers: {
     "Content-Type": "application/json",
     Authorization: btoa(token || ""),

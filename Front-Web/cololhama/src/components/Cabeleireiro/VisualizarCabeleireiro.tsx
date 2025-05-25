@@ -20,7 +20,7 @@ import { Cabeleireiro } from "../../models/cabelereiroModel";
 import { Link } from "react-router-dom";
 import theme from "../../styles/theme";
 
-const SalaoID = import.meta.env.VITE_SALAO_ID || "1"; // importa o ID do salão aqui
+const SalaoID = import.meta.env.VITE_SALAO_ID || "1";
 const colunas = [
   { id: "nome", label: "Nome" },
   { id: "email", label: "Email" },
@@ -57,19 +57,19 @@ export const VisualizarCabeleireiro: React.FC<VisualizarCabeleireiroProps> = ({
   const handleChangePage = (_: unknown, newPage: number) => {
     setPage(newPage);
   };
+  const handleChangeRowsPerPage = (
+    event: React.ChangeEvent<HTMLInputElement>
+  ) => {
+    setRowsPerPage(parseInt(event.target.value, 10));
+    setPage(0);
+  };
+
   const [NomeFiltroInput, setNomeFilterInput] = useState("");
   const handleNomeFilterInput = (e: React.ChangeEvent<HTMLInputElement>) => {
     setNomeFilterInput(e.target.value);
   };
   const aplicarFiltroNome = () => {
     setTermoBusca(NomeFiltroInput);
-    setPage(0);
-  };
-
-  const handleChangeRowsPerPage = (
-    event: React.ChangeEvent<HTMLInputElement>
-  ) => {
-    setRowsPerPage(parseInt(event.target.value, 10));
     setPage(0);
   };
 

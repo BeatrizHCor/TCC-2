@@ -188,7 +188,8 @@ model Agendamentos {
 
 enum StatusAgendamento {
   Agendado
-  Concluido
+  Confirmado
+  Finalizado
   Cancelado
 }
 

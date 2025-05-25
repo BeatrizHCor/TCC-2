@@ -14,11 +14,11 @@ class AgendamentoService{
         ano: number = 0
     ) => {
         let whereCondition: Prisma.AgendamentosWhereInput = {};
+        console.log("Valores d,m,a: ",dia,mes,ano)
+        const range = getRangeByDataInputWithTimezone(ano,mes,dia);
         if (salaoId !== null) {
         whereCondition.SalaoId = salaoId;
         }
-        const range = getRangeByDataInputWithTimezone(ano,mes,dia);
-        console.log(range);
         if (range !== null) {
             whereCondition.Data = {
             gte: range.dataInicial,
@@ -51,52 +51,62 @@ class AgendamentoService{
         ano: number
     ) => {
         const skip = (page - 1) * limit;
-        console.log("Valores service d,m,a: ",dia,mes,ano)
+
+        let where: Prisma.AgendamentosWhereInput = {};
+        const range = getRangeByDataInputWithTimezone(ano,mes,dia);
+        if (salaoId !== null) {
+            where.SalaoId = salaoId;
+        }
+        if (range !== null) {
+            where.Data = {
+                gte: range.dataInicial,
+                lte: range.dataFinal,
+            };
+        }
+        
         const [total, agendamentos] = await Promise.all([
-        AgendamentoService.getAgendamentos(null, null, false, salaoId, dia, mes, ano),
-        AgendamentoService.getAgendamentos(
-            skip,
-            limit,
-            includeRelations,
-            salaoId,
-            dia,
-            mes,
-            ano
-        ),
+            prisma.agendamentos.count({ where: where }),
+            AgendamentoService.getAgendamentos(
+                skip,
+                limit,
+                includeRelations,
+                salaoId,
+                dia,
+                mes,
+                ano
+            ),
         ]);
 
         return {
-        total: total.length,
+        total: total,
         page,
         limit,
         data: agendamentos,
         };
     };
 
-
-      static findById = async (ID: string, include = false) => {
-    try {
-      return await prisma.agendamentos.findUnique({
-        where: {
-          ID: ID,
-        },
-        ...(include
-            ? {
-                include: {
-                Cliente: true,
-                Cabeleireiro: true,
-                Atendimento: true,
-                },
-            }
-            : {}),
-      });
-    } catch (e) {
-      console.log(e);
-      return false;
-    }
-  };
-
-   
+    static findById = async (ID: string, include = false) => {
+        try {
+          return await prisma.agendamentos.findUnique({
+            where: {
+              ID: ID,
+            },
+            ...(include
+                ? {
+                    include: {
+                    Cliente: true,
+                    Cabeleireiro: true,
+                    Atendimento: true,
+                    },
+                }
+                : {}),
+          });
+        } catch (e) {
+          console.log(e);
+          return false;
+        }
+      };
+ 
     static createAgendamento = async(
         Data: Date,
         Status: StatusAgendamento = "Agendado",
@@ -104,7 +114,7 @@ class AgendamentoService{
         SalaoId: string,
         CabeleireiroID: string,
     ) => {
-      try {
+      try{
         return await prisma.agendamentos.create({
             data: {
                 Data: Data,
@@ -114,9 +124,9 @@ class AgendamentoService{
                 CabeleireiroID: CabeleireiroID,                
             },
         });  
-        } catch(error){
-          console.error('Error creating agendamento:', error);
-          throw error;
+        } catch(e){
+          console.log(e);
+          return null;
         }
     }
 

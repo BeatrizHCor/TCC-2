@@ -1,5 +1,5 @@
 import { Request, Response } from "express";
-import AgendamentoService from "../services/AgendamentoService";
+import AgendamentoService from "../services/FuncionarioAgendamentoService";
 
 class AgendamentoController{
   static findAllPaginated = async (req: Request, res: Response) => {
