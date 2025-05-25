@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useContext, useEffect, useState } from "react";
 import {
   Box,
   TextField,
@@ -11,7 +11,7 @@ import {
   DialogActions,
   DialogContent,
   DialogContentText,
-  DialogTitle
+  DialogTitle,
 } from "@mui/material";
 import { useNavigate, useLocation, useParams } from "react-router-dom";
 import { useManterServico } from "./useManterServico";
@@ -20,13 +20,14 @@ import SaveIcon from "@mui/icons-material/Save";
 import DeleteIcon from "@mui/icons-material/Delete";
 import ArrowBackIcon from "@mui/icons-material/ArrowBack";
 import "../../styles/styles.global.css";
+import { AuthContext } from "../../contexts/AuthContext";
 
 const ManterServico: React.FC = () => {
   const navigate = useNavigate();
   const { servicoId: servicoId } = useParams();
 
   const [openDeleteDialog, setOpenDeleteDialog] = useState(false);
-
+  const { doLogout } = useContext(AuthContext);
   const {
     Nome,
     setNome,
@@ -41,7 +42,8 @@ const ManterServico: React.FC = () => {
     isEditing,
     validationErrors,
     handleSubmit,
-    handleDelete
+    handleDelete,
+    forbidden,
   } = useManterServico(servicoId);
 
   const handleOpenDeleteDialog = () => {
@@ -56,6 +58,12 @@ const ManterServico: React.FC = () => {
     await handleDelete();
     handleCloseDeleteDialog();
   };
+
+  useEffect(() => {
+    if (forbidden) {
+      doLogout();
+    }
+  }, [forbidden]);
 
   if (!salaoId) {
     return (
@@ -116,14 +124,18 @@ const ManterServico: React.FC = () => {
                   required
                   type="number"
                   label="Preço Mínimo"
-                  value={PrecoMin === undefined ? '' : PrecoMin}
-                  onChange={(e) => setPrecoMin(e.target.value ? Number(e.target.value) : undefined)}             
+                  value={PrecoMin === undefined ? "" : PrecoMin}
+                  onChange={(e) =>
+                    setPrecoMin(
+                      e.target.value ? Number(e.target.value) : undefined
+                    )
+                  }
                   slotProps={{
                     input: {
-                    startAdornment: (
-                      <InputAdornment position="start">R$</InputAdornment>
-                    ),
-                   }
+                      startAdornment: (
+                        <InputAdornment position="start">R$</InputAdornment>
+                      ),
+                    },
                   }}
                   error={Boolean(validationErrors.precoMin)}
                   helperText={validationErrors.precoMin}
@@ -136,14 +148,18 @@ const ManterServico: React.FC = () => {
                   required
                   type="number"
                   label="Preço Máximo"
-                  value={PrecoMax === undefined ? '' : PrecoMax}
-                  onChange={(e) => setPrecoMax(e.target.value ? Number(e.target.value) : undefined)}               
+                  value={PrecoMax === undefined ? "" : PrecoMax}
+                  onChange={(e) =>
+                    setPrecoMax(
+                      e.target.value ? Number(e.target.value) : undefined
+                    )
+                  }
                   slotProps={{
                     input: {
-                    startAdornment: (
-                      <InputAdornment position="start">R$</InputAdornment>
-                    ),
-                   }
+                      startAdornment: (
+                        <InputAdornment position="start">R$</InputAdornment>
+                      ),
+                    },
                   }}
                   error={Boolean(validationErrors.precoMax)}
                   helperText={validationErrors.precoMax}
@@ -151,7 +167,14 @@ const ManterServico: React.FC = () => {
               </Box>
             </Box>
 
-            <Box sx={{ display: "flex", gap: 2, justifyContent: "space-between", mt: 2 }}>
+            <Box
+              sx={{
+                display: "flex",
+                gap: 2,
+                justifyContent: "space-between",
+                mt: 2,
+              }}
+            >
               <Button
                 variant="outlined"
                 startIcon={<ArrowBackIcon />}
@@ -175,7 +198,13 @@ const ManterServico: React.FC = () => {
                 <Button
                   type="submit"
                   variant="contained"
-                  startIcon={isLoading ? <CircularProgress size={20} color="inherit" /> : <SaveIcon />}
+                  startIcon={
+                    isLoading ? (
+                      <CircularProgress size={20} color="inherit" />
+                    ) : (
+                      <SaveIcon />
+                    )
+                  }
                   disabled={isLoading}
                 >
                   {isEditing ? "Salvar Alterações" : "Cadastrar Serviço"}
@@ -186,15 +215,12 @@ const ManterServico: React.FC = () => {
         </form>
       </Paper>
 
-
-      <Dialog
-        open={openDeleteDialog}
-        onClose={handleCloseDeleteDialog}
-      >
+      <Dialog open={openDeleteDialog} onClose={handleCloseDeleteDialog}>
         <DialogTitle>Confirmar exclusão</DialogTitle>
         <DialogContent>
           <DialogContentText>
-            Tem certeza que deseja excluir este serviço? Esta ação não pode ser desfeita.
+            Tem certeza que deseja excluir este serviço? Esta ação não pode ser
+            desfeita.
           </DialogContentText>
         </DialogContent>
         <DialogActions>

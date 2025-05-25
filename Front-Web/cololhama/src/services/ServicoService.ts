@@ -81,9 +81,12 @@ class ServicoService {
     }
   }
 
-  static async getServicoById(id: string): Promise<Servico> {
+  static async getServicoById(id: string): Promise<Servico | boolean> {
     try {
       const response = await api.get(`/servico/ID/${id}`);
+      if (response.status === 403) {
+        return false;
+      }
       const servico = response.data as Servico;
       return servico;
     } catch (error) {
