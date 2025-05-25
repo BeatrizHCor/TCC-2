@@ -138,6 +138,7 @@ export const useClienteCadastro = (salaoId: string) => {
 
       if (!response) {
         console.error("Erro ao cadastrar cliente.");
+        setLoading(false);
         return;
       }
 

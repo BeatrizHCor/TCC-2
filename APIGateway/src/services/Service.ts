@@ -35,9 +35,9 @@ export const registerLogin = async (
 };
 
 export const postLogin = async (
-  email: string,
+  Email: string,
   password: string,
-  salaoID: string
+  SalaoID: string
 ) => {
   let responseLogin = await fetch(loginURL + "/login", {
     method: "POST",
@@ -45,9 +45,9 @@ export const postLogin = async (
       "Content-Type": "application/json",
     },
     body: JSON.stringify({
-      email,
+      Email,
       password,
-      salaoID,
+      SalaoID,
     }),
   });
   if (responseLogin.ok) {

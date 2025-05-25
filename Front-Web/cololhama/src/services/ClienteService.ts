@@ -54,7 +54,7 @@ export const ClienteService = {
         userType: userType,
       });
       if (response.data.token) {
-        const { token, userID, userType } = response.data;
+        localStorage.setItem("usuario", JSON.stringify(response.data));
       }
       return !!response.data;
     } catch (error) {

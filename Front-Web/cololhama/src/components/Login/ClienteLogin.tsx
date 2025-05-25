@@ -1,5 +1,5 @@
 import "../../styles/styles.global.css";
-import React, { useContext, useState } from "react";
+import React, { useContext, useEffect, useState } from "react";
 import {
   Container,
   Paper,
@@ -18,10 +18,11 @@ import { Visibility, VisibilityOff } from "@mui/icons-material";
 import { Link, useNavigate } from "react-router-dom";
 import theme from "../../styles/theme";
 import { AuthContext } from "../../contexts/AuthContext";
+import { userTypes } from "../../models/tipo-usuario.enum";
 
 export const ClienteLogin: React.FC = () => {
   const navigate = useNavigate();
-  const { doLogin } = useContext(AuthContext);
+  const { doLogin, userType } = useContext(AuthContext);
   const [email, setEmail] = useState("");
   const [senha, setSenha] = useState("");
   const [showPassword, setShowPassword] = useState(false);
@@ -57,15 +58,21 @@ export const ClienteLogin: React.FC = () => {
     setLoading(true);
     setError(null);
 
-    try {
-      await doLogin(email, senha);
-      navigate("/dashboard");
-    } catch (err) {
-      setError("Email ou senha inválidos. Tente novamente.");
-    } finally {
+    await doLogin(email, senha).then((e) => {
       setLoading(false);
-    }
+      if (userType) {
+        navigate("/");
+      } else {
+        setError("Email ou senha inválidos. Tente novamente.");
+      }
+    });
   };
+
+  useEffect(() => {
+    if (userType) {
+      navigate("/");
+    }
+  }, [userType]);
 
   const isLoginDisabled = !validateEmail(email) || senha.trim() === "";
 

@@ -1,4 +1,4 @@
-import React, { useContext } from "react";
+import React, { useContext, useEffect } from "react";
 import { AppBar, Toolbar, Button, Box } from "@mui/material";
 import { Link } from "react-router-dom";
 import ContentCutIcon from "@mui/icons-material/ContentCut";
@@ -7,7 +7,13 @@ import { AuthContext } from "../../contexts/AuthContext";
 import { userTypes } from "../../models/tipo-usuario.enum";
 
 const NavBar: React.FC = () => {
-  const { userId, userType } = useContext(AuthContext);
+  const { userId, userType, checkLocalStorage, doLogout } =
+    useContext(AuthContext);
+
+  useEffect(() => {
+    checkLocalStorage();
+  }, [userType]);
+
   return (
     <AppBar
       position="static"
@@ -176,36 +182,67 @@ const NavBar: React.FC = () => {
           ) : null}
 
           {userType === userTypes.CLIENTE ? (
-            <Box sx={{ position: "relative", overflow: "hidden" }}>
-              <Button
-                color="inherit"
-                component={Link}
-                to="/perfil"
-                sx={{
-                  textTransform: "none",
-                  color: theme.palette.customColors?.lightGray,
-                  fontFamily: '"The Seasons", serif',
-                  fontSize: "1rem",
-                  transition: "0.3s ease-in-out",
-                  "&::after": {
-                    content: '""',
-                    display: "block",
-                    width: "0%",
-                    height: "2px",
-                    backgroundColor: "#fff",
-                    position: "absolute",
-                    bottom: 0,
-                    left: 0,
-                    transition: "width 0.3s ease-in-out",
-                  },
-                  "&:hover::after": {
-                    width: "100%",
-                  },
-                }}
-              >
-                Meu Perfil
-              </Button>
-            </Box>
+            <>
+              <Box sx={{ position: "relative", overflow: "hidden" }}>
+                <Button
+                  color="inherit"
+                  onClick={doLogout}
+                  sx={{
+                    textTransform: "none",
+                    color: theme.palette.customColors?.lightGray,
+                    fontFamily: '"The Seasons", serif',
+                    fontSize: "1rem",
+                    transition: "0.3s ease-in-out",
+                    "&::after": {
+                      content: '""',
+                      display: "block",
+                      width: "0%",
+                      height: "2px",
+                      backgroundColor: "#fff",
+                      position: "absolute",
+                      bottom: 0,
+                      left: 0,
+                      transition: "width 0.3s ease-in-out",
+                    },
+                    "&:hover::after": {
+                      width: "100%",
+                    },
+                  }}
+                >
+                  Sair
+                </Button>
+              </Box>
+              <Box sx={{ position: "relative", overflow: "hidden" }}>
+                <Button
+                  color="inherit"
+                  component={Link}
+                  to="/perfil"
+                  sx={{
+                    textTransform: "none",
+                    color: theme.palette.customColors?.lightGray,
+                    fontFamily: '"The Seasons", serif',
+                    fontSize: "1rem",
+                    transition: "0.3s ease-in-out",
+                    "&::after": {
+                      content: '""',
+                      display: "block",
+                      width: "0%",
+                      height: "2px",
+                      backgroundColor: "#fff",
+                      position: "absolute",
+                      bottom: 0,
+                      left: 0,
+                      transition: "width 0.3s ease-in-out",
+                    },
+                    "&:hover::after": {
+                      width: "100%",
+                    },
+                  }}
+                >
+                  Meu Perfil
+                </Button>
+              </Box>
+            </>
           ) : null}
         </Box>
       </Toolbar>

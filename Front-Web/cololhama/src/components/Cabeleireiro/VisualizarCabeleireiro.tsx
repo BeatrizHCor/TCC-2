@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useContext, useState } from "react";
 import {
   Box,
   Table,
@@ -14,11 +14,14 @@ import {
   Typography,
 } from "@mui/material";
 import EditIcon from "@mui/icons-material/Edit";
+import { Image } from "@mui/icons-material";
 import { useVisualizarCabeleireiros } from "./useVisualizarCabeleireiro";
 import "../../styles/styles.global.css";
 import { Cabeleireiro } from "../../models/cabelereiroModel";
 import { Link } from "react-router-dom";
 import theme from "../../styles/theme";
+import { AuthContext } from "../../contexts/AuthContext";
+import { userTypes } from "../../models/tipo-usuario.enum";
 
 const SalaoID = import.meta.env.VITE_SALAO_ID || "1";
 const colunas = [
@@ -27,18 +30,17 @@ const colunas = [
   { id: "telefone", label: "Telefone" },
   { id: "mei", label: "MEI" },
   { id: "portif", label: "Portifólio" },
-  { id: "acoes", label: "Ações", clienteVisivel: false },
+  { id: "acoes", label: "Ações" },
 ];
 
 interface VisualizarCabeleireiroProps {
   isCliente?: boolean;
 }
 
-export const VisualizarCabeleireiro: React.FC<VisualizarCabeleireiroProps> = ({
-  isCliente = false,
-}) => {
-  const usuario = localStorage.getItem("usuario");
-  isCliente = !!(usuario && JSON.parse(usuario)?.userType === "Cliente");
+export const VisualizarCabeleireiro: React.FC<
+  VisualizarCabeleireiroProps
+> = ({}) => {
+  const { userType } = useContext(AuthContext);
   const [page, setPage] = useState(0);
   const [rowsPerPage, setRowsPerPage] = useState(10);
   const [termoBusca, setTermoBusca] = useState("");
@@ -73,9 +75,10 @@ export const VisualizarCabeleireiro: React.FC<VisualizarCabeleireiroProps> = ({
   if (isLoading) return <Box>Carregando...</Box>;
   if (error) return <Box>Erro ao carregar cabeleireiro: {error}</Box>;
 
-  const colunasVisiveis = isCliente
-    ? colunas.filter((coluna) => coluna.clienteVisivel !== false)
-    : colunas;
+  const colunasVisiveis =
+    !userType || userType !== userTypes.CLIENTE
+      ? colunas.filter((coluna) => coluna.id !== "acoes")
+      : colunas;
 
   return (
     <Box sx={{ width: "100%", p: 2 }}>
@@ -93,7 +96,7 @@ export const VisualizarCabeleireiro: React.FC<VisualizarCabeleireiroProps> = ({
         <Button variant="contained" onClick={aplicarFiltroNome}>
           Buscar
         </Button>
-        {!isCliente && (
+        {userType && userType !== userTypes.CLIENTE ? (
           <Button
             component={Link}
             variant="outlined"
@@ -107,7 +110,7 @@ export const VisualizarCabeleireiro: React.FC<VisualizarCabeleireiroProps> = ({
           >
             Novo Cabelereiro
           </Button>
-        )}
+        ) : null}
       </Box>
       <Paper sx={{ width: "100%", mb: 2 }}>
         <TableContainer>
@@ -123,7 +126,7 @@ export const VisualizarCabeleireiro: React.FC<VisualizarCabeleireiroProps> = ({
               {cabeleireiros.length === 0 ? (
                 <TableRow>
                   <TableCell colSpan={colunasVisiveis.length} align="center">
-                    Nenhum serviço encontrado.
+                    Nenhum cabeleireiro encontrado.
                   </TableCell>
                 </TableRow>
               ) : (
@@ -135,14 +138,16 @@ export const VisualizarCabeleireiro: React.FC<VisualizarCabeleireiroProps> = ({
                     <TableCell>{cabeleireiro.Mei}</TableCell>
                     <TableCell>
                       <Button
-                        startIcon={<EditIcon />}
+                        startIcon={<Image />}
                         variant="outlined"
                         size="small"
                       >
                         Portifólio
                       </Button>
                     </TableCell>
-                    {!isCliente && (
+                    {userType &&
+                    userType !== userTypes.CLIENTE &&
+                    userType !== userTypes.CABELEIREIRO ? (
                       <TableCell>
                         <Button
                           startIcon={<EditIcon />}
@@ -156,7 +161,7 @@ export const VisualizarCabeleireiro: React.FC<VisualizarCabeleireiroProps> = ({
                           Editar
                         </Button>
                       </TableCell>
-                    )}
+                    ) : null}
                   </TableRow>
                 ))
               )}
