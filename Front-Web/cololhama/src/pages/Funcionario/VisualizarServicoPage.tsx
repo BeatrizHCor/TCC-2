@@ -4,8 +4,8 @@ import { VisualizarServicos } from "../../components/Funcionario/VisualizarServi
 const VisualizarServicoPage: React.FC = () => {
   return (
     <div>
-      <VisualizarServicos isAdmin={true} salaoId={"1"} />
+      <VisualizarServicos />
     </div>
   );
-}
-export default VisualizarServicoPage; 
+};
+export default VisualizarServicoPage;

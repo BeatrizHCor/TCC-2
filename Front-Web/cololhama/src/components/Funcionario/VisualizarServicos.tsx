@@ -36,13 +36,10 @@ const colunas = [
 ];
 
 interface VisualizarServicosProps {
-  salaoId: string;
   isCliente?: boolean;
-  isAdmin?: boolean;
 }
 
 export const VisualizarServicos: React.FC<VisualizarServicosProps> = ({
-  salaoId,
   isCliente: cannotEdit = false,
 }) => {
   const { userType } = useContext(AuthContext);
@@ -54,7 +51,7 @@ export const VisualizarServicos: React.FC<VisualizarServicosProps> = ({
       userTypes.ADM_SISTEMA,
     ].includes(userType)
   );
-  salaoId = SalaoID;
+  const salaoId = import.meta.env.VITE_SALAO_ID;
 
   const [page, setPage] = useState(0);
   const [rowsPerPage, setRowsPerPage] = useState(10);
