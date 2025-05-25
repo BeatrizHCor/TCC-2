@@ -3,7 +3,7 @@ import { useNavigate } from "react-router-dom";
 import FuncionarioService from "../../services/FuncionarioService";
 import { validarCPF, validarEmail } from "../../utils/validations";
 import { Funcionario } from "../../models/funcionarioModel";
-// LEMBRETE: tratamento de erros a serem devidamente colocados, 
+// LEMBRETE: tratamento de erros a serem devidamente colocados,
 // qundo terminar replicar logica para outras paginas de CRUD
 const SalaoId: string = import.meta.env.SALAO_ID || "1";
 
@@ -18,7 +18,6 @@ interface ValidationErrors {
 }
 
 export const useManterFuncionario = (funcionarioId?: string) => {
-  
   const [nome, setNome] = useState("");
   const [cpf, setCpf] = useState("");
   const [email, setEmail] = useState("");
@@ -28,19 +27,15 @@ export const useManterFuncionario = (funcionarioId?: string) => {
   const [salaoId, setSalaoId] = useState<string | null>(null);
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
-  
+  const [forbidden, setForbidden] = useState<boolean>(false);
 
   const [isLoading, setIsLoading] = useState(false);
-  const [validationErrors, setValidationErrors] = useState<ValidationErrors>({});
+  const [validationErrors, setValidationErrors] = useState<ValidationErrors>(
+    {}
+  );
   const [isEditing, setIsEditing] = useState(false);
-  
-  const navigate = useNavigate();
- 
 
-  const user = {
-    role: "AdmSalao",
-    salaoId: SalaoId,
-  }; // Simulando o usuário autenticado
+  const navigate = useNavigate();
 
   useEffect(() => {
     const fetchFuncionario = async () => {
@@ -51,100 +46,99 @@ export const useManterFuncionario = (funcionarioId?: string) => {
 
       setIsEditing(true);
       setIsLoading(true);
-      
-      try {
-        const funcionario = await FuncionarioService.getFuncionarioById(funcionarioId);
-        console.log("Funcionário:", funcionario);
 
-        setNome(funcionario.Nome || "");
-        setCpf(funcionario.CPF || "");
-        setEmail(funcionario.Email || "");
-        setTelefone(funcionario.Telefone || "");
-        setAuxiliar(funcionario.Auxiliar || false);
-        setSalario(funcionario.Salario);
-        setSalaoId(funcionario.SalaoId || null);
-} catch (error) {
-   console.error("Erro ao buscar funcionário:", error);
-  // Add a toast notification or error state here
-  // e.g., toast.error("Não foi possível carregar os dados do funcionário.");
-   navigate("/funcionarios", { replace: true });
- } finally {
+      try {
+        const funcionario = await FuncionarioService.getFuncionarioById(
+          funcionarioId
+        );
+        console.log("Funcionário:", funcionario);
+        if (typeof funcionario === "boolean") {
+          setForbidden(true);
+        } else {
+          setNome(funcionario.Nome || "");
+          setCpf(funcionario.CPF || "");
+          setEmail(funcionario.Email || "");
+          setTelefone(funcionario.Telefone || "");
+          setAuxiliar(funcionario.Auxiliar || false);
+          setSalario(funcionario.Salario);
+          setSalaoId(funcionario.SalaoId || null);
+        }
+      } catch (error) {
+        console.error("Erro ao buscar funcionário:", error);
+
+        navigate("/funcionarios", { replace: true });
+      } finally {
         setIsLoading(false);
       }
     };
 
-    if (user && (user.role === "AdmSalao" || user.role === "AdmSistema")) {
-      setSalaoId(user.salaoId); 
-      
-      if (funcionarioId) {
-        fetchFuncionario();
-      }
+    if (funcionarioId) {
+      fetchFuncionario();
     }
   }, [funcionarioId]);
 
   const validateForm = (): boolean => {
     const errors: ValidationErrors = {};
-    
+
     if (!nome.trim()) {
       errors.nome = "Nome do funcionário é obrigatório";
     }
-    
+
     if (!cpf.trim()) {
       errors.cpf = "CPF é obrigatório";
     } else if (!validarCPF(cpf)) {
       errors.cpf = "CPF inválido";
     }
-    
+
     if (!email.trim()) {
       errors.email = "Email é obrigatório";
     } else if (!validarEmail(email)) {
       errors.email = "Email inválido";
     }
-    
+
     if (!telefone.trim()) {
       errors.telefone = "Telefone é obrigatório";
     }
 
-if (salario !== undefined && salario < 0) {
-   errors.salario = "Salário não pode ser negativo";
- }
-if (salario !== undefined && isNaN(Number(salario))) {
-  errors.salario = "Salário deve ser um número válido";
-}
-
+    if (salario !== undefined && salario < 0) {
+      errors.salario = "Salário não pode ser negativo";
+    }
+    if (salario !== undefined && isNaN(Number(salario))) {
+      errors.salario = "Salário deve ser um número válido";
+    }
 
     if (!isEditing && !password.trim()) {
       errors.password = "Senha é obrigatória";
     }
-    
+
     if (!isEditing && !confirmPassword.trim()) {
       errors.confirmPassword = "Confirmação de senha é obrigatória";
     } else if (password !== confirmPassword) {
       errors.confirmPassword = "As senhas não coincidem";
     }
-    
+
     setValidationErrors(errors);
     return Object.keys(errors).length === 0;
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    
+
     if (!validateForm()) {
       return;
     }
-    
+
     if (!salaoId) {
       console.error("ID do salão não disponível");
       return;
     }
-    
+
     setIsLoading(true);
-    
-    try {      
+
+    try {
       if (isEditing && funcionarioId) {
         await FuncionarioService.updateFuncionario(
-          funcionarioId, 
+          funcionarioId,
           nome,
           cpf,
           email,
@@ -152,7 +146,8 @@ if (salario !== undefined && isNaN(Number(salario))) {
           salaoId,
           auxiliar,
           salario,
-          password);
+          password
+        );
       } else {
         await FuncionarioService.cadastrarFuncionario(
           cpf,
@@ -165,19 +160,19 @@ if (salario !== undefined && isNaN(Number(salario))) {
           password
         );
       }
-      
+
       navigate("/funcionarios");
-} catch (error) {
-   console.error("Erro ao salvar funcionário:", error);
-  // Add a more specific error handler - for example:
-  if (error instanceof Error) {
-    // Set a specific error message to show to the user
-    const errorMessage = error.message.includes("CPF já cadastrado") 
-      ? "Este CPF já está em uso" 
-      : "Erro ao salvar funcionário. Tente novamente.";
-    // Show error to user (e.g., through a state variable or toast notification)
-  }
- } finally {
+    } catch (error) {
+      console.error("Erro ao salvar funcionário:", error);
+      // Add a more specific error handler - for example:
+      if (error instanceof Error) {
+        // Set a specific error message to show to the user
+        const errorMessage = error.message.includes("CPF já cadastrado")
+          ? "Este CPF já está em uso"
+          : "Erro ao salvar funcionário. Tente novamente.";
+        // Show error to user (e.g., through a state variable or toast notification)
+      }
+    } finally {
       setIsLoading(false);
     }
   };
@@ -186,15 +181,14 @@ if (salario !== undefined && isNaN(Number(salario))) {
     if (!isEditing || !funcionarioId) {
       return;
     }
-    
+
     setIsLoading(true);
-    
+
     try {
       await FuncionarioService.deleteFuncionario(funcionarioId);
       navigate("/funcionarios");
     } catch (error) {
       console.error("Erro ao excluir funcionário:", error);
-    
     } finally {
       setIsLoading(false);
     }
@@ -222,7 +216,8 @@ if (salario !== undefined && isNaN(Number(salario))) {
     isEditing,
     validationErrors,
     handleSubmit,
-    handleDelete
+    handleDelete,
+    forbidden,
   };
 };
 

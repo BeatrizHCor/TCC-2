@@ -99,11 +99,14 @@ export const FuncionarioService = {
   async getFuncionarioById(
     id: string,
     includeRelations: boolean = false
-  ): Promise<Funcionario> {
+  ): Promise<Funcionario | boolean> {
     try {
       const response = await api.get<Funcionario>(`/funcionario/ID/${id}`, {
         params: { include: includeRelations },
       });
+      if (response.status === 403) {
+        return false;
+      }
       return response.data;
     } catch (error) {
       console.error("Erro ao buscar funcionário por ID:", error);
