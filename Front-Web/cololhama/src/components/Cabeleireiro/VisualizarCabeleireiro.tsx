@@ -31,17 +31,15 @@ const colunas = [
 ];
 
 interface VisualizarCabeleireiroProps {
-  salaoId: string;
   isCliente?: boolean;
 }
 
 export const VisualizarCabeleireiro: React.FC<VisualizarCabeleireiroProps> = ({
-  salaoId,
   isCliente = false,
 }) => {
   const usuario = localStorage.getItem("usuario");
   isCliente = !!(usuario && JSON.parse(usuario)?.userType === "Cliente");
-  salaoId = SalaoID;
+  const salaoId = import.meta.env.VITE_SALAO_ID;
   const [page, setPage] = useState(0);
   const [rowsPerPage, setRowsPerPage] = useState(10);
   const [termoBusca, setTermoBusca] = useState("");
