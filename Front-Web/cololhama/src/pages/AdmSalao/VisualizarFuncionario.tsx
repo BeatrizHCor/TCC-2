@@ -4,13 +4,7 @@ import AuthGuard from "../../utils/AuthGuard";
 
 const VisualizarFuncionarioPage: React.FC = () => {
   return (
-    <AuthGuard
-      allowed={[
-        userTypes.FUNCIONARIO,
-        userTypes.ADM_SALAO,
-        userTypes.ADM_SISTEMA,
-      ]}
-    >
+    <AuthGuard allowed={[userTypes.ADM_SALAO, userTypes.ADM_SISTEMA]}>
       <>
         <VisualizarFuncionario />;
       </>

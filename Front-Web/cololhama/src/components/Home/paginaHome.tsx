@@ -25,7 +25,7 @@ const PaginaHome: React.FC = () => {
   const [servicos, setServicos] = useState<Servico[]>([]);
   const [loading, setLoading] = useState(true);
 
-  const salaoId = "1";
+  const salaoId = import.meta.env.VITE_SALAO_ID;
 
   useEffect(() => {
     const fetchServicos = async () => {
@@ -224,12 +224,14 @@ const PaginaHome: React.FC = () => {
           </Box>
         </Box>
 
-
         <Box sx={{ mt: 8, textAlign: "center" }}>
           <Typography variant="h5" fontWeight="bold" gutterBottom>
             Sobre nós
           </Typography>
-          <Typography variant="body1" sx={{ maxWidth: 700, mx: "auto", color: "#666" }}>
+          <Typography
+            variant="body1"
+            sx={{ maxWidth: 700, mx: "auto", color: "#666" }}
+          >
             No nosso salão, a beleza encontra a arte. Com uma equipe dedicada e
             produtos de alta qualidade, garantimos que cada cliente saia
             renovado e feliz. Seu estilo, sua essência, nosso cuidado.
