@@ -108,7 +108,7 @@ RoutesCustomer.put("/cliente/:id", async (req: Request, res: Response) => {
       userInfo.token,
       userInfo.userType
     );
-    if (auth) {
+    if (auth && id === userInfo.userID) {
       const cliente = await updateCliente(id, clienteData);
       res.status(200).json(cliente);
     } else {
@@ -178,5 +178,5 @@ RoutesCustomer.delete("/cliente/:id", async (req, res) => {
     res.status(500).json({ message: "Erro interno do servidor" });
   }
 });
-//Todas as outras funções vão usar a função de authenticate no Service para verificar se o usuário é quem diz ser, pra depois permitir.
+
 export default RoutesCustomer;

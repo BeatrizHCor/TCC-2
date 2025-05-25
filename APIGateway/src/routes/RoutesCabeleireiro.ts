@@ -1,5 +1,5 @@
 import { Router, Request, Response } from "express";
-import { postLogin, registerLogin } from "../services/Service";
+import { authenticate, postLogin, registerLogin } from "../services/Service";
 import {
   deleteCabeleireiro,
   getCabeleireiroById,
@@ -7,6 +7,7 @@ import {
   postCabeleireiro,
   updateCabeleireiro,
 } from "../services/ServiceCabelereiro";
+import { userTypes } from "../models/tipo-usuario.enum";
 
 const RoutesCabeleireiro = Router();
 
@@ -16,38 +17,60 @@ RoutesCabeleireiro.post(
     let { CPF, Nome, Email, Telefone, SalaoId, Password, userType, Mei } =
       req.body;
     try {
-      let cabeleireiro = await postCabeleireiro({
-        CPF: CPF,
-        Nome: Nome,
-        Email: Email,
-        Telefone: Telefone,
-        Mei: Mei,
-        SalaoId: SalaoId,
-      });
-      if (!cabeleireiro) {
-        throw new Error("Cabeleireiro not created");
-      }
-      console.log("Cabeleireiro ID: ", cabeleireiro.ID);
-      let register = await registerLogin(
-        cabeleireiro.ID!,
-        Email,
-        String(Password),
-        SalaoId,
-        userType
+      const userInfo = JSON.parse(
+        Buffer.from(req.headers.authorization || "", "base64").toString(
+          "utf-8"
+        ) || "{}"
       );
-  
-      if (register !== 201) {
-        console.log("Register failed");
-        let cabeleireiroDelete = await deleteCabeleireiro(cabeleireiro.ID!);
-        if (cabeleireiroDelete) {
-          console.log("Cabeleireiro deleted successfully");
-        } else {
-          console.log("Failed to delete cabeleireiro after register failure");
+      let userTypeAuth = JSON.parse(userInfo).userType;
+      const auth = await authenticate(
+        userInfo.userID,
+        userInfo.token,
+        userInfo.userType
+      );
+      if (
+        !auth ||
+        ![
+          userTypes.Funcionario,
+          userTypes.AdmSalao,
+          userTypes.AdmSistema,
+        ].includes(userTypeAuth)
+      ) {
+        res.status(403);
+      } else {
+        let cabeleireiro = await postCabeleireiro({
+          CPF: CPF,
+          Nome: Nome,
+          Email: Email,
+          Telefone: Telefone,
+          Mei: Mei,
+          SalaoId: SalaoId,
+        });
+        if (!cabeleireiro) {
+          throw new Error("Cabeleireiro not created");
         }
-        throw new Error("Login registration failed");
+        console.log("Cabeleireiro ID: ", cabeleireiro.ID);
+        let register = await registerLogin(
+          cabeleireiro.ID!,
+          Email,
+          String(Password),
+          SalaoId,
+          userType
+        );
+
+        if (!register) {
+          console.log("Register failed");
+          let cabeleireiroDelete = await deleteCabeleireiro(cabeleireiro.ID!);
+          if (cabeleireiroDelete) {
+            console.log("Cabeleireiro deleted successfully");
+          } else {
+            console.log("Failed to delete cabeleireiro after register failure");
+          }
+          throw new Error("Login registration failed");
+        }
+        let token = await postLogin(Email, Password, SalaoId);
+        res.status(200).send(token);
       }
-      let token = await postLogin(Email, Password, SalaoId);
-      res.status(200).send(token);
     } catch (e) {
       console.log(e);
       res.status(500).send("Error in creating Cabeleireiro");
@@ -78,14 +101,36 @@ RoutesCabeleireiro.get(
 RoutesCabeleireiro.get(
   "/cabeleireiro/ID/:id",
   async (req: Request, res: Response) => {
-    let { id } = req.params;
-    const includeRelations = req.query.include === "true";
-    try {
-      let cabeleireiro = await getCabeleireiroById(id, includeRelations);
-      res.status(200).send(cabeleireiro);
-    } catch (e) {
-      console.log(e);
-      res.status(500).send("Error querying Cabeleireiros");
+    const userInfo = JSON.parse(
+      Buffer.from(req.headers.authorization || "", "base64").toString(
+        "utf-8"
+      ) || "{}"
+    );
+    let userTypeAuth = JSON.parse(userInfo).userType;
+    const auth = await authenticate(
+      userInfo.userID,
+      userInfo.token,
+      userInfo.userType
+    );
+    if (
+      !auth ||
+      ![
+        userTypes.Funcionario,
+        userTypes.AdmSalao,
+        userTypes.AdmSistema,
+      ].includes(userTypeAuth)
+    ) {
+      res.status(403);
+    } else {
+      let { id } = req.params;
+      const includeRelations = req.query.include === "true";
+      try {
+        let cabeleireiro = await getCabeleireiroById(id, includeRelations);
+        res.status(200).send(cabeleireiro);
+      } catch (e) {
+        console.log(e);
+        res.status(500).send("Error querying Cabeleireiros");
+      }
     }
   }
 );
@@ -93,13 +138,35 @@ RoutesCabeleireiro.get(
 RoutesCabeleireiro.delete(
   "/cabeleireiro/delete/:id",
   async (req: Request, res: Response) => {
-    let { id } = req.params;
-    try {
-      let cabeleireiro = await deleteCabeleireiro(id);
-      res.status(200).send(cabeleireiro);
-    } catch (e) {
-      console.log(e);
-      res.status(500).send("Error deleting Cabeleireiros");
+    const userInfo = JSON.parse(
+      Buffer.from(req.headers.authorization || "", "base64").toString(
+        "utf-8"
+      ) || "{}"
+    );
+    let userTypeAuth = JSON.parse(userInfo).userType;
+    const auth = await authenticate(
+      userInfo.userID,
+      userInfo.token,
+      userInfo.userType
+    );
+    if (
+      !auth ||
+      ![
+        userTypes.Funcionario,
+        userTypes.AdmSalao,
+        userTypes.AdmSistema,
+      ].includes(userTypeAuth)
+    ) {
+      res.status(403);
+    } else {
+      let { id } = req.params;
+      try {
+        let cabeleireiro = await deleteCabeleireiro(id);
+        res.status(200).send(cabeleireiro);
+      } catch (e) {
+        console.log(e);
+        res.status(500).send("Error deleting Cabeleireiros");
+      }
     }
   }
 );
@@ -107,16 +174,38 @@ RoutesCabeleireiro.delete(
 RoutesCabeleireiro.put("/cabeleireiro", async (req: Request, res: Response) => {
   let { ID, CPF, Nome, Email, Telefone, Mei, SalaoId, Password } = req.body;
   try {
-    let cabeleireiro = await updateCabeleireiro(
-      Email,
-      CPF,
-      Telefone,
-      SalaoId,
-      Mei,
-      Nome,
-      ID
+    const userInfo = JSON.parse(
+      Buffer.from(req.headers.authorization || "", "base64").toString(
+        "utf-8"
+      ) || "{}"
     );
-    res.status(200).send(cabeleireiro);
+    let userTypeAuth = JSON.parse(userInfo).userType;
+    const auth = await authenticate(
+      userInfo.userID,
+      userInfo.token,
+      userInfo.userType
+    );
+    if (
+      !auth ||
+      ![
+        userTypes.Funcionario,
+        userTypes.AdmSalao,
+        userTypes.AdmSistema,
+      ].includes(userTypeAuth)
+    ) {
+      res.status(403);
+    } else {
+      let cabeleireiro = await updateCabeleireiro(
+        Email,
+        CPF,
+        Telefone,
+        SalaoId,
+        Mei,
+        Nome,
+        ID
+      );
+      res.status(200).send(cabeleireiro);
+    }
   } catch (e) {
     console.log(e);
     res.status(500).send("Error updating Cabeleireiros");

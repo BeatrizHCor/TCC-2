@@ -13,7 +13,8 @@ import {
   getFuncionarioById,
   updateFuncionario,
 } from "../services/ServiceFunc";
-import { postLogin, registerLogin } from "../services/Service";
+import { authenticate, postLogin, registerLogin } from "../services/Service";
+import { userTypes } from "../models/tipo-usuario.enum";
 
 const RoutesFuncionario = Router();
 
@@ -26,14 +27,36 @@ RoutesFuncionario.get(
     const includeRelations = req.query.include === "true" ? true : false;
     const salaoId = (req.query.salaoId as string) || "";
     try {
-      const funcionarios = await getFuncionarioPage(
-        page,
-        limit,
-        nome,
-        includeRelations,
-        salaoId
+      const userInfo = JSON.parse(
+        Buffer.from(req.headers.authorization || "", "base64").toString(
+          "utf-8"
+        ) || "{}"
       );
-      res.json(funcionarios);
+      let userTypeAuth = JSON.parse(userInfo).userType;
+      const auth = await authenticate(
+        userInfo.userID,
+        userInfo.token,
+        userInfo.userType
+      );
+      if (
+        !auth ||
+        ![
+          userTypes.Funcionario,
+          userTypes.AdmSalao,
+          userTypes.AdmSistema,
+        ].includes(userTypeAuth)
+      ) {
+        res.status(403);
+      } else {
+        const funcionarios = await getFuncionarioPage(
+          page,
+          limit,
+          nome,
+          includeRelations,
+          salaoId
+        );
+        res.json(funcionarios);
+      }
     } catch (error) {
       console.error("Erro ao buscar funcionarios:", error);
       res.status(500).json({ message: "Erro interno do servidor" });
@@ -54,38 +77,60 @@ RoutesFuncionario.post("/funcionario", async (req: Request, res: Response) => {
     userType,
   } = req.body;
   try {
-    let funcionario = await postFuncionario(
-      CPF,
-      Nome,
-      Email,
-      Telefone,
-      SalaoId,
-      Auxiliar,
-      Salario
+    const userInfo = JSON.parse(
+      Buffer.from(req.headers.authorization || "", "base64").toString(
+        "utf-8"
+      ) || "{}"
     );
-    if (!funcionario) {
-      throw new Error("Funcionario not created");
-    }
-
-    let register = await registerLogin(
-      funcionario.ID!,
-      Email,
-      Password,
-      SalaoId,
-      userType
+    let userTypeAuth = JSON.parse(userInfo).userType;
+    const auth = await authenticate(
+      userInfo.userID,
+      userInfo.token,
+      userInfo.userType
     );
-    if (!register) {
-      console.log("Register auth failed, deleting user");
-      let funcionarioDelete = await deleteFuncionario(funcionario.ID!);
-      if (funcionarioDelete) {
-        console.log("Funcionario deleted successfully");
-      } else {
-        console.log("Failed to delete funcionario after register failure");
+    if (
+      !auth ||
+      ![
+        userTypes.Funcionario,
+        userTypes.AdmSalao,
+        userTypes.AdmSistema,
+      ].includes(userTypeAuth)
+    ) {
+      res.status(403);
+    } else {
+      let funcionario = await postFuncionario(
+        CPF,
+        Nome,
+        Email,
+        Telefone,
+        SalaoId,
+        Auxiliar,
+        Salario
+      );
+      if (!funcionario) {
+        throw new Error("Funcionario not created");
       }
-      throw new Error("Login registration failed");
+
+      let register = await registerLogin(
+        funcionario.ID!,
+        Email,
+        Password,
+        SalaoId,
+        userType
+      );
+      if (!register) {
+        console.log("Register auth failed, deleting user");
+        let funcionarioDelete = await deleteFuncionario(funcionario.ID!);
+        if (funcionarioDelete) {
+          console.log("Funcionario deleted successfully");
+        } else {
+          console.log("Failed to delete funcionario after register failure");
+        }
+        throw new Error("Login registration failed");
+      }
+      let token = await postLogin(Email, Password, SalaoId);
+      res.status(200).send(token);
     }
-    let token = await postLogin(Email, Password, SalaoId);
-    res.status(200).send(token);
   } catch (e) {
     console.log(e);
     res.status(500).send("Error in creating Funcionario");
@@ -97,11 +142,33 @@ RoutesFuncionario.delete(
   async (req: Request, res: Response) => {
     const id = req.params.id;
     try {
-      let funcionarioDelete = await deleteFuncionario(id);
-      if (funcionarioDelete) {
-        res.status(200).send(funcionarioDelete);
+      const userInfo = JSON.parse(
+        Buffer.from(req.headers.authorization || "", "base64").toString(
+          "utf-8"
+        ) || "{}"
+      );
+      let userTypeAuth = JSON.parse(userInfo).userType;
+      const auth = await authenticate(
+        userInfo.userID,
+        userInfo.token,
+        userInfo.userType
+      );
+      if (
+        !auth ||
+        ![
+          userTypes.Funcionario,
+          userTypes.AdmSalao,
+          userTypes.AdmSistema,
+        ].includes(userTypeAuth)
+      ) {
+        res.status(403);
       } else {
-        res.status(404).send("Funcionario not deleted");
+        let funcionarioDelete = await deleteFuncionario(id);
+        if (funcionarioDelete) {
+          res.status(200).send(funcionarioDelete);
+        } else {
+          res.status(404).send("Funcionario not deleted");
+        }
       }
     } catch (e) {
       console.log(e);
