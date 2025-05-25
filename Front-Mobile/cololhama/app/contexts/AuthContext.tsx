@@ -6,6 +6,7 @@ import React, {
   useEffect,
   useState,
 } from "react";
+import { userTypes } from "../models/tipo-usuario.enum";
 
 interface ComponentProps {
   children: ReactNode;
@@ -18,32 +19,34 @@ enum userTypeEnum {
 interface AuthContextInterface {
   token: string;
   userId: string;
-  userType: userTypeEnum | undefined;
+  userType: userTypes | undefined;
   doLogin: (email: string, password: string) => Promise<void>;
   doAuthenticate: () => Promise<void>;
   doLogout: () => void;
+  checkLocalStorage: () => Promise<boolean>;
 }
 
 export const AuthContext = createContext({
   token: "",
   userId: "",
-  userType: userTypeEnum.Cliente,
+  userType: userTypes.CLIENTE,
   doLogin: async () => {},
   doAuthenticate: async () => {},
   doLogout: () => {},
+  checkLocalStorage: async () => true,
 } as AuthContextInterface);
 
 export const AuthContextProvider = ({ children }: ComponentProps) => {
   const [token, setToken] = useState("");
   const [userId, setuserId] = useState("");
-  const [userType, setUserType] = useState<userTypeEnum | undefined>();
+  const [userType, setUserType] = useState<userTypes | undefined>();
   const url = process.env.EXPO_PUBLIC_API_URL;
   const salaoId = process.env.EXPO_PUBLIC_SALO_ID;
 
   const doLogin = async (email: string, password: string) => {
     let response = await fetch(url + "/login", {
       method: "POST",
-      body: JSON.stringify({ email, password, salaoId }),
+      body: JSON.stringify({ Email: email, password, SalaoID: salaoId }),
       headers: {
         "Content-Type": "application/json",
       },
@@ -51,7 +54,7 @@ export const AuthContextProvider = ({ children }: ComponentProps) => {
 
     if (response.ok) {
       let infos = await response.json();
-      localStorage.setItem("usuario", infos);
+      localStorage.setItem("usuario", JSON.stringify(infos));
       setToken(infos.token);
       setuserId(infos.userId);
       setUserType(infos.userType);
@@ -62,14 +65,18 @@ export const AuthContextProvider = ({ children }: ComponentProps) => {
 
   const doLogout = () => {
     localStorage.removeItem("usuario");
+    setUserType(undefined);
+    setuserId("");
+    setToken("");
   };
 
   const checkLocalStorage = async () => {
     let userStr = localStorage.getItem("usuario");
     if (userStr) {
+      console.log(userStr);
       let user = await JSON.parse(userStr);
       setToken(user.token);
-      setuserId(user.userId);
+      setuserId(user.userID);
       setUserType(user.userType);
     }
     return userStr !== null;
@@ -81,7 +88,15 @@ export const AuthContextProvider = ({ children }: ComponentProps) => {
 
   return (
     <AuthContext.Provider
-      value={{ token, userId, userType, doLogin, doAuthenticate, doLogout }}
+      value={{
+        token,
+        userId,
+        userType,
+        doLogin,
+        doAuthenticate,
+        doLogout,
+        checkLocalStorage,
+      }}
     >
       {children}
     </AuthContext.Provider>

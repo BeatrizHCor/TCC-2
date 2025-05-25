@@ -1,6 +1,6 @@
 import axios from "axios";
 import AsyncStorage from "@react-native-async-storage/async-storage";
-import { Servico } from "../models/servicoModel";
+import { Servico } from "../models/servicoModel copy";
 
 const API_URL = process.env.EXPO_PUBLIC_API_URL || "http://localhost:5000";
 
@@ -9,7 +9,7 @@ const api = axios.create({
   headers: {
     "Content-Type": "application/json",
   },
-}); 
+});
 
 api.interceptors.request.use(
   async (config) => {

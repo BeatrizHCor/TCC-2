@@ -1,30 +1,20 @@
 import axios from "axios";
 import AsyncStorage from "@react-native-async-storage/async-storage";
-import { Cabeleireiro } from "../models/cabeleireiroModel";
+import { Cabeleireiro } from "../models/cabelereiroModel";
 
-const API_URL = process.env.EXPO_PUBLIC_API_URL || "http://localhost:5000"; 
+const API_URL = process.env.EXPO_PUBLIC_API_URL || "http://localhost:5000";
 
 const api = axios.create({
   baseURL: API_URL,
   headers: {
     "Content-Type": "application/json",
   },
-}); 
+});
 api.interceptors.request.use(
   async (config) => {
     try {
       const usuarioString = await AsyncStorage.getItem("usuario");
-      const token = await AsyncStorage.getItem("token");
-
-      if (usuarioString) {
-        const usuario = JSON.parse(usuarioString);
-        config.headers.userID = usuario.userID;
-        config.headers.userType = usuario.userType;
-      }
-
-      if (token) {
-        config.headers.Authorization = `Bearer ${token}`;
-      }
+      config.headers.Authorization = `${usuarioString}`;
 
       return config;
     } catch (error) {
@@ -33,27 +23,6 @@ api.interceptors.request.use(
     }
   },
   (error) => Promise.reject(error)
-);
-
-api.interceptors.response.use(
-  async (response) => {
-    const tokenHeader = response.headers["authorization"]?.replace(
-      "Bearer ",
-      ""
-    );
-    const currentToken = await AsyncStorage.getItem("token");
-
-    if (tokenHeader && tokenHeader !== currentToken) {
-      console.log("Atualizando token no AsyncStorage");
-      await AsyncStorage.setItem("token", tokenHeader);
-    }
-
-    return response;
-  },
-  (error) => {
-    console.error("Erro na resposta da API:", error);
-    return Promise.reject(error);
-  }
 );
 
 interface CabeleireiroPaginadoResponse {
