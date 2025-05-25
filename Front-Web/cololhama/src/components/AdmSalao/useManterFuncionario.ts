@@ -24,7 +24,9 @@ export const useManterFuncionario = (funcionarioId?: string) => {
   const [telefone, setTelefone] = useState("");
   const [auxiliar, setAuxiliar] = useState(false);
   const [salario, setSalario] = useState<number | undefined>(undefined);
-  const [salaoId, setSalaoId] = useState<string | null>(null);
+  const [salaoId, setSalaoId] = useState<string | null>(
+    import.meta.env.VITE_SALAO_ID
+  );
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [forbidden, setForbidden] = useState<boolean>(false);

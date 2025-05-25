@@ -22,7 +22,7 @@ import { Link } from "react-router-dom";
 import { AuthContext } from "../../contexts/AuthContext";
 import { userTypes } from "../../models/tipo-usuario.enum";
 
-const SalaoID = import.meta.env.SALAO_ID || "1"; // importa o ID do salão aqui
+const SalaoID = import.meta.env.VITE_SALAO_ID || "1"; // importa o ID do salão aqui
 
 const colunas = [
   { id: "nome", label: "Nome" },

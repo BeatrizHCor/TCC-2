@@ -4,7 +4,7 @@ import CabeleireiroService from "../../services/CabeleireiroService";
 import { validarCPF, validarEmail } from "../../utils/validations";
 import { Cabeleireiro } from "../../models/cabelereiroModel";
 
-const SalaoId = import.meta.env.SALAO_ID || "1"; 
+const SalaoId = import.meta.env.SALAO_ID || "1";
 
 interface ValidationErrors {
   nome?: string;
@@ -22,21 +22,19 @@ export const useManterCabeleireiro = (cabeleireiroId?: string) => {
   const [email, setEmail] = useState("");
   const [telefone, setTelefone] = useState("");
   const [mei, setMei] = useState("");
-  const [salaoId, setSalaoId] = useState<string | null>(null);
+  const [salaoId, setSalaoId] = useState<string | null>(
+    import.meta.env.VITE_SALAO_ID
+  );
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
-  
+  const [forbidden, setForbidden] = useState<boolean>(false);
   const [isLoading, setIsLoading] = useState(false);
-  const [validationErrors, setValidationErrors] = useState<ValidationErrors>({});
+  const [validationErrors, setValidationErrors] = useState<ValidationErrors>(
+    {}
+  );
   const [isEditing, setIsEditing] = useState(false);
-  
+
   const navigate = useNavigate();
- 
-  // const { user } = useAuth(); 
-  const user = {
-    role: "admin",
-    salaoId: SalaoId,
-  }; // Simulando o usuário autenticado
 
   useEffect(() => {
     const fetchCabeleireiro = async () => {
@@ -47,9 +45,11 @@ export const useManterCabeleireiro = (cabeleireiroId?: string) => {
 
       setIsEditing(true);
       setIsLoading(true);
-      
+
       try {
-        const cabeleireiro = await CabeleireiroService.getCabeleireiroById(cabeleireiroId);
+        const cabeleireiro = await CabeleireiroService.getCabeleireiroById(
+          cabeleireiroId
+        );
         console.log("Cabeleireiro:", cabeleireiro);
         setNome(cabeleireiro.Nome || "");
         setCpf(cabeleireiro.CPF || "");
@@ -65,34 +65,30 @@ export const useManterCabeleireiro = (cabeleireiroId?: string) => {
       }
     };
 
-    if (user && user.role !== "Cliente") {
-      setSalaoId(user.salaoId); 
-      
-      if (cabeleireiroId) {
-        fetchCabeleireiro();
-      }
+    if (cabeleireiroId) {
+      fetchCabeleireiro();
     }
   }, [cabeleireiroId]);
 
   const validateForm = (): boolean => {
     const errors: ValidationErrors = {};
-    
+
     if (!nome.trim()) {
       errors.nome = "Nome do cabeleireiro é obrigatório";
     }
-    
+
     if (!cpf.trim()) {
       errors.cpf = "CPF é obrigatório";
     } else if (!validarCPF(cpf)) {
       errors.cpf = "CPF inválido";
     }
-    
+
     if (!email.trim()) {
       errors.email = "Email é obrigatório";
     } else if (!validarEmail(email)) {
       errors.email = "Email inválido";
     }
-    
+
     if (!telefone.trim()) {
       errors.telefone = "Telefone é obrigatório";
     }
@@ -109,26 +105,24 @@ export const useManterCabeleireiro = (cabeleireiroId?: string) => {
       errors.confirmPassword = "As senhas não coincidem";
     }
 
-    
     setValidationErrors(errors);
     return Object.keys(errors).length === 0;
   };
 
-  
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    
+
     if (!validateForm()) {
       return;
     }
-    
+
     if (!salaoId) {
       console.error("ID do salão não disponível");
       return;
     }
-    
+
     setIsLoading(true);
-    
+
     try {
       if (isEditing && cabeleireiroId) {
         await CabeleireiroService.UpdateCabeleireiro(
@@ -141,7 +135,7 @@ export const useManterCabeleireiro = (cabeleireiroId?: string) => {
           salaoId,
           password
         );
-      } else {      
+      } else {
         await CabeleireiroService.cadastrarCabeleireiro(
           cpf,
           nome,
@@ -152,7 +146,7 @@ export const useManterCabeleireiro = (cabeleireiroId?: string) => {
           password
         );
       }
-      
+
       navigate(-1);
     } catch (error) {
       console.error("Erro ao salvar cabeleireiro:", error);
@@ -165,9 +159,9 @@ export const useManterCabeleireiro = (cabeleireiroId?: string) => {
     if (!isEditing || !cabeleireiroId) {
       return;
     }
-    
+
     setIsLoading(true);
-    
+
     try {
       await CabeleireiroService.deleteCabeleireiro(cabeleireiroId);
       navigate(-1);
@@ -198,7 +192,8 @@ export const useManterCabeleireiro = (cabeleireiroId?: string) => {
     isEditing,
     validationErrors,
     handleSubmit,
-    handleDelete
+    handleDelete,
+    forbidden,
   };
 };
 

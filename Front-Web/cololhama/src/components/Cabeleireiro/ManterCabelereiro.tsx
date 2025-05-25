@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useContext, useEffect, useState } from "react";
 import {
   Box,
   TextField,
@@ -10,7 +10,7 @@ import {
   DialogActions,
   DialogContent,
   DialogContentText,
-  DialogTitle
+  DialogTitle,
 } from "@mui/material";
 import { useNavigate, useParams } from "react-router-dom";
 import { useManterCabeleireiro } from "./useManterCabelereiro";
@@ -18,11 +18,12 @@ import SaveIcon from "@mui/icons-material/Save";
 import DeleteIcon from "@mui/icons-material/Delete";
 import ArrowBackIcon from "@mui/icons-material/ArrowBack";
 import "../../styles/styles.global.css";
+import { AuthContext } from "../../contexts/AuthContext";
 
 const ManterCabeleireiro: React.FC = () => {
   const navigate = useNavigate();
   const { cabeleireiroId } = useParams();
-
+  const { doLogout } = useContext(AuthContext);
   const [openDeleteDialog, setOpenDeleteDialog] = useState(false);
 
   const {
@@ -45,7 +46,8 @@ const ManterCabeleireiro: React.FC = () => {
     isEditing,
     validationErrors,
     handleSubmit,
-    handleDelete
+    handleDelete,
+    forbidden,
   } = useManterCabeleireiro(cabeleireiroId);
 
   const handleOpenDeleteDialog = () => {
@@ -62,36 +64,50 @@ const ManterCabeleireiro: React.FC = () => {
   };
 
   const handleTelefoneChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const rawValue = e.target.value.replace(/\D/g, '');
-    let formattedValue = '';
-    
+    const rawValue = e.target.value.replace(/\D/g, "");
+    let formattedValue = "";
+
     if (rawValue.length <= 2) {
       formattedValue = rawValue;
     } else if (rawValue.length <= 7) {
       formattedValue = `(${rawValue.slice(0, 2)}) ${rawValue.slice(2)}`;
     } else {
-      formattedValue = `(${rawValue.slice(0, 2)}) ${rawValue.slice(2, 7)}-${rawValue.slice(7, 11)}`;
+      formattedValue = `(${rawValue.slice(0, 2)}) ${rawValue.slice(
+        2,
+        7
+      )}-${rawValue.slice(7, 11)}`;
     }
-    
+
     setTelefone(formattedValue);
   };
 
   const handleCpfChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const rawValue = e.target.value.replace(/\D/g, '');
-    let formattedValue = '';
-    
+    const rawValue = e.target.value.replace(/\D/g, "");
+    let formattedValue = "";
+
     if (rawValue.length <= 3) {
       formattedValue = rawValue;
     } else if (rawValue.length <= 6) {
       formattedValue = `${rawValue.slice(0, 3)}.${rawValue.slice(3)}`;
     } else if (rawValue.length <= 9) {
-      formattedValue = `${rawValue.slice(0, 3)}.${rawValue.slice(3, 6)}.${rawValue.slice(6)}`;
+      formattedValue = `${rawValue.slice(0, 3)}.${rawValue.slice(
+        3,
+        6
+      )}.${rawValue.slice(6)}`;
     } else {
-      formattedValue = `${rawValue.slice(0, 3)}.${rawValue.slice(3, 6)}.${rawValue.slice(6, 9)}-${rawValue.slice(9, 11)}`;
+      formattedValue = `${rawValue.slice(0, 3)}.${rawValue.slice(
+        3,
+        6
+      )}.${rawValue.slice(6, 9)}-${rawValue.slice(9, 11)}`;
     }
-    
+
     setCpf(formattedValue);
   };
+  useEffect(() => {
+    if (forbidden) {
+      doLogout();
+    }
+  }, [forbidden]);
 
   while (!salaoId && isLoading) {
     return (
@@ -148,29 +164,29 @@ const ManterCabeleireiro: React.FC = () => {
                 onChange={(e) => setEmail(e.target.value)}
                 error={Boolean(validationErrors.email)}
                 helperText={validationErrors.email}
-                />
-            </Box>
-            <Box sx={{ display: "flex", gap: 3 }}>
-            <Box sx={{ flex: 1 }}>
-              <TextField
-                fullWidth
-                required
-                label="CPF"
-                value={cpf}
-                onChange={handleCpfChange}
-                error={Boolean(validationErrors.cpf)}
-                helperText={validationErrors.cpf}
-                placeholder="000.000.000-00"
-                 slotProps={{
-                        input: {
-                          sx: {
-                            maxLength: 14
-                          }
-                        }
-                      }}
-                disabled={isLoading || isEditing}
               />
             </Box>
+            <Box sx={{ display: "flex", gap: 3 }}>
+              <Box sx={{ flex: 1 }}>
+                <TextField
+                  fullWidth
+                  required
+                  label="CPF"
+                  value={cpf}
+                  onChange={handleCpfChange}
+                  error={Boolean(validationErrors.cpf)}
+                  helperText={validationErrors.cpf}
+                  placeholder="000.000.000-00"
+                  slotProps={{
+                    input: {
+                      sx: {
+                        maxLength: 14,
+                      },
+                    },
+                  }}
+                  disabled={isLoading || isEditing}
+                />
+              </Box>
 
               <Box sx={{ flex: 1 }}>
                 <TextField
@@ -183,13 +199,13 @@ const ManterCabeleireiro: React.FC = () => {
                   helperText={validationErrors.telefone}
                   placeholder="(00) 00000-0000"
                   slotProps={{
-                        input: {
-                          sx: {
-                            maxLength: 15
-                          }
-                        }
-                      }}
-                disabled={isLoading}
+                    input: {
+                      sx: {
+                        maxLength: 15,
+                      },
+                    },
+                  }}
+                  disabled={isLoading}
                 />
               </Box>
             </Box>
@@ -231,8 +247,15 @@ const ManterCabeleireiro: React.FC = () => {
                 />
               </Box>
             </Box>
-          
-            <Box sx={{ display: "flex", gap: 2, justifyContent: "space-between", mt: 2 }}>
+
+            <Box
+              sx={{
+                display: "flex",
+                gap: 2,
+                justifyContent: "space-between",
+                mt: 2,
+              }}
+            >
               <Button
                 variant="outlined"
                 startIcon={<ArrowBackIcon />}
@@ -256,7 +279,13 @@ const ManterCabeleireiro: React.FC = () => {
                 <Button
                   type="submit"
                   variant="contained"
-                  startIcon={isLoading ? <CircularProgress size={20} color="inherit" /> : <SaveIcon />}
+                  startIcon={
+                    isLoading ? (
+                      <CircularProgress size={20} color="inherit" />
+                    ) : (
+                      <SaveIcon />
+                    )
+                  }
                   disabled={isLoading}
                 >
                   {isEditing ? "Salvar Alterações" : "Cadastrar Cabeleireiro"}
@@ -267,14 +296,12 @@ const ManterCabeleireiro: React.FC = () => {
         </form>
       </Paper>
 
-      <Dialog
-        open={openDeleteDialog}
-        onClose={handleCloseDeleteDialog}
-      >
+      <Dialog open={openDeleteDialog} onClose={handleCloseDeleteDialog}>
         <DialogTitle>Confirmar exclusão</DialogTitle>
         <DialogContent>
           <DialogContentText>
-            Tem certeza que deseja excluir este cabeleireiro? Esta ação não pode ser desfeita.
+            Tem certeza que deseja excluir este cabeleireiro? Esta ação não pode
+            ser desfeita.
           </DialogContentText>
         </DialogContent>
         <DialogActions>
