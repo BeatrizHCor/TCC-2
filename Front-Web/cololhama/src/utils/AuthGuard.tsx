@@ -18,7 +18,7 @@ const AuthGuard = ({ children, allowed }: PropsAuthGuard) => {
         setReroute(true);
       }
     });
-  }, []);
+  }, [userType]);
 
   return (
     <>

@@ -65,6 +65,9 @@ export const AuthContextProvider = ({ children }: ComponentProps) => {
 
   const doLogout = () => {
     localStorage.removeItem("usuario");
+    setUserType(undefined);
+    setuserId("");
+    setToken("");
   };
 
   const checkLocalStorage = async () => {
