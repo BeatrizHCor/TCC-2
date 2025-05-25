@@ -13,6 +13,7 @@ import {
   Fade,
 } from "@mui/material";
 import CheckCircleIcon from "@mui/icons-material/CheckCircle";
+import { Error } from "@mui/icons-material";
 import { usePerfilCliente } from "./usePerfilCliente";
 import theme from "../../styles/theme";
 import { AuthContext } from "../../contexts/AuthContext";
@@ -38,11 +39,11 @@ export const PerfilCliente: React.FC<PerfilClienteProps> = () => {
     handleChange,
     handleTelefoneChange,
     handleSubmit,
+    saveError,
     handleConfirmacaoSenhaChange,
   } = usePerfilCliente(userId);
 
   const [editMode, setEditMode] = useState(false);
-  const [showSuccessAnimation, setShowSuccessAnimation] = useState(false);
 
   const toggleEditMode = () => {
     setEditMode(!editMode);
@@ -90,8 +91,8 @@ export const PerfilCliente: React.FC<PerfilClienteProps> = () => {
               elevation={3}
               sx={{ p: 5, width: 520, position: "relative" }}
             >
-              {showSuccessAnimation && (
-                <Fade in={showSuccessAnimation}>
+              {saveSuccess && (
+                <Fade in={saveSuccess}>
                   <Box
                     position="absolute"
                     top={0}
@@ -109,6 +110,30 @@ export const PerfilCliente: React.FC<PerfilClienteProps> = () => {
                     <CheckCircleIcon sx={{ fontSize: 80, color: "green" }} />
                     <Typography variant="h6" sx={{ mt: 2, color: "green" }}>
                       Perfil salvo com sucesso!
+                    </Typography>
+                  </Box>
+                </Fade>
+              )}
+
+              {saveError && (
+                <Fade in={saveError}>
+                  <Box
+                    position="absolute"
+                    top={0}
+                    left={0}
+                    width="100%"
+                    height="100%"
+                    display="flex"
+                    flexDirection="column"
+                    alignItems="center"
+                    justifyContent="center"
+                    bgcolor="rgba(255, 255, 255, 0.9)"
+                    zIndex={10}
+                    sx={{ borderRadius: 1 }}
+                  >
+                    <Error sx={{ fontSize: 80, color: "red" }} />
+                    <Typography variant="h6" sx={{ mt: 2, color: "red" }}>
+                      Erro ao Salvar Perfil. Tente Novamente.
                     </Typography>
                   </Box>
                 </Fade>
@@ -231,7 +256,7 @@ export const PerfilCliente: React.FC<PerfilClienteProps> = () => {
                           color: "#fff",
                           "&:hover": { bgcolor: "#600000" },
                         }}
-                        disabled={loading || showSuccessAnimation}
+                        disabled={loading || saveSuccess}
                       >
                         {loading ? "Salvando..." : "Salvar Alterações"}
                       </Button>

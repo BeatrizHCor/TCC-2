@@ -32,8 +32,14 @@ export const usePerfilCliente = (ClienteId: string) => {
   const [cpfFormatado, setCpfFormatado] = useState("");
   const [telefoneFormatado, setTelefoneFormatado] = useState("");
   const [saveSuccess, setSaveSuccess] = useState(false);
+  const [saveError, setSaveError] = useState(false);
   const [isInitialized, setIsInitialized] = useState(false);
-
+  useEffect(() => {
+    setTimeout(() => {
+      if (saveError) setSaveError(false);
+      if (saveSuccess) setSaveSuccess(false);
+    }, 3000);
+  }, [saveError, saveSuccess]);
   useEffect(() => {
     const fetchPerfil = async () => {
       setLoading(true);
@@ -128,10 +134,14 @@ export const usePerfilCliente = (ClienteId: string) => {
         perfil.Telefone,
         perfil.SalaoId
       );
-      setSaveSuccess(true);
+      if (response) {
+        setSaveSuccess(true);
+      } else {
+        setSaveError(true);
+      }
     } catch (error) {
       console.error("Erro ao atualizar perfil:", error);
-      alert("Erro ao atualizar perfil: " + JSON.stringify(error));
+      setSaveError(true);
     } finally {
       setLoading(false);
     }
@@ -155,5 +165,6 @@ export const usePerfilCliente = (ClienteId: string) => {
     handleTelefoneChange,
     handleSubmit,
     handleConfirmacaoSenhaChange,
+    saveError,
   };
 };
