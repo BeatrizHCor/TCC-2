@@ -1,7 +1,7 @@
-import { useState, useEffect } from 'react';
-import { Funcionario } from '../../models/funcionarioModel';
-import FuncionarioService from '../../services/FuncionarioService';
-import { useNavigate } from 'react-router-dom';
+import { useState, useEffect } from "react";
+import { Funcionario } from "../../models/funcionarioModel";
+import FuncionarioService from "../../services/FuncionarioService";
+import { useNavigate } from "react-router-dom";
 
 interface UseVisualizarFuncionariosResult {
   funcionarios: Funcionario[];
@@ -10,7 +10,7 @@ interface UseVisualizarFuncionariosResult {
   error: string | null;
   handleEditarFuncionario: (funcionarioId: string) => void;
 }
- 
+
 export const useVisualizarFuncionarios = (
   page: number = 1,
   limit: number = 10,
@@ -35,21 +35,25 @@ export const useVisualizarFuncionarios = (
           false,
           salaoId
         );
-        const listaFuncionarios: Funcionario[] = (response.data || []).map((item: any) => ({
-          ID: item.ID ?? "",
-          CPF: item.CPF ?? "",
-          Nome: item.Nome ?? "",
-          Email: item.Email ?? "",
-          Telefone: item.Telefone ?? "",
-          SalaoId: item.SalaoId ?? "",
-          Auxiliar: item.Auxiliar ?? false,
-          DataCadastro: item.DataCadastro ?? "",
-        }));
+        const listaFuncionarios: Funcionario[] = (response.data || []).map(
+          (item: any) => ({
+            ID: item.ID ?? "",
+            CPF: item.CPF ?? "",
+            Nome: item.Nome ?? "",
+            Email: item.Email ?? "",
+            Telefone: item.Telefone ?? "",
+            SalaoId: item.SalaoId ?? "",
+            Auxiliar: item.Auxiliar ?? false,
+            DataCadastro: item.DataCadastro ?? "",
+          })
+        );
         setFuncionarios(listaFuncionarios);
         setTotalFuncionarios(response.total);
       } catch (err) {
-        setError(err instanceof Error ? err.message : 'Erro ao buscar funcionários');
-        console.error('Erro ao buscar funcionários:', err);
+        setError(
+          err instanceof Error ? err.message : "Erro ao buscar funcionários"
+        );
+        console.error("Erro ao buscar funcionários:", err);
       } finally {
         setIsLoading(false);
       }
@@ -68,6 +72,5 @@ export const useVisualizarFuncionarios = (
     isLoading,
     error,
     handleEditarFuncionario,
-
   };
 };

@@ -8,13 +8,14 @@ interface PropsAuthGuard {
 }
 
 const AuthGuard = ({ children, allowed }: PropsAuthGuard) => {
-  const { checkLocalStorage, userType } = useContext(AuthContext);
+  const { checkLocalStorage, userType, doLogout } = useContext(AuthContext);
   const [reroute, setReroute] = useState(false);
 
   useEffect(() => {
     checkLocalStorage().then((e) => {
       console.log(e);
       if (!e || (allowed && !allowed.includes(userType!))) {
+        doLogout();
         setReroute(true);
       }
     });
@@ -22,7 +23,7 @@ const AuthGuard = ({ children, allowed }: PropsAuthGuard) => {
 
   return (
     <>
-      {!reroute ? null : <Navigate to={"/login"} />}
+      {reroute ? <Navigate to={"/login"} /> : null}
       {children}
     </>
   );

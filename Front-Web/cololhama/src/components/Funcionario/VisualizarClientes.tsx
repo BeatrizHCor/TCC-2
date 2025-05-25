@@ -1,11 +1,11 @@
-import React, { useState } from 'react';
-import { 
-  Box, 
-  Table, 
-  TableBody, 
-  TableCell, 
-  TableContainer, 
-  TableHead, 
+import React, { useContext, useEffect, useState } from "react";
+import {
+  Box,
+  Table,
+  TableBody,
+  TableCell,
+  TableContainer,
+  TableHead,
   TableRow,
   TablePagination,
   Paper,
@@ -15,37 +15,35 @@ import {
   FormControl,
   InputLabel,
   Button,
-} from '@mui/material';
-import { Cliente } from '../../models/clienteModel';
-import { useVisualizarClientes } from './useVisualizarClientes';
+} from "@mui/material";
+import { Cliente } from "../../models/clienteModel";
+import { useVisualizarClientes } from "./useVisualizarClientes";
 import "../../styles/styles.global.css";
-
+import { AuthContext } from "../../contexts/AuthContext";
 
 const colunas = [
-  { id: 'nome', label: 'Nome' },
-  { id: 'email', label: 'Email' },
-  { id: 'telefone', label: 'Telefone' },
-  { id: 'dataCadastro', label: 'Data de Cadastro' },
+  { id: "nome", label: "Nome" },
+  { id: "email", label: "Email" },
+  { id: "telefone", label: "Telefone" },
+  { id: "dataCadastro", label: "Data de Cadastro" },
 ];
 
 export const VisualizarClientes: React.FC = () => {
   const [page, setPage] = useState(0);
   const [rowsPerPage, setRowsPerPage] = useState(10);
-  const [colunaBusca, setColunaBusca] = useState('nome');
-  const [termoBusca, setTermoBusca] = useState('');
-
-  const { 
-    clientes, 
-    totalClientes, 
-    isLoading, 
-    error 
-  } = useVisualizarClientes(page + 1, rowsPerPage, '1');
+  const [colunaBusca, setColunaBusca] = useState("nome");
+  const [termoBusca, setTermoBusca] = useState("");
+  const { doLogout } = useContext(AuthContext);
+  const { clientes, totalClientes, isLoading, error, forbidden } =
+    useVisualizarClientes(page + 1, rowsPerPage, "1");
 
   const handleChangePage = (_: unknown, newPage: number) => {
     setPage(newPage);
   };
 
-  const handleChangeRowsPerPage = (event: React.ChangeEvent<HTMLInputElement>) => {
+  const handleChangeRowsPerPage = (
+    event: React.ChangeEvent<HTMLInputElement>
+  ) => {
     setRowsPerPage(parseInt(event.target.value, 10));
     setPage(0);
   };
@@ -54,24 +52,32 @@ export const VisualizarClientes: React.FC = () => {
     setColunaBusca(event.target.value);
   };
 
-  const handleTermoBuscaChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+  const handleTermoBuscaChange = (
+    event: React.ChangeEvent<HTMLInputElement>
+  ) => {
     setTermoBusca(event.target.value);
     setPage(0);
   };
- const[NomeFiltroInput, setNomeFilterInput ]= useState("");
+  const [NomeFiltroInput, setNomeFilterInput] = useState("");
   const handleNomeFilterInput = (e: React.ChangeEvent<HTMLInputElement>) => {
     setNomeFilterInput(e.target.value);
   };
   const aplicarFiltroNome = () => {
     setTermoBusca(NomeFiltroInput);
     setPage(0);
-  }
+  };
   if (isLoading) return <Box>Carregando...</Box>;
   if (error) return <Box>Erro ao carregar clientes: {error}</Box>;
 
+  useEffect(() => {
+    if (forbidden) {
+      doLogout();
+    }
+  }, [forbidden]);
+
   return (
-    <Box sx={{ width: '100%', p: 2 }}>
-      <Box sx={{ display: 'flex', mb: 2, gap: 2 }}>
+    <Box sx={{ width: "100%", p: 2 }}>
+      <Box sx={{ display: "flex", mb: 2, gap: 2 }}>
         <FormControl variant="outlined" sx={{ minWidth: 120, mr: 1 }}>
           <InputLabel id="coluna-busca-label">Buscar por</InputLabel>
           <Select
@@ -90,19 +96,16 @@ export const VisualizarClientes: React.FC = () => {
         <TextField
           variant="outlined"
           label="Buscar"
-          value={NomeFiltroInput} 
+          value={NomeFiltroInput}
           onChange={handleNomeFilterInput}
           sx={{ maxWidth: "50%", flexGrow: 1 }}
         />
-        <Button
-          variant="contained"
-          onClick={aplicarFiltroNome}
-        >
+        <Button variant="contained" onClick={aplicarFiltroNome}>
           Buscar
         </Button>
       </Box>
 
-      <Paper sx={{ width: '100%', mb: 2 }}>
+      <Paper sx={{ width: "100%", mb: 2 }}>
         <TableContainer>
           <Table>
             <TableHead>
@@ -118,7 +121,13 @@ export const VisualizarClientes: React.FC = () => {
                   <TableCell>{cliente.Nome}</TableCell>
                   <TableCell>{cliente.Email}</TableCell>
                   <TableCell>{cliente.Telefone}</TableCell>
-                  <TableCell>{cliente.DataCadastro ? new Date(cliente.DataCadastro).toLocaleDateString('pt-BR') : ''}</TableCell>
+                  <TableCell>
+                    {cliente.DataCadastro
+                      ? new Date(cliente.DataCadastro).toLocaleDateString(
+                          "pt-BR"
+                        )
+                      : ""}
+                  </TableCell>
                 </TableRow>
               ))}
             </TableBody>
@@ -133,7 +142,9 @@ export const VisualizarClientes: React.FC = () => {
           onPageChange={handleChangePage}
           onRowsPerPageChange={handleChangeRowsPerPage}
           labelRowsPerPage="Itens por página:"
-          labelDisplayedRows={({ from, to, count }) => `${from}-${to} de ${count}`}
+          labelDisplayedRows={({ from, to, count }) =>
+            `${from}-${to} de ${count}`
+          }
         />
       </Paper>
     </Box>

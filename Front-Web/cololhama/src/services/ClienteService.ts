@@ -82,7 +82,7 @@ export const ClienteService = {
     limit: number = 10,
     includeRelations: boolean = false,
     salaoId: string
-  ): Promise<ClientePageResponse> {
+  ): Promise<ClientePageResponse | boolean> {
     try {
       const response = await api.get(`/cliente/page`, {
         params: {
@@ -92,6 +92,9 @@ export const ClienteService = {
           salaoId,
         },
       });
+      if (response.status === 403) {
+        return false;
+      }
       return response.data;
     } catch (error) {
       console.error("Erro ao buscar página de clientes:", error);
