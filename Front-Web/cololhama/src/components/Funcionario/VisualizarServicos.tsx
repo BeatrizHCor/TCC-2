@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useContext, useState } from "react";
 import {
   Box,
   Table,
@@ -23,6 +23,8 @@ import "../../styles/styles.global.css";
 import { Link } from "react-router-dom";
 import theme from "../../styles/theme";
 import { BotaoTranparente } from "../../styles/styles.mui";
+import { AuthContext } from "../../contexts/AuthContext";
+import { userTypes } from "../../models/tipo-usuario.enum";
 
 const SalaoID = import.meta.env.SALAO_ID || "1"; // importa o ID do salão aqui
 const colunas = [
@@ -41,10 +43,17 @@ interface VisualizarServicosProps {
 
 export const VisualizarServicos: React.FC<VisualizarServicosProps> = ({
   salaoId,
-  isCliente = false,
+  isCliente: cannotEdit = false,
 }) => {
-  const usuario = localStorage.getItem("usuario");
-  isCliente = !!(usuario && JSON.parse(usuario)?.userType === "Cliente");
+  const { userType } = useContext(AuthContext);
+  cannotEdit = !!(
+    userType &&
+    [
+      userTypes.FUNCIONARIO,
+      userTypes.ADM_SALAO,
+      userTypes.ADM_SISTEMA,
+    ].includes(userType)
+  );
   salaoId = SalaoID;
 
   const [page, setPage] = useState(0);
@@ -62,7 +71,6 @@ export const VisualizarServicos: React.FC<VisualizarServicosProps> = ({
       precoMinFilter,
       precoMaxFilter
     );
- 
 
   const handleChangePage = (_: unknown, newPage: number) => {
     setPage(newPage);
@@ -74,27 +82,31 @@ export const VisualizarServicos: React.FC<VisualizarServicosProps> = ({
     setRowsPerPage(parseInt(event.target.value, 10));
     setPage(0);
   };
-  const[NomeFiltroInput, setNomeFilterInput ]= useState("");
+  const [NomeFiltroInput, setNomeFilterInput] = useState("");
   const handleNomeFilterInput = (e: React.ChangeEvent<HTMLInputElement>) => {
     setNomeFilterInput(e.target.value);
   };
   const aplicarFiltroNome = () => {
     setNomeFilter(NomeFiltroInput);
     setPage(0);
-  }
+  };
 
-  const [precoMaxInput, setPrecoMaxInput] = useState<Number | "" >(""); 
-  const handlePrecoMaxInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const [precoMaxInput, setPrecoMaxInput] = useState<Number | "">("");
+  const handlePrecoMaxInputChange = (
+    e: React.ChangeEvent<HTMLInputElement>
+  ) => {
     const onlyNumbers = e.target.value.replace(/\D/g, "");
-    setPrecoMaxInput(onlyNumbers === "" ? "" : Number(onlyNumbers)); 
+    setPrecoMaxInput(onlyNumbers === "" ? "" : Number(onlyNumbers));
   };
   const aplicarFiltroPrecoMax = () => {
     setPrecoMaxFilter(Number(precoMaxInput));
     setPage(0);
   };
-  
-  const [precoMinInput, setPrecoMinInput] = useState<Number | "" >(""); 
-  const handlePrecoMinInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+
+  const [precoMinInput, setPrecoMinInput] = useState<Number | "">("");
+  const handlePrecoMinInputChange = (
+    e: React.ChangeEvent<HTMLInputElement>
+  ) => {
     const onlyNumbers = e.target.value.replace(/\D/g, "");
     setPrecoMinInput(onlyNumbers === "" ? "" : Number(onlyNumbers));
   };
@@ -106,7 +118,7 @@ export const VisualizarServicos: React.FC<VisualizarServicosProps> = ({
   if (isLoading) return <Box>Carregando...</Box>;
   if (error) return <Box>Erro ao carregar serviços: {error}</Box>;
 
-  const colunasVisiveis = isCliente
+  const colunasVisiveis = cannotEdit
     ? colunas.filter((coluna) => coluna.clienteVisivel !== false)
     : colunas;
 
@@ -119,56 +131,54 @@ export const VisualizarServicos: React.FC<VisualizarServicosProps> = ({
         <TextField
           variant="outlined"
           label="Buscar por nome"
-          value={NomeFiltroInput} 
+          value={NomeFiltroInput}
           onChange={handleNomeFilterInput}
           sx={{ maxWidth: "50%", flexGrow: 1 }}
         />
-        <Button
-          variant="contained"
-          onClick={aplicarFiltroNome}
-        >
+        <Button variant="contained" onClick={aplicarFiltroNome}>
           Buscar
         </Button>
 
-        {!isCliente &&(
-        <Button
-          component={Link}
-          variant="outlined"
-          to = "/servico/editar/novo" 
-          sx ={{
-            color: theme.palette.primary.main,
-            borderBlockColor: theme.palette.primary.main,
-            borderColor: theme.palette.primary.main,
-            borderWidth: 1,
-          }}     
-        >
-          Novo Serviço
-        </Button>
+        {!cannotEdit && (
+          <Button
+            component={Link}
+            variant="outlined"
+            to="/servico/editar/novo"
+            sx={{
+              color: theme.palette.primary.main,
+              borderBlockColor: theme.palette.primary.main,
+              borderColor: theme.palette.primary.main,
+              borderWidth: 1,
+            }}
+          >
+            Novo Serviço
+          </Button>
         )}
         <Box display="flex" justifyContent="flex-end" gap={2}>
           <TextField
             variant="outlined"
             label="Preço mínimo"
-            type="text" 
+            type="text"
             value={precoMinInput}
             onChange={handlePrecoMinInputChange}
             sx={{ width: "150px" }}
             inputMode="numeric"
             slotProps={{
               input: {
-              startAdornment: (<InputAdornment position="start">R$</InputAdornment>                
-              ),
-              endAdornment: (
-                <InputAdornment position="end">
-                  <IconButton onClick={aplicarFiltroPreco}>
-                    <CheckIcon />
-                  </IconButton>
-                </InputAdornment>
-              ),
-              }
+                startAdornment: (
+                  <InputAdornment position="start">R$</InputAdornment>
+                ),
+                endAdornment: (
+                  <InputAdornment position="end">
+                    <IconButton onClick={aplicarFiltroPreco}>
+                      <CheckIcon />
+                    </IconButton>
+                  </InputAdornment>
+                ),
+              },
             }}
           />
-        
+
           <TextField
             variant="outlined"
             label="Preço máximo"
@@ -179,7 +189,8 @@ export const VisualizarServicos: React.FC<VisualizarServicosProps> = ({
             inputMode="numeric"
             slotProps={{
               input: {
-                startAdornment: (<InputAdornment position="start">R$</InputAdornment>
+                startAdornment: (
+                  <InputAdornment position="start">R$</InputAdornment>
                 ),
                 endAdornment: (
                   <InputAdornment position="end">
@@ -187,8 +198,8 @@ export const VisualizarServicos: React.FC<VisualizarServicosProps> = ({
                       <CheckIcon />
                     </IconButton>
                   </InputAdornment>
-                ),              
-              }
+                ),
+              },
             }}
           />
         </Box>
@@ -205,44 +216,45 @@ export const VisualizarServicos: React.FC<VisualizarServicosProps> = ({
             </TableHead>
             <TableBody>
               {servicos.length === 0 ? (
-              <TableRow>
-                <TableCell colSpan={colunasVisiveis.length} align="center">
-                  Nenhum serviço encontrado.
-                </TableCell>
-              </TableRow>
-              ) : (
-              servicos.map((servicos: Servico, index) => (
-                <TableRow key={servicos.ID ?? `row-${index}`}>
-                  <TableCell>{servicos.Nome || "—"} </TableCell>
-                  <TableCell>{servicos.Descricao || "—"}</TableCell>
-                  <TableCell>
-                    R${" "}           
-                    {servicos.PrecoMin !== undefined
-                      ? servicos.PrecoMin.toFixed(2)
-                      : "N/A"}
+                <TableRow>
+                  <TableCell colSpan={colunasVisiveis.length} align="center">
+                    Nenhum serviço encontrado.
                   </TableCell>
-                  <TableCell>
-                    R${" "}
-                    {servicos.PrecoMax !== undefined
-                      ? servicos.PrecoMax.toFixed(2)
-                      : "N/A"}
-                  </TableCell>
-                  {!isCliente && (
-                    <TableCell>
-                      <Button
-                        startIcon={<EditIcon />}
-                        variant="outlined"
-                        size="small"
-                        onClick={() =>
-                          servicos.ID && handleEditarServico(servicos.ID)
-                        }
-                      >
-                        Editar
-                      </Button>
-                    </TableCell>
-                  )}
                 </TableRow>
-              )))}
+              ) : (
+                servicos.map((servicos: Servico, index) => (
+                  <TableRow key={servicos.ID ?? `row-${index}`}>
+                    <TableCell>{servicos.Nome || "—"} </TableCell>
+                    <TableCell>{servicos.Descricao || "—"}</TableCell>
+                    <TableCell>
+                      R${" "}
+                      {servicos.PrecoMin !== undefined
+                        ? servicos.PrecoMin.toFixed(2)
+                        : "N/A"}
+                    </TableCell>
+                    <TableCell>
+                      R${" "}
+                      {servicos.PrecoMax !== undefined
+                        ? servicos.PrecoMax.toFixed(2)
+                        : "N/A"}
+                    </TableCell>
+                    {!cannotEdit && (
+                      <TableCell>
+                        <Button
+                          startIcon={<EditIcon />}
+                          variant="outlined"
+                          size="small"
+                          onClick={() =>
+                            servicos.ID && handleEditarServico(servicos.ID)
+                          }
+                        >
+                          Editar
+                        </Button>
+                      </TableCell>
+                    )}
+                  </TableRow>
+                ))
+              )}
             </TableBody>
           </Table>
         </TableContainer>
