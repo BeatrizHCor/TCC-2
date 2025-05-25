@@ -25,7 +25,7 @@ export const FuncionarioService = {
     nome: string | null = null,
     includeRelations: boolean = false,
     salaoId: string
-  ): Promise<FuncionarioPageResponse> {
+  ): Promise<FuncionarioPageResponse | boolean> {
     try {
       console.log("Buscando funcionários com o nome:", nome);
       const response = await api.get<FuncionarioPageResponse>(
@@ -40,6 +40,9 @@ export const FuncionarioService = {
           },
         }
       );
+      if (response.status === 403) {
+        return false;
+      }
       console.log("Funcionários recebidos:", response.data);
       return response.data;
     } catch (error) {

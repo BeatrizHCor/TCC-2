@@ -8,6 +8,7 @@ interface UseVisualizarFuncionariosResult {
   totalFuncionarios: number;
   isLoading: boolean;
   error: string | null;
+  forbidden: boolean;
   handleEditarFuncionario: (funcionarioId: string) => void;
 }
 
@@ -21,6 +22,8 @@ export const useVisualizarFuncionarios = (
   const [totalFuncionarios, setTotalFuncionarios] = useState<number>(0);
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
+  const [forbidden, setForbidden] = useState<boolean>(false);
+
   const navigate = useNavigate();
   useEffect(() => {
     const buscarFuncionarios = async () => {
@@ -35,6 +38,9 @@ export const useVisualizarFuncionarios = (
           false,
           salaoId
         );
+        if (typeof response === "boolean") {
+          return setForbidden(true);
+        }
         const listaFuncionarios: Funcionario[] = (response.data || []).map(
           (item: any) => ({
             ID: item.ID ?? "",
@@ -72,5 +78,6 @@ export const useVisualizarFuncionarios = (
     isLoading,
     error,
     handleEditarFuncionario,
+    forbidden,
   };
 };

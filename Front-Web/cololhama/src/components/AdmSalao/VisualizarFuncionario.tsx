@@ -1,4 +1,4 @@
-import React, { useContext, useState } from "react";
+import React, { useContext, useEffect, useState } from "react";
 import {
   Box,
   Table,
@@ -32,7 +32,7 @@ const colunas = [
 ];
 
 export const VisualizarFuncionarios: React.FC = () => {
-  const { userType } = useContext(AuthContext);
+  const { userType, doLogout } = useContext(AuthContext);
   const [page, setPage] = useState(0);
   const [rowsPerPage, setRowsPerPage] = useState(10);
   const [nomeFilter, setNomeFilter] = useState("");
@@ -44,6 +44,7 @@ export const VisualizarFuncionarios: React.FC = () => {
     isLoading,
     error,
     handleEditarFuncionario,
+    forbidden,
   } = useVisualizarFuncionarios(page + 1, rowsPerPage, nomeFilter, SalaoID);
 
   const handleChangePage = (_: unknown, newPage: number) => {
@@ -67,6 +68,12 @@ export const VisualizarFuncionarios: React.FC = () => {
 
   if (isLoading) return <Box>Carregando...</Box>;
   if (error) return <Box>Erro ao carregar funcionários: {error}</Box>;
+
+  useEffect(() => {
+    if (forbidden) {
+      doLogout();
+    }
+  }, [forbidden]);
 
   return (
     <Box sx={{ width: "100%", p: 2 }}>
