@@ -10,40 +10,6 @@ const api = axios.create({
   },
 });
 
-// set os dados do usuario para autenticação no header de cada requisição
-api.interceptors.request.use(
-  (config) => {
-    const usuario = localStorage.getItem("usuario");
-    if (usuario) {
-      const { userID, userType } = JSON.parse(usuario);
-      config.headers.userID = userID;
-      config.headers.userType = userType;
-    }
-    return config;
-  },
-  (error) => Promise.reject(error)
-);
-
-// verifique se a resposta contém um novo token e atualiza
-api.interceptors.response.use(
-  (response) => {
-    const tokenHeader = response.headers["authorization"]?.replace(
-      "Bearer ",
-      ""
-    );
-    const currentToken = localStorage.getItem("token");
-    if (tokenHeader !== currentToken && currentToken) {
-      console.log("Atualizando token na memória local");
-      localStorage.setItem("token", tokenHeader);
-      axios.defaults.headers.common["Authorization"] = `Bearer ${tokenHeader}`;
-    }
-    return response;
-  },
-  (error) => {
-    console.error("Erro na resposta da API:", error);
-    return Promise.reject(error);
-  }
-);
 
 interface AgendamentoPaginadoResponse {
   total: number;

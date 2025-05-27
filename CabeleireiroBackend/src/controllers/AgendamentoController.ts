@@ -1,5 +1,6 @@
 import { Request, Response } from "express";
 import AgendamentoService from "../services/AgendamentoService";
+import { StatusAgendamento } from "@prisma/client";
 
 class AgendamentoController{
   static findAllPaginated = async (req: Request, res: Response) => {
@@ -44,7 +45,7 @@ class AgendamentoController{
         const { Data, ClienteID, SalaoId, CabeleireiroID} = req.body;
         const agendamento = await AgendamentoService.createAgendamento(
               new Date(Data),
-              "Agendado",
+              StatusAgendamento.Agendado,
               ClienteID,
               SalaoId,
               CabeleireiroID

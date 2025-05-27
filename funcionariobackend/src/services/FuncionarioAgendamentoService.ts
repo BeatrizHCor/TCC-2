@@ -116,13 +116,13 @@ class AgendamentoService{
     ) => {
       try{
         return await prisma.agendamentos.create({
-            data: {
-                Data: Data,
-                Status: Status,
-                ClienteID: ClienteID,
-                SalaoId: SalaoId,
-                CabeleireiroID: CabeleireiroID,                
-            },
+          data: {
+            Data: Data,
+            Status: Status,
+            ClienteID: ClienteID,
+            SalaoId: SalaoId,
+            CabeleireiroID: CabeleireiroID,                
+        },
         });  
         } catch(e){
           console.log(e);

@@ -1,12 +1,18 @@
 import { toZonedTime } from "date-fns-tz";
 
 export function getRangeByDataInputWithTimezone(
-  ano: number,
-  mes: number = 0,
-  dia: number = 0,
+  dataStr: string | null,
   timezone: string = 'America/Sao_Paulo'
 ): { dataInicial: Date; dataFinal: Date } | null {
+  if (!dataStr) {
+    console.log("Data não fornecida");
+    return null;
+  }
+  const partes = dataStr.split('-').map(Number);
 
+  const ano = partes[0];
+  const mes = partes[1] || 0; 
+  const dia = partes[2] || 0; 
   if (ano <= 0 || Number.isNaN(ano)) {
     console.log("Ano não fornecido ou inválido");
     return null;
