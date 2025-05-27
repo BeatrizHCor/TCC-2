@@ -55,8 +55,8 @@ export class ImagemService {
           if (fs.existsSync(filePath)) {
             const fileStat = fs.statSync(filePath);
             const fileSizeInBytes = fileStat.size;
-            const fileSizeInMB = fileSizeInBytes / (1024 * 1024); // Convertendo para MB
-            const fileContent = fs.readFileSync(filePath, { encoding: "base64" }); // ler o arquivo como Base64
+            const fileSizeInMB = fileSizeInBytes / (1024 * 1024);
+            const fileContent = fs.readFileSync(filePath, { encoding: "base64" });
             return { ...foto, fileSize: fileSizeInMB, fileContent };
           }
 

@@ -15,7 +15,7 @@ class AgendamentoService{
     ) => {
         let whereCondition: Prisma.AgendamentosWhereInput = {};
         console.log("Valores d,m,a: ",dia,mes,ano)
-        const range = getRangeByDataInputWithTimezone(ano,mes,dia);
+        const range = getRangeByDataInputWithTimezone("2025");
         if (salaoId !== null) {
         whereCondition.SalaoId = salaoId;
         }
@@ -53,7 +53,7 @@ class AgendamentoService{
         const skip = (page - 1) * limit;
 
         let where: Prisma.AgendamentosWhereInput = {};
-        const range = getRangeByDataInputWithTimezone(ano,mes,dia);
+        const range = getRangeByDataInputWithTimezone("2025");
         if (salaoId !== null) {
             where.SalaoId = salaoId;
         }

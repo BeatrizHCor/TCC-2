@@ -2,7 +2,7 @@ import { Request, Response } from "express";
 import { ImagemService } from "../services/ImagemService";
 
 export class ImagemController {
-  static async uploadPortfolio(req: Request, res: Response): Promise<void> {
+  static async uploadImagePortfolio(req: Request, res: Response): Promise<void> {
     try {
       const { PortfolioId, Descricao } = req.body;
 

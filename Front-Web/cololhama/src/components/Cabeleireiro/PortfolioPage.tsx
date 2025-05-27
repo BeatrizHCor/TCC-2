@@ -11,7 +11,6 @@ import {
   CircularProgress,
   Alert,
   Snackbar,
-  Grid,
   Card,
   CardMedia,
   CardContent,
@@ -110,7 +109,7 @@ export default function PortfolioPage() {
           </Typography>
           <Typography variant="body2" color="text.secondary" textAlign="center">
             Clique em "Adicionar Imagem" para começar a construir seu portfólio.
-            tamanaho do arrey {imagens.length}
+            Quantidade de imagens: {imagens.length}
           </Typography>
         </Box>
       ) : (
@@ -151,7 +150,6 @@ export default function PortfolioPage() {
         </Box>
       )}
 
-      {/* Dialog para upload de imagem */}
       <Dialog 
         open={openDialog} 
         onClose={() => !uploading && setOpenDialog(false)}

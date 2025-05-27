@@ -63,7 +63,7 @@ export const usePortfolio = (portfolioId: string | undefined) => {
     setError(null);
 
     try {
-      const response = await PortfolioService.uploadPortfolio(
+      const response = await PortfolioService.uploadImagemPortfolio(
         file,
         portfolioId,
         descricao

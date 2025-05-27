@@ -6,8 +6,8 @@ import { upload } from "../middleware/multer";
 
 const router = express.Router();
 
-router.post("/portfolio", upload.single("imagem"), ImagemController.uploadPortfolio);
+router.post("/imagem/portfolio", upload.single("imagem"), ImagemController.uploadImagePortfolio);
 router.get("/imagem/ID/:id", ImagemController.getById);
-router.get("/portfolio/:portfolioId", ImagemController.getByPortfolio);
+router.get("/imagem/:portfolioId", ImagemController.getByPortfolio);
 
 export default router;
