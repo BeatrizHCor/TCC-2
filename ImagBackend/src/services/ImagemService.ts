@@ -1,3 +1,4 @@
+import { response } from "express";
 import prisma from "../config/database";
 import fs from "fs";
 import path from "path";
@@ -74,4 +75,32 @@ export class ImagemService {
     }
   }
 
+  static async deleteImagemPorId(portfolioId: string, imagemId: string) {
+    try {
+      const imagens = await prisma.imagem.findMany({
+        where: { PortfolioId: portfolioId },
+      });
+      if (!imagens || imagens.length === 0) {
+        throw new Error("Nenhuma imagem encontrada para o portfólio informado.");
+      }
+
+      const imagemParaDeletar = imagens.find(img => img.ID === imagemId);
+      if (!imagemParaDeletar) {
+        throw new Error("Imagem não encontrada para o portfólio informado.");
+      }
+
+      const filePath = path.normalize(path.join(__dirname, "..", "..", imagemParaDeletar.Endereco));
+      if (fs.existsSync(filePath)) {
+        fs.unlinkSync(filePath);
+      }
+      await prisma.imagem.delete({
+        where: { ID: imagemId },
+      });
+
+     return { success: true, message: "Imagem deletada com sucesso." };
+    } catch (error) {
+      console.error("Erro ao deletar imagem:", error);
+      throw new Error("Falha ao deletar imagem do portfólio.");
+    }
+  }
 }

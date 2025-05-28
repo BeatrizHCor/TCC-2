@@ -36,53 +36,48 @@ class PortfolioService {
               console.log('Portfolio não encontrado.');
               return [];
             }
-  console.log('Portfolio encontrado:', portfolio);
-        const fotosComConteudo = portfolio.Imagem.map((foto: { Endereco: string; }) => {
-            try {
-                const filePath = path.normalize(path.join(__dirname, "..", "..", foto.Endereco));
-                if (fs.existsSync(filePath)) {
-                    const fileStat = fs.statSync(filePath);
-                    const fileSizeInBytes = fileStat.size;
-                    const fileSizeInMB = fileSizeInBytes / (1024 * 1024);
-                    const fileContent = fs.readFileSync(filePath, { encoding: "base64" });
+            const fotosComConteudo = (portfolio.Imagem || [])
+            .filter((foto: any) => foto.HistoricoSimulacaoId === null)
+            .map((foto: { Endereco: string; }) => {
+                try {
+                    const filePath = path.normalize(path.join(__dirname, "..", "..", foto.Endereco));
+                    if (fs.existsSync(filePath)) {
+                        const fileStat = fs.statSync(filePath);
+                        const fileSizeInBytes = fileStat.size;
+                        const fileSizeInMB = fileSizeInBytes / (1024 * 1024);
+                        const fileContent = fs.readFileSync(filePath, { encoding: "base64" });
+                        return {
+                            ...foto,
+                            fileSize: fileSizeInMB,
+                            fileContent: fileContent,
+                        };
+                    }
                     return {
                         ...foto,
-                        fileSize: fileSizeInMB,
-                        fileContent,
-                        PortfolioID: portfolio.ID,
-                        CabeleireiroID: portfolio.CabeleireiroID,
-                        SalaoId: portfolio.SalaoId,
-                        Descricao: portfolio.Descricao
+                        fileSize: null,
+                        fileContent: null,
+                    };
+                } catch (err) {
+                    console.error(`Erro ao processar arquivo ${foto.Endereco}:`, err);
+                    return {
+                        ...foto,
+                        fileSize: null,
+                        fileContent: null,
                     };
                 }
-                return {
-                    ...foto,
-                    fileSize: null,
-                    fileContent: null,
-                    PortfolioID: portfolio.ID,
-                    CabeleireiroID: portfolio.CabeleireiroID,
-                    SalaoId: portfolio.SalaoId,
-                    Descricao: portfolio.Descricao
-                };
-            } catch (err) {
-                console.error(`Erro ao processar arquivo ${foto.Endereco}:`, err);
-                return {
-                    ...foto,
-                    fileSize: null,
-                    fileContent: null,
-                    PortfolioID: portfolio.ID,
-                    CabeleireiroID: portfolio.CabeleireiroID,
-                    SalaoId: portfolio.SalaoId,
-                    Descricao: portfolio.Descricao
-                };
-            }
-        });
-        return fotosComConteudo;
-    } catch (error) {
-        console.error('Erro ao buscar portfolio por ID:', error);
-        throw error;
-    }
-}
+            });
+            return {
+                ID: portfolio.ID,
+                Cabeleireiro: portfolio.Cabeleireiro.Nome,
+                SalaoId: portfolio.SalaoId,
+                Descricao: portfolio.Descricao,
+                imagens: fotosComConteudo
+            };
+        } catch (error) {
+            console.error('Erro ao buscar portfolio por ID:', error);
+            throw error;
+        }
+  }
 
   static async getAllPortfolios(skip: number = 0, take: number = 10, salaoId: string | null = null) {
     try {
@@ -150,8 +145,6 @@ class PortfolioService {
             console.log('Portfolio não encontrado.');
             return null;
         }
-        console.log('Portfolio encontrado:', portfolio);
-
         const fotosComConteudo = (portfolio.Imagem || [])
         .filter((foto: any) => foto.HistoricoSimulacaoId === null)
         .map((foto: { Endereco: string; }) => {
@@ -182,7 +175,6 @@ class PortfolioService {
                 };
             }
         });
-
         return {
             ID: portfolio.ID,
             Cabeleireiro: portfolio.Cabeleireiro.Nome,
