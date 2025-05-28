@@ -4,13 +4,15 @@ import CabeleireiroService from "../services/CabeleireiroService";
 class CabeleireiroController {
   static findAllPaginated = async (req: Request, res: Response) => {
     try {
-      const { page, limit, includeRelations, salaoId, name } = req.query;
+      const { page, limit, includeRelations, salaoId } = req.query;
+      const { nome = "" } = req.query;
+      console.log("req.query:", req.query);
       const cabeleireiros = await CabeleireiroService.getCabeleireiroPage(
         Number(page),
         Number(limit),
         includeRelations === "true",
         salaoId ? String(salaoId) : null,
-        name ? String(name) : null
+        nome ? String(nome) : null
       );
       res.json(cabeleireiros);
     } catch (error) {
@@ -22,7 +24,7 @@ class CabeleireiroController {
   static findById = async (req: Request, res: Response) => {
     try {
       const { id } = req.params;
-      const includeRelations = req.query.include === "true"; // Converte include para booleano
+      const includeRelations = req.query.include === "true";
       const cabeleireiro = await CabeleireiroService.findById(
         id,
         includeRelations

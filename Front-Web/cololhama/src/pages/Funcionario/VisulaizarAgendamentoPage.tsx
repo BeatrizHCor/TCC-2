@@ -1,5 +1,5 @@
 import React from 'react';
-import VisualizarAgendamento from '../../components/Cabeleireiro/VisualizarAgendamento';
+import VisualizarAgendamento from '../../components/Funcionario/VisualizarAgendamento';
 
 const VisualizarAgendamentoPage: React.FC = () => {
     return <VisualizarAgendamento/>;

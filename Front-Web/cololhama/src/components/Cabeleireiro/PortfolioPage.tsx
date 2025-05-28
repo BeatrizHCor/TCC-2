@@ -11,7 +11,6 @@ import {
   CircularProgress,
   Alert,
   Snackbar,
-  Grid,
   Card,
   CardMedia,
   CardContent,
@@ -20,15 +19,17 @@ import { useParams } from "react-router-dom";
 import { usePortfolio } from "./usePortfolioPage";
 
 export default function PortfolioPage() {
-  const { portfolioId } = useParams<{ portfolioId: string }>();
+  const { cabeleireiroId } = useParams<{ cabeleireiroId: string }>();
   const { 
     imagens, 
     loading, 
     error, 
     uploadImagem, 
-    fetchImagens, 
-    IMAGEM_URL 
-  } = usePortfolio(portfolioId);
+    fetchImagens,
+    portfolioId,
+    nomeCabeleireiro,
+    DescricaoPort
+  } = usePortfolio(cabeleireiroId);
   
   const [openDialog, setOpenDialog] = useState(false);
   const [descricao, setDescricao] = useState("");
@@ -38,7 +39,7 @@ export default function PortfolioPage() {
   const [showSuccess, setShowSuccess] = useState(false);
 
   const handleUpload = async () => {
-    if (!file || !portfolioId) return;
+    if (!file || !cabeleireiroId) return;
     
     setUploading(true);
     setUploadError(null);
@@ -70,7 +71,7 @@ export default function PortfolioPage() {
     <Box p={4}>
       <Box display="flex" justifyContent="space-between" alignItems="center" mb={3}>
         <Typography variant="h4" component="h1">
-          Portfólio {portfolioId ? `#${portfolioId}` : ""}
+          Portfólio: {nomeCabeleireiro ? ` ${nomeCabeleireiro}` : ""}
         </Typography>
         <Button 
           variant="contained" 
@@ -81,7 +82,9 @@ export default function PortfolioPage() {
           Adicionar Imagem
         </Button>
       </Box>
-
+      <Typography variant="h6" component="h3" color="text.secondary">
+        Descrição: {DescricaoPort ? ` ${DescricaoPort}` : ""}
+      </Typography>
       {error && (
         <Alert severity="error" sx={{ mb: 2 }}>
           {error}
@@ -110,7 +113,6 @@ export default function PortfolioPage() {
           </Typography>
           <Typography variant="body2" color="text.secondary" textAlign="center">
             Clique em "Adicionar Imagem" para começar a construir seu portfólio.
-            tamanaho do arrey {imagens.length}
           </Typography>
         </Box>
       ) : (
@@ -131,7 +133,7 @@ export default function PortfolioPage() {
               <Card sx={{ height: "100%" }}>
                 <CardMedia
                   component="img"
-                  image={`data:image/jpeg;base64,${img.fileContent}`} // usando o conteúdo Base64
+                  image={`data:image/jpeg;base64,${img.fileContent}`} 
                   alt={img.Descricao}
                   sx={{
                     height: 240,
@@ -151,7 +153,6 @@ export default function PortfolioPage() {
         </Box>
       )}
 
-      {/* Dialog para upload de imagem */}
       <Dialog 
         open={openDialog} 
         onClose={() => !uploading && setOpenDialog(false)}
@@ -220,8 +221,6 @@ export default function PortfolioPage() {
           </Button>
         </DialogActions>
       </Dialog>
-
-      {/* Notificação de sucesso */}
       <Snackbar
         open={showSuccess}
         autoHideDuration={4000}

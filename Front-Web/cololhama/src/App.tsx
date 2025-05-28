@@ -18,7 +18,7 @@ import ManterCabeleireiroPage from "./pages/Cabeleireiro/ManterCabelereiroPage";
 import PortfolioPage from "./components/Cabeleireiro/PortfolioPage";
 import ManterFuncionarioPage from "./pages/AdmSalao/ManterFuncionario";
 import ManterServicoPage from "./pages/Funcionario/ManterServicoPage";
-import VisualizarAgendamentoPage from "./pages/Cabeleireiro/VisulaizarAgendamentoPage";
+import VisualizarAgendamentoPage from "./pages/Funcionario/VisulaizarAgendamentoPage";
 import { AuthContextProvider } from "./contexts/AuthContext";
 
 const App: React.FC = () => {
@@ -43,7 +43,7 @@ const App: React.FC = () => {
             element={<ManterServicoPage />}
           />
 
-          <Route path="/portfolio/:portfolioId" element={<PortfolioPage />} />
+          <Route path="/portfolio/:cabeleireiroId" element={<PortfolioPage />} />
           <Route path="/portfolio" element={<PortfolioCabeleireiro />} />
           <Route
             path="/cabeleireiros"

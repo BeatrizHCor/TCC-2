@@ -1,0 +1,129 @@
+import { useState, useEffect } from "react";
+import { Atendimento } from "../../models/atendimentoModal";
+import AtendimentoService from "../../services/AtendimentoService";
+import { useNavigate } from "react-router-dom";
+import { userTypes } from "../../models/tipo-usuario.enum";
+
+interface AtendimentoExibicao {
+  ID: string;
+  NomeCliente: string;
+  NomeCabeleireiro: string;
+  Data: string;
+  Hora: string;
+  ValorTotal: number;
+  QuantidadeServicos: number;
+}
+
+interface UseVisualizarAtendimentosResult {
+  atendimentos: AtendimentoExibicao[];
+  totalAtendimentos: number;
+  isLoading: boolean;
+  error: string | null;
+  forbidden: boolean;
+  handleEditarAtendimento: (atendimentoId: string) => void;
+}
+
+export const useVisualizarAtendimentos = (
+  page: number = 1,
+  limit: number = 10,
+  clienteFilter: string = "",
+  cabelereiroFilter: string = "",
+  dataFilter: string = "",
+  salaoId: string,
+  userType: string,
+  userId: string
+): UseVisualizarAtendimentosResult => {
+  const [atendimentos, setAtendimentos] = useState<AtendimentoExibicao[]>([]);
+  const [totalAtendimentos, setTotalAtendimentos] = useState<number>(0);
+  const [isLoading, setIsLoading] = useState<boolean>(true);
+  const [error, setError] = useState<string | null>(null);
+  const [forbidden, setForbidden] = useState<boolean>(false);
+
+  const navigate = useNavigate();
+  
+  useEffect(() => {
+    const buscarAtendimentos = async () => {
+      setIsLoading(true);
+      setError(null);
+
+      try {
+        let response;
+        if (userType === userTypes.ADM_SALAO || userType === userTypes.ADM_SISTEMA || userType === userTypes.FUNCIONARIO) {
+          response = await AtendimentoService.getAtendimentosPage(
+            page,
+            limit,
+            clienteFilter,
+            cabelereiroFilter,
+            dataFilter,
+            salaoId
+          );
+        } else if (userType === userTypes.CABELEIREIRO) {
+          response = await AtendimentoService.getAtendimentosByCabeleireiro(
+            page,
+            limit,
+            clienteFilter,
+            dataFilter,
+            userId,
+            salaoId
+          );
+        } else if (userType === userTypes.CLIENTE) {
+          response = await AtendimentoService.getAtendimentosByCliente(
+            page,
+            limit,
+            cabelereiroFilter,
+            dataFilter,
+            userId,
+            salaoId
+          );
+        } else {
+          setForbidden(true);
+          return;
+        }
+
+        if (typeof response === "boolean" || response?.status === 403) {
+          return setForbidden(true);
+        } else {
+        const listaAtendimentos: AtendimentoExibicao[] = (response.data || []).map(
+          (item: any) => ({
+            ID: item.ID ?? "",
+            NomeCliente: item.NomeCliente ?? "",
+            NomeCabeleireiro: item.NomeCabeleireiro ?? "",
+            Data: item.Data ?? "",
+            Hora: item.Hora ?? "",
+            ValorTotal: item.ValorTotal ?? 0,
+            QuantidadeServicos: item.QuantidadeServicos ?? 0,
+          })
+        );
+        setAtendimentos(listaAtendimentos);
+        setTotalAtendimentos(response.total);
+        }
+      } catch (err: any) {
+        if (err?.response?.status === 403) {
+          setForbidden(true);
+        } else {
+          setError(
+            err instanceof Error ? err.message : "Erro ao buscar atendimentos"
+          );
+          console.error("Erro ao buscar atendimentos:", err);
+        }
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    buscarAtendimentos();
+  }, [page, limit, clienteFilter, cabelereiroFilter, dataFilter, salaoId, userType, userId]);
+
+  const handleEditarAtendimento = (atendimentoId: string) => {
+    navigate(`/atendimento/editar/${atendimentoId}`);
+  };
+
+  return {
+    atendimentos,
+    totalAtendimentos,
+    isLoading,
+    error,
+    handleEditarAtendimento,
+    forbidden,
+  };
+};

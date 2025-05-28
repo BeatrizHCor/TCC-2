@@ -9,9 +9,16 @@ const api = axios.create({
     Authorization: btoa(token || ""),
   },
 });
-
+const apiUpload = axios.create({
+  baseURL: import.meta.env.VITE_IMAGEM_URL || "http://localhost:4000",
+  timeout: 100000,
+  headers: {
+    'Content-Type': 'multipart/form-data',
+    Authorization: btoa(token || ""),
+  },
+});
 class PortfolioService {
-  static async uploadPortfolio(
+  static async uploadImagemPortfolio(
     file: File,
     portfolioId: string,
     descricao: string
@@ -27,7 +34,7 @@ class PortfolioService {
         formData.get("Descricao"),
         formData.get("imagem")
       );
-      const response = await api.post(`/portfolio`, formData);
+      const response = await apiUpload.post(`/imagem/portfolio`, formData);
 
       return response.data;
     } catch (error) {
@@ -48,7 +55,7 @@ class PortfolioService {
 
   static async getImagensByPortfolio(portfolioId: string) {
     try {
-      const response = await api.get(`/portfolio/${portfolioId}`);
+      const response = await api.get(`/portfolio/ID/${portfolioId}`);
       return response.data;
     } catch (error) {
       if (axios.isAxiosError(error)) {
@@ -57,6 +64,19 @@ class PortfolioService {
         console.error("Erro desconhecido:", error);
       }
       throw new Error("Erro ao buscar imagens por portfolio.");
+    }
+  }
+  static async getPortfolioByCabeleireiroId(cabeleireiroId: string) {
+    try {
+      const response = await api.get(`/portfolio/${cabeleireiroId}`);
+      return response.data;
+    } catch (error) {
+      if (axios.isAxiosError(error)) {
+        console.error("Erro completo:", error.response || error.message);
+      } else {
+        console.error("Erro desconhecido:", error);
+      }
+      throw new Error("Erro ao buscar portfólio por cabeleireiro.");
     }
   }
 }

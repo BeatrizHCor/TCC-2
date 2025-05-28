@@ -64,10 +64,9 @@ model Funcionario {
   SalaoId             String
   Auxiliar            Boolean
   Salario             Float
-  Atendimentos        Atendimento[]
   AtendimentoAuxiliar AtendimentoAuxiliar[]
   Holerite            Holerite[]
-  DataCadastro        DateTime              @default(now())
+  DataCadastro        DateTime             @default(now())
 
   @@unique([Email, SalaoId])
 }
@@ -75,17 +74,17 @@ model Funcionario {
 model Cabeleireiro {
   ID String @id @default(uuid())
 
-  CPF          String
-  Nome         String
-  Email        String
-  Telefone     String
-  Mei          String
-  Salao        Salao          @relation(fields: [SalaoId], references: [ID])
-  SalaoId      String
-  Portfolio    Portfolio?
-  Agendamentos Agendamentos[]
-  Holerite     Holerite[]
-  DataCadastro DateTime       @default(now())
+  CPF           String
+  Nome          String
+  Email         String
+  Telefone      String
+  Mei           String
+  Salao         Salao          @relation(fields: [SalaoId], references: [ID])
+  SalaoId       String
+  Portfolio     Portfolio?
+  Agendamentos  Agendamentos[]
+  Holerite      Holerite[]
+  DataCadastro  DateTime             @default(now())
 
   @@unique([Email, SalaoId])
 }
@@ -93,13 +92,13 @@ model Cabeleireiro {
 model AdmSalao {
   ID String @id @default(uuid())
 
-  CPF          String
-  Nome         String
-  Email        String
-  Telefone     String
-  Salao        Salao    @relation(fields: [SalaoId], references: [ID])
-  SalaoId      String   @unique
-  DataCadastro DateTime @default(now())
+  CPF                String
+  Nome               String
+  Email              String
+  Telefone           String
+  Salao              Salao  @relation(fields: [SalaoId], references: [ID])
+  SalaoId            String @unique
+  DataCadastro       DateTime             @default(now())
 
   @@unique([Email, SalaoId])
 }
@@ -132,7 +131,6 @@ model AtendimentoAuxiliar {
   Atendimento   Atendimento @relation(fields: [AtendimentoId], references: [ID])
   AtendimentoId String      @unique
   AuxiliarID    String
-  SalaoId       String
   Auxiliar      Funcionario @relation(fields: [AuxiliarID], references: [ID])
 }
 
@@ -140,12 +138,10 @@ model Atendimento {
   ID                  String               @id @default(uuid())
   Data                DateTime
   PrecoTotal          Float
-  FuncionarioID       String
-  Funcionario         Funcionario          @relation(fields: [FuncionarioID], references: [ID])
   Auxiliar            Boolean
-  AtendimentoAuxiliar AtendimentoAuxiliar?
-  Salao               Salao                @relation(fields: [SalaoId], references: [ID])
+  AtendimentoAuxiliar AtendimentoAuxiliar[]
   SalaoId             String
+  Salao               Salao                @relation(fields: [SalaoId], references: [ID])
   ServicoAtendimento  ServicoAtendimento[]
   Agendamentos        Agendamentos[]
 }
@@ -237,9 +233,9 @@ model HistoricoSimulacao {
 model Imagem {
   ID                   String              @id @default(uuid())
   PortfolioId          String
-  Portfolio            Portfolio           @relation(fields: [PortfolioId], references: [ID])
+  Portfolio            Portfolio           @relation(fields: [PortfolioId], references: [ID], onDelete: Cascade)
   HistoricoSimulacaoId String?
-  HistoricoSimulacao   HistoricoSimulacao? @relation(fields: [HistoricoSimulacaoId], references: [ID])
+  HistoricoSimulacao   HistoricoSimulacao? @relation(fields: [HistoricoSimulacaoId], references: [ID], onDelete: Cascade)
   Endereco             String
   Descricao            String
 }

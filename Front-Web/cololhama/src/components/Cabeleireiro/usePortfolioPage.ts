@@ -4,47 +4,49 @@ import PortfolioService from "../../services/PortfolioService";
 
 interface Imagem {
   Descricao: string;
-  Endereco: string;
-  HistoricoSimulacaoId: string | null;
   ID: string;
   PortfolioId: string;
   fileContent: string;
   fileSize: number;
 }
 
-export const usePortfolio = (portfolioId: string | undefined) => {
+export const usePortfolio = (cabeleireiroId: string | undefined) => {
   const [imagens, setImagens] = useState<Imagem[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const IMAGEM_URL = import.meta.env.VITE_IMAGEM_URL;
-
+  const [portfolioId, setPortfolioId] = useState<string | null>(null);
+  const [nomeCabeleireiro, setNomeCabeleireiro] = useState<string | null>(null);
+  const [DescricaoPort, setDescricaoPort] = useState<string | null>(null); 
   const fetchImagens = useCallback(async () => {
-    if (!portfolioId) {
+    if (!cabeleireiroId) {
       setImagens([]);
       return;
     }
-
     setLoading(true);
     setError(null);
 
     try {
-      console.log("ID do portfólio:", portfolioId);
-      const response = await PortfolioService.getImagensByPortfolio(
-        portfolioId
-      );
-      console.log("Resposta do servidor:", response);
-      const data = Array.isArray(response) ? response : [response];
-      setImagens(
-        data.map((item: any) => ({
-          Descricao: item.Descricao || "",
-          Endereco: item.Endereco || "",
-          HistoricoSimulacaoId: item.HistoricoSimulacaoId || null,
-          ID: item.ID || "",
-          PortfolioId: item.PortfolioId || "",
-          fileContent: item.fileContent || "",
-          fileSize: item.fileSize || 0,
-        }))
-      );
+      const response = await PortfolioService.getPortfolioByCabeleireiroId(cabeleireiroId);
+      console.log("Resposta do servidor:", response); 
+      let PortFotos = response.imagens || [];
+      if (response) {
+        setImagens(
+          PortFotos.map((img: any) => ({
+            Descricao: img.Descricao || "",
+            ID: img.ID || "",
+            PortfolioId: img.PortfolioId || "",
+            fileContent: img.fileContent || "",
+            fileSize: img.fileSize || 0,
+          }))
+        );
+        setPortfolioId(response.ID || null);
+        setNomeCabeleireiro(response.Cabeleireiro || null);
+        setDescricaoPort(response.Descricao || null);
+
+      } else {
+        setImagens([]);
+        setPortfolioId(null);
+      }
     } catch (err) {
       console.error("Erro ao carregar imagens:", err);
       setError("Não foi possível carregar as imagens. Tente novamente.");
@@ -52,10 +54,10 @@ export const usePortfolio = (portfolioId: string | undefined) => {
     } finally {
       setLoading(false);
     }
-  }, [portfolioId]);
+  }, [cabeleireiroId]);
 
   const uploadImagem = async (file: File, descricao: string) => {
-    if (!portfolioId) {
+    if (!cabeleireiroId) {
       throw new Error("ID do portfólio não disponível");
     }
 
@@ -63,9 +65,9 @@ export const usePortfolio = (portfolioId: string | undefined) => {
     setError(null);
 
     try {
-      const response = await PortfolioService.uploadPortfolio(
+      const response = await PortfolioService.uploadImagemPortfolio(
         file,
-        portfolioId,
+        portfolioId!,
         descricao
       );
 
@@ -101,6 +103,8 @@ export const usePortfolio = (portfolioId: string | undefined) => {
     error,
     fetchImagens,
     uploadImagem,
-    IMAGEM_URL,
+    portfolioId,
+    nomeCabeleireiro,
+    DescricaoPort
   };
 };

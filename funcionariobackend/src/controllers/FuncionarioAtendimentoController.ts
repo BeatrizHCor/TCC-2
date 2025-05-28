@@ -11,9 +11,7 @@ class AtendimentoController {
                 SalaoId = null,
                 nomeCliente = null,
                 nomeCabeleireiro = null,
-                dia = 0,
-                mes = 0,
-                ano = 0
+                data = null,
             } = req.query;
 
             const Atendimentos = await AtendimentoService.getAtendimentosPage(
@@ -23,9 +21,7 @@ class AtendimentoController {
                 SalaoId ? String(SalaoId) : null,
                 nomeCliente ? String(nomeCliente) : null,
                 nomeCabeleireiro ? String(nomeCabeleireiro) : null,
-                Number(dia),
-                Number(mes),
-                Number(ano)
+                data ? String(data) : null,
             );
 
             res.json(Atendimentos);
@@ -36,7 +32,8 @@ class AtendimentoController {
     }
     static async createAtendimento(req: Request, res: Response) {
         try {
-            const atendimento = await AtendimentoService.createAtendimento(req.body);
+            let Data = req.body.Data;
+            const atendimento = await AtendimentoService.createAtendimento(Data);
             res.status(201).json(atendimento);
         } catch (error) {
             console.error(error);

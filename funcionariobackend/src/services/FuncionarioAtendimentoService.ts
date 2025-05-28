@@ -3,11 +3,10 @@ import prisma from "../config/database";
 import { getRangeByDataInputWithTimezone } from "../utils/CalculoPeriododeTempo";
 interface AtendimentoInput {
   data: Date;
+  precoTotal: number;
   funcionarioId: string;
   salaoId: string;
-  precoTotal: number;
   agendamentoId: string;
-  auxiliarId?: string;
   servicos: { servicoId: string; precoItem: number }[];
 }
 
@@ -19,17 +18,15 @@ class AtendimentoService {
     salaoId: string | null = null,
     nomeCliente: string | null = null,
     nomeCabeleireiro: string | null = null,
-    dia: number = 0,
-    mes: number = 0,
-    ano: number = 0
+    data: string | null = null,
   ) {
     const where: Prisma.AtendimentoWhereInput = {};
 
     if (salaoId !== null) {
       where.SalaoId = salaoId;
     }
-    console.log("Valores d,m,a: ",dia,mes,ano)
-    const range = getRangeByDataInputWithTimezone(ano,mes,dia);
+    console.log("Valores d,m,a: ", data)
+    const range = getRangeByDataInputWithTimezone(data);
     if (range !== null) {
             where.Data = {
             gte: range.dataInicial,
@@ -111,13 +108,11 @@ class AtendimentoService {
     salaoId: string | null = null,
     nomeCliente: string | null = null,
     nomeCabeleireiro: string | null = null,
-    dia: number = 0,
-    mes: number = 0,
-    ano: number = 0
+  data: string | null = null,
   ) {
     const skip = (page - 1) * limit;
     const where: Prisma.AtendimentoWhereInput = {};
-    const range = getRangeByDataInputWithTimezone(ano,mes,dia);
+    const range = getRangeByDataInputWithTimezone(data);
     if (salaoId !== null) {
       where.SalaoId = salaoId;
     }
@@ -182,9 +177,7 @@ class AtendimentoService {
         salaoId,
         nomeCliente,
         nomeCabeleireiro,
-        dia,
-        mes,
-        ano
+        data
       ),
     ]);
 
@@ -220,21 +213,20 @@ class AtendimentoService {
     static async createAtendimento(data: AtendimentoInput) {
     const {
         data: dataAtendimento,
+        precoTotal,
         funcionarioId,
         salaoId,
-        precoTotal,
         agendamentoId,
-        auxiliarId,
         servicos,
     } = data;
 
     const atendimento = await prisma.atendimento.create({
         data: {
         Data: dataAtendimento,
-        FuncionarioID: funcionarioId,
-        SalaoId: salaoId,
         PrecoTotal: precoTotal,
-        Auxiliar: !!auxiliarId,
+        FuncionarioID: funcionarioId ?? null,
+        SalaoId: salaoId,
+        Auxiliar: !!funcionarioId,
         Agendamentos: {
             connect: {
             ID: agendamentoId,
@@ -248,10 +240,10 @@ class AtendimentoService {
             },
             })),
         },
-        ...(auxiliarId && {
+        ...(funcionarioId && {
             AtendimentoAuxiliar: {
             create: {
-                AuxiliarID: auxiliarId,
+                AuxiliarID: funcionarioId,
                 SalaoId: salaoId,
             },
             },
@@ -270,11 +262,10 @@ class AtendimentoService {
   static async updateAtendimento(id: string, data: AtendimentoInput) {
     const {
         data: dataAtendimento,
+        precoTotal,
         funcionarioId,
         salaoId,
-        precoTotal,
         agendamentoId,
-        auxiliarId,
         servicos,
     } = data;
     try{
@@ -297,15 +288,15 @@ class AtendimentoService {
             },
             })),
         },
-        AtendimentoAuxiliar: auxiliarId
+        AtendimentoAuxiliar: funcionarioId
             ? {
                 upsert: {
                 create: {
-                    AuxiliarID: auxiliarId,
+                    AuxiliarID: funcionarioId,
                     SalaoId: salaoId,
                 },
                 update: {
-                    AuxiliarID: auxiliarId,
+                    AuxiliarID: funcionarioId,
                     SalaoId: salaoId,
                 },
                 },

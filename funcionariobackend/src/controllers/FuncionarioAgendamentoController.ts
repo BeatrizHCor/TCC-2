@@ -24,13 +24,15 @@ class AgendamentoController{
   static findById = async (req: Request, res: Response) => {
     try {
       const { id } = req.params;
-      const includeRelations = req.query.include === "true"; // Converte include para booleano
+      const includeRelations = req.query.include === "true";
       const cabeleireiro = await AgendamentoService.findById(
         id,
         includeRelations
       );
       if (!cabeleireiro) {
-        res.status(204).json({ message: "Agendamentos não encontrado" });
+        res
+        .status(204)
+        .json({ message: "Agendamentos não encontrado" });
       } else {
         res.json(cabeleireiro);
       }
@@ -40,32 +42,66 @@ class AgendamentoController{
     }
   }; 
   static createAgendamento = async (req: Request, res: Response) => {
-      try { 
-        const { Data, ClienteID, SalaoId, CabeleireiroID} = req.body;
-        const agendamento = await AgendamentoService.createAgendamento(
-              new Date(Data),
-              "Agendado",
-              ClienteID,
-              SalaoId,
-              CabeleireiroID
-            );
-        if (!agendamento || agendamento === null) {
-            res
-              .status(404)
-              .json({ message: "agendamento não pode ser registrado" });
-        } else {
-            res.json(agendamento);
-          }
-        } catch (e) {
-          console.log(e);
+    try { 
+      const { Data, ClienteID, SalaoId, CabeleireiroID} = req.body;
+      const agendamento = await AgendamentoService.createAgendamento(
+            new Date(Data),
+            "Agendado",
+            ClienteID,
+            SalaoId,
+            CabeleireiroID
+          );
+      if (!agendamento || agendamento === null) {
           res
-            .status(500)
-            .json({ message: "Não foi possivél criar o agendamento" });
-        }    
-      };
+            .status(404)
+            .json({ message: "agendamento não pode ser registrado" });
+      } else {
+          res.json(agendamento);
+          }
+      } catch (e) {
+        console.log(e);
+        res
+          .status(500)
+          .json({ message: "Não foi possivél criar o agendamento" });
+    }    
+  };
   
+  static updateAgendamento = async (req: Request, res: Response) => {
+    try {
+      const { id } = req.params;
+      const { Data, Status, ClienteID, SalaoId, CabeleireiroID } = req.body;
+      const agendamento = await AgendamentoService.updateAgendamento(
+        id,
+        new Date(Data),
+        Status,
+        ClienteID,
+        SalaoId,
+        CabeleireiroID
+      );
+      if (!agendamento) {
+        res.status(404).json({ message: "Agendamento não encontrado" });
+      } else {
+        res.json(agendamento);
+      }
+    } catch (e) {
+      console.log(e);
+      res.status(500).json({ message: "Erro ao atualizar o agendamento" });
+    }
+  };
 
-
+  static deleteAgendamento = async (req: Request, res: Response) => {
+    try {
+      const { id } = req.params;
+      const agendamento = await AgendamentoService.deleteAgendamento(id);
+      if (!agendamento) {
+        res.status(404).json({ message: "Agendamento não encontrado" });
+      } else {
+        res.json({ message: "Agendamento deletado com sucesso" });
+      }
+    } catch (e) {
+      console.log(e);
+      res.status(500).json({ message: "Erro ao deletar o agendamento" });
+    }
+  };
 }
-
 export default AgendamentoController;

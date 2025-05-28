@@ -2,7 +2,6 @@ import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import CabeleireiroService from "../../services/CabeleireiroService";
 import { validarCPF, validarEmail } from "../../utils/validations";
-import { Cabeleireiro } from "../../models/cabelereiroModel";
 
 const SalaoId = import.meta.env.SALAO_ID || "1";
 
@@ -55,7 +54,7 @@ export const useManterCabeleireiro = (cabeleireiroId?: string) => {
         setCpf(cabeleireiro.CPF || "");
         setEmail(cabeleireiro.Email || "");
         setTelefone(cabeleireiro.Telefone || "");
-        setMei(cabeleireiro.Mei || "");
+        setMei(cabeleireiro.MEI || "");
         setSalaoId(cabeleireiro.SalaoId || null);
       } catch (error) {
         console.error("Erro ao buscar cabeleireiro:", error);

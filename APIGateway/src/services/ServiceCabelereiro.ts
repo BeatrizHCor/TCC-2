@@ -1,8 +1,9 @@
 import { Cabeleireiro } from "../models/cabelereiroModel";
 import "dotenv/config";
+import { Portfolio } from "../models/portifolioModel";
 
 const CabeleireiroURL = process.env.CABELEREIRO_URL || "http://localhost:4002";
-
+const VITE_IMAGEM_URL = process.env.VITE_IMAGEM_URL || "http://localhost:4000";
 export const postCabeleireiro = async (cabeleireiro: Cabeleireiro) => {
   let responseCabeleireiro = await fetch(CabeleireiroURL + "/cabeleireiro", {
     method: "POST",
@@ -23,14 +24,14 @@ export const getCabeleireiroPage = async (
   limit: number,
   includeRelations: boolean = false,
   salaoId?: number,
-  name?: string | null
+  nome?: string | null
 ) => {
   console.log(CabeleireiroURL);
   let responseCabeleireiros = await fetch(
     CabeleireiroURL +
       `/cabeleireiro/page?page=${page}&limit=${limit}&includeRelations=${includeRelations}` +
       `${salaoId ? "&salaoID=" + String(salaoId) : ""}` +
-      `${name ? "&name=" + String(name) : ""}`,
+      `${nome ? "&nome=" + String(nome) : ""}`,
     {
       method: "GET",
     }
@@ -95,3 +96,37 @@ export const getCabeleireiroById = async (
     throw new Error("Error in getting Cabeleireiro by ID");
   }
 };
+
+export const createPortfolio = async (
+  cabeleireiroId: string,
+  Descricao: string,
+  SalaoId: string,
+) => {
+  let responsePortfolio = await fetch(VITE_IMAGEM_URL + "/portfolio", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({
+      CabeleireiroId: cabeleireiroId,
+      Descricao: Descricao,
+      SalaoId: SalaoId,
+    }),
+  });
+  if (responsePortfolio.ok) {
+    return (await responsePortfolio.json()) as Portfolio;
+  } else {
+    throw new Error("Error in creating Portfolio");
+  }
+};
+
+export const deletePortfolio = async (cabeleireiroId: string) => {
+  let responsePortfolio = await fetch(VITE_IMAGEM_URL + "/portfolio/delete/" + cabeleireiroId, {
+    method: "DELETE",
+  });
+  if (responsePortfolio.ok) {
+    return (await responsePortfolio.json()) as Portfolio;
+  } else {
+    throw new Error("Error in deleting Portfolio");
+  }
+}

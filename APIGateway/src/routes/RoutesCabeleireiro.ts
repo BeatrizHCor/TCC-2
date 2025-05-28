@@ -1,7 +1,9 @@
 import { Router, Request, Response } from "express";
 import { authenticate, postLogin, registerLogin } from "../services/Service";
 import {
+  createPortfolio,
   deleteCabeleireiro,
+  deletePortfolio,
   getCabeleireiroById,
   getCabeleireiroPage,
   postCabeleireiro,
@@ -43,11 +45,26 @@ RoutesCabeleireiro.post(
           Nome: Nome,
           Email: Email,
           Telefone: Telefone,
-          Mei: Mei,
+          MEI: Mei,
           SalaoId: SalaoId,
         });
         if (!cabeleireiro) {
           throw new Error("Cabeleireiro not created");
+        }
+        let portfolio = await createPortfolio(
+          cabeleireiro.ID!,
+          "Portfolio inicial",
+          SalaoId
+        )
+        if (!portfolio) {
+          console.log("Portfolio not created");
+          let cabeleireiroDelete = await deleteCabeleireiro(cabeleireiro.ID!);
+          if (cabeleireiroDelete) {
+            console.log("Cabeleireiro deleted successfully");
+          } else {
+            console.log("Falha ao deletar cabeleireiro após falha na criação do portfolio");
+          }
+          throw new Error("Portfolio creation failed");
         }
         console.log("Cabeleireiro ID: ", cabeleireiro.ID);
         let register = await registerLogin(
@@ -61,10 +78,13 @@ RoutesCabeleireiro.post(
         if (!register) {
           console.log("Register failed");
           let cabeleireiroDelete = await deleteCabeleireiro(cabeleireiro.ID!);
-          if (cabeleireiroDelete) {
-            console.log("Cabeleireiro deleted successfully");
-          } else {
-            console.log("Failed to delete cabeleireiro after register failure");
+          let portfolioDelete = await deletePortfolio(portfolio.ID!);
+          if (cabeleireiroDelete && portfolioDelete) {
+            console.log("Cabeleireiro e Portfolio deletados com sucesso.");
+          } else if (!cabeleireiroDelete) {
+            console.log("Falha ao deletar cabeleireiro após falha no registro");
+          } else if (!portfolioDelete) {
+            console.log("Falha ao deletar portfolio após falha no registro");
           }
           throw new Error("Login registration failed");
         }
