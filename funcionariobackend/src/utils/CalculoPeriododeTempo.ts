@@ -8,6 +8,11 @@ export function getRangeByDataInputWithTimezone(
     console.log("Data não fornecida");
     return null;
   }
+
+ if (!dataStr.match(/^\d{4}-\d{1,2}-\d{1,2}$/)) {
+   console.log("Formato de data inválido. Use YYYY-MM-DD");
+   return null;
+ }
   const partes = dataStr.split('-').map(Number);
 
   const ano = partes[0];

@@ -53,16 +53,32 @@ export class ImagemController {
     }
   }
 
-  static async deleteImagembyPortfolio(req: Request, res: Response): Promise<void> {
+  static async deleteImagem(req: Request, res: Response): Promise<void> {
     try {
       const { PortfolioId, imagemId } = req.params;
-      const result = await ImagemService.deleteImagemPorId(PortfolioId, imagemId);
+      const result = await ImagemService.deleteImagemByIdPortfolio(PortfolioId, imagemId);
       res.status(204).json(result);
     } catch (error) {
       console.error("Erro ao deletar imagem:", error);
       res.status(500).json({ error: "Erro interno ao deletar imagem." });
     }
   }
+  static async updateImagem(req: Request, res: Response): Promise<void> {
+    try {
+      const { PortfolioId, imagemId } = req.params;
+      const { Descricao } = req.body;
 
+      const imagem = await ImagemService.updateImagemByIdPortfolio(PortfolioId, imagemId, Descricao);
+
+      if (!imagem) {
+        res.status(404).json({ error: "Imagem não encontrada." });
+        return;
+      }
+      res.json(imagem);
+    } catch (error) {
+      console.error("Erro ao atualizar imagem:", error);
+      res.status(500).json({ error: "Erro interno ao atualizar imagem." });
+    }
+  }
 }
 export default ImagemController;

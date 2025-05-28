@@ -75,32 +75,54 @@ export class ImagemService {
     }
   }
 
-  static async deleteImagemPorId(portfolioId: string, imagemId: string) {
-    try {
-      const imagens = await prisma.imagem.findMany({
-        where: { PortfolioId: portfolioId },
+  static async deleteImagemByIdPortfolio(portfolioId: string, imagemId: string) {
+      try {
+        const imagemParaDeletar = await prisma.imagem.findFirst({
+          where: { 
+            ID: imagemId,
+            PortfolioId: portfolioId 
+          },
+        });
+        if (!imagemParaDeletar) {
+          throw new Error("Imagem não encontrada para o portfólio informado.");
+        }
+
+        const filePath = path.normalize(path.join(__dirname, "..", "..", imagemParaDeletar.Endereco));
+        const expectedDir = path.normalize(path.join(__dirname, "..", "..")); // check para garantir que não haja deletes fora da pasta
+        if (!filePath.startsWith(expectedDir)) {
+          throw new Error("Invalid file path detected.");
+        }
+        
+        if (fs.existsSync(filePath)) {
+          fs.unlinkSync(filePath);
+        }
+        await prisma.imagem.delete({
+          where: { ID: imagemId },
+        });
+
+      return { success: true, message: "Imagem deletada com sucesso." };
+      } catch (error) {
+        console.error("Erro ao deletar imagem:", error);
+        throw new Error("Falha ao deletar imagem do portfólio.");
+      }
+    }
+  static async updateImagemByIdPortfolio(portfolioId: string, imagemId: string, descricao: string) {
+    try{
+      const resultado = await prisma.imagem.update({
+        where: { 
+          ID: imagemId,
+          PortfolioId: portfolioId 
+        },
+        data: { Descricao: descricao },
       });
-      if (!imagens || imagens.length === 0) {
-        throw new Error("Nenhuma imagem encontrada para o portfólio informado.");
+      if (!resultado) {
+        console.log("Imagem não encontrada ou não pertence ao portfólio informado.");
+        return null;
       }
-
-      const imagemParaDeletar = imagens.find(img => img.ID === imagemId);
-      if (!imagemParaDeletar) {
-        throw new Error("Imagem não encontrada para o portfólio informado.");
-      }
-
-      const filePath = path.normalize(path.join(__dirname, "..", "..", imagemParaDeletar.Endereco));
-      if (fs.existsSync(filePath)) {
-        fs.unlinkSync(filePath);
-      }
-      await prisma.imagem.delete({
-        where: { ID: imagemId },
-      });
-
-     return { success: true, message: "Imagem deletada com sucesso." };
+      return resultado;
     } catch (error) {
-      console.error("Erro ao deletar imagem:", error);
-      throw new Error("Falha ao deletar imagem do portfólio.");
+      console.error("Erro ao atualizar imagem:", error);
+      throw new Error("Falha ao atualizar imagem do portfólio.");
     }
   }
 }
