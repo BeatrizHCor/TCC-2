@@ -66,5 +66,18 @@ class PortfolioService {
       throw new Error("Erro ao buscar imagens por portfolio.");
     }
   }
+  static async getPortfolioByCabeleireiroId(cabeleireiroId: string) {
+    try {
+      const response = await api.get(`/portfolio/${cabeleireiroId}`);
+      return response.data;
+    } catch (error) {
+      if (axios.isAxiosError(error)) {
+        console.error("Erro completo:", error.response || error.message);
+      } else {
+        console.error("Erro desconhecido:", error);
+      }
+      throw new Error("Erro ao buscar portfólio por cabeleireiro.");
+    }
+  }
 }
 export default PortfolioService;

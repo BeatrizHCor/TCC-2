@@ -43,7 +43,7 @@ const App: React.FC = () => {
             element={<ManterServicoPage />}
           />
 
-          <Route path="/portfolio/:portfolioId" element={<PortfolioPage />} />
+          <Route path="/portfolio/:cabeleireiroId" element={<PortfolioPage />} />
           <Route path="/portfolio" element={<PortfolioCabeleireiro />} />
           <Route
             path="/cabeleireiros"

@@ -1,5 +1,6 @@
 import { Cabeleireiro } from "../models/cabelereiroModel";
 import "dotenv/config";
+import { Portfolio } from "../models/portifolioModel";
 
 const CabeleireiroURL = process.env.CABELEREIRO_URL || "http://localhost:4002";
 const VITE_IMAGEM_URL = process.env.VITE_IMAGEM_URL || "http://localhost:4000";
@@ -101,7 +102,7 @@ export const createPortfolio = async (
   Descricao: string,
   SalaoId: string,
 ) => {
-  let responsePortfolio = await fetch(CabeleireiroURL + "/portfolio", {
+  let responsePortfolio = await fetch(VITE_IMAGEM_URL + "/portfolio", {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
@@ -113,7 +114,7 @@ export const createPortfolio = async (
     }),
   });
   if (responsePortfolio.ok) {
-    return (await responsePortfolio.json()) as any;
+    return (await responsePortfolio.json()) as Portfolio;
   } else {
     throw new Error("Error in creating Portfolio");
   }
@@ -124,7 +125,7 @@ export const deletePortfolio = async (cabeleireiroId: string) => {
     method: "DELETE",
   });
   if (responsePortfolio.ok) {
-    return (await responsePortfolio.json()) as any;
+    return (await responsePortfolio.json()) as Portfolio;
   } else {
     throw new Error("Error in deleting Portfolio");
   }
