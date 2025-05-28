@@ -102,6 +102,20 @@ class PortfolioService {
     }
   static async deletePortfolio(id: string) {
         try {
+            const fotos = await prisma.imagem.findMany({
+            where: { PortfolioId: id },
+            });
+            for (const foto of fotos) {
+                try {
+                    const filePath = path.normalize(path.join(__dirname, "..", "..", foto.Endereco));
+                    if (fs.existsSync(filePath)) {
+                        fs.unlinkSync(filePath);
+                        console.log(`Arquivo deletado: ${filePath}`);
+                    }
+                } catch (err) {
+                    console.error(`Erro ao deletar arquivo ${foto.Endereco}:`, err);
+                }
+            }
             const portfolio = await prisma.portfolio.delete({
             where: { ID: id },
             });
