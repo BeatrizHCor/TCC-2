@@ -3,7 +3,6 @@ import prisma from "../config/database";
 import { getRangeByDataInputWithTimezone } from "../utils/CalculoPeriododeTempo";
 
 class AgendamentoService{
-
     static getAgendamentos = async (
         skip: number | null = null,
         limit: number | null = null,
@@ -50,6 +49,7 @@ class AgendamentoService{
         mes: number,
         ano: number
     ) => {
+        try{
         const skip = (page - 1) * limit;
 
         let where: Prisma.AgendamentosWhereInput = {};
@@ -63,7 +63,6 @@ class AgendamentoService{
                 lte: range.dataFinal,
             };
         }
-        
         const [total, agendamentos] = await Promise.all([
             prisma.agendamentos.count({ where: where }),
             AgendamentoService.getAgendamentos(
@@ -83,6 +82,10 @@ class AgendamentoService{
         limit,
         data: agendamentos,
         };
+            } catch (e) {
+            console.error(e);
+            throw new Error("Erro ao buscar agendamento");
+        }
     };
 
     static findById = async (ID: string, include = false) => {
@@ -102,8 +105,8 @@ class AgendamentoService{
                 : {}),
           });
         } catch (e) {
-          console.log(e);
-          return false;
+        console.error(e);
+        throw new Error("Erro ao buscar agendamento");
         }
       };
  
@@ -124,12 +127,40 @@ class AgendamentoService{
             CabeleireiroID: CabeleireiroID,                
         },
         });  
-        } catch(e){
-          console.log(e);
-          return null;
+        } catch(e) {
+        console.error(e);
+        throw new Error("Erro ao criar agendamento");
         }
     }
 
+    static async updateAgendamento(id: string, Data: Date, Status: StatusAgendamento, ClienteID: string, SalaoId: string, CabeleireiroID: string) {
+        try {
+            return await prisma.agendamentos.update({
+                where: { ID: id },
+                data: {
+                    Data: Data,
+                    Status: Status,
+                    ClienteID: ClienteID,
+                    SalaoId: SalaoId,
+                    CabeleireiroID: CabeleireiroID,
+                },
+            });            
+        } catch(e) {
+        console.error(e);
+        throw new Error("Erro ao atualizar agendamento");
+        }
+    }
+
+    static async deleteAgendamento(id: string) {
+        try {
+            return await prisma.agendamentos.delete({
+                where: { ID: id },
+            });
+        } catch (e) {
+            console.error(e);
+            throw new Error("Erro ao deletar agendamento");
+        }
+    }
 
 }
 

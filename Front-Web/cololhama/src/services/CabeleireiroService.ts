@@ -128,16 +128,16 @@ export const CabeleireiroService = {
     limit: number = 10,
     includeRelations: boolean = false,
     salaoId: string,
-    name?: string
+    nome?: string
   ): Promise<CabeleireiroPageResponse> {
-    try {
+    try {console.log("Enviando params:", { page, limit, includeRelations, salaoId, nome });
       const response = await api.get(`/cabeleireiro/page`, {
         params: {
           page,
           limit,
           includeRelations,
           salaoId,
-          name,
+          nome
         },
       });
 

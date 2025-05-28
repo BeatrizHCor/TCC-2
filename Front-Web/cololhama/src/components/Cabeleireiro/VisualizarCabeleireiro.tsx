@@ -135,12 +135,14 @@ export const VisualizarCabeleireiro: React.FC<
                     <TableCell>{cabeleireiro.Nome}</TableCell>
                     <TableCell>{cabeleireiro.Email}</TableCell>
                     <TableCell>{cabeleireiro.Telefone}</TableCell>
-                    <TableCell>{cabeleireiro.Mei}</TableCell>
+                    <TableCell>{cabeleireiro.MEI === undefined ? "Não informado" : cabeleireiro.MEI}</TableCell>
                     <TableCell>
                       <Button
+                        component={Link}
                         startIcon={<Image />}
                         variant="outlined"
                         size="small"
+                        to={`/portfolio/${cabeleireiro.ID}`}                       
                       >
                         Portifólio
                       </Button>

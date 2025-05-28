@@ -27,7 +27,7 @@ export const useVisualizarCabeleireiros = (
       setIsLoading(true);
       setError(null);
 
-      try { 
+      try { console.log("nome busca: ", termoBusca);
         const response = await CabeleireiroService.getCabeleireiroPage(
           page,
           limit,
@@ -42,7 +42,7 @@ export const useVisualizarCabeleireiros = (
             Nome: item?.Nome ?? "",
             Email: item?.Email ?? "",
             Telefone: item?.Telefone ?? "",
-            Mei: item?.MEI ?? "",
+            MEI: item?.Mei ?? "",
             SalaoId: item?.SalaoId ?? "",
           })
         );
@@ -57,7 +57,6 @@ export const useVisualizarCabeleireiros = (
         setIsLoading(false);
       }
     };
-    console.log("Buscando cabeleireiros com o nome:", termoBusca);
     buscarCabeleireiros();
   }, [page, limit, salaoId, termoBusca]);
     const handleEditarCabeleireiro = (cabeleireiroId: string) => {

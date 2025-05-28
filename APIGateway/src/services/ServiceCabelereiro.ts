@@ -24,14 +24,14 @@ export const getCabeleireiroPage = async (
   limit: number,
   includeRelations: boolean = false,
   salaoId?: number,
-  name?: string | null
+  nome?: string | null
 ) => {
   console.log(CabeleireiroURL);
   let responseCabeleireiros = await fetch(
     CabeleireiroURL +
       `/cabeleireiro/page?page=${page}&limit=${limit}&includeRelations=${includeRelations}` +
       `${salaoId ? "&salaoID=" + String(salaoId) : ""}` +
-      `${name ? "&name=" + String(name) : ""}`,
+      `${nome ? "&nome=" + String(nome) : ""}`,
     {
       method: "GET",
     }

@@ -45,7 +45,7 @@ RoutesCabeleireiro.post(
           Nome: Nome,
           Email: Email,
           Telefone: Telefone,
-          Mei: Mei,
+          MEI: Mei,
           SalaoId: SalaoId,
         });
         if (!cabeleireiro) {
