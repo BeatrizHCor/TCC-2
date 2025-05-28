@@ -41,18 +41,6 @@ export class ImagemController {
     }
   }
 
-  static async getByPortfolio(req: Request, res: Response): Promise<void> {
-    try {
-      const { PortfolioId } = req.params;
-      const imagens = await ImagemService.getImagensPorPortfolio(PortfolioId);
-
-      res.json(imagens);
-    } catch (error) {
-      console.error("Erro ao buscar imagens por portfolio:", error);
-      res.status(500).json({ error: "Erro interno ao buscar imagens." });
-    }
-  }
-
   static async deleteImagem(req: Request, res: Response): Promise<void> {
     try {
       const { PortfolioId, imagemId } = req.params;

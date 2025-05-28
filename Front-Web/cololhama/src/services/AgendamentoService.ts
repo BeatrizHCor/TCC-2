@@ -18,6 +18,7 @@ interface AgendamentoPaginadoResponse {
   data: Agendamentos[];
 }
 
+
 class AgendamentoService {
   static async getAgendamentosPaginados(
     page: number = 1,
@@ -47,6 +48,28 @@ class AgendamentoService {
       throw error;
     }
   }
+  static async createAgendamento(
+    Data: Date,
+    ClienteID: string,
+    SalaoId: string,
+    CabeleireiroID: string
+  ): Promise<Agendamentos> {
+    try {
+      const response = await api.post(`/agendamento`, {
+        Data,
+        ClienteID,
+        SalaoId,
+        CabeleireiroID
+      });
+      return response.data;
+    } catch (error) {
+      console.error("Erro ao criar agendamento:", error);
+      throw error;
+    }
+  }
+
+
+
 }
 
 export default AgendamentoService;

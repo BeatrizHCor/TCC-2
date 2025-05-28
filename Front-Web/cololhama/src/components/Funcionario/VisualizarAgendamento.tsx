@@ -116,14 +116,13 @@ const VisualizarAgendamento: React.FC = () => {
     return (
       <LocalizationProvider dateAdapter={AdapterDateFns} adapterLocale={ptBR}>
         <Box sx={{ p: 3, maxWidth: 1200, mx: 'auto' }}>
-          <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 3 }}>
-            <Typography variant="h4" component="h1">
+            <Typography variant="h4" component="h1" margin={2}>
               Agendamentos
             </Typography>
-            
+          <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', mb: 2 }}>
             <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
               <DatePicker
-                label="Filtrar por data"
+                label="Filtrar por dia"
                 value={dataFiltro}
                 onChange={(novaData) => {
                   setDataFiltro(novaData);
@@ -131,7 +130,26 @@ const VisualizarAgendamento: React.FC = () => {
                 }}
                 slotProps={{ textField: { size: 'small' } }}
               />
-              
+              <DatePicker
+                label="Filtrar por mês"
+                value={dataFiltro}
+                views={['year', 'month']}
+                onChange={(novaData) => {
+                  setDataFiltro(novaData);
+                  setPage(0); 
+                }}
+                slotProps={{ textField: { size: 'small' } }}
+              />
+              <DatePicker
+                label="Filtrar por ano"
+                views={['year']}
+                value={dataFiltro}
+                onChange={(novaData) => {
+                  setDataFiltro(novaData);
+                  setPage(0); 
+                }}
+                slotProps={{ textField: { size: 'small' } }}
+              />                                          
               <FormControlLabel
                 control={
                   <Switch 

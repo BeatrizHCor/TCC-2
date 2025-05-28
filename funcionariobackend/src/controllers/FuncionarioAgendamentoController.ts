@@ -89,7 +89,19 @@ class AgendamentoController{
     }
   };
 
-
-
+  static deleteAgendamento = async (req: Request, res: Response) => {
+    try {
+      const { id } = req.params;
+      const agendamento = await AgendamentoService.deleteAgendamento(id);
+      if (!agendamento) {
+        res.status(404).json({ message: "Agendamento não encontrado" });
+      } else {
+        res.json({ message: "Agendamento deletado com sucesso" });
+      }
+    } catch (e) {
+      console.log(e);
+      res.status(500).json({ message: "Erro ao deletar o agendamento" });
+    }
+  };
 }
 export default AgendamentoController;

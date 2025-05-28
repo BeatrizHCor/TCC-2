@@ -43,37 +43,6 @@ export class ImagemService {
     }
   }
 
-  static async getImagensPorPortfolio(portfolioId: string) {
-    try {
-
-      let fotos = await prisma.imagem.findMany({
-        where: { PortfolioId: portfolioId },
-      });
-
-      const fotosComConteudo = fotos.map((foto: { Endereco: string; }) => {
-        try {
-          const filePath = path.normalize(path.join(__dirname, "..", "..", foto.Endereco));
-          if (fs.existsSync(filePath)) {
-            const fileStat = fs.statSync(filePath);
-            const fileSizeInBytes = fileStat.size;
-            const fileSizeInMB = fileSizeInBytes / (1024 * 1024);
-            const fileContent = fs.readFileSync(filePath, { encoding: "base64" });
-            return { ...foto, fileSize: fileSizeInMB, fileContent };
-          }
-
-          return { ...foto, fileSize: null, fileContent: null };
-        } catch (err) {
-          console.error(`Erro ao processar arquivo ${foto.Endereco}:`, err);
-          return { ...foto, fileSize: null, fileContent: null };
-        }
-      });
-  
-      return fotosComConteudo;
-    } catch (error) {
-      console.error("Erro ao buscar imagens do portfólio:", error);
-      throw new Error("Falha ao recuperar imagens do portfólio");
-    }
-  }
 
   static async deleteImagemByIdPortfolio(portfolioId: string, imagemId: string) {
       try {

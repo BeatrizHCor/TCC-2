@@ -19,7 +19,7 @@ export const useVisualizarAgendamentos = (
     
     setLoading(true);
     try {
-    
+      console.log("datas: ", dataFiltro);
       const ano = dataFiltro !== null ? dataFiltro.getFullYear() : undefined;
       const mes = dataFiltro !== null ? dataFiltro.getMonth() + 1 : undefined;
       const dia = dataFiltro !== null ? dataFiltro.getDate() : undefined;
