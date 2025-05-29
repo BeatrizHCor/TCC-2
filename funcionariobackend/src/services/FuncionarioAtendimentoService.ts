@@ -1,6 +1,6 @@
 import { Prisma } from "@prisma/client";
 import prisma from "../config/database";
-import { getRangeByDataInputWithTimezone } from "../utils/CalculoPeriododeTempo";
+import { getRangeByDataInputWithTimezone, getRangeByStringInputWithTimezone } from "../utils/CalculoPeriododeTempo";
 interface AtendimentoInput {
   data: Date;
   precoTotal: number;
@@ -26,7 +26,7 @@ class AtendimentoService {
       where.SalaoId = salaoId;
     }
     console.log("Valores d,m,a: ", data)
-    const range = getRangeByDataInputWithTimezone(data);
+    const range = getRangeByStringInputWithTimezone(data);
     if (range !== null) {
             where.Data = {
             gte: range.dataInicial,
@@ -86,7 +86,6 @@ class AtendimentoService {
       ...(includeRelations
         ? {
             include: {
-              Funcionario: true,
               Salao: true,
               AtendimentoAuxiliar: {
                 include: { Auxiliar: true },
@@ -112,7 +111,7 @@ class AtendimentoService {
   ) {
     const skip = (page - 1) * limit;
     const where: Prisma.AtendimentoWhereInput = {};
-    const range = getRangeByDataInputWithTimezone(data);
+    const range = getRangeByStringInputWithTimezone(data);
     if (salaoId !== null) {
       where.SalaoId = salaoId;
     }
@@ -195,7 +194,6 @@ class AtendimentoService {
       ...(includeRelations
         ? {
             include: {
-              Funcionario: true,
               Salao: true,
               AtendimentoAuxiliar: {
                 include: { Auxiliar: true },
@@ -224,7 +222,6 @@ class AtendimentoService {
         data: {
         Data: dataAtendimento,
         PrecoTotal: precoTotal,
-        FuncionarioID: funcionarioId ?? null,
         SalaoId: salaoId,
         Auxiliar: !!funcionarioId,
         Agendamentos: {
@@ -244,7 +241,6 @@ class AtendimentoService {
             AtendimentoAuxiliar: {
             create: {
                 AuxiliarID: funcionarioId,
-                SalaoId: salaoId,
             },
             },
         }),
@@ -273,7 +269,6 @@ class AtendimentoService {
         where: { ID: id },
         data: {
         Data: dataAtendimento,
-        FuncionarioID: funcionarioId,
         SalaoId: salaoId,
         PrecoTotal: precoTotal,
         Agendamentos: {
@@ -287,29 +282,13 @@ class AtendimentoService {
                 connect: { ID: s.servicoId },
             },
             })),
-        },
-        AtendimentoAuxiliar: funcionarioId
-            ? {
-                upsert: {
-                create: {
-                    AuxiliarID: funcionarioId,
-                    SalaoId: salaoId,
-                },
-                update: {
-                    AuxiliarID: funcionarioId,
-                    SalaoId: salaoId,
-                },
-                },
-            }
-            : {
-                delete: true,
-            },
-        },
-        include: {
+        }
+      },
+      include: {
         ServicoAtendimento: true,
         AtendimentoAuxiliar: true,
         Agendamentos: true,
-        },
+      }
     });
     return atendimento;
     } catch (error) {
