@@ -36,9 +36,12 @@ const VisualizarAgendamento: React.FC = () => {
   const [modoCalendario, setModoCalendario] = useState<boolean>(false);
   const [agendamentoSelecionado, setAgendamentoSelecionado] = useState<Agendamentos | null>(null);
   const [modalAberto, setModalAberto] = useState<boolean>(false);
-  const [dataFiltro, setDataFiltro] = useState<Date | null>(null);
   const [page, setPage] = useState(0);
   const [rowsPerPage, setRowsPerPage] = useState(10);
+  const [diaFilter, setDiaFilter] = useState<number>(0);
+  const [mesFilter, setMesFilter] = useState<number>(0);
+  const [anoFilter, setAnoFilter] = useState<number>(0);
+  const [dataFilter, setDataFilter] = useState<Date | null>(null);
   const getStatusColor = (status: StatusAgendamento): string => {
     switch (status) {
       case StatusAgendamento.Agendado:
@@ -58,7 +61,7 @@ const VisualizarAgendamento: React.FC = () => {
     agendamentos, 
     loading, 
     totalAgendamentos,
-  } = useVisualizarAgendamentos(page + 1, rowsPerPage, SalaoId, dataFiltro);
+  } = useVisualizarAgendamentos(page + 1, rowsPerPage, SalaoId, diaFilter, mesFilter, anoFilter);
 
 
   const eventosCalendario = useMemo(() => {
@@ -123,19 +126,24 @@ const VisualizarAgendamento: React.FC = () => {
             <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
               <DatePicker
                 label="Filtrar por dia"
-                value={dataFiltro}
+                value={dataFilter}
                 onChange={(novaData) => {
-                  setDataFiltro(novaData);
+                  setDataFilter(novaData);
+                  setAnoFilter(novaData?.getFullYear() || 0);
+                  setMesFilter(novaData?.getMonth() || 0);
+                  setDiaFilter(novaData?.getDate() || 0);
                   setPage(0); 
                 }}
                 slotProps={{ textField: { size: 'small' } }}
               />
               <DatePicker
                 label="Filtrar por mês"
-                value={dataFiltro}
+                value={dataFilter}
                 views={['year', 'month']}
                 onChange={(novaData) => {
-                  setDataFiltro(novaData);
+                  setDataFilter(novaData);
+                  setAnoFilter(novaData?.getFullYear() || 0);
+                  setMesFilter(novaData?.getMonth() || 0);
                   setPage(0); 
                 }}
                 slotProps={{ textField: { size: 'small' } }}
@@ -143,9 +151,10 @@ const VisualizarAgendamento: React.FC = () => {
               <DatePicker
                 label="Filtrar por ano"
                 views={['year']}
-                value={dataFiltro}
+                value={dataFilter}
                 onChange={(novaData) => {
-                  setDataFiltro(novaData);
+                  setDataFilter(novaData);
+                  setAnoFilter(novaData?.getFullYear() || 0);
                   setPage(0); 
                 }}
                 slotProps={{ textField: { size: 'small' } }}
@@ -172,6 +181,9 @@ const VisualizarAgendamento: React.FC = () => {
               {modoCalendario ? (
                 <Box sx={{ height: 600 }}>
                   <FullCalendar
+                    themeSystem='material'
+                    dayMaxEventRows={true}
+                    fixedWeekCount={false} 
                     plugins={[dayGridPlugin]}
                     initialView="dayGridMonth"
                     events={eventosCalendario}
@@ -238,19 +250,20 @@ const VisualizarAgendamento: React.FC = () => {
                 )}
               </List>
               )}
-              <TablePagination
-                rowsPerPageOptions={[5, 10, 25]}
-                component="div"
-                count={totalAgendamentos}
-                rowsPerPage={rowsPerPage}
-                page={page}
-                onPageChange={handleChangePage}
-                onRowsPerPageChange={handleChangeRowsPerPage}
-                labelRowsPerPage="Itens por página:"
-                labelDisplayedRows={({ from, to, count }) =>
-                `${from}-${to} de ${count !== -1 ? count : `mais de ${to}`}`
-              }
-            />
+              {modoCalendario ? null : (
+                <TablePagination
+                  rowsPerPageOptions={[5, 10, 25]}
+                  component="div"
+                  count={totalAgendamentos}
+                  rowsPerPage={rowsPerPage}
+                  page={page}
+                  onPageChange={handleChangePage}
+                  onRowsPerPageChange={handleChangeRowsPerPage}
+                  labelRowsPerPage="Itens por página:"
+                  labelDisplayedRows={({ from, to, count }) =>
+                  `${from}-${to} de ${count !== -1 ? count : `mais de ${to}`}`
+                  }
+            />)}
             </Paper>
           )}
           <Dialog open={modalAberto} onClose={handleFecharModal} maxWidth="sm" fullWidth>

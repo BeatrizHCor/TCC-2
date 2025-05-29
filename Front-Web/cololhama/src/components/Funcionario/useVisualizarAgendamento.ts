@@ -1,52 +1,58 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import AgendamentoService from '../../services/AgendamentoService';
 import { Agendamentos } from '../../models/agendamentoModel';
 
 export const useVisualizarAgendamentos = (
   page: number = 1,
   limit: number = 10,
-  salaoId: string, 
-  dataFiltro: Date | null
+  salaoId: string,
+  dia?: number,
+  mes?: number,
+  ano?: number
 ) => {
   const [agendamentos, setAgendamentos] = useState<Agendamentos[]>([]);
   const [loading, setLoading] = useState<boolean>(false);
   const [totalAgendamentos, setTotalAgendamentos] = useState<number>(0);
   const [limitePorPagina, setLimitePorPagina] = useState<number>(10);
+  const debounceTimeout = useRef<NodeJS.Timeout | null>(null);
 
- 
   const carregarAgendamentos = async () => {
     if (!salaoId) return;
-    
+
     setLoading(true);
     try {
-      console.log("datas: ", dataFiltro);
-      const ano = dataFiltro !== null ? dataFiltro.getFullYear() : undefined;
-      const mes = dataFiltro !== null ? dataFiltro.getMonth() + 1 : undefined;
-      const dia = dataFiltro !== null ? dataFiltro.getDate() : undefined;
-      console.log("Valores de d,m,a: ", dia, mes,ano);
+      const diaValido = dia !== undefined && dia >= 1 && dia <= 31 ? dia : 0;
+      const mesValido = mes !== undefined && mes >= 1 && mes <= 12 ? mes + 1 : 0;
+      const anoValido = ano !== undefined && ano >= 1900 ? ano : 0;
+      console.log("Valores de d,m,a: ", diaValido, mesValido, anoValido);
       const resultado = await AgendamentoService.getAgendamentosPaginados(
         page,
         limit,
         salaoId,
-        ano,
-        mes,
-        dia,
+        anoValido,
+        mesValido,
+        diaValido,
         true,
       );
-      console.log(resultado.data);
       setAgendamentos(resultado.data);
       setTotalAgendamentos(resultado.total);
     } catch (error) {
       console.error('Erro ao carregar agendamentos:', error);
-
     } finally {
       setLoading(false);
     }
   };
 
   useEffect(() => {
-    carregarAgendamentos();
-  }, [page, limit, salaoId, dataFiltro]);
+    if (debounceTimeout.current) clearTimeout(debounceTimeout.current);
+    debounceTimeout.current = setTimeout(() => {
+      carregarAgendamentos();
+    }, 500); 
+
+    return () => {
+      if (debounceTimeout.current) clearTimeout(debounceTimeout.current);
+    };
+  }, [page, limit, salaoId, dia, mes, ano]);
 
   return {
     agendamentos,
