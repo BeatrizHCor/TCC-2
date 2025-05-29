@@ -47,9 +47,9 @@ export const useVisualizarAtendimentos = (
       setError(null);
 
       try {
-        let response;
+        let response; console.log("userType", userType);
         if (userType === userTypes.ADM_SALAO || userType === userTypes.ADM_SISTEMA || userType === userTypes.FUNCIONARIO) {
-          response = await AtendimentoService.getAtendimentosPage(
+          response = await AtendimentoService.getAtendimentosPageFuncionario(
             page,
             limit,
             clienteFilter,
@@ -58,7 +58,7 @@ export const useVisualizarAtendimentos = (
             salaoId
           );
         } else if (userType === userTypes.CABELEIREIRO) {
-          response = await AtendimentoService.getAtendimentosByCabeleireiro(
+          response = await AtendimentoService.getAtendimentosPageCabeleireiro(
             page,
             limit,
             clienteFilter,
@@ -67,7 +67,7 @@ export const useVisualizarAtendimentos = (
             salaoId
           );
         } else if (userType === userTypes.CLIENTE) {
-          response = await AtendimentoService.getAtendimentosByCliente(
+          response = await AtendimentoService.getAtendimentosPageCliente(
             page,
             limit,
             cabelereiroFilter,
@@ -79,10 +79,6 @@ export const useVisualizarAtendimentos = (
           setForbidden(true);
           return;
         }
-
-        if (typeof response === "boolean" || response?.status === 403) {
-          return setForbidden(true);
-        } else {
         const listaAtendimentos: AtendimentoExibicao[] = (response.data || []).map(
           (item: any) => ({
             ID: item.ID ?? "",
@@ -96,7 +92,7 @@ export const useVisualizarAtendimentos = (
         );
         setAtendimentos(listaAtendimentos);
         setTotalAtendimentos(response.total);
-        }
+        
       } catch (err: any) {
         if (err?.response?.status === 403) {
           setForbidden(true);

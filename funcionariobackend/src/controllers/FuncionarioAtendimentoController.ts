@@ -1,5 +1,6 @@
 import { Request, Response } from "express";
 import AtendimentoService from "../services/FuncionarioAtendimentoService";
+import AgendamentoService from "../services/FuncionarioAgendamentoService";
 
 class AtendimentoController {
     static async getAtendimentosPage(req: Request, res: Response) {
@@ -9,8 +10,8 @@ class AtendimentoController {
                 limit = 10,
                 includeRelations = false,
                 SalaoId = null,
-                nomeCliente = null,
-                nomeCabeleireiro = null,
+                cliente = null,
+                cabeleireiro = null,
                 data = null,
             } = req.query;
 
@@ -19,21 +20,34 @@ class AtendimentoController {
                 Number(limit),
                 includeRelations === "true",
                 SalaoId ? String(SalaoId) : null,
-                nomeCliente ? String(nomeCliente) : null,
-                nomeCabeleireiro ? String(nomeCabeleireiro) : null,
+                cliente ? String(cliente) : null,
+                cabeleireiro ? String(cabeleireiro) : null,
                 data ? String(data) : null,
             );
-
+            console.log("Atendimentos controller:", Atendimentos);
             res.json(Atendimentos);
         } catch (error) {
             console.error(error);
             res.status(500).json({ message: "Erro ao buscar atendimentos" });
         }
     }
+
     static async createAtendimento(req: Request, res: Response) {
         try {
-            let Data = req.body.Data;
-            const atendimento = await AtendimentoService.createAtendimento(Data);
+            const { Data, PrecoTotal, Auxiliar, SalaoId, servicosAtendimento = [], auxiliares = [], AgendamentoID } = req.body;
+            const atendimento = await AtendimentoService.createAtendimento(
+                Data,
+                PrecoTotal,
+                Auxiliar,
+                SalaoId,
+                servicosAtendimento,
+                auxiliares
+            );
+
+            if (AgendamentoID && atendimento && atendimento.ID) {
+                await AgendamentoService.updateAdicionarAtendimento(AgendamentoID, atendimento.ID);
+            }
+
             res.status(201).json(atendimento);
         } catch (error) {
             console.error(error);
@@ -48,6 +62,7 @@ class AtendimentoController {
             const atendimento = await AtendimentoService.findById(id, includeRelations);
             if (!atendimento) {
                 res.status(204).json({ message: "Atendimento não encontrado" });
+                return;
             }
             res.json(atendimento);
         } catch (error) {
@@ -59,7 +74,16 @@ class AtendimentoController {
     static async updateAtendimento(req: Request, res: Response) {
         try {
             const { id } = req.params;
-            const atendimento = await AtendimentoService.updateAtendimento(id, req.body);
+            const { Data, PrecoTotal, Auxiliar, SalaoId, servicosAtendimento = [], auxiliares = [] } = req.body;
+            const atendimento = await AtendimentoService.updateAtendimento(
+                id,
+                Data,
+                PrecoTotal,
+                Auxiliar,
+                SalaoId,
+                servicosAtendimento,
+                auxiliares
+            );
             res.json(atendimento);
         } catch (error) {
             console.error(error);
@@ -77,8 +101,6 @@ class AtendimentoController {
             res.status(500).json({ message: "Erro ao deletar atendimento" });
         }
     }
-
 }
-
 
 export default AtendimentoController;

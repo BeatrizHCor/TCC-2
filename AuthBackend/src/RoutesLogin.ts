@@ -17,6 +17,7 @@ RoutesLogin.post("/register", (req: Request, res: Response) => {
   console.log("Password recebido:", Password);
   if (typeof Password !== "string" || Password.trim() === "") {
     res.status(400).json({ message: "Password inválido" });
+    return; 
   }
   registerLogin(userID, Email, Password, SalaoId, userType)
     .then((r) => {

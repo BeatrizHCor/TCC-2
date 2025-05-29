@@ -161,6 +161,21 @@ class AgendamentoService{
             throw new Error("Erro ao deletar agendamento");
         }
     }
+    static async updateAdicionarAtendimento(agendamentoId: string, atendimentoId: string) {
+        try {
+            return await prisma.agendamentos.update({
+                where: { ID: agendamentoId },
+                data: {
+                    Atendimento: {
+                        connect: { ID: atendimentoId }
+                    }
+                },
+            });
+        } catch (e) {
+            console.error(e);
+            throw new Error("Erro ao adicionar atendimento ao agendamento");
+        }
+    }
 
 }
 

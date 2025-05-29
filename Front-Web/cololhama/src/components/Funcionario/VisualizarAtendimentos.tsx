@@ -60,9 +60,7 @@ export const VisualizarAtendimentos: React.FC = () => {
   const [anoFilter, setAnoFilter] = useState("");
   const [mesFilter, setMesFilter] = useState("");
   const [diaFilter, setDiaFilter] = useState("");
-
   const userId = localStorage.getItem("userId") || "";
-  const isAdmin = userType === userTypes.ADM_SALAO || userType === userTypes.ADM_SISTEMA || userType === userTypes.FUNCIONARIO;
   const isCliente = userType === userTypes.CLIENTE;
   const isCabeleireiro = userType === userTypes.CABELEIREIRO;
 
@@ -293,19 +291,6 @@ export const VisualizarAtendimentos: React.FC = () => {
           <Button variant="outlined" onClick={limparFiltros}>
             Limpar Filtros
           </Button>
-          {isAdmin && (
-            <Button
-              component={Link}
-              variant="outlined"
-              to="/atendimento/novo"
-              sx={{
-                color: theme.palette.primary.main,
-                borderColor: theme.palette.primary.main,
-              }}
-            >
-              Adicionar Atendimento
-            </Button>
-          )}
         </Box>
       </Paper>
 

@@ -20,6 +20,7 @@ import ManterFuncionarioPage from "./pages/AdmSalao/ManterFuncionario";
 import ManterServicoPage from "./pages/Funcionario/ManterServicoPage";
 import VisualizarAgendamentoPage from "./pages/Funcionario/VisulaizarAgendamentoPage";
 import { AuthContextProvider } from "./contexts/AuthContext";
+import VisualizarAtendimentoPage from "./pages/Funcionario/VisualizarAtendimento";
 
 const App: React.FC = () => {
   return (
@@ -66,6 +67,8 @@ const App: React.FC = () => {
           />
 
           <Route path="/agendamentos" element={<VisualizarAgendamentoPage />} />
+
+          <Route path="/atendimentos" element={<VisualizarAtendimentoPage/>}/>
         </Routes>
       </ThemeProvider>
     </AuthContextProvider>

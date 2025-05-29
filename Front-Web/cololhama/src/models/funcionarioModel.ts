@@ -1,6 +1,6 @@
 import { AtendimentoAuxiliar } from "./atendimentoAuxiliarModel";
-import { Atendimento } from "./atendimentoModal";
 import { Holerite } from "./holeriteModel";
+import { Salao } from "./salaoModel";
 
 export interface Funcionario {
     ID?: string;
@@ -8,10 +8,10 @@ export interface Funcionario {
     Nome: string;
     Email: string;
     Telefone: string;
-    SalaoId: string; 
+    Salao?: Salao;
+    SalaoId: string;
     Auxiliar: boolean;
     Salario?: number;
-    atendimentos?: Atendimento[];
     AtendimentoAuxiliar?: AtendimentoAuxiliar[];
     Holerite?: Holerite[];
     DataCadastro?: Date;
