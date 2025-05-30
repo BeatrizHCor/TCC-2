@@ -128,10 +128,11 @@ enum StatusPagamento {
 }
 
 model AtendimentoAuxiliar {
-  Atendimento   Atendimento @relation(fields: [AtendimentoId], references: [ID])
-  AtendimentoId String      @unique
+  Atendimento   Atendimento @relation(fields: [AtendimentoId], references: [ID], onDelete: Cascade)
+  AtendimentoId String
   AuxiliarID    String
   Auxiliar      Funcionario @relation(fields: [AuxiliarID], references: [ID])
+  @@unique([AtendimentoId, AuxiliarID])
 }
 
 model Atendimento {
@@ -204,7 +205,7 @@ model ServicoAtendimento {
   ID            String      @id @default(uuid())
   PrecoItem     Float
   AtendimentoId String
-  Atendimento   Atendimento @relation(fields: [AtendimentoId], references: [ID])
+  Atendimento   Atendimento @relation(fields: [AtendimentoId], references: [ID], onDelete: Cascade)
   ServicoId     String
   Servico       Servico     @relation(fields: [ServicoId], references: [ID])
 }

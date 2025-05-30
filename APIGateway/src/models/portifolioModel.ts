@@ -4,8 +4,8 @@ import { Imagem } from "./imagemModel";
 export interface Portfolio {
     ID?: string;
     CabeleireiroID: string; 
-    Cabeleireiro: Cabeleireiro;
-    SaloId: string;
+    Cabeleireiro?: Cabeleireiro;
+    SalaoId: string;
     Descricao: string;
     Imagem: Imagem[];
   }

@@ -2,9 +2,8 @@ import { Atendimento } from "./atendimentoModal";
 import { Funcionario } from "./funcionarioModel";
 
 export interface AtendimentoAuxiliar {
-    Atendimento: Atendimento; 
+    Atendimento?: Atendimento; 
     AtendimentoId: string; 
     AuxiliarID: string;
-    SalaoId: string;
-    Auxiliar: Funcionario;
+    Auxiliar?: Funcionario;
   }

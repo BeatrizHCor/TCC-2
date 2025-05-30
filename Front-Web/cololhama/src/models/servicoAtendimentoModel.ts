@@ -7,5 +7,5 @@ export interface ServicoAtendimento {
     AtendimentoId: string;
     Atendimento?: Atendimento;
     ServicoId: string;
-    Servico: Servico;
+    Servico?: Servico;
   }

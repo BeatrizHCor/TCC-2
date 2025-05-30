@@ -27,7 +27,7 @@ export const useVisualizarCabeleireiros = (
       setIsLoading(true);
       setError(null);
 
-      try { console.log("nome busca: ", termoBusca);
+      try {
         const response = await CabeleireiroService.getCabeleireiroPage(
           page,
           limit,

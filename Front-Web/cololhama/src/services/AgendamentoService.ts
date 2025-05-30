@@ -1,5 +1,6 @@
 import axios from "axios";
 import { Agendamentos } from "../models/agendamentoModel";
+import { StatusAgendamento } from "../models/StatusAgendamento.enum";
 
 const token = localStorage.getItem("usuario");
 const api = axios.create({
@@ -20,6 +21,9 @@ interface AgendamentoPaginadoResponse {
 
 
 class AgendamentoService {
+  static deletarAgendamento(id: string) {
+      throw new Error("Method not implemented.");
+  }
   static async getAgendamentosPaginados(
     page: number = 1,
     limit: number = 10,
@@ -68,8 +72,27 @@ class AgendamentoService {
     }
   }
 
-
-
+  static async updateAgendamento(
+    id: string,
+    Data: Date,
+    Status: StatusAgendamento,
+    ClienteID: string,
+    CabeleireiroID: string
+  ): Promise<Agendamentos> {
+    try {
+      const response = await api.put(`/agendamento/${id}`,
+      {
+        Data: Data,
+        Status: Status,
+        ClienteID,
+        CabeleireiroID
+      });
+      return response.data;
+    } catch (error) {
+      console.error("Erro ao atualizar agendamento:", error);
+      throw error;
+    }
+  }
 }
 
 export default AgendamentoService;

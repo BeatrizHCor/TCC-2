@@ -1,4 +1,4 @@
-import { Prisma } from "@prisma/client";
+import { AtendimentoAuxiliar, Prisma, ServicoAtendimento } from "@prisma/client";
 import prisma from "../config/database";
 import { getRangeByDataInputWithTimezone, getRangeByStringInputWithTimezone } from "../utils/CalculoPeriododeTempo";
 interface AtendimentoInput {
@@ -12,8 +12,8 @@ interface AtendimentoInput {
 
 class AtendimentoService {
   static async getAtendimentos(
-    skip: number | null = null,
-    limit: number | null = null,
+    skip: number,
+    limit: number,
     includeRelations = false,
     salaoId: string | null = null,
     nomeCliente: string | null = null,
@@ -86,12 +86,15 @@ class AtendimentoService {
       ...(includeRelations
         ? {
             include: {
-              Salao: true,
+              Salao: false,
               AtendimentoAuxiliar: {
                 include: { Auxiliar: true },
               },
               Agendamentos: {
-                include: { Cliente: true },
+                include: {
+                  Cliente: true,
+                  Cabeleireiro: true
+                }
               },
               ServicoAtendimento: true,
             },
@@ -107,7 +110,7 @@ class AtendimentoService {
     salaoId: string | null = null,
     nomeCliente: string | null = null,
     nomeCabeleireiro: string | null = null,
-  data: string | null = null,
+    data: string | null = null,
   ) {
     const skip = (page - 1) * limit;
     const where: Prisma.AtendimentoWhereInput = {};
@@ -208,95 +211,104 @@ class AtendimentoService {
     });
   }
 
-    static async createAtendimento(data: AtendimentoInput) {
-    const {
-        data: dataAtendimento,
-        precoTotal,
-        funcionarioId,
-        salaoId,
-        agendamentoId,
-        servicos,
-    } = data;
-
-    const atendimento = await prisma.atendimento.create({
-        data: {
-        Data: dataAtendimento,
-        PrecoTotal: precoTotal,
-        SalaoId: salaoId,
-        Auxiliar: !!funcionarioId,
-        Agendamentos: {
-            connect: {
-            ID: agendamentoId,
-            },
-        },
-        ServicoAtendimento: {
-            create: servicos.map((s) => ({
-            PrecoItem: s.precoItem,
-            Servico: {
-                connect: { ID: s.servicoId },
-            },
-            })),
-        },
-        ...(funcionarioId && {
-            AtendimentoAuxiliar: {
-            create: {
-                AuxiliarID: funcionarioId,
-            },
-            },
-        }),
-        },
-        include: {
-        ServicoAtendimento: true,
-        AtendimentoAuxiliar: true,
-        Agendamentos: true,
-        },
-    });
-
-    return atendimento;
-    }
-
-  static async updateAtendimento(id: string, data: AtendimentoInput) {
-    const {
-        data: dataAtendimento,
-        precoTotal,
-        funcionarioId,
-        salaoId,
-        agendamentoId,
-        servicos,
-    } = data;
-    try{
-    const atendimento = await prisma.atendimento.update({
-        where: { ID: id },
-        data: {
-        Data: dataAtendimento,
-        SalaoId: salaoId,
-        PrecoTotal: precoTotal,
-        Agendamentos: {
-            set: { ID: agendamentoId },
-        },
-        ServicoAtendimento: {
-            deleteMany: {},
-            create: servicos.map((s) => ({
-            PrecoItem: s.precoItem,
-            Servico: {
-                connect: { ID: s.servicoId },
-            },
-            })),
+static createAtendimento = async (
+    Data: Date,
+    PrecoTotal: number,
+    Auxiliar: boolean,
+    SalaoId: string,
+    servicosAtendimento: ServicoAtendimento[],
+    auxiliares: AtendimentoAuxiliar[] = []
+  ) => {
+    try {
+      return await prisma.$transaction(async (tx) => {
+        const atendimento = await tx.atendimento.create({
+          data: {
+            Data,
+            PrecoTotal,
+            Auxiliar,
+            SalaoId,
+          },
+        });
+        if (servicosAtendimento.length > 0) {
+          await tx.servicoAtendimento.createMany({
+            data: servicosAtendimento.map(servico => ({
+              AtendimentoId: atendimento.ID,
+              ServicoId: servico.ServicoId,
+              PrecoItem: servico.PrecoItem,
+            }))
+          });
         }
-      },
-      include: {
-        ServicoAtendimento: true,
-        AtendimentoAuxiliar: true,
-        Agendamentos: true,
-      }
-    });
-    return atendimento;
-    } catch (error) {
-        console.error("Erro ao atualizar atendimento:", error);
-        throw new Error("Não foi possível atualizar o atendimento");
-    }
-  }
+        if (auxiliares.length > 0) {
+          await tx.atendimentoAuxiliar.createMany({
+            data: auxiliares.map(aux => ({
+              AtendimentoId: atendimento.ID,
+              AuxiliarID: aux.AuxiliarID,
+            }))
+          });
+        }
 
+        return atendimento;
+      });
+    } catch (e) {
+      console.error(e);
+      throw new Error("Erro ao criar atendimento");
+    }
+  };
+
+  static updateAtendimento = async (
+    id: string,
+    Data: Date,
+    PrecoTotal: number,
+    Auxiliar: boolean,
+    SalaoId: string,
+    servicosAtendimento: ServicoAtendimento[],
+    auxiliares: AtendimentoAuxiliar[] = []
+  ) => {
+    try {
+      return await prisma.$transaction(async (tx) => {
+        const atendimento = await tx.atendimento.update({
+          where: { ID: id },
+          data: {
+            Data,
+            PrecoTotal,
+            Auxiliar,
+            SalaoId,
+          },
+        });
+
+        await tx.servicoAtendimento.deleteMany({
+          where: { AtendimentoId: id }
+        });
+
+        if (servicosAtendimento.length > 0) {
+          await tx.servicoAtendimento.createMany({
+            data: servicosAtendimento.map(servico => ({
+              AtendimentoId: id,
+              ServicoId: servico.ServicoId,
+              PrecoItem: servico.PrecoItem,
+            }))
+          });
+        }
+        await tx.atendimentoAuxiliar.deleteMany({
+          where: { AtendimentoId: id }
+        });
+
+        if (auxiliares.length > 0) {
+          await tx.atendimentoAuxiliar.createMany({
+            data: auxiliares.map(aux => ({
+              AtendimentoId: id,
+              AuxiliarID: aux.AuxiliarID,
+            }))
+          });
+        }
+
+        return atendimento;
+      });
+    } catch (e) {
+      console.error(e);
+      throw new Error("Erro ao atualizar atendimento");
+    }
+  };
     static async deleteAtendimento(id: string) {
         try {
             if (!id) {

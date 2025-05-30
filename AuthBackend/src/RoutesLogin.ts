@@ -17,6 +17,7 @@ RoutesLogin.post("/register", (req: Request, res: Response) => {
   console.log("Password recebido:", Password);
   if (typeof Password !== "string" || Password.trim() === "") {
     res.status(400).json({ message: "Password inválido" });
+    return; 
   }
   registerLogin(userID, Email, Password, SalaoId, userType)
     .then((r) => {
@@ -39,7 +40,7 @@ RoutesLogin.post("/login", async (req: Request, res: Response) => {
   console.log(req.body);
   let token = await verifyPasswordAndReturnToken(Email, password, SalaoID);
   if (token) {
-    res.send(token).status(200);
+    res.status(200).send(token);
   } else {
     res.status(401).send();
   }
@@ -49,7 +50,7 @@ RoutesLogin.post("/authenticate", async (req: Request, res: Response) => {
   let { userID, token, userType } = req.body;
   let newToken = await verifyTokenAndType(token, userID, userType);
   if (newToken) {
-    res.send(newToken).status(200);
+    res.status(200).send(newToken);
   } else {
     res.status(403).send();
   }
