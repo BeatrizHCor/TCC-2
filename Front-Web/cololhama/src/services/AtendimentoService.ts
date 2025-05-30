@@ -35,7 +35,7 @@ interface AtendimentoPageResponse {
         params: {
           page,
           limit,
-          includerelations: true,
+          includeRelations: true,
           SalaoId: salaoId,
           cliente: clienteFilter,
           cabelereiro: cabelereiroFilter,
@@ -44,7 +44,7 @@ interface AtendimentoPageResponse {
       });
     if (response.status === 403) {
         return false;
-    }
+    }console.log("Atendimentos:", response.data);
       return response.data;
     } catch (error) {
       console.error("Erro ao buscar atendimentos:", error);

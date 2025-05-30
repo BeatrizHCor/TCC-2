@@ -5,7 +5,7 @@ export interface Portfolio {
     ID?: string;
     CabeleireiroID: string; 
     Cabeleireiro?: Cabeleireiro;
-    SaloId: string;
+    SalaoId: string;
     Descricao: string;
     Imagem: Imagem[];
   }

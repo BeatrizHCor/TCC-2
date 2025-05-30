@@ -26,7 +26,7 @@ import { BotaoTranparente } from "../../styles/styles.mui";
 import { AuthContext } from "../../contexts/AuthContext";
 import { userTypes } from "../../models/tipo-usuario.enum";
 
-const SalaoID = import.meta.env.SALAO_ID || "1"; // importa o ID do salão aqui
+const SalaoID = import.meta.env.SALAO_ID || "1";
 const colunas = [
   { id: "nome", label: "Nome" },
   { id: "descricao", label: "Descrição" },

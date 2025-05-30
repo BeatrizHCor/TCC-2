@@ -8,13 +8,21 @@ class AtendimentoController {
             const {
                 page = 1,
                 limit = 10,
-                includeRelations = false,
+                includeRelations,
                 SalaoId = null,
                 cliente = null,
                 cabeleireiro = null,
                 data = null,
             } = req.query;
-
+            console.log("Atendimentos controller query params:", {
+                page,
+                limit,
+                includeRelations,
+                SalaoId,
+                cliente,
+                cabeleireiro,
+                data,
+            });
             const Atendimentos = await AtendimentoService.getAtendimentosPage(
                 Number(page),
                 Number(limit),

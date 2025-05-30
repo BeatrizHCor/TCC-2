@@ -38,7 +38,6 @@ export const useVisualizarAtendimentos = (
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
   const [forbidden, setForbidden] = useState<boolean>(false);
-
   const navigate = useNavigate();
   
   useEffect(() => {
@@ -75,19 +74,18 @@ export const useVisualizarAtendimentos = (
             userId,
             salaoId
           );
-        } else {
-          setForbidden(true);
-          return;
         }
         const listaAtendimentos: AtendimentoExibicao[] = (response.data || []).map(
           (item: any) => ({
             ID: item.ID ?? "",
-            NomeCliente: item.NomeCliente ?? "",
-            NomeCabeleireiro: item.NomeCabeleireiro ?? "",
+            NomeCliente: item.Agendamentos[0]?.Cliente.Nome ?? "",
+            NomeCabeleireiro: item.Agendamentos[0]?.Cabeleireiro.Nome ?? "",
             Data: item.Data ?? "",
-            Hora: item.Hora ?? "",
+            Hora: item.Data
+                  ? new Date(item.Data).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+                  : "",
             ValorTotal: item.ValorTotal ?? 0,
-            QuantidadeServicos: item.QuantidadeServicos ?? 0,
+            QuantidadeServicos: item.ServicoAtendimento?.length ?? 0,
           })
         );
         setAtendimentos(listaAtendimentos);

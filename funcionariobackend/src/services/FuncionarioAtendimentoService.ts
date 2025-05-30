@@ -91,7 +91,10 @@ class AtendimentoService {
                 include: { Auxiliar: true },
               },
               Agendamentos: {
-                include: { Cliente: true },
+                include: {
+                  Cliente: true,
+                  Cabeleireiro: true
+                }
               },
               ServicoAtendimento: true,
             },

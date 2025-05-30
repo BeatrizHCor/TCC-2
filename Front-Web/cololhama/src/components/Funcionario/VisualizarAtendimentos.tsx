@@ -47,7 +47,7 @@ const colunas = [
 ];
 
 export const VisualizarAtendimentos: React.FC = () => {
-  const { userType, doLogout} = useContext(AuthContext);
+  const {userType, userId} = useContext(AuthContext);
   const [page, setPage] = useState(0);
   const [rowsPerPage, setRowsPerPage] = useState(10);
   const [clienteFilter, setClienteFilter] = useState("");
@@ -60,7 +60,6 @@ export const VisualizarAtendimentos: React.FC = () => {
   const [anoFilter, setAnoFilter] = useState("");
   const [mesFilter, setMesFilter] = useState("");
   const [diaFilter, setDiaFilter] = useState("");
-  const userId = localStorage.getItem("userId") || "";
   const isCliente = userType === userTypes.CLIENTE;
   const isCabeleireiro = userType === userTypes.CABELEIREIRO;
 
@@ -179,17 +178,11 @@ export const VisualizarAtendimentos: React.FC = () => {
   if (isLoading) return <Box>Carregando...</Box>;
   if (error) return <Box>Erro ao carregar atendimentos: {error}</Box>;
 
-  useEffect(() => {
-    if (forbidden) {
-      doLogout();
-    }
-  }, [forbidden]);
-
   return (
-    <Box sx={{ width: "100%", p: 2 }}>
-      <Typography variant="h5" sx={{ mb: 3 }}>
-        Atendimentos
-      </Typography>
+  <Box sx={{ width: "100%", p: 2 }}>
+    <Typography variant="h5" sx={{ mb: 3 }}>
+      Atendimentos
+    </Typography>
 
       <Paper sx={{ p: 2, mb: 2 }}>
         <Typography variant="h6" sx={{ mb: 2 }}>
@@ -199,10 +192,15 @@ export const VisualizarAtendimentos: React.FC = () => {
             display="flex"
             alignItems="center"
             gap={2}
-            flexWrap="wrap" >
-
+            flexWrap="wrap">
+          <Box             
+            display="flex"
+            alignItems="center"
+            gap={1}
+            flexWrap="wrap"
+            width="100%">
           {!isCliente && (
-             <Box flexBasis={{ xs: '100%', sm: '50%', md: '25%' }}>
+             <Box flex={2} display="flex" alignItems="center">
               <TextField
                 variant="outlined"
                 label="Cliente"
@@ -215,7 +213,7 @@ export const VisualizarAtendimentos: React.FC = () => {
           )}
 
           {!isCabeleireiro && (
-            <Box flexBasis={{ xs: '100%', sm: '50%', md: '25%' }}>
+            <Box flex={2} display="flex" alignItems="center">
               <TextField
                 variant="outlined"
                 label="Cabeleireiro"
@@ -227,7 +225,7 @@ export const VisualizarAtendimentos: React.FC = () => {
             </Box>
           )}
 
-          <Box flex={{ xs: '1 1 100%', sm: '1 1 50%', md: '1 1 16.66%' }}>
+          <Box flex={1} display="flex" alignItems="center">
             <FormControl fullWidth size="small">
               <InputLabel>Ano</InputLabel>
               <Select
@@ -244,8 +242,7 @@ export const VisualizarAtendimentos: React.FC = () => {
               </Select>
             </FormControl>
           </Box>
-
-          <Box flex={{ xs: '1 1 100%', sm: '1 1 50%', md: '1 1 16.66%' }}>
+          <Box flex={1} display="flex" alignItems="center">
             <FormControl fullWidth size="small">
               <InputLabel>Mês</InputLabel>
               <Select
@@ -262,9 +259,8 @@ export const VisualizarAtendimentos: React.FC = () => {
                 ))}
               </Select>
             </FormControl>
-          </Box>
-
-          <Box flex={{ xs: '1 1 100%', sm: '1 1 50%', md: '1 1 16.66%' }}>
+          </Box>              
+          <Box flex={1} display="flex" alignItems="center">
             <FormControl fullWidth size="small">
               <InputLabel>Dia</InputLabel>
               <Select
@@ -283,8 +279,8 @@ export const VisualizarAtendimentos: React.FC = () => {
             </FormControl>
           </Box>
         </Box>
-
-        <Box sx={{ mt: 2, display: "flex", gap: 2 }}>
+      </Box>  
+        <Box sx={{ mt: 2, display: "flex", gap: 2, alignItems: "center"}}>
           <Button variant="contained" onClick={aplicarFiltros}>
             Buscar
           </Button>
