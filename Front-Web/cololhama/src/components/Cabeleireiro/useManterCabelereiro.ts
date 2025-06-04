@@ -76,9 +76,9 @@ export const useManterCabeleireiro = (cabeleireiroId?: string) => {
       errors.nome = "Nome do cabeleireiro é obrigatório";
     }
 
-    if (!cpf.trim()) {
+    if (!isEditing && !cpf.trim()) {
       errors.cpf = "CPF é obrigatório";
-    } else if (!validarCPF(cpf)) {
+    } else if (!isEditing && !validarCPF(cpf)) {
       errors.cpf = "CPF inválido";
     }
 

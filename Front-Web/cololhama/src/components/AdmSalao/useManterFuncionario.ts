@@ -86,9 +86,9 @@ export const useManterFuncionario = (funcionarioId?: string) => {
       errors.nome = "Nome do funcionário é obrigatório";
     }
 
-    if (!cpf.trim()) {
+    if (!isEditing && !cpf.trim()) {
       errors.cpf = "CPF é obrigatório";
-    } else if (!validarCPF(cpf)) {
+    } else if (!isEditing && !validarCPF(cpf)) {
       errors.cpf = "CPF inválido";
     }
 

@@ -32,6 +32,7 @@ RoutesFuncionario.get(
           "utf-8"
         ) || "{}"
       );
+      console.log("auth envio :", userInfo);
       let userTypeAuth = userInfo.userType;
       const auth = await authenticate(
         userInfo.userID,
