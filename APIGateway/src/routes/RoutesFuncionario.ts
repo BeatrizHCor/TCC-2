@@ -32,6 +32,10 @@ RoutesFuncionario.get(
           "utf-8"
         ) || "{}"
       );
+      if (!userInfo || !userInfo.userID || !userInfo.token || !userInfo.userType) {
+      console.log("Informações de auntenticação ausentes ou inválidas");
+      res.status(403).json({ message: "Unauthorized" });
+      } else {
       console.log("auth envio :", userInfo);
       let userTypeAuth = userInfo.userType;
       const auth = await authenticate(
@@ -60,6 +64,7 @@ RoutesFuncionario.get(
         );
         res.json(funcionarios);
       }
+    }
     } catch (error) {
       console.error("Erro ao buscar funcionarios:", error);
       res.status(500).json({ message: "Erro interno do servidor" });

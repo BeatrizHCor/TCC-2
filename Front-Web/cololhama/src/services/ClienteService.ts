@@ -73,7 +73,7 @@ export const ClienteService = {
       const response = await api.get(`/cliente/${ID}`);
       return !!response.data;
     } catch (error) {
-      if (axios.isAxiosError(error) && error.response?.status === 204) {
+      if (axios.isAxiosError(error) && error.response?.status === 404) {
         console.log("Cliente não encontrado, retornando false.");
         return false;
       }

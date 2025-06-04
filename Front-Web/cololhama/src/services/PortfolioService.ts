@@ -1,6 +1,6 @@
 import axios from "axios";
 import { get } from "http";
-const token = localStorage.getItem("usuario");
+
 const api = axios.create({
   baseURL: import.meta.env.VITE_IMAGEM_URL || "http://localhost:4000",
   timeout: 100000,
@@ -9,13 +9,12 @@ const api = axios.create({
   },
 });
 const apiUpload = axios.create({
-  baseURL: import.meta.env.VITE_IMAGEM_URL || "http://localhost:4000",
-  timeout: 100000,
-  headers: {
-    'Content-Type': 'multipart/form-data',
-    Authorization: btoa(token || ""),
-  },
-});
+   baseURL: import.meta.env.VITE_IMAGEM_URL || "http://localhost:4000",
+   timeout: 100000,
+   headers: {
+     'Content-Type': 'multipart/form-data',
+   },
+ });
 
 api.interceptors.request.use((config) => {
   const token = localStorage.getItem("usuario");

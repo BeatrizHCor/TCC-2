@@ -24,6 +24,10 @@ RoutesCabeleireiro.post(
           "utf-8"
         ) || "{}"
       );
+      if (!userInfo || !userInfo.userID || !userInfo.token || !userInfo.userType) {
+      console.log("Informações de auntenticação ausentes ou inválidas");
+      res.status(403).json({ message: "Unauthorized" });
+      } else {
       let userTypeAuth = userInfo.userType;
       const auth = await authenticate(
         userInfo.userID,
@@ -91,6 +95,7 @@ RoutesCabeleireiro.post(
         let token = await postLogin(Email, Password, SalaoId);
         res.status(200).send(token);
       }
+    }
     } catch (e) {
       console.log(e);
       res.status(500).send("Error in creating Cabeleireiro");

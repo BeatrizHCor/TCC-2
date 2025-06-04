@@ -57,33 +57,38 @@ RoutesCustomer.get("/cliente/page", async (req: Request, res: Response) => {
         "utf-8"
       ) || "{}"
     );
-    let userType = userInfo.userType;
-       console.log("auth envio :", userInfo);
-        console.log("auth type :", userType);
-    const auth = await authenticate(
-      userInfo.userID,
-      userInfo.token,
-      userInfo.userType
-    );      console.log("auth recebido :", auth);
-    if (
-      auth &&
-      [
-        userTypes.FUNCIONARIO,
-        userTypes.ADM_SALAO,
-        userTypes.ADM_SISTEMA,
-      ].includes(userType)
-    ) {
-      const clientes = await getClientePage(
-        page,
-        limit,
-        includeRelations,
-        salaoId
-      );
-      res.json(clientes);
-    } else {
-      console.log("Chamada não autorizada");
-      res.status(403);
-    }
+      if (!userInfo || !userInfo.userID || !userInfo.token || !userInfo.userType) {
+      console.log("Informações de auntenticação ausentes ou inválidas");
+      res.status(403).json({ message: "Unauthorized" });
+      } else {
+      let userType = userInfo.userType;
+        console.log("auth envio :", userInfo);
+          console.log("auth type :", userType);
+      const auth = await authenticate(
+        userInfo.userID,
+        userInfo.token,
+        userInfo.userType
+      );      console.log("auth recebido :", auth);
+      if (
+        auth &&
+        [
+          userTypes.FUNCIONARIO,
+          userTypes.ADM_SALAO,
+          userTypes.ADM_SISTEMA,
+        ].includes(userType)
+      ) {
+        const clientes = await getClientePage(
+          page,
+          limit,
+          includeRelations,
+          salaoId
+        );
+        res.json(clientes);
+      } else {
+        console.log("Chamada não autorizada");
+        res.status(403).json({ message: "Não autorizado" });
+      }
+  }
   } catch (error) {
     console.error("Erro ao buscar clientes:", error);
     res.status(500).json({ message: "Erro interno do servidor" });
@@ -153,9 +158,22 @@ RoutesCustomer.get("/cliente/:id", async (req, res) => {
 });
 
 RoutesCustomer.get("/cliente/cpf/:cpf/:salaoId", async (req, res) => {
-  const { cpf, salaoId } = req.params;
-  try {
-    const cliente = await getClienteByCPF(cpf, salaoId);
+   const { cpf, salaoId } = req.params;
+   try {
+    const userInfo = JSON.parse(
+      Buffer.from(req.headers.authorization || "", "base64").toString(
+        "utf-8"
+      ) || "{}"
+    );
+    const auth = await authenticate(
+      userInfo.userID,
+      userInfo.token,
+      userInfo.userType
+    );
+    if (!auth) {
+      res.status(403).json({ message: "Não autorizado a fazer esta chamada" });
+    }
+     const cliente = await getClienteByCPF(cpf, salaoId);
     if (cliente) {
       res.status(200).json(cliente);
     } else {

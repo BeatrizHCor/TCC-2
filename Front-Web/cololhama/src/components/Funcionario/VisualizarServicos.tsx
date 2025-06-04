@@ -22,7 +22,6 @@ import { useVisualizarServicos } from "./useVisualizarServicos";
 import "../../styles/styles.global.css";
 import { Link } from "react-router-dom";
 import theme from "../../styles/theme";
-import { BotaoTranparente } from "../../styles/styles.mui";
 import { AuthContext } from "../../contexts/AuthContext";
 import { userTypes } from "../../models/tipo-usuario.enum";
 
@@ -124,18 +123,29 @@ export const VisualizarServicos: React.FC<VisualizarServicosProps> = ({
       <Typography variant="h5" sx={{ mb: 3 }}>
         Serviços do Salão
       </Typography>
-      <Box sx={{ display: "flex", mb: 2, gap: 2 }}>
+      <Box
+        sx={{
+          display: "flex",
+          flexDirection: { xs: "column", sm: "row" },
+          mb: 2,
+          gap: { xs: 2, sm: 2 },
+          alignItems: { xs: "stretch", sm: "center" },
+        }}
+      >
         <TextField
           variant="outlined"
           label="Buscar por nome"
           value={NomeFiltroInput}
           onChange={handleNomeFilterInput}
-          sx={{ maxWidth: "50%", flexGrow: 1 }}
+          sx={{ flexGrow: 1, minWidth: { xs: "100%", sm: "200px" } }}
         />
-        <Button variant="contained" onClick={aplicarFiltroNome}>
+        <Button
+          variant="contained"
+          onClick={aplicarFiltroNome}
+          sx={{ width: { xs: "100%", sm: "auto" } }}
+        >
           Buscar
         </Button>
-
         {!cannotEdit && (
           <Button
             component={Link}
@@ -146,19 +156,25 @@ export const VisualizarServicos: React.FC<VisualizarServicosProps> = ({
               borderBlockColor: theme.palette.primary.main,
               borderColor: theme.palette.primary.main,
               borderWidth: 1,
+              width: { xs: "100%", sm: "auto" },
             }}
           >
             Novo Serviço
           </Button>
         )}
-        <Box display="flex" justifyContent="flex-end" gap={2}>
+        <Box
+          display="flex"
+          flexDirection={{ xs: "column", sm: "row" }}
+          gap={2}
+          sx={{ width: { xs: "100%", sm: "auto" } }}
+        >
           <TextField
             variant="outlined"
             label="Preço mínimo"
             type="text"
             value={precoMinInput}
             onChange={handlePrecoMinInputChange}
-            sx={{ width: "150px" }}
+            sx={{ width: { xs: "100%", sm: "150px" } }}
             inputMode="numeric"
             slotProps={{
               input: {
@@ -175,14 +191,13 @@ export const VisualizarServicos: React.FC<VisualizarServicosProps> = ({
               },
             }}
           />
-
           <TextField
             variant="outlined"
             label="Preço máximo"
             type="text"
             value={precoMaxInput}
             onChange={handlePrecoMaxInputChange}
-            sx={{ width: "150px" }}
+            sx={{ width: { xs: "100%", sm: "150px" } }}
             inputMode="numeric"
             slotProps={{
               input: {
@@ -202,7 +217,7 @@ export const VisualizarServicos: React.FC<VisualizarServicosProps> = ({
         </Box>
       </Box>
       <Paper sx={{ width: "100%", mb: 2 }}>
-        <TableContainer>
+        <TableContainer sx={{ overflowX: "auto" }}>
           <Table>
             <TableHead>
               <TableRow key="header-row">

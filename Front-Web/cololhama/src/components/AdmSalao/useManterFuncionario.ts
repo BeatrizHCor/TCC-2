@@ -167,13 +167,13 @@ export const useManterFuncionario = (funcionarioId?: string) => {
     } catch (error) {
       console.error("Erro ao salvar funcionário:", error);
 
-      if (error instanceof Error) {
+if (error instanceof Error) {
+         const errorMessage = error.message.includes("CPF já cadastrado")
+           ? "Este CPF já está em uso"
+           : "Erro ao salvar funcionário. Tente novamente.";
+          setValidationErrors({ cpf: errorMessage });
 
-        const errorMessage = error.message.includes("CPF já cadastrado")
-          ? "Este CPF já está em uso"
-          : "Erro ao salvar funcionário. Tente novamente.";
-
-      }
+       }
     } finally {
       setIsLoading(false);
     }
