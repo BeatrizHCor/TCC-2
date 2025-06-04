@@ -135,7 +135,7 @@ export const VisualizarCabeleireiro: React.FC<
                     <TableCell>{cabeleireiro.Nome}</TableCell>
                     <TableCell>{cabeleireiro.Email}</TableCell>
                     <TableCell>{cabeleireiro.Telefone}</TableCell>
-                    <TableCell>{cabeleireiro.MEI === undefined ? "Não informado" : cabeleireiro.MEI}</TableCell>
+                    <TableCell>{cabeleireiro.Mei=== undefined ? "Não informado" : cabeleireiro.Mei}</TableCell>
                     <TableCell>
                       <Button
                         component={Link}

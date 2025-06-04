@@ -84,7 +84,7 @@ RoutesFuncionario.post("/funcionario", async (req: Request, res: Response) => {
         "utf-8"
       ) || "{}"
     );
-    let userTypeAuth = JSON.parse(userInfo).userType;
+    let userTypeAuth = userInfo.userType;
     const auth = await authenticate(
       userInfo.userID,
       userInfo.token,
@@ -150,7 +150,7 @@ RoutesFuncionario.delete(
           "utf-8"
         ) || "{}"
       );
-      let userTypeAuth = JSON.parse(userInfo).userType;
+      let userTypeAuth = userInfo.userType;
       const auth = await authenticate(
         userInfo.userID,
         userInfo.token,

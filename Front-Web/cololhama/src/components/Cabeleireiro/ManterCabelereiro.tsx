@@ -174,8 +174,8 @@ const ManterCabeleireiro: React.FC = () => {
                   label="CPF"
                   value={cpf}
                   onChange={handleCpfChange}
-                  error={Boolean(validationErrors.cpf)}
-                  helperText={validationErrors.cpf}
+                  error={!isEditing && Boolean(validationErrors.cpf)}
+                  helperText={!isEditing ? validationErrors.cpf : ""}
                   placeholder="000.000.000-00"
                   slotProps={{
                     input: {
@@ -220,34 +220,68 @@ const ManterCabeleireiro: React.FC = () => {
                 helperText={validationErrors.mei}
               />
             </Box>
-            <Box sx={{ display: "flex", gap: 3 }}>
-              <Box sx={{ flex: 1 }}>
-                <TextField
-                  fullWidth
-                  required
-                  label="Senha"
-                  type="password"
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                  error={Boolean(validationErrors.password)}
-                  helperText={validationErrors.password}
-                />
-              </Box>
+            {!isEditing && (
+              <Box sx={{ display: "flex", gap: 3 }}>
+                <Box sx={{ flex: 1 }}>
+                  <TextField
+                    fullWidth
+                    required
+                    type="password"
+                    label="Senha"
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                    error={Boolean(validationErrors.password)}
+                    helperText={validationErrors.password}
+                    disabled={isLoading}
+                  />
+                </Box>
 
-              <Box sx={{ flex: 1 }}>
-                <TextField
-                  fullWidth
-                  required
-                  label="Confirmar Senha"
-                  value={confirmPassword}
-                  type="password"
-                  onChange={(e) => setConfirmPassword(e.target.value)}
-                  error={Boolean(validationErrors.confirmPassword)}
-                  helperText={validationErrors.confirmPassword}
-                />
+                <Box sx={{ flex: 1 }}>
+                  <TextField
+                    fullWidth
+                    required
+                    type="password"
+                    label="Confirmar Senha"
+                    value={confirmPassword}
+                    onChange={(e) => setConfirmPassword(e.target.value)}
+                    error={Boolean(validationErrors.confirmPassword)}
+                    helperText={validationErrors.confirmPassword}
+                    disabled={isLoading}
+                  />
+                </Box>
               </Box>
-            </Box>
+            )}
 
+            {isEditing && (
+              <Box sx={{ display: "flex", gap: 3 }}>
+                <Box sx={{ flex: 1 }}>
+                  <TextField
+                    fullWidth
+                    type="password"
+                    label="Nova Senha (opcional)"
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                    error={Boolean(validationErrors.password)}
+                    helperText={validationErrors.password}
+                    disabled={isLoading}
+                  />
+                </Box>
+                {password && (
+                  <Box sx={{ flex: 1 }}>
+                    <TextField
+                      fullWidth
+                      type="password"
+                      label="Confirmar Nova Senha"
+                      value={confirmPassword}
+                      onChange={(e) => setConfirmPassword(e.target.value)}
+                      error={Boolean(validationErrors.confirmPassword)}
+                      helperText={validationErrors.confirmPassword}
+                      disabled={isLoading}
+                    />
+                  </Box>
+                )}
+              </Box>
+            )}
             <Box
               sx={{
                 display: "flex",

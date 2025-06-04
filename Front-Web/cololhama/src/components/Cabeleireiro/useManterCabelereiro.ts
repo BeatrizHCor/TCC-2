@@ -54,7 +54,7 @@ export const useManterCabeleireiro = (cabeleireiroId?: string) => {
         setCpf(cabeleireiro.CPF || "");
         setEmail(cabeleireiro.Email || "");
         setTelefone(cabeleireiro.Telefone || "");
-        setMei(cabeleireiro.MEI || "");
+        setMei(cabeleireiro.Mei || "");
         setSalaoId(cabeleireiro.SalaoId || null);
       } catch (error) {
         console.error("Erro ao buscar cabeleireiro:", error);

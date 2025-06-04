@@ -6,7 +6,6 @@ const api = axios.create({
   timeout: 100000,
   headers: {
     "Content-Type": "application/json",
-    Authorization: btoa(token || ""),
   },
 });
 const apiUpload = axios.create({
@@ -17,6 +16,21 @@ const apiUpload = axios.create({
     Authorization: btoa(token || ""),
   },
 });
+
+api.interceptors.request.use((config) => {
+  const token = localStorage.getItem("usuario");
+  config.headers = config.headers || {};
+  config.headers.Authorization = btoa(token || "");
+  return config;
+});
+
+apiUpload.interceptors.request.use((config) => {
+  const token = localStorage.getItem("usuario");
+  config.headers = config.headers || {};
+  config.headers.Authorization = btoa(token || "");
+  return config;
+});
+
 class PortfolioService {
   static async uploadImagemPortfolio(
     file: File,

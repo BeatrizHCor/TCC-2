@@ -7,10 +7,14 @@ const api = axios.create({
   baseURL: import.meta.env.VITE_GATEWAY_URL || "http://localhost:5000",
   headers: {
     "Content-Type": "application/json",
-    Authorization: btoa(token || ""),
   },
 });
-
+api.interceptors.request.use((config) => {
+  const token = localStorage.getItem("usuario");
+  config.headers = config.headers || {};
+  config.headers.Authorization = btoa(token || "");
+  return config;
+});
 
 interface AgendamentoPaginadoResponse {
   total: number;

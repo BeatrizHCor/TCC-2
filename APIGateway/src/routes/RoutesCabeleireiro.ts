@@ -24,7 +24,7 @@ RoutesCabeleireiro.post(
           "utf-8"
         ) || "{}"
       );
-      let userTypeAuth = JSON.parse(userInfo).userType;
+      let userTypeAuth = userInfo.userType;
       const auth = await authenticate(
         userInfo.userID,
         userInfo.token,
@@ -33,9 +33,9 @@ RoutesCabeleireiro.post(
       if (
         !auth ||
         ![
-          userTypes.Funcionario,
-          userTypes.AdmSalao,
-          userTypes.AdmSistema,
+          userTypes.FUNCIONARIO,
+          userTypes.ADM_SALAO,
+          userTypes.ADM_SISTEMA,
         ].includes(userTypeAuth)
       ) {
         res.status(403);
@@ -45,7 +45,7 @@ RoutesCabeleireiro.post(
           Nome: Nome,
           Email: Email,
           Telefone: Telefone,
-          MEI: Mei,
+          Mei: Mei,
           SalaoId: SalaoId,
         });
         if (!cabeleireiro) {
@@ -126,7 +126,7 @@ RoutesCabeleireiro.get(
         "utf-8"
       ) || "{}"
     );
-    let userTypeAuth = JSON.parse(userInfo).userType;
+    let userTypeAuth = userInfo.userType;
     const auth = await authenticate(
       userInfo.userID,
       userInfo.token,
@@ -135,9 +135,9 @@ RoutesCabeleireiro.get(
     if (
       !auth ||
       ![
-        userTypes.Funcionario,
-        userTypes.AdmSalao,
-        userTypes.AdmSistema,
+        userTypes.FUNCIONARIO,
+        userTypes.ADM_SALAO,
+        userTypes.ADM_SISTEMA,
       ].includes(userTypeAuth)
     ) {
       res.status(403);
@@ -163,7 +163,7 @@ RoutesCabeleireiro.delete(
         "utf-8"
       ) || "{}"
     );
-    let userTypeAuth = JSON.parse(userInfo).userType;
+    let userTypeAuth = userInfo.userType;
     const auth = await authenticate(
       userInfo.userID,
       userInfo.token,
@@ -172,9 +172,9 @@ RoutesCabeleireiro.delete(
     if (
       !auth ||
       ![
-        userTypes.Funcionario,
-        userTypes.AdmSalao,
-        userTypes.AdmSistema,
+        userTypes.FUNCIONARIO,
+        userTypes.ADM_SALAO,
+        userTypes.ADM_SISTEMA,
       ].includes(userTypeAuth)
     ) {
       res.status(403);
@@ -199,7 +199,7 @@ RoutesCabeleireiro.put("/cabeleireiro", async (req: Request, res: Response) => {
         "utf-8"
       ) || "{}"
     );
-    let userTypeAuth = JSON.parse(userInfo).userType;
+    let userTypeAuth = userInfo.userType;
     const auth = await authenticate(
       userInfo.userID,
       userInfo.token,
@@ -208,9 +208,9 @@ RoutesCabeleireiro.put("/cabeleireiro", async (req: Request, res: Response) => {
     if (
       !auth ||
       ![
-        userTypes.Funcionario,
-        userTypes.AdmSalao,
-        userTypes.AdmSistema,
+        userTypes.FUNCIONARIO,
+        userTypes.ADM_SALAO,
+        userTypes.ADM_SISTEMA,
       ].includes(userTypeAuth)
     ) {
       res.status(403);

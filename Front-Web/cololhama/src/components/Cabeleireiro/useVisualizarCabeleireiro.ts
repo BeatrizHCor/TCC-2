@@ -42,7 +42,7 @@ export const useVisualizarCabeleireiros = (
             Nome: item?.Nome ?? "",
             Email: item?.Email ?? "",
             Telefone: item?.Telefone ?? "",
-            MEI: item?.Mei ?? "",
+            Mei: item?.Mei ?? "",
             SalaoId: item?.SalaoId ?? "",
           })
         );

@@ -166,13 +166,13 @@ export const useManterFuncionario = (funcionarioId?: string) => {
       navigate("/funcionarios");
     } catch (error) {
       console.error("Erro ao salvar funcionário:", error);
-      // Add a more specific error handler - for example:
+
       if (error instanceof Error) {
-        // Set a specific error message to show to the user
+
         const errorMessage = error.message.includes("CPF já cadastrado")
           ? "Este CPF já está em uso"
           : "Erro ao salvar funcionário. Tente novamente.";
-        // Show error to user (e.g., through a state variable or toast notification)
+
       }
     } finally {
       setIsLoading(false);
