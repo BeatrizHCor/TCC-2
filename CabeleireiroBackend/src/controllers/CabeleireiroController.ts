@@ -6,7 +6,6 @@ class CabeleireiroController {
     try {
       const { page, limit, includeRelations, salaoId } = req.query;
       const { nome = "" } = req.query;
-      console.log("req.query:", req.query);
       const cabeleireiros = await CabeleireiroService.getCabeleireiroPage(
         Number(page),
         Number(limit),

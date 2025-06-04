@@ -35,8 +35,12 @@ export const VisualizarClientes: React.FC = () => {
   const [termoBusca, setTermoBusca] = useState("");
   const { doLogout } = useContext(AuthContext);
   const { clientes, totalClientes, isLoading, error, forbidden } =
-    useVisualizarClientes(page + 1, rowsPerPage, "1");
-
+  useVisualizarClientes(page + 1, rowsPerPage, "1");
+  useEffect(() => {
+    if (forbidden) {
+      doLogout();
+    }
+  }, [forbidden]);
   const handleChangePage = (_: unknown, newPage: number) => {
     setPage(newPage);
   };
@@ -69,11 +73,7 @@ export const VisualizarClientes: React.FC = () => {
   if (isLoading) return <Box>Carregando...</Box>;
   if (error) return <Box>Erro ao carregar clientes: {error}</Box>;
 
-  useEffect(() => {
-    if (forbidden) {
-      doLogout();
-    }
-  }, [forbidden]);
+
 
   return (
     <Box sx={{ width: "100%", p: 2 }}>

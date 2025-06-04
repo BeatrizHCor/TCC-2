@@ -25,7 +25,7 @@ class AgendamentoController{
   static findById = async (req: Request, res: Response) => {
     try {
       const { id } = req.params;
-      const includeRelations = req.query.include === "true"; // Converte include para booleano
+      const includeRelations = req.query.include === "true";
       const cabeleireiro = await AgendamentoService.findById(
         id,
         includeRelations

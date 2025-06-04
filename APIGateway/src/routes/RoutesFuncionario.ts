@@ -32,20 +32,22 @@ RoutesFuncionario.get(
           "utf-8"
         ) || "{}"
       );
-      let userTypeAuth = JSON.parse(userInfo).userType;
+      let userTypeAuth = userInfo.userType;
       const auth = await authenticate(
         userInfo.userID,
         userInfo.token,
         userInfo.userType
       );
+      console.log("auth retorno :", auth);
       if (
         !auth ||
         ![
-          userTypes.Funcionario,
-          userTypes.AdmSalao,
-          userTypes.AdmSistema,
+          userTypes.FUNCIONARIO,
+          userTypes.ADM_SALAO,
+          userTypes.ADM_SISTEMA,
         ].includes(userTypeAuth)
       ) {
+        console.log("Chamada não autorizada");
         res.status(403);
       } else {
         const funcionarios = await getFuncionarioPage(
@@ -91,11 +93,12 @@ RoutesFuncionario.post("/funcionario", async (req: Request, res: Response) => {
     if (
       !auth ||
       ![
-        userTypes.Funcionario,
-        userTypes.AdmSalao,
-        userTypes.AdmSistema,
+        userTypes.FUNCIONARIO,
+        userTypes.ADM_SALAO,
+        userTypes.ADM_SISTEMA,
       ].includes(userTypeAuth)
     ) {
+      console.log("Chamada não autorizada");
       res.status(403);
     } else {
       let funcionario = await postFuncionario(
@@ -156,9 +159,9 @@ RoutesFuncionario.delete(
       if (
         !auth ||
         ![
-          userTypes.Funcionario,
-          userTypes.AdmSalao,
-          userTypes.AdmSistema,
+          userTypes.FUNCIONARIO,
+          userTypes.ADM_SALAO,
+          userTypes.ADM_SISTEMA,
         ].includes(userTypeAuth)
       ) {
         res.status(403);
@@ -224,7 +227,6 @@ RoutesFuncionario.put(
   }
 );
 
-RoutesFuncionario;
 //--------SERVIÇO--------//
 
 RoutesFuncionario.get("/servico/page", async (req: Request, res: Response) => {

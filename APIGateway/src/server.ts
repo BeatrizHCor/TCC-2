@@ -4,7 +4,7 @@ import dotenv from "dotenv";
 dotenv.config();
 import { Router, Request, Response } from "express";
 import RoutesLogin from "./routes/RoutesLogin";
-import RoutesCustomer from "./routes/RoutesCustomer";
+import RoutesCustomer from "./routes/RoutesCliente";
 import RoutesFuncionario from "./routes/RoutesFuncionario";
 import RoutesCabeleireiro from "./routes/RoutesCabeleireiro";
 import RoutesAgendamento from "./routes/RoutesAgendamento";

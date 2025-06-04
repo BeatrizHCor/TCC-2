@@ -46,6 +46,12 @@ export const VisualizarFuncionarios: React.FC = () => {
     handleEditarFuncionario,
     forbidden,
   } = useVisualizarFuncionarios(page + 1, rowsPerPage, nomeFilter, SalaoID);
+  
+  useEffect(() => {
+    if (forbidden) {
+      doLogout();
+    }
+  }, [forbidden]);
 
   const handleChangePage = (_: unknown, newPage: number) => {
     setPage(newPage);
@@ -68,12 +74,6 @@ export const VisualizarFuncionarios: React.FC = () => {
 
   if (isLoading) return <Box>Carregando...</Box>;
   if (error) return <Box>Erro ao carregar funcionários: {error}</Box>;
-
-  useEffect(() => {
-    if (forbidden) {
-      doLogout();
-    }
-  }, [forbidden]);
 
   return (
     <Box sx={{ width: "100%", p: 2 }}>

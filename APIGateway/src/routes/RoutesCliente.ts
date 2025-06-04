@@ -57,18 +57,20 @@ RoutesCustomer.get("/cliente/page", async (req: Request, res: Response) => {
         "utf-8"
       ) || "{}"
     );
-    let userType = JSON.parse(userInfo).userType;
+    let userType = userInfo.userType;
+       console.log("auth envio :", userInfo);
+        console.log("auth type :", userType);
     const auth = await authenticate(
       userInfo.userID,
       userInfo.token,
       userInfo.userType
-    );
+    );      console.log("auth recebido :", auth);
     if (
       auth &&
       [
-        userTypes.Funcionario,
-        userTypes.AdmSalao,
-        userTypes.AdmSistema,
+        userTypes.FUNCIONARIO,
+        userTypes.ADM_SALAO,
+        userTypes.ADM_SISTEMA,
       ].includes(userType)
     ) {
       const clientes = await getClientePage(
@@ -79,6 +81,7 @@ RoutesCustomer.get("/cliente/page", async (req: Request, res: Response) => {
       );
       res.json(clientes);
     } else {
+      console.log("Chamada não autorizada");
       res.status(403);
     }
   } catch (error) {

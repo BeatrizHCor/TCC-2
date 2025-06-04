@@ -7,18 +7,12 @@ class CabeleireiroService {
     limit: number | null = null,
     include = false,
     salaoId: string | null = null,
-    name: string | null = null
+    nome: string | null = null
   ) => {
     let whereCondition: Prisma.CabeleireiroWhereInput = {};
-    if (
-      name &&
-      name.trim() !== "" &&
-      typeof name === "string" &&
-      name.trim().length > 0 &&
-      name !== "null"
-    ) {
+    if (nome && nome.trim().length > 0) {
       whereCondition.Nome = {
-        contains: name,
+        contains: nome,
         mode: "insensitive",
       };
       if (salaoId) {
@@ -44,23 +38,32 @@ class CabeleireiroService {
     limit = 10,
     includeRelations = false,
     salaoId: string | null = null,
-    name: string | null = null
+    nome: string | null = null
   ) => {
     const skip = (page - 1) * limit;
-
+    const where: Prisma.CabeleireiroWhereInput = {};
+    if (salaoId) {
+      where.SalaoId = salaoId;
+    }
+    if (nome && nome.trim().length > 0) {
+      where.Nome = {
+        contains: nome,
+        mode: "insensitive",
+      };
+    }
     const [total, cabeleireiros] = await Promise.all([
-      CabeleireiroService.getCabeleireiros(null, null, false, salaoId, name),
+      await prisma.cabeleireiro.count({ where }),
       CabeleireiroService.getCabeleireiros(
         skip,
         limit,
         includeRelations,
         salaoId,
-        name
+        nome
       ),
     ]);
 
     return {
-      total: total.length,
+      total: total,
       page,
       limit,
       data: cabeleireiros,

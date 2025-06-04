@@ -76,6 +76,47 @@ const NavBar: React.FC = () => {
               </Button>
             </Box>
           ))}
+          
+          {userType ? (
+            ["/agendamentos", "/atendimentos"].map((route, index) => (
+              <Box key={index} sx={{ position: "relative", overflow: "hidden" }}>
+                <Button
+                  color="inherit"
+                  component={Link}
+                  to={route}
+                  sx={{
+                    textTransform: "none",
+                    color: theme.palette.customColors?.lightGray,
+                    transition: "0.3s ease-in-out",
+                    "&:hover": {
+                      color: "#fff",
+                    },
+                    "&::after": {
+                      content: '""',
+                      display: "block",
+                      width: "0%",
+                      height: "2px",
+                      backgroundColor: "#fff",
+                      position: "absolute",
+                      bottom: 0,
+                      left: 0,
+                      transition: "width 0.3s ease-in-out",
+                    },
+                    "&:hover::after": {
+                      width: "100%",
+                    },
+                  }}
+                >
+                  {route === "/agendamentos"
+                    ? "Agendamentos"
+                    : route === "/atendimentos"
+                    ? "Atendimentos"
+                    : "ERROR"}
+                </Button>
+              </Box>
+            ))) 
+          : null}
+
           {userType &&
           [
             userTypes.ADM_SALAO,
@@ -181,7 +222,7 @@ const NavBar: React.FC = () => {
             </>
           ) : null}
 
-          {userType === userTypes.CLIENTE ? (
+          {userType ? (
             <>
               <Box sx={{ position: "relative", overflow: "hidden" }}>
                 <Button

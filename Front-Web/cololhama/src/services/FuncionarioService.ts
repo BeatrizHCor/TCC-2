@@ -1,16 +1,20 @@
 import axios from "axios";
 import { Funcionario } from "../models/funcionarioModel";
 import { get } from "http";
-const token = localStorage.getItem("usuario");
+
 const api = axios.create({
   baseURL: import.meta.env.VITE_GATEWAY_URL || "http://localhost:5000",
   timeout: 100000,
   headers: {
     "Content-Type": "application/json",
-    Authorization: btoa(token || ""),
   },
 });
-
+api.interceptors.request.use((config) => {
+  const token = localStorage.getItem("usuario");
+  config.headers = config.headers || {};
+  config.headers.Authorization = btoa(token || "");
+  return config;
+});
 interface FuncionarioPageResponse {
   data: Funcionario[];
   total: number;
@@ -74,8 +78,9 @@ export const FuncionarioService = {
         Password,
         userType,
       });
-      if (response.data.token) {
-        const { token, userID, userType } = response.data;
+      if (response.status === 403) {
+        console.error("Acesso negado ao cadastrar funcionário.");
+        throw new Error("Acesso negado");
       }
       return response.data;
     } catch (error) {

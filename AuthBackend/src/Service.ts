@@ -55,7 +55,7 @@ export const updateLogin = async (
 export const findLoginbyUserId = (UsuarioID: string) => {
   return prisma.authControl.findUnique({
     where: {
-      UsuarioID,
+      UsuarioID: UsuarioID,
     },
   });
 };

@@ -133,7 +133,14 @@ class AgendamentoService{
         }
     }
 
-    static async updateAgendamento(id: string, Data: Date, Status: StatusAgendamento, ClienteID: string, SalaoId: string, CabeleireiroID: string) {
+    static updateAgendamento = async (
+        id: string,
+        Data: Date,
+        Status: StatusAgendamento,
+        ClienteID: string,
+        SalaoId: string, 
+        CabeleireiroID: string
+    ) => {
         try {
             return await prisma.agendamentos.update({
                 where: { ID: id },
@@ -161,11 +168,12 @@ class AgendamentoService{
             throw new Error("Erro ao deletar agendamento");
         }
     }
-    static async updateAdicionarAtendimento(agendamentoId: string, atendimentoId: string) {
+    static updateAdicionarAtendimento = async (agendamentoId: string, atendimentoId: string) =>{
         try {
             return await prisma.agendamentos.update({
                 where: { ID: agendamentoId },
                 data: {
+                    Status: "Confirmado",
                     Atendimento: {
                         connect: { ID: atendimentoId }
                     }
