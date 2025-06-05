@@ -167,13 +167,9 @@ export const useManterFuncionario = (funcionarioId?: string) => {
     } catch (error) {
       console.error("Erro ao salvar funcionário:", error);
 
-if (error instanceof Error) {
-         const errorMessage = error.message.includes("CPF já cadastrado")
-           ? "Este CPF já está em uso"
-           : "Erro ao salvar funcionário. Tente novamente.";
-          setValidationErrors({ cpf: errorMessage });
-
-       }
+      if (error instanceof Error) {
+        setValidationErrors(mapErrorToValidation(error.message));
+      }
     } finally {
       setIsLoading(false);
     }
@@ -195,6 +191,34 @@ if (error instanceof Error) {
       setIsLoading(false);
     }
   };
+
+  function mapErrorToValidation(errorMessage: string): ValidationErrors {
+    if (errorMessage.includes("CPF já cadastrado")) {
+      return { cpf: "Este CPF já está em uso" };
+    }
+    if (errorMessage.includes("Email já cadastrado")) {
+      return { email: "Este email já está em uso" };
+    }
+    if (errorMessage.includes("Telefone já cadastrado")) {
+      return { telefone: "Este telefone já está em uso" };
+    }
+    if (errorMessage.includes("Senha muito curta")) {
+      return { password: "A senha deve ter pelo menos 6 caracteres" };
+    }
+    if (errorMessage.includes("Nome obrigatório")) {
+      return { nome: "Nome do funcionário é obrigatório" };
+    }
+    if (errorMessage.includes("CPF inválido")) {
+      return { cpf: "CPF inválido" };
+    }
+    if (errorMessage.includes("Email inválido")) {
+      return { email: "Email inválido" };
+    }
+    if (errorMessage.includes("Salário inválido")) {
+      return { salario: "Salário deve ser um número válido" };
+    }
+    return { cpf: "Erro ao salvar funcionário. Tente novamente." };
+  }
 
   return {
     nome,

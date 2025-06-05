@@ -51,7 +51,7 @@ interface AtendimentoPageResponse {
       });
     if (response.status === 403) {
         return false;
-    }console.log("Atendimentos:", response.data);
+    }
       return response.data;
     } catch (error) {
       console.error("Erro ao buscar atendimentos:", error);

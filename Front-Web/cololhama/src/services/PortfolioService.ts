@@ -15,20 +15,17 @@ const apiUpload = axios.create({
      'Content-Type': 'multipart/form-data',
    },
  });
+const addAuthInterceptor = (axiosInstance: any) => {
+  axiosInstance.interceptors.request.use((config: any) => {
+    const token = localStorage.getItem("usuario");
+    config.headers = config.headers || {};
+    config.headers.Authorization = btoa(token || "");
+    return config;
+  });
+};
 
-api.interceptors.request.use((config) => {
-  const token = localStorage.getItem("usuario");
-  config.headers = config.headers || {};
-  config.headers.Authorization = btoa(token || "");
-  return config;
-});
-
-apiUpload.interceptors.request.use((config) => {
-  const token = localStorage.getItem("usuario");
-  config.headers = config.headers || {};
-  config.headers.Authorization = btoa(token || "");
-  return config;
-});
+addAuthInterceptor(api);
+addAuthInterceptor(apiUpload);
 
 class PortfolioService {
   static async uploadImagemPortfolio(

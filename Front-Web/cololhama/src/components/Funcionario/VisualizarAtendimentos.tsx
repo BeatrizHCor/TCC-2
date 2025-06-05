@@ -37,15 +37,6 @@ interface AtendimentoExibicao {
 
 const SalaoID = import.meta.env.VITE_SALAO_ID || "1";
 
-const colunas = [
-  { id: "nomeCliente", label: "Cliente" },
-  { id: "nomeCabeleireiro", label: "Cabeleireiro" },
-  { id: "data", label: "Data" },
-  { id: "hora", label: "Hora" },
-  { id: "valorTotal", label: "Valor Total" },
-  { id: "quantidadeServicos", label: "Qtd. Serviços" },
-];
-
 export const VisualizarAtendimentos: React.FC = () => {
   const {userType, userId} = useContext(AuthContext);
   const [page, setPage] = useState(0);
@@ -62,6 +53,15 @@ export const VisualizarAtendimentos: React.FC = () => {
   const [diaFilter, setDiaFilter] = useState("");
   const isCliente = userType === userTypes.CLIENTE;
   const isCabeleireiro = userType === userTypes.CABELEIREIRO;
+
+  const colunas = [
+  ...(isCliente ? [] : [{ id: "nomeCliente", label: "Cliente" }]),
+  ...(isCabeleireiro ? [] : [{ id: "nomeCabeleireiro", label: "Cabeleireiro" }]),
+  { id: "data", label: "Data" },
+  { id: "hora", label: "Hora" },
+  { id: "valorTotal", label: "Valor Total" },
+  { id: "quantidadeServicos", label: "Qtd. Serviços" },
+];
 
   const {
     atendimentos,
