@@ -1,4 +1,4 @@
-import { Prisma, StatusAgendamento, Agendamentos } from "@prisma/client";
+import { Prisma, StatusAgendamento, Agendamentos, Servico, ServicoAgendamento } from "@prisma/client";
 import prisma from "../config/database";
 import { getRangeByDataInputWithTimezone } from "../utils/CalculoPeriododeTempo";
 
@@ -110,53 +110,92 @@ class AgendamentoService{
         }
       };
  
-    static createAgendamento = async(
+    static createAgendamento = async (
         Data: Date,
         Status: StatusAgendamento = "Agendado",
         ClienteID: string,
         SalaoId: string,
         CabeleireiroID: string,
+        servicos: string[] = []
     ) => {
-      try{
-        return await prisma.agendamentos.create({
-          data: {
-            Data: Data,
-            Status: Status,
-            ClienteID: ClienteID,
+    try {
+        return await prisma.$transaction(async (tx) => {
+        const servicosSelecionados = await tx.servico.findMany({
+            where: {
+            ID: { in: servicos },
             SalaoId: SalaoId,
-            CabeleireiroID: CabeleireiroID,                
-        },
-        });  
-        } catch(e) {
-        console.error(e);
-        throw new Error("Erro ao criar agendamento");
+            },
+        });
+        const agendamento = await tx.agendamentos.create({
+            data: {
+            Data,
+            Status,
+            ClienteID,
+            SalaoId,
+            CabeleireiroID,
+            },
+        });
+            if (servicosSelecionados.length > 0) {
+            await tx.servicoAgendamento.createMany({
+                data: servicosSelecionados.map((servico) => ({
+                AgendamentosId: agendamento.ID,
+                ServicoId: servico.ID,
+                PrecoMin: servico.PrecoMin,
+                PrecoMax: servico.PrecoMax,
+                })),
+            });
         }
+        return agendamento;
+        });
+    } catch (e) {
+        console.error(e);
+        throw new Error("Erro ao criar agendamento.");
     }
+    };
+
 
     static updateAgendamento = async (
         id: string,
         Data: Date,
         Status: StatusAgendamento,
         ClienteID: string,
-        SalaoId: string, 
-        CabeleireiroID: string
+        SalaoId: string,
+        CabeleireiroID: string,
+        Servicos: Servico[] = [] 
     ) => {
-        try {
-            return await prisma.agendamentos.update({
-                where: { ID: id },
-                data: {
-                    Data: Data,
-                    Status: Status,
-                    ClienteID: ClienteID,
-                    SalaoId: SalaoId,
-                    CabeleireiroID: CabeleireiroID,
-                },
-            });            
-        } catch(e) {
+    try {
+        return await prisma.$transaction(async (tx) => {
+        const agendamento = await tx.agendamentos.update({
+            where: { ID: id },
+            data: {
+            Data: Data,
+            Status: Status,
+            ClienteID: ClienteID,
+            SalaoId: SalaoId,
+            CabeleireiroID: CabeleireiroID,
+            },
+        });
+        await tx.servicoAgendamento.deleteMany({
+            where: { AgendamentosId: id },
+        });
+        if (Servicos.length > 0) {
+            await tx.servicoAgendamento.createMany({
+            data: Servicos.map((servico) => ({
+                AgendamentosId: id,
+                ServicoId: servico.ID,
+                PrecoMin: servico.PrecoMin,
+                PrecoMax: servico.PrecoMax,
+            })),
+            });
+        }
+        return agendamento;
+        });
+    } catch (e) {
         console.error(e);
         throw new Error("Erro ao atualizar agendamento");
-        }
     }
+    };
+
 
     static async deleteAgendamento(id: string) {
         try {

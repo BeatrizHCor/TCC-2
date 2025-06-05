@@ -43,13 +43,14 @@ class AgendamentoController{
   }; 
   static createAgendamento = async (req: Request, res: Response) => {
     try { 
-      const { Data, ClienteID, SalaoId, CabeleireiroID} = req.body;
+      const { Data, ClienteID, SalaoId, CabeleireiroID, Servicos } = req.body;
       const agendamento = await AgendamentoService.createAgendamento(
             new Date(Data),
             "Agendado",
             ClienteID,
             SalaoId,
-            CabeleireiroID
+            CabeleireiroID,
+            Servicos
           );
       if (!agendamento || agendamento === null) {
           res
@@ -69,14 +70,15 @@ class AgendamentoController{
   static updateAgendamento = async (req: Request, res: Response) => {
     try {
       const { id } = req.params;
-      const { Data, Status, ClienteID, SalaoId, CabeleireiroID } = req.body;
+      const { Data, Status, ClienteID, SalaoId, CabeleireiroID, Servicos } = req.body;
       const agendamento = await AgendamentoService.updateAgendamento(
         id,
         new Date(Data),
         Status,
         ClienteID,
         SalaoId,
-        CabeleireiroID
+        CabeleireiroID,
+        Servicos
       );
       if (!agendamento) {
         res.status(404).json({ message: "Agendamento não encontrado" });
