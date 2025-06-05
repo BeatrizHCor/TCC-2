@@ -76,7 +76,7 @@ export const VisualizarCabeleireiro: React.FC<
   if (error) return <Box>Erro ao carregar cabeleireiro: {error}</Box>;
 
   const colunasVisiveis =
-    !userType || userType !== userTypes.CLIENTE
+    !userType || userType !== userTypes.Cliente
       ? colunas.filter((coluna) => coluna.id !== "acoes")
       : colunas;
 
@@ -108,7 +108,7 @@ export const VisualizarCabeleireiro: React.FC<
         >
           Buscar
         </Button>
-        {userType && userType !== userTypes.CLIENTE ? (
+        {userType && userType !== userTypes.Cliente ? (
           <Button
             component={Link}
             variant="outlined"
@@ -165,8 +165,8 @@ export const VisualizarCabeleireiro: React.FC<
                       </Button>
                     </TableCell>
                     {userType &&
-                    userType !== userTypes.CLIENTE &&
-                    userType !== userTypes.CABELEIREIRO ? (
+                    userType !== userTypes.Cliente &&
+                    userType !== userTypes.Cabeleireiro ? (
                       <TableCell>
                         <Button
                           startIcon={<EditIcon />}

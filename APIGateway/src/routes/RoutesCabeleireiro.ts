@@ -5,6 +5,7 @@ import {
   deleteCabeleireiro,
   deletePortfolio,
   getCabeleireiroById,
+  getCabeleireiroBySalao,
   getCabeleireiroPage,
   postCabeleireiro,
   updateCabeleireiro,
@@ -121,7 +122,23 @@ RoutesCabeleireiro.get(
     }
   }
 );
-
+RoutesCabeleireiro.get(
+  "/cabeleireiro/salao/:SalaoId",
+  async (req: Request, res: Response) => {
+    let { SalaoId } = req.params;
+    let { includeRelations } = req.query;
+    try {
+      let cabeleireiros = await getCabeleireiroBySalao(
+        SalaoId ? String(SalaoId) : "",
+        Boolean(includeRelations === "true"),
+      );
+      res.status(200).send(cabeleireiros);
+    } catch (e) {
+      console.log(e);
+      res.status(500).send("Error querying Cabeleireiros");
+    }
+  }
+);
 RoutesCabeleireiro.get(
   "/cabeleireiro/ID/:id",
   async (req: Request, res: Response) => {

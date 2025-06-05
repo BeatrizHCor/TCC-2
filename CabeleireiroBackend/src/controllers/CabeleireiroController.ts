@@ -105,6 +105,27 @@ class CabeleireiroController {
         .json({ message: "Não foi possivél deletar o Cabeleireiro" });
     }
   };
+  static getBySalao = async (req: Request, res: Response) => {
+    try {
+      const { id } = req.params;
+      const includeRelations = req.query.includeRelations === "true";
+      if (!id) {
+        return res.status(400).json({ message: "ID do salão não informado" });
+      } else {
+        const cabeleireiros = await CabeleireiroService.getBySalao(
+          id,
+          includeRelations
+        );
+        if (!cabeleireiros || cabeleireiros.length === 0) {
+          return res.status(204).json({ message: "Nenhum cabeleireiro encontrado para este salão" });
+        } else {
+          res.json(cabeleireiros); 
+        }
+      }
+    } catch (e) {
+      console.log(e);
+      res.status(500).json({ message: "Erro ao buscar cabeleireiros do salão" });
+    }
+  };
 }
-
 export default CabeleireiroController;

@@ -155,6 +155,27 @@ class CabeleireiroService {
       return null;
     }
   };
+  static getBySalao = async (salaoID: string, includeRelations = false) => {
+    try {
+      return await prisma.cabeleireiro.findMany({
+        where: {
+          SalaoId: salaoID,
+        },
+      ...(includeRelations
+            ? {
+                include: {
+                  Salao: true,
+                  Agendamentos: true,
+                },
+              }
+            : {}),
+        });
+      } catch (e) {
+        console.log(e);
+        return null;
+      }
+    };
+
 }
 
 export default CabeleireiroService;

@@ -169,6 +169,19 @@ export const CabeleireiroService = {
       throw error;
     }
   },
+
+  async getCabeleireiroBySalao(SalaoID: string, includeRelations: boolean): Promise<Cabeleireiro[]> {
+    try {
+      const response = await api.get(`/cabeleireiro/salao/${SalaoID}`, {
+        params: { includeRelations }
+      });
+      return response.data;
+    } catch (error) {
+      console.error("Erro ao buscar cabeleireiros por salão:", error);
+      throw error;
+    }
+  }
+
 };
 
 export default CabeleireiroService;

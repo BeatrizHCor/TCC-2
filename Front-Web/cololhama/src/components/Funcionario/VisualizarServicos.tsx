@@ -45,9 +45,9 @@ export const VisualizarServicos: React.FC<VisualizarServicosProps> = ({
   cannotEdit = !!(
     userType &&
     [
-      userTypes.FUNCIONARIO,
-      userTypes.ADM_SALAO,
-      userTypes.ADM_SISTEMA,
+      userTypes.Funcionario,
+      userTypes.AdmSalao,
+      userTypes.AdmSistema,
     ].includes(userType)
   );
   const salaoId = import.meta.env.VITE_SALAO_ID;

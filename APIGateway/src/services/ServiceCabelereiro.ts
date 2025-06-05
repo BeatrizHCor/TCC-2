@@ -85,7 +85,7 @@ export const getCabeleireiroById = async (
   includeRelations: boolean
 ) => {
   let responseCabeleireiro = await fetch(
-    CabeleireiroURL + `/cabeleireiro/ID/${id}`,
+    CabeleireiroURL + `/cabeleireiro/ID/${id}?includeRelations=${includeRelations}`,
     {
       method: "GET",
     }
@@ -96,6 +96,25 @@ export const getCabeleireiroById = async (
     throw new Error("Error in getting Cabeleireiro by ID");
   }
 };
+
+export const getCabeleireiroBySalao = async (
+  salaoid: string,
+  includeRelations: boolean
+) => {
+  let responseCabeleireiro = await fetch(
+    CabeleireiroURL + `/cabeleireiro/salao/${salaoid}?includeRelations=${includeRelations}`,
+    {
+      method: "GET",
+    }
+  );
+  if (responseCabeleireiro.ok) {
+    return (await responseCabeleireiro.json()) as Cabeleireiro;
+  } else {
+    throw new Error("Error in getting Cabeleireiro by Salao");
+  }
+};
+
+
 
 export const createPortfolio = async (
   cabeleireiroId: string,

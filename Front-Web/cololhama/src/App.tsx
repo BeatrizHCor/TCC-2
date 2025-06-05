@@ -21,6 +21,7 @@ import ManterServicoPage from "./pages/Funcionario/ManterServicoPage";
 import VisualizarAgendamentoPage from "./pages/Funcionario/VisulaizarAgendamentoPage";
 import { AuthContextProvider } from "./contexts/AuthContext";
 import VisualizarAtendimentoPage from "./pages/Funcionario/VisualizarAtendimento";
+import ManterAgendamentoPage from "./pages/Funcionario/ManterAgendamentoPage";
 
 const App: React.FC = () => {
   return (
@@ -67,6 +68,7 @@ const App: React.FC = () => {
           />
 
           <Route path="/agendamentos" element={<VisualizarAgendamentoPage />} />
+          <Route path="/agendamento/:agendamentoId" element={<ManterAgendamentoPage />}/>
 
           <Route path="/atendimentos" element={<VisualizarAtendimentoPage/>}/>
         </Routes>

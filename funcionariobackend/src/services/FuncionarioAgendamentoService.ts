@@ -43,7 +43,7 @@ class AgendamentoService{
     static getAgendamentosPage = async (
         page = 1,
         limit = 10,
-        includeRelations = false,
+        includeRelations: boolean,
         salaoId: string | null = null,
         dia: number,
         mes: number,

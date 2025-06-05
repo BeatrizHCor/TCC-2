@@ -28,11 +28,12 @@ import InfoIcon from '@mui/icons-material/Info';
 import { Agendamentos } from '../../models/agendamentoModel';
 import { useVisualizarAgendamentos } from './useVisualizarAgendamento';
 import { StatusAgendamento } from '../../models/StatusAgendamento.enum'
+import { useNavigate } from "react-router-dom";
 
 const VisualizarAgendamento: React.FC = () => {
 
   const SalaoId = import.meta.env.VITE_SALAO_ID || "1";
-  
+  const navigate = useNavigate();
   const [modoCalendario, setModoCalendario] = useState<boolean>(false);
   const [agendamentoSelecionado, setAgendamentoSelecionado] = useState<Agendamentos | null>(null);
   const [modalAberto, setModalAberto] = useState<boolean>(false);
@@ -98,7 +99,7 @@ const VisualizarAgendamento: React.FC = () => {
     event: React.ChangeEvent<HTMLInputElement>
   ) => {
     setRowsPerPage(parseInt(event.target.value, 10));
-                  setPage(0);
+    setPage(0);
   };
 
   const handleVerDetalhes = (agendamento: Agendamentos) => {
@@ -302,8 +303,7 @@ const VisualizarAgendamento: React.FC = () => {
                       <Typography variant="body1">
                         {agendamentoSelecionado.Cliente?.Nome || `ID: ${agendamentoSelecionado.ClienteID}`}
                       </Typography>
-                    </Box>
-                    
+                    </Box>                    
                     <Box sx={{xs: 12, sm:6}}>
                       <Typography variant="subtitle1" fontWeight="bold">Profissional</Typography>
                       <Typography variant="body1">
@@ -316,7 +316,13 @@ const VisualizarAgendamento: React.FC = () => {
                   <Button onClick={handleFecharModal} color="primary">
                     Fechar
                   </Button>
-                  {/* aqui ficarão botões de ações, como confirmar, cancelar, etc. */}
+                  <Button
+                    variant="contained"
+                    color="primary"
+                    onClick={() => navigate(`/agendamento/${agendamentoSelecionado.ID}`)}
+                  >
+                    Ir para página do agendamento
+                  </Button>
                 </DialogActions>
               </>
             )}

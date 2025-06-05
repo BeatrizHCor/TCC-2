@@ -51,8 +51,8 @@ export const VisualizarAtendimentos: React.FC = () => {
   const [anoFilter, setAnoFilter] = useState("");
   const [mesFilter, setMesFilter] = useState("");
   const [diaFilter, setDiaFilter] = useState("");
-  const isCliente = userType === userTypes.CLIENTE;
-  const isCabeleireiro = userType === userTypes.CABELEIREIRO;
+  const isCliente = userType === userTypes.Cliente;
+  const isCabeleireiro = userType === userTypes.Cabeleireiro;
 
   const colunas = [
   ...(isCliente ? [] : [{ id: "nomeCliente", label: "Cliente" }]),

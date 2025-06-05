@@ -33,7 +33,7 @@ export const useVisualizarAgendamentos = (
         mesValido,
         diaValido,
         true,
-      );
+      );console.log("resultado : ", resultado.data)
       setAgendamentos(resultado.data);
       setTotalAgendamentos(resultado.total);
     } catch (error) {
