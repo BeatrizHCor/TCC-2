@@ -80,18 +80,29 @@ export const VisualizarFuncionarios: React.FC = () => {
       <Typography variant="h5" sx={{ mb: 3 }}>
         Funcionários
       </Typography>
-      <Box sx={{ display: "flex", mb: 2, gap: 2 }}>
+      <Box
+        sx={{
+          display: "flex",
+          flexDirection: { xs: "column", sm: "row" },
+          gap: 2,
+          mb: 2,
+          alignItems: { xs: "stretch", sm: "center" },
+        }}
+      >
         <TextField
           variant="outlined"
           label="Buscar por nome"
           value={NomeFiltroInput}
           onChange={handleNomeFilterInput}
-          sx={{ maxWidth: "50%", flexGrow: 1 }}
+          sx={{ flexGrow: 1, minWidth: { xs: "100%", sm: 200 } }}
         />
-        <Button variant="contained" onClick={aplicarFiltroNome}>
+        <Button
+          variant="contained"
+          onClick={aplicarFiltroNome}
+          sx={{ width: { xs: "100%", sm: "auto" } }}
+        >
           Buscar
         </Button>
-
         {isADMSalao && (
           <Button
             component={Link}
@@ -102,6 +113,7 @@ export const VisualizarFuncionarios: React.FC = () => {
               borderBlockColor: theme.palette.primary.main,
               borderColor: theme.palette.primary.main,
               borderWidth: 1,
+              width: { xs: "100%", sm: "auto" },
             }}
           >
             Adicionar Funcionário
@@ -110,13 +122,14 @@ export const VisualizarFuncionarios: React.FC = () => {
       </Box>
 
       <Paper sx={{ width: "100%", mb: 2 }}>
-        <TableContainer>
+        <TableContainer sx={{ overflowX: "auto" }}>
           <Table>
             <TableHead>
               <TableRow>
                 {colunas.map((coluna) => (
                   <TableCell key={coluna.id}>{coluna.label}</TableCell>
                 ))}
+                {isADMSalao && <TableCell>Ações</TableCell>}
               </TableRow>
             </TableHead>
             <TableBody>

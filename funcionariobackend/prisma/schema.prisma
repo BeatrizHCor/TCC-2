@@ -156,6 +156,7 @@ model Servico {
   PrecoMax           Float
   Descricao          String
   ServicoAtendimento ServicoAtendimento[]
+  ServicoAgendamento ServicoAgendamento[]
 }
 
 model Portfolio {
@@ -169,17 +170,29 @@ model Portfolio {
 }
 
 model Agendamentos {
-  ID             String            @id @default(uuid())
-  Data           DateTime
-  Status         StatusAgendamento
-  ClienteID      String
-  Cliente        Cliente           @relation(fields: [ClienteID], references: [ID])
-  Salao          Salao             @relation(fields: [SalaoId], references: [ID])
-  SalaoId        String
-  CabeleireiroID String
-  Cabeleireiro   Cabeleireiro      @relation(fields: [CabeleireiroID], references: [ID])
-  AtendimentoID  String?
-  Atendimento    Atendimento?      @relation(fields: [AtendimentoID], references: [ID])
+  ID                  String            @id @default(uuid())
+  Data                DateTime
+  Status              StatusAgendamento
+  ClienteID           String
+  Cliente             Cliente           @relation(fields: [ClienteID], references: [ID])
+  Salao               Salao             @relation(fields: [SalaoId], references: [ID])
+  SalaoId             String
+  CabeleireiroID      String
+  Cabeleireiro        Cabeleireiro      @relation(fields: [CabeleireiroID], references: [ID])
+  AtendimentoID       String?
+  Atendimento         Atendimento?      @relation(fields: [AtendimentoID], references: [ID])
+  ServicoAgendamento  ServicoAgendamento[]
+}
+
+model ServicoAgendamento {
+  ID              String       @id @default(uuid())
+  PrecoMin        Float
+  PrecoMax        Float
+  ServicoId       String
+  Servico         Servico      @relation(fields: [ServicoId], references: [ID])
+  AgendamentosId  String
+  Agendamentos    Agendamentos @relation(fields: [AgendamentosId], references: [ID], onDelete: Cascade)
+  @@unique([ServicoId, AgendamentosId])
 }
 
 enum StatusAgendamento {

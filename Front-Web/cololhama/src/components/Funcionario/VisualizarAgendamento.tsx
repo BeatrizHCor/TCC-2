@@ -122,55 +122,64 @@ const VisualizarAgendamento: React.FC = () => {
             <Typography variant="h4" component="h1" margin={2}>
               Agendamentos
             </Typography>
-          <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', mb: 2 }}>
-            <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
-              <DatePicker
-                label="Filtrar por dia"
-                value={dataFilter}
-                onChange={(novaData) => {
-                  setDataFilter(novaData);
-                  setAnoFilter(novaData?.getFullYear() || 0);
-                  setMesFilter(novaData?.getMonth() || 0);
-                  setDiaFilter(novaData?.getDate() || 0);
-                  setPage(0); 
-                }}
-                slotProps={{ textField: { size: 'small' } }}
-              />
-              <DatePicker
-                label="Filtrar por mês"
-                value={dataFilter}
-                views={['year', 'month']}
-                onChange={(novaData) => {
-                  setDataFilter(novaData);
-                  setAnoFilter(novaData?.getFullYear() || 0);
-                  setMesFilter(novaData?.getMonth() || 0);
-                  setPage(0); 
-                }}
-                slotProps={{ textField: { size: 'small' } }}
-              />
-              <DatePicker
-                label="Filtrar por ano"
-                views={['year']}
-                value={dataFilter}
-                onChange={(novaData) => {
-                  setDataFilter(novaData);
-                  setAnoFilter(novaData?.getFullYear() || 0);
-                  setPage(0); 
-                }}
-                slotProps={{ textField: { size: 'small' } }}
-              />                                          
-              <FormControlLabel
-                control={
-                  <Switch 
-                    checked={modoCalendario} 
-                    onChange={() => setModoCalendario(!modoCalendario)} 
-                    color="primary" 
-                  />
-                }
-                label={modoCalendario ? "Modo Calendário" : "Modo Lista"}
-              />
-            </Box>
-          </Box>
+          <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', mb: 2, flexWrap: 'wrap' }}>
+        <Box
+          sx={{
+            display: 'flex',
+            flexDirection: { xs: 'column', sm: 'row' },
+            gap: 2,
+            alignItems: { xs: 'stretch', sm: 'flex-end' },
+            flex: 1,
+          }}
+        >
+          <DatePicker
+            label="Filtrar por dia"
+            value={dataFilter}
+            onChange={(novaData) => {
+              setDataFilter(novaData);
+              setAnoFilter(novaData?.getFullYear() || 0);
+              setMesFilter(novaData?.getMonth() || 0);
+              setDiaFilter(novaData?.getDate() || 0);
+              setPage(0);
+            }}
+            slotProps={{ textField: { size: 'small' } }}
+          />
+          <DatePicker
+            label="Filtrar por mês"
+            value={dataFilter}
+            views={['year', 'month']}
+            onChange={(novaData) => {
+              setDataFilter(novaData);
+              setAnoFilter(novaData?.getFullYear() || 0);
+              setMesFilter(novaData?.getMonth() || 0);
+              setPage(0);
+            }}
+            slotProps={{ textField: { size: 'small' } }}
+          />
+          <DatePicker
+            label="Filtrar por ano"
+            views={['year']}
+            value={dataFilter}
+            onChange={(novaData) => {
+              setDataFilter(novaData);
+              setAnoFilter(novaData?.getFullYear() || 0);
+              setPage(0);
+            }}
+            slotProps={{ textField: { size: 'small' } }}
+          />
+        </Box>
+        <FormControlLabel
+          control={
+            <Switch
+              checked={modoCalendario}
+              onChange={() => setModoCalendario(!modoCalendario)}
+              color="primary"
+            />
+          }
+          label={modoCalendario ? "Modo Calendário" : "Modo Lista"}
+          sx={{ ml: { xs: 0, sm: 2 }, mt: { xs: 2, sm: 0 } }}
+        />
+      </Box>
 
           {loading ? (
             <Box sx={{ display: 'flex', justifyContent: 'center', py: 5 }}>

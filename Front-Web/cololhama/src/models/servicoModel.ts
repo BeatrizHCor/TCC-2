@@ -1,3 +1,4 @@
+import { ServicoAgendamento } from "./servicoAgendamentoModel";
 import { ServicoAtendimento } from "./servicoAtendimentoModel";
 
 export interface Servico {
@@ -8,4 +9,5 @@ export interface Servico {
     PrecoMax: number;
     Descricao: string;
     ServicoAtendimento?: ServicoAtendimento[];
+    ServicoAgendamento?: ServicoAgendamento[];
   }
