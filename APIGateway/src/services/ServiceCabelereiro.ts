@@ -108,7 +108,7 @@ export const getCabeleireiroBySalao = async (
     }
   );
   if (responseCabeleireiro.ok) {
-    return (await responseCabeleireiro.json()) as Cabeleireiro;
+    return (await responseCabeleireiro.json()) as Cabeleireiro[];
   } else {
     throw new Error("Error in getting Cabeleireiro by Salao");
   }

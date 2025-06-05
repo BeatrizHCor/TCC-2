@@ -1,4 +1,4 @@
-import react from "react";
+import React from "react";
 import  ManterAgendamento  from "../../components/Funcionario/ManterAgendamento";
 
 const ManterAgendamentoPage: React.FC = () => {

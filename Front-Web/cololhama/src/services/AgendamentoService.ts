@@ -54,19 +54,20 @@ class AgendamentoService {
       throw error;
     }
   }
-  static async createAgendamento(
+static async createAgendamento(
     Data: string,
     ClienteID: string,
     CabeleireiroID: string,
     SalaoId: string,
-    ServicoAgendamento: string[] = []
+    ServicoId: string[] = []
   ): Promise<Agendamentos> {
     try {
       const response = await api.post(`/agendamento`, {
-        Data,
-        ClienteID,
-        SalaoId,
-        CabeleireiroID
+      Data,
+      ClienteID,
+      CabeleireiroID,
+      SalaoId,
+      ServicoId
       });
       return response.data;
     } catch (error) {
@@ -82,7 +83,7 @@ class AgendamentoService {
     ClienteID: string,
     CabeleireiroID: string,
     SalaoId: string,
-    ServicoAgendamento: string[] = []
+    ServicoId: string[] = []
   ): Promise<Agendamentos> {
     try {
       const response = await api.put(`/agendamento/${id}`,
@@ -90,7 +91,9 @@ class AgendamentoService {
         Data: Data,
         Status: Status,
         ClienteID,
-        CabeleireiroID
+        CabeleireiroID,
+        SalaoId,
+        ServicoId
       });
       return response.data;
     } catch (error) {
