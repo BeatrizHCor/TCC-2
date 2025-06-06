@@ -150,6 +150,7 @@ class AgendamentoService{
                 data: servicosSelecionados.map((servico) => ({
                 AgendamentosId: agendamento.ID,
                 ServicoId: servico.ID,
+                Nome: servico.Nome,
                 PrecoMin: servico.PrecoMin,
                 PrecoMax: servico.PrecoMax,
                 })),
@@ -193,6 +194,7 @@ class AgendamentoService{
             data: Servicos.map((servico) => ({
                 AgendamentosId: id,
                 ServicoId: servico.ID,
+                Nome: servico.Nome,
                 PrecoMin: servico.PrecoMin,
                 PrecoMax: servico.PrecoMax,
             })),

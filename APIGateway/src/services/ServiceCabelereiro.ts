@@ -3,7 +3,7 @@ import "dotenv/config";
 import { Portfolio } from "../models/portifolioModel";
 
 const CabeleireiroURL = process.env.CABELEREIRO_URL || "http://localhost:4002";
-const VITE_IMAGEM_URL = process.env.VITE_IMAGEM_URL || "http://localhost:4000";
+
 export const postCabeleireiro = async (cabeleireiro: Cabeleireiro) => {
   let responseCabeleireiro = await fetch(CabeleireiroURL + "/cabeleireiro", {
     method: "POST",
@@ -98,11 +98,11 @@ export const getCabeleireiroById = async (
 };
 
 export const getCabeleireiroBySalao = async (
-  salaoid: string,
+  salaoId: string,
   includeRelations: boolean
 ) => {
   let responseCabeleireiro = await fetch(
-    CabeleireiroURL + `/cabeleireiro/salao/${salaoid}?includeRelations=${includeRelations}`,
+    CabeleireiroURL + `/cabeleireiro/salao/${salaoId}?includeRelations=${includeRelations}`,
     {
       method: "GET",
     }
@@ -113,37 +113,3 @@ export const getCabeleireiroBySalao = async (
     throw new Error("Error in getting Cabeleireiro by Salao");
   }
 };
-
-export const createPortfolio = async (
-  cabeleireiroId: string,
-  Descricao: string,
-  SalaoId: string,
-) => {
-  let responsePortfolio = await fetch(VITE_IMAGEM_URL + "/portfolio", {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify({
-      CabeleireiroId: cabeleireiroId,
-      Descricao: Descricao,
-      SalaoId: SalaoId,
-    }),
-  });
-  if (responsePortfolio.ok) {
-    return (await responsePortfolio.json()) as Portfolio;
-  } else {
-    throw new Error("Error in creating Portfolio");
-  }
-};
-
-export const deletePortfolio = async (cabeleireiroId: string) => {
-  let responsePortfolio = await fetch(VITE_IMAGEM_URL + "/portfolio/delete/" + cabeleireiroId, {
-    method: "DELETE",
-  });
-  if (responsePortfolio.ok) {
-    return (await responsePortfolio.json()) as Portfolio;
-  } else {
-    throw new Error("Error in deleting Portfolio");
-  }
-}

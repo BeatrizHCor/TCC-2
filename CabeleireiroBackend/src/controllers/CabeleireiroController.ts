@@ -107,13 +107,13 @@ class CabeleireiroController {
   };
   static getBySalao = async (req: Request, res: Response): Promise<void> => {
     try {
-      const { id } = req.params;
+      const { salaoId } = req.params;
       const includeRelations = req.query.includeRelations === "true";
-      if (!id) {
-         res.status(400).json({ message: "ID do salão não informado" });
+      if (!salaoId) {
+         res.status(400).json({ message: "SalaoId do salão não informado" });
       } else {
         const cabeleireiros = await CabeleireiroService.getBySalao(
-          id,
+          salaoId,
           includeRelations
         );
         if (!cabeleireiros || cabeleireiros.length === 0) {

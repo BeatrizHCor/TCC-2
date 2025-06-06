@@ -92,7 +92,8 @@ const ManterAgendamento: React.FC = () => {
   };
 
   const handleAddServico = (servico: Servico) => {
-    const novoServicoAgendamento: ServicoAgendamento = {
+    const novoServicoAgendamento: ServicoAgendamento = {  
+        Nome: servico.Nome,      
         PrecoMin: servico.PrecoMin,
         PrecoMax: servico.PrecoMax,
         ServicoId: servico.ID ? servico.ID : "",
@@ -179,7 +180,6 @@ const ManterAgendamento: React.FC = () => {
               gap: 4,
             }}
           >
-            {/* Coluna esquerda - Dados do agendamento */}
             <Box sx={{ flex: 1 }}>
               <Box
                 sx={{
@@ -264,8 +264,6 @@ const ManterAgendamento: React.FC = () => {
                 )}
               </Box>
             </Box>
-
-            {/* Coluna direita - Serviços */}
             <Box sx={{ flex: 1 }}>
               <Typography variant="h6" sx={{ mb: 2 }}>
                 Serviços do Agendamento
@@ -303,7 +301,7 @@ const ManterAgendamento: React.FC = () => {
                     ) : (
                       servicosAgendamento.map((servicoAgendamento) => (
                         <TableRow key={servicoAgendamento.ID}>
-                          <TableCell>{servicoAgendamento.Servico!.Nome}</TableCell>
+                          <TableCell>{servicoAgendamento.Nome || "Serviço não encontrado"}</TableCell>
                           <TableCell align="right">
                             {formatCurrency(servicoAgendamento.PrecoMin)}
                           </TableCell>
@@ -358,7 +356,6 @@ const ManterAgendamento: React.FC = () => {
             >
               Voltar
             </Button>
-
             <Box sx={{ display: "flex", gap: { xs: 1, sm: 2 } }}>
               {isEditing && (
                 <Button
@@ -370,7 +367,6 @@ const ManterAgendamento: React.FC = () => {
                   Excluir
                 </Button>
               )}
-
               <Button
                 type="submit"
                 variant="contained"
@@ -390,7 +386,6 @@ const ManterAgendamento: React.FC = () => {
         </form>
       </Paper>
 
-      {/* Modal de Confirmação de Exclusão */}
       <Dialog open={openDeleteDialog} onClose={handleCloseDeleteDialog}>
         <DialogTitle>Confirmar exclusão</DialogTitle>
         <DialogContent>
@@ -407,7 +402,6 @@ const ManterAgendamento: React.FC = () => {
         </DialogActions>
       </Dialog>
 
-      {/* Modal de Seleção de Serviços */}
       <Dialog
         open={openServicosModal}
         onClose={() => setOpenServicosModal(false)}
@@ -430,14 +424,14 @@ const ManterAgendamento: React.FC = () => {
                     <ListItemText
                       primary={servico.Nome}
                       secondary={
-                        <Box>
+                        <>
                           <Typography variant="body2" color="text.secondary">
                             {servico.Descricao}
                           </Typography>
                           <Typography variant="body2" color="primary">
                             {formatCurrency(servico.PrecoMin)} - {formatCurrency(servico.PrecoMax)}
                           </Typography>
-                        </Box>
+                        </>
                       }
                     />
                   </ListItemButton>
@@ -450,7 +444,6 @@ const ManterAgendamento: React.FC = () => {
         </DialogActions>
       </Dialog>
 
-      {/* Modal de Seleção de Cabeleireiros */}
       <Dialog
         open={openCabeleireirosModal}
         onClose={() => setOpenCabeleireirosModal(false)}
@@ -471,9 +464,6 @@ const ManterAgendamento: React.FC = () => {
                       <Box>
                         <Typography variant="body2" color="text.secondary">
                           {cabeleireiro.Email}
-                        </Typography>
-                        <Typography variant="body2" color="text.secondary">
-                          {cabeleireiro.Telefone}
                         </Typography>
                       </Box>
                     }

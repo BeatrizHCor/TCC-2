@@ -170,9 +170,9 @@ export const CabeleireiroService = {
     }
   },
 
-  async getCabeleireiroBySalao(SalaoID: string, includeRelations: boolean): Promise<Cabeleireiro[]> {
+  async getCabeleireiroBySalao(salaoId: string, includeRelations: boolean): Promise<Cabeleireiro[]> {
     try {
-      const response = await api.get(`/cabeleireiro/salao/${SalaoID}`, {
+      const response = await api.get(`/cabeleireiro/salao/${salaoId}`, {
         params: { includeRelations }
       });
       return response.data;

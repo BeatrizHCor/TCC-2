@@ -1,5 +1,4 @@
 import { Router, Request, Response } from "express";
-import { postLogin, registerLogin } from "../services/Service";
 import { 
   CabeleireirogetAgendamentoById,
   ClientegetAgendamentoById,

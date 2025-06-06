@@ -3,6 +3,7 @@ import { Agendamentos } from './agendamentoModel';
 
 export interface ServicoAgendamento {
     ID?: string;
+    Nome: string;
     PrecoMin: number;
     PrecoMax: number;
     AgendamentoId: string;

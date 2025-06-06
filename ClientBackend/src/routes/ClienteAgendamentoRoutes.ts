@@ -1,11 +1,12 @@
 import express from "express";
-import ClienteControllerService from "../controllers/ClienteAgendamentoController";
+import AgendamentoController from "../controllers/ClienteAgendamentoController";
 
 const router = express.Router();
 
-router.post("/agendamento", ClienteControllerService.createAgendamento);
-router.get("/agendamento/page", ClienteControllerService.findAllPaginated);
-router.get("/agendamento/ID/:id",)
-
+router.get("/agendamento/page", AgendamentoController.findAllPaginated);
+router.get("/agendamento/ID/:id", AgendamentoController.findById);
+router.post("/agendamento", AgendamentoController.createAgendamento);
+router.put("/agendamento", AgendamentoController.updateAgendamento);
+router.delete("/agendamento/delete/:id", AgendamentoController.deleteAgendamento);
 
 export default router;

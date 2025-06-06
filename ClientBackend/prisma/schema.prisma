@@ -190,6 +190,7 @@ model Agendamentos {
 
 model ServicoAgendamento {
   ID              String       @id @default(uuid())
+  Nome            String
   PrecoMin        Float
   PrecoMax        Float
   ServicoId       String

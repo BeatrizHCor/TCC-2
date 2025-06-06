@@ -59,7 +59,6 @@ export const useManterAgendamento = (userType: userTypes, agendamentoId?: string
         const servicos = await ServicoService.getServicosBySalao(salaoId);
         setServicosDisponiveis(servicos);
 
-
         const cabeleireiros = await CabeleireiroService.getCabeleireiroBySalao(salaoId, false);
         setCabeleireirosDisponiveis(cabeleireiros);
       } catch (error) {
@@ -82,7 +81,7 @@ export const useManterAgendamento = (userType: userTypes, agendamentoId?: string
       setIsEditing(true);
       setIsLoading(true);
 
-      try {
+      try {console.log("user: " , userType);
         let agendamento;
         switch (userType) {
             case userTypes.Funcionario:
@@ -111,21 +110,18 @@ export const useManterAgendamento = (userType: userTypes, agendamentoId?: string
         if (agendamento.ServicoAgendamento) {
           setServicosAgendamento(agendamento.ServicoAgendamento);
         }
-      } catch (error) {
-        console.error("Erro ao buscar agendamento:", error);
-        if (
-          typeof error === "object" &&
-          error !== null &&
-          "response" in error &&
-          typeof (error as any).response === "object" &&
-          (error as any).response !== null &&
-          "status" in (error as any).response &&
-          (error as any).response.status === 403
-        ) {
-          setForbidden(true);
-        } else {
-          navigate("/agendamentos", { replace: true });
-        }
+
+      } catch (error: unknown) {
+          console.error("Erro ao salvar agendamento:", error);
+          if (axios.isAxiosError(error)) {
+              if (error.response?.status === 403) {
+              setForbidden(true);
+              }
+          } else {
+              console.error('Erro desconhecido:', error);
+          
+            navigate("/agendamentos", { replace: true });
+          }
       } finally {
         setIsLoading(false);
       }

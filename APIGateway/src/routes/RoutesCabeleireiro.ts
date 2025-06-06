@@ -1,9 +1,8 @@
 import { Router, Request, Response } from "express";
 import { authenticate, postLogin, registerLogin } from "../services/Service";
+import { createPortfolio,  deletePortfolio } from "../services/ServiceImag";
 import {
-  createPortfolio,
   deleteCabeleireiro,
-  deletePortfolio,
   getCabeleireiroById,
   getCabeleireiroBySalao,
   getCabeleireiroPage,
@@ -123,13 +122,15 @@ RoutesCabeleireiro.get(
   }
 );
 RoutesCabeleireiro.get(
-  "/cabeleireiro/salao/:SalaoId",
+  "/cabeleireiro/salao/:salaoId",
   async (req: Request, res: Response) => {
-    let { SalaoId } = req.params;
+    let { salaoId } = req.params;
     let { includeRelations } = req.query;
-    try {
+    try {console.log("salao ", salaoId);
+      console.log("req.params:", req.params);
+console.log("req.url:", req.url);
       let cabeleireiros = await getCabeleireiroBySalao(
-        SalaoId ? String(SalaoId) : "",
+        salaoId ? String(salaoId) : "",
         Boolean(includeRelations === "true"),
       );
       res.status(200).send(cabeleireiros);
