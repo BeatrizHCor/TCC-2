@@ -122,7 +122,7 @@ export const CabeleireirogetAgendamentoById = async (id: string, includeRelation
 //-----Cliente
 export const ClientegetAgendamentoById = async (id: string, includeRelations = false) => {
     let response = await fetch(
-        CabeleireiroURL + `/agendamento/ID/${id}?includeRelations=${includeRelations}`,
+        ClienteURL + `/agendamento/ID/${id}?includeRelations=${includeRelations}`,
         {
             method: "GET",
         }

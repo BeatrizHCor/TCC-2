@@ -51,6 +51,7 @@ model Cliente {
   DataCadastro       DateTime             @default(now())
 
   @@unique([Email, SalaoId])
+  @@unique([CPF, SalaoId])
 }
 
 model Funcionario {
@@ -69,6 +70,7 @@ model Funcionario {
   DataCadastro        DateTime             @default(now())
 
   @@unique([Email, SalaoId])
+  @@unique([CPF, SalaoId])
 }
 
 model Cabeleireiro {
@@ -79,7 +81,7 @@ model Cabeleireiro {
   Email         String
   Telefone      String
   Mei           String
-  Salao         Salao          @relation(fields: [SalaoId], references: [ID])
+  Salao         Salao                @relation(fields: [SalaoId], references: [ID])
   SalaoId       String
   Portfolio     Portfolio?
   Agendamentos  Agendamentos[]
@@ -87,6 +89,7 @@ model Cabeleireiro {
   DataCadastro  DateTime             @default(now())
 
   @@unique([Email, SalaoId])
+  @@unique([CPF, SalaoId])
 }
 
 model AdmSalao {
@@ -96,11 +99,12 @@ model AdmSalao {
   Nome               String
   Email              String
   Telefone           String
-  Salao              Salao  @relation(fields: [SalaoId], references: [ID])
-  SalaoId            String @unique
-  DataCadastro       DateTime             @default(now())
+  Salao              Salao          @relation(fields: [SalaoId], references: [ID])
+  SalaoId            String         @unique
+  DataCadastro       DateTime       @default(now())
 
   @@unique([Email, SalaoId])
+  @@unique([CPF, SalaoId])
 }
 
 model AdmSistema {

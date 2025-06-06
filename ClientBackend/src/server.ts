@@ -1,7 +1,7 @@
 import dotenv from 'dotenv';
 import  express, { NextFunction, Request, Response, Router }  from 'express';
 import clienteRoutes from "../src/routes/ClienteRoutes";
-import agendamentoRoutes from "../src/routes/AgendamentoClienteRoutes"
+import agendamentoRoutes from "./routes/ClienteAgendamentoRoutes"
 import cors from 'cors';
 
 dotenv.config();
