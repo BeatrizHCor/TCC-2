@@ -114,8 +114,6 @@ export const getCabeleireiroBySalao = async (
   }
 };
 
-
-
 export const createPortfolio = async (
   cabeleireiroId: string,
   Descricao: string,

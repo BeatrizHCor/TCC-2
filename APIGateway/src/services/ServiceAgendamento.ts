@@ -1,8 +1,9 @@
 import { Agendamentos } from "../models/agendamentoModel";
 import "dotenv/config";
 
-const CabeleireiroURL = process.env.CABELEREIRO_URL || "http://localhost:3005";
 const FuncionarioURL = process.env.FUNC_URL || "http://localhost:3002";
+const CabeleireiroURL = process.env.CABELEREIRO_URL || "http://localhost:3005";
+const ClienteURL = process.env.CUSTOMER_URL || "http://localhost:3001"
 
 //-----Funcionario
 export const postAgendamento = async (
@@ -56,9 +57,9 @@ export const getAgendamentosPage = async (
     }
 };
 
-export const getAgendamentoById = async (id: string, includeRelations: boolean = false) => {
+export const FuncionariogetAgendamentoById = async (id: string, includeRelations = false) => {
     let response = await fetch(
-        FuncionarioURL + `/agendamento/${id}?includeRelations=${includeRelations}`,
+        FuncionarioURL + `/agendamento/ID/${id}?includeRelations=${includeRelations}`,
         {
             method: "GET",
         }
@@ -97,5 +98,38 @@ export const updateAgendamento = async (
         return (await response.json()) as Agendamentos;
     } else {
         throw new Error("Erro ao atualizar agendamento");
+    }
+}
+//-----Cabeleireiro
+
+export const CabeleireirogetAgendamentoById = async (id: string, includeRelations = false) => {
+    let response = await fetch(
+        CabeleireiroURL + `/agendamento/ID/${id}?includeRelations=${includeRelations}`,
+        {
+            method: "GET",
+        }
+    );
+    if (response.ok) {
+        return (await response.json()) as Agendamentos;
+    } else {
+        throw new Error("Erro ao buscar agendamento por ID");
+    }
+};
+
+
+
+
+//-----Cliente
+export const ClientegetAgendamentoById = async (id: string, includeRelations = false) => {
+    let response = await fetch(
+        CabeleireiroURL + `/agendamento/ID/${id}?includeRelations=${includeRelations}`,
+        {
+            method: "GET",
+        }
+    );
+    if (response.ok) {
+        return (await response.json()) as Agendamentos;
+    } else {
+        throw new Error("Erro ao buscar agendamento por ID");
     }
 };

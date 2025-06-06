@@ -1,6 +1,12 @@
 import { Router, Request, Response } from "express";
 import { postLogin, registerLogin } from "../services/Service";
-import { getAgendamentoById, getAgendamentosPage, postAgendamento, updateAgendamento } from "../services/ServiceAgendamento";
+import { 
+  CabeleireirogetAgendamentoById,
+  ClientegetAgendamentoById,
+  FuncionariogetAgendamentoById, 
+  getAgendamentosPage, 
+  postAgendamento, 
+  updateAgendamento } from "../services/ServiceAgendamento";
 
 
 const RoutesAgendamento = Router();
@@ -50,12 +56,12 @@ RoutesAgendamento.get(
 );
 
 RoutesAgendamento.get(
-  "/agendamento/:id",
+  "/funcionario/agendamento/:id",
   async (req: Request, res: Response) => {
     const { id } = req.params;
     const includeRelations = req.query.includeRelations === "true";
     try {
-      const agendamento = await getAgendamentoById(id, includeRelations);
+      const agendamento = await FuncionariogetAgendamentoById(id, includeRelations);
       res.json(agendamento);
     } catch (error) {
       console.error("Erro ao buscar agendamento por ID:", error);
@@ -64,7 +70,35 @@ RoutesAgendamento.get(
   }
 );
 
+RoutesAgendamento.get(
+  "/cabeleireiro/agendamento/:id",
+  async (req: Request, res: Response) => {
+    const { id } = req.params;
+    const includeRelations = req.query.includeRelations === "true";
+    try {
+      const agendamento = await CabeleireirogetAgendamentoById(id, includeRelations);
+      res.json(agendamento);
+    } catch (error) {
+      console.error("Erro ao buscar agendamento por ID:", error);
+      res.status(500).json({ message: "Erro interno do servidor" });
+    }
+  }
+);
 
+RoutesAgendamento.get(
+  "/cliente/agendamento/:id",
+  async (req: Request, res: Response) => {
+    const { id } = req.params;
+    const includeRelations = req.query.includeRelations === "true";
+    try {
+      const agendamento = await ClientegetAgendamentoById(id, includeRelations);
+      res.json(agendamento);
+    } catch (error) {
+      console.error("Erro ao buscar agendamento por ID:", error);
+      res.status(500).json({ message: "Erro interno do servidor" });
+    }
+  }
+);
 RoutesAgendamento.put(
   "/agendamento/:id",
   async (req: Request, res: Response) => {

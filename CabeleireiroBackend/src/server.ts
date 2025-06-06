@@ -1,7 +1,7 @@
 import dotenv from "dotenv";
 import express, { NextFunction, Request, Response, Router } from "express";
 import cabeleireiroRoutes from "./routes/CabeleireiroRoutes";
-import agendamentoRoutes from "./routes/AgendamentoRoutes";
+import agendamentoRoutes from "./routes/CabeleireiroAgendamentoRoutes";
 import cors from "cors";
 
 dotenv.config();

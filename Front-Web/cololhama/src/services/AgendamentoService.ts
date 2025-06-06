@@ -101,27 +101,27 @@ static async createAgendamento(
       throw error;
     }
   }
-  static async getFuncionarioAgendamentoById(agendamentoId: string): Promise<Agendamentos> {
+  static async getFuncionarioAgendamentoById(id: string): Promise<Agendamentos> {
     try {
-      const response = await api.get(`/funcionario/agendamento/${agendamentoId}`);
+      const response = await api.get(`/funcionario/agendamento/${id}`);
       return response.data;
     } catch (error) {
       console.error("Erro ao buscar agendamento por ID:", error);
       throw error;
     }
   }
-  static async getCabeleireiroAgendamentoById(agendamentoId: string): Promise<Agendamentos> {
+  static async getCabeleireiroAgendamentoById(id: string): Promise<Agendamentos> {
     try {
-      const response = await api.get(`/cabeleireiro/agendamento/${agendamentoId}`);
+      const response = await api.get(`/cabeleireiro/agendamento/${id}`);
       return response.data;
     } catch (error) {
       console.error("Erro ao buscar agendamento por ID:", error);
       throw error;
     }
   }  
-  static async getClienteAgendamentoById(agendamentoId: string): Promise<Agendamentos> {
+  static async getClienteAgendamentoById(id: string): Promise<Agendamentos> {
     try {
-      const response = await api.get(`/cliente/agendamento/${agendamentoId}`);
+      const response = await api.get(`/cliente/agendamento/${id}`);
       return response.data;
     } catch (error) {
       console.error("Erro ao buscar agendamento por ID:", error);
