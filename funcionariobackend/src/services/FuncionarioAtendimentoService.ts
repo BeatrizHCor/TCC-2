@@ -1,14 +1,6 @@
 import { AtendimentoAuxiliar, Prisma, ServicoAtendimento } from "@prisma/client";
 import prisma from "../config/database";
 import { getRangeByDataInputWithTimezone, getRangeByStringInputWithTimezone } from "../utils/CalculoPeriododeTempo";
-interface AtendimentoInput {
-  data: Date;
-  precoTotal: number;
-  funcionarioId: string;
-  salaoId: string;
-  agendamentoId: string;
-  servicos: { servicoId: string; precoItem: number }[];
-}
 
 class AtendimentoService {
   static async getAtendimentos(
@@ -216,7 +208,7 @@ static createAtendimento = async (
     PrecoTotal: number,
     Auxiliar: boolean,
     SalaoId: string,
-    servicosAtendimento: ServicoAtendimento[],
+    servicosAtendimento: ServicoAtendimento[] = [],
     auxiliares: AtendimentoAuxiliar[] = []
   ) => {
     try {
@@ -261,7 +253,7 @@ static createAtendimento = async (
     PrecoTotal: number,
     Auxiliar: boolean,
     SalaoId: string,
-    servicosAtendimento: ServicoAtendimento[],
+    servicosAtendimento: ServicoAtendimento[] = [],
     auxiliares: AtendimentoAuxiliar[] = []
   ) => {
     try {

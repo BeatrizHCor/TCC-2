@@ -136,13 +136,29 @@ const ManterCabeleireiro: React.FC = () => {
 
   return (
     <Box sx={{ width: "100%", p: 3 }}>
-      <Paper elevation={3} sx={{ p: 3, maxWidth: "800px", mx: "auto" }}>
-        <Typography variant="h5" sx={{ mb: 3 }}>
+      <Paper
+        elevation={3}
+        sx={{
+          p: { xs: 1, sm: 3 },
+          maxWidth: { xs: "100%", sm: "800px" },
+          mx: "auto",
+        }}
+      >
+        <Typography
+          variant="h5"
+          sx={{ mb: 3, fontSize: { xs: "1.2rem", sm: "2rem" } }}
+        >
           {isEditing ? "Editar Cabeleireiro" : "Novo Cabeleireiro"}
         </Typography>
 
         <form onSubmit={handleSubmit}>
-          <Box sx={{ display: "flex", flexDirection: "column", gap: 3 }}>
+          <Box
+            sx={{
+              display: "flex",
+              flexDirection: "column",
+              gap: { xs: 2, sm: 3 },
+            }}
+          >
             <Box>
               <TextField
                 fullWidth
@@ -166,7 +182,13 @@ const ManterCabeleireiro: React.FC = () => {
                 helperText={validationErrors.email}
               />
             </Box>
-            <Box sx={{ display: "flex", gap: 3 }}>
+            <Box
+              sx={{
+                display: "flex",
+                flexDirection: { xs: "column", sm: "row" },
+                gap: { xs: 2, sm: 3 },
+              }}
+            >
               <Box sx={{ flex: 1 }}>
                 <TextField
                   fullWidth
@@ -174,8 +196,8 @@ const ManterCabeleireiro: React.FC = () => {
                   label="CPF"
                   value={cpf}
                   onChange={handleCpfChange}
-                  error={Boolean(validationErrors.cpf)}
-                  helperText={validationErrors.cpf}
+                  error={!isEditing && Boolean(validationErrors.cpf)}
+                  helperText={!isEditing ? validationErrors.cpf : ""}
                   placeholder="000.000.000-00"
                   slotProps={{
                     input: {
@@ -220,40 +242,87 @@ const ManterCabeleireiro: React.FC = () => {
                 helperText={validationErrors.mei}
               />
             </Box>
-            <Box sx={{ display: "flex", gap: 3 }}>
-              <Box sx={{ flex: 1 }}>
-                <TextField
-                  fullWidth
-                  required
-                  label="Senha"
-                  type="password"
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                  error={Boolean(validationErrors.password)}
-                  helperText={validationErrors.password}
-                />
-              </Box>
+            {!isEditing && (
+              <Box
+                sx={{
+                  display: "flex",
+                  flexDirection: { xs: "column", sm: "row" },
+                  gap: { xs: 2, sm: 3 },
+                }}
+              >
+                <Box sx={{ flex: 1 }}>
+                  <TextField
+                    fullWidth
+                    required
+                    type="password"
+                    label="Senha"
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                    error={Boolean(validationErrors.password)}
+                    helperText={validationErrors.password}
+                    disabled={isLoading}
+                  />
+                </Box>
 
-              <Box sx={{ flex: 1 }}>
-                <TextField
-                  fullWidth
-                  required
-                  label="Confirmar Senha"
-                  value={confirmPassword}
-                  type="password"
-                  onChange={(e) => setConfirmPassword(e.target.value)}
-                  error={Boolean(validationErrors.confirmPassword)}
-                  helperText={validationErrors.confirmPassword}
-                />
+                <Box sx={{ flex: 1 }}>
+                  <TextField
+                    fullWidth
+                    required
+                    type="password"
+                    label="Confirmar Senha"
+                    value={confirmPassword}
+                    onChange={(e) => setConfirmPassword(e.target.value)}
+                    error={Boolean(validationErrors.confirmPassword)}
+                    helperText={validationErrors.confirmPassword}
+                    disabled={isLoading}
+                  />
+                </Box>
               </Box>
-            </Box>
+            )}
 
+            {isEditing && (
+              <Box
+                sx={{
+                  display: "flex",
+                  flexDirection: { xs: "column", sm: "row" },
+                  gap: { xs: 2, sm: 3 },
+                }}
+              >
+                <Box sx={{ flex: 1 }}>
+                  <TextField
+                    fullWidth
+                    type="password"
+                    label="Nova Senha (opcional)"
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                    error={Boolean(validationErrors.password)}
+                    helperText={validationErrors.password}
+                    disabled={isLoading}
+                  />
+                </Box>
+                {password && (
+                  <Box sx={{ flex: 1 }}>
+                    <TextField
+                      fullWidth
+                      type="password"
+                      label="Confirmar Nova Senha"
+                      value={confirmPassword}
+                      onChange={(e) => setConfirmPassword(e.target.value)}
+                      error={Boolean(validationErrors.confirmPassword)}
+                      helperText={validationErrors.confirmPassword}
+                      disabled={isLoading}
+                    />
+                  </Box>
+                )}
+              </Box>
+            )}
             <Box
               sx={{
                 display: "flex",
-                gap: 2,
+                gap: { xs: 1, sm: 2 },
                 justifyContent: "space-between",
                 mt: 2,
+                flexDirection: { xs: "column-reverse", sm: "row" },
               }}
             >
               <Button
@@ -264,7 +333,7 @@ const ManterCabeleireiro: React.FC = () => {
                 Voltar
               </Button>
 
-              <Box sx={{ display: "flex", gap: 2 }}>
+              <Box sx={{ display: "flex", gap: { xs: 1, sm: 2 } }}>
                 {isEditing && (
                   <Button
                     variant="outlined"

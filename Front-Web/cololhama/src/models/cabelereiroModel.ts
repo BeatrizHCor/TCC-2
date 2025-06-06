@@ -8,7 +8,7 @@ export interface Cabeleireiro {
     Nome: string;
     Email: string;
     Telefone: string;
-    MEI?: string;
+    Mei?: string;
     SalaoId: string; 
     Portfolio?: Portfolio; 
     Agendamentos?: Agendamentos[];

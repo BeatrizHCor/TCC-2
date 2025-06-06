@@ -32,21 +32,28 @@ RoutesFuncionario.get(
           "utf-8"
         ) || "{}"
       );
-      let userTypeAuth = JSON.parse(userInfo).userType;
+      if (!userInfo || !userInfo.userID || !userInfo.token || !userInfo.userType) {
+      console.log("Informações de auntenticação ausentes ou inválidas");
+      res.status(403).json({ message: "Unauthorized" });
+      } else {
+      console.log("auth envio :", userInfo);
+      let userTypeAuth = userInfo.userType;
       const auth = await authenticate(
         userInfo.userID,
         userInfo.token,
         userInfo.userType
       );
-      if (
+      console.log("auth retorno :", auth);
+if (
         !auth ||
         ![
-          userTypes.Funcionario,
-          userTypes.AdmSalao,
-          userTypes.AdmSistema,
+          userTypes.FUNCIONARIO,
+          userTypes.ADM_SALAO,
+          userTypes.ADM_SISTEMA,
         ].includes(userTypeAuth)
       ) {
-        res.status(403);
+        console.log("Chamada não autorizada");
+       res.status(403).json({ message: "Unauthorized" });
       } else {
         const funcionarios = await getFuncionarioPage(
           page,
@@ -57,6 +64,7 @@ RoutesFuncionario.get(
         );
         res.json(funcionarios);
       }
+    }
     } catch (error) {
       console.error("Erro ao buscar funcionarios:", error);
       res.status(500).json({ message: "Erro interno do servidor" });
@@ -82,7 +90,7 @@ RoutesFuncionario.post("/funcionario", async (req: Request, res: Response) => {
         "utf-8"
       ) || "{}"
     );
-    let userTypeAuth = JSON.parse(userInfo).userType;
+    let userTypeAuth = userInfo.userType;
     const auth = await authenticate(
       userInfo.userID,
       userInfo.token,
@@ -91,12 +99,13 @@ RoutesFuncionario.post("/funcionario", async (req: Request, res: Response) => {
     if (
       !auth ||
       ![
-        userTypes.Funcionario,
-        userTypes.AdmSalao,
-        userTypes.AdmSistema,
+        userTypes.FUNCIONARIO,
+        userTypes.ADM_SALAO,
+        userTypes.ADM_SISTEMA,
       ].includes(userTypeAuth)
     ) {
-      res.status(403);
+      console.log("Chamada não autorizada");
+      res.status(403).json({ message: "Unauthorized" });
     } else {
       let funcionario = await postFuncionario(
         CPF,
@@ -147,7 +156,7 @@ RoutesFuncionario.delete(
           "utf-8"
         ) || "{}"
       );
-      let userTypeAuth = JSON.parse(userInfo).userType;
+      let userTypeAuth = userInfo.userType;
       const auth = await authenticate(
         userInfo.userID,
         userInfo.token,
@@ -156,12 +165,12 @@ RoutesFuncionario.delete(
       if (
         !auth ||
         ![
-          userTypes.Funcionario,
-          userTypes.AdmSalao,
-          userTypes.AdmSistema,
+          userTypes.FUNCIONARIO,
+          userTypes.ADM_SALAO,
+          userTypes.ADM_SISTEMA,
         ].includes(userTypeAuth)
       ) {
-        res.status(403);
+        res.status(403).json({ message: "Unauthorized" });
       } else {
         let funcionarioDelete = await deleteFuncionario(id);
         if (funcionarioDelete) {
@@ -224,7 +233,6 @@ RoutesFuncionario.put(
   }
 );
 
-RoutesFuncionario;
 //--------SERVIÇO--------//
 
 RoutesFuncionario.get("/servico/page", async (req: Request, res: Response) => {

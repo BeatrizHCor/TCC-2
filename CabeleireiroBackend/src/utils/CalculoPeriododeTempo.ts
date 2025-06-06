@@ -49,3 +49,29 @@ export function getRangeByDataInputWithTimezone(
     dataFinal: toZonedTime(fim, timezone),
   };
 }
+
+export function getRangeByStringInputWithTimezone(
+  dataStr: string | null,
+): { dataInicial: Date; dataFinal: Date } | null {
+  if (!dataStr) {
+    console.log("Data não fornecida");
+    return null;
+  }
+
+ if (!dataStr.match(/^\d{4}(-\d{1,2}(-\d{1,2})?)?$/)) {
+   console.log("Formato de data inválido. Use YYYY, YYYY-MM, ou YYYY-MM-DD");
+   return null;
+ }
+  const partes = dataStr.split('-').map(Number);
+
+  const ano = partes[0];
+  const mes = partes[1] || 0; 
+  const dia = partes[2] || 0; 
+ 
+  const datas = getRangeByDataInputWithTimezone(ano, mes, dia);
+  if(!datas) { return null }
+  return {
+    dataInicial: datas.dataInicial,
+    dataFinal: datas.dataFinal,
+  };
+}

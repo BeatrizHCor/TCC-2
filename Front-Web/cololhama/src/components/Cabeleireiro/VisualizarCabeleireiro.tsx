@@ -76,7 +76,7 @@ export const VisualizarCabeleireiro: React.FC<
   if (error) return <Box>Erro ao carregar cabeleireiro: {error}</Box>;
 
   const colunasVisiveis =
-    !userType || userType !== userTypes.CLIENTE
+    !userType || userType !== userTypes.Cliente
       ? colunas.filter((coluna) => coluna.id !== "acoes")
       : colunas;
 
@@ -85,18 +85,30 @@ export const VisualizarCabeleireiro: React.FC<
       <Typography variant="h5" sx={{ mb: 3 }}>
         Cabelereiros
       </Typography>
-      <Box sx={{ display: "flex", mb: 2, gap: 2 }}>
+      <Box
+        sx={{
+          display: "flex",
+          flexDirection: { xs: "column", sm: "row" },
+          mb: 2,
+          gap: { xs: 2, sm: 2 },
+          alignItems: { xs: "stretch", sm: "center" },
+        }}
+      >
         <TextField
           variant="outlined"
           label="Buscar por nome"
           value={NomeFiltroInput}
           onChange={handleNomeFilterInput}
-          sx={{ maxWidth: "50%", flexGrow: 1 }}
+          sx={{ flexGrow: 1, minWidth: { xs: "50%", sm: "200px" } }}
         />
-        <Button variant="contained" onClick={aplicarFiltroNome}>
+        <Button
+          variant="contained"
+          onClick={aplicarFiltroNome}
+          sx={{ width: { xs: "100%", sm: "auto" } }}
+        >
           Buscar
         </Button>
-        {userType && userType !== userTypes.CLIENTE ? (
+        {userType && userType !== userTypes.Cliente ? (
           <Button
             component={Link}
             variant="outlined"
@@ -106,6 +118,7 @@ export const VisualizarCabeleireiro: React.FC<
               borderBlockColor: theme.palette.primary.main,
               borderColor: theme.palette.primary.main,
               borderWidth: 1,
+              width: { xs: "100%", sm: "auto" },
             }}
           >
             Novo Cabelereiro
@@ -113,7 +126,7 @@ export const VisualizarCabeleireiro: React.FC<
         ) : null}
       </Box>
       <Paper sx={{ width: "100%", mb: 2 }}>
-        <TableContainer>
+        <TableContainer sx={{ overflowX: "auto" }}>
           <Table>
             <TableHead>
               <TableRow>
@@ -135,21 +148,25 @@ export const VisualizarCabeleireiro: React.FC<
                     <TableCell>{cabeleireiro.Nome}</TableCell>
                     <TableCell>{cabeleireiro.Email}</TableCell>
                     <TableCell>{cabeleireiro.Telefone}</TableCell>
-                    <TableCell>{cabeleireiro.MEI === undefined ? "Não informado" : cabeleireiro.MEI}</TableCell>
+                    <TableCell>
+                      {cabeleireiro.Mei === undefined
+                        ? "Não informado"
+                        : cabeleireiro.Mei}
+                    </TableCell>
                     <TableCell>
                       <Button
                         component={Link}
                         startIcon={<Image />}
                         variant="outlined"
                         size="small"
-                        to={`/portfolio/${cabeleireiro.ID}`}                       
+                        to={`/portfolio/${cabeleireiro.ID}`}
                       >
                         Portifólio
                       </Button>
                     </TableCell>
                     {userType &&
-                    userType !== userTypes.CLIENTE &&
-                    userType !== userTypes.CABELEIREIRO ? (
+                    userType !== userTypes.Cliente &&
+                    userType !== userTypes.Cabeleireiro ? (
                       <TableCell>
                         <Button
                           startIcon={<EditIcon />}

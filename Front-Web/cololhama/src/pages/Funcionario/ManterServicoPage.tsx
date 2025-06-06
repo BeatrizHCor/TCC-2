@@ -7,9 +7,9 @@ const ManterServicoPage: React.FC = () => {
   return (
     <AuthGuard
       allowed={[
-        userTypes.FUNCIONARIO,
-        userTypes.ADM_SALAO,
-        userTypes.ADM_SISTEMA,
+        userTypes.Funcionario,
+        userTypes.AdmSalao,
+        userTypes.AdmSistema,
       ]}
     >
       <ManterServico></ManterServico>

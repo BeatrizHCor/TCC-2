@@ -1,10 +1,10 @@
 import { Router, Request, Response } from "express";
 import { authenticate, postLogin, registerLogin } from "../services/Service";
+import { createPortfolio,  deletePortfolio } from "../services/ServiceImag";
 import {
-  createPortfolio,
   deleteCabeleireiro,
-  deletePortfolio,
   getCabeleireiroById,
+  getCabeleireiroBySalao,
   getCabeleireiroPage,
   postCabeleireiro,
   updateCabeleireiro,
@@ -24,7 +24,11 @@ RoutesCabeleireiro.post(
           "utf-8"
         ) || "{}"
       );
-      let userTypeAuth = JSON.parse(userInfo).userType;
+      if (!userInfo || !userInfo.userID || !userInfo.token || !userInfo.userType) {
+      console.log("Informações de autenticação ausente ou inválidas");
+      res.status(403).json({ message: "Unauthorized" });
+      } else {
+      let userTypeAuth = userInfo.userType;
       const auth = await authenticate(
         userInfo.userID,
         userInfo.token,
@@ -33,63 +37,63 @@ RoutesCabeleireiro.post(
       if (
         !auth ||
         ![
-          userTypes.Funcionario,
-          userTypes.AdmSalao,
-          userTypes.AdmSistema,
+          userTypes.FUNCIONARIO,
+          userTypes.ADM_SALAO,
+          userTypes.ADM_SISTEMA,
         ].includes(userTypeAuth)
       ) {
-        res.status(403);
-      } else {
-        let cabeleireiro = await postCabeleireiro({
-          CPF: CPF,
-          Nome: Nome,
-          Email: Email,
-          Telefone: Telefone,
-          MEI: Mei,
-          SalaoId: SalaoId,
-        });
-        if (!cabeleireiro) {
-          throw new Error("Cabeleireiro not created");
-        }
-        let portfolio = await createPortfolio(
-          cabeleireiro.ID!,
-          "Portfolio inicial",
-          SalaoId
-        )
-        if (!portfolio) {
-          console.log("Portfolio not created");
-          let cabeleireiroDelete = await deleteCabeleireiro(cabeleireiro.ID!);
-          if (cabeleireiroDelete) {
-            console.log("Cabeleireiro deleted successfully");
-          } else {
-            console.log("Falha ao deletar cabeleireiro após falha na criação do portfolio");
+        res.status(403).json({ message: "Unauthorized" });
+        } else {
+          let cabeleireiro = await postCabeleireiro({
+            CPF: CPF,
+            Nome: Nome,
+            Email: Email,
+            Telefone: Telefone,
+            Mei: Mei,
+            SalaoId: SalaoId,
+          });
+          if (!cabeleireiro) {
+            throw new Error("Cabeleireiro not created");
           }
-          throw new Error("Portfolio creation failed");
-        }
-        console.log("Cabeleireiro ID: ", cabeleireiro.ID);
-        let register = await registerLogin(
-          cabeleireiro.ID!,
-          Email,
-          String(Password),
-          SalaoId,
-          userType
-        );
-
-        if (!register) {
-          console.log("Register failed");
-          let cabeleireiroDelete = await deleteCabeleireiro(cabeleireiro.ID!);
-          let portfolioDelete = await deletePortfolio(portfolio.ID!);
-          if (cabeleireiroDelete && portfolioDelete) {
-            console.log("Cabeleireiro e Portfolio deletados com sucesso.");
-          } else if (!cabeleireiroDelete) {
-            console.log("Falha ao deletar cabeleireiro após falha no registro");
-          } else if (!portfolioDelete) {
-            console.log("Falha ao deletar portfolio após falha no registro");
-          }
+          let portfolio = await createPortfolio(
+            cabeleireiro.ID!,
+            "Portfolio de " + Nome,
+            SalaoId
+          )
+            if (!portfolio) {
+              console.log("Portfolio not created");
+              let cabeleireiroDelete = await deleteCabeleireiro(cabeleireiro.ID!);
+              if (cabeleireiroDelete) {
+                console.log("Cabeleireiro deleted successfully");
+              } else {
+                console.log("Falha ao deletar cabeleireiro após falha na criação do portfolio");
+              }
+              throw new Error("Portfolio creation failed");
+            }
+          console.log("Cabeleireiro ID: ", cabeleireiro.ID);
+          let register = await registerLogin(
+            cabeleireiro.ID!,
+            Email,
+            String(Password),
+            SalaoId,
+            userType
+          );
+            if (!register) {
+              console.log("Register failed");
+              let cabeleireiroDelete = await deleteCabeleireiro(cabeleireiro.ID!);
+              let portfolioDelete = await deletePortfolio(portfolio.ID!);
+              if (cabeleireiroDelete && portfolioDelete) {
+                console.log("Cabeleireiro e Portfolio deletados com sucesso.");
+              } else if (!cabeleireiroDelete) {
+                console.log("Falha ao deletar cabeleireiro após falha no registro");
+              } else if (!portfolioDelete) {
+                console.log("Falha ao deletar portfolio após falha no registro");
+              }
           throw new Error("Login registration failed");
+          }
+          let token = await postLogin(Email, Password, SalaoId);
+          res.status(200).send(token);
         }
-        let token = await postLogin(Email, Password, SalaoId);
-        res.status(200).send(token);
       }
     } catch (e) {
       console.log(e);
@@ -117,7 +121,25 @@ RoutesCabeleireiro.get(
     }
   }
 );
-
+RoutesCabeleireiro.get(
+  "/cabeleireiro/salao/:salaoId",
+  async (req: Request, res: Response) => {
+    let { salaoId } = req.params;
+    let { includeRelations } = req.query;
+    try {console.log("salao ", salaoId);
+      console.log("req.params:", req.params);
+console.log("req.url:", req.url);
+      let cabeleireiros = await getCabeleireiroBySalao(
+        salaoId ? String(salaoId) : "",
+        Boolean(includeRelations === "true"),
+      );
+      res.status(200).send(cabeleireiros);
+    } catch (e) {
+      console.log(e);
+      res.status(500).send("Error querying Cabeleireiros");
+    }
+  }
+);
 RoutesCabeleireiro.get(
   "/cabeleireiro/ID/:id",
   async (req: Request, res: Response) => {
@@ -126,7 +148,7 @@ RoutesCabeleireiro.get(
         "utf-8"
       ) || "{}"
     );
-    let userTypeAuth = JSON.parse(userInfo).userType;
+    let userTypeAuth = userInfo.userType;
     const auth = await authenticate(
       userInfo.userID,
       userInfo.token,
@@ -135,12 +157,12 @@ RoutesCabeleireiro.get(
     if (
       !auth ||
       ![
-        userTypes.Funcionario,
-        userTypes.AdmSalao,
-        userTypes.AdmSistema,
+        userTypes.FUNCIONARIO,
+        userTypes.ADM_SALAO,
+        userTypes.ADM_SISTEMA,
       ].includes(userTypeAuth)
     ) {
-      res.status(403);
+      res.status(403).json({ message: "Unauthorized" });
     } else {
       let { id } = req.params;
       const includeRelations = req.query.include === "true";
@@ -163,7 +185,7 @@ RoutesCabeleireiro.delete(
         "utf-8"
       ) || "{}"
     );
-    let userTypeAuth = JSON.parse(userInfo).userType;
+    let userTypeAuth = userInfo.userType;
     const auth = await authenticate(
       userInfo.userID,
       userInfo.token,
@@ -172,12 +194,12 @@ RoutesCabeleireiro.delete(
     if (
       !auth ||
       ![
-        userTypes.Funcionario,
-        userTypes.AdmSalao,
-        userTypes.AdmSistema,
+        userTypes.FUNCIONARIO,
+        userTypes.ADM_SALAO,
+        userTypes.ADM_SISTEMA,
       ].includes(userTypeAuth)
     ) {
-      res.status(403);
+      res.status(403).json({ message: "Unauthorized" });
     } else {
       let { id } = req.params;
       try {
@@ -199,7 +221,7 @@ RoutesCabeleireiro.put("/cabeleireiro", async (req: Request, res: Response) => {
         "utf-8"
       ) || "{}"
     );
-    let userTypeAuth = JSON.parse(userInfo).userType;
+    let userTypeAuth = userInfo.userType;
     const auth = await authenticate(
       userInfo.userID,
       userInfo.token,
@@ -208,12 +230,12 @@ RoutesCabeleireiro.put("/cabeleireiro", async (req: Request, res: Response) => {
     if (
       !auth ||
       ![
-        userTypes.Funcionario,
-        userTypes.AdmSalao,
-        userTypes.AdmSistema,
+        userTypes.FUNCIONARIO,
+        userTypes.ADM_SALAO,
+        userTypes.ADM_SISTEMA,
       ].includes(userTypeAuth)
     ) {
-      res.status(403);
+      res.status(403).json({ message: "Unauthorized" });
     } else {
       let cabeleireiro = await updateCabeleireiro(
         Email,

@@ -24,7 +24,7 @@ export const useVisualizarClientes = (
           limit,
           false,
           salaoId
-        );
+        );console.log("Response from getClientePage:", response);
         if (typeof response === "boolean") {
           setForbidden(true);
         } else {

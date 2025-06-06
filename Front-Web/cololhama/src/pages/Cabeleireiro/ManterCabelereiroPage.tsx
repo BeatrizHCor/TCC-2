@@ -5,9 +5,9 @@ const ManterCabeleireiroPage: React.FC = () => {
   return (
     <AuthGuard
       allowed={[
-        userTypes.ADM_SALAO,
-        userTypes.ADM_SISTEMA,
-        userTypes.FUNCIONARIO,
+        userTypes.AdmSalao,
+        userTypes.AdmSistema,
+        userTypes.Funcionario,
       ]}
     >
       <>

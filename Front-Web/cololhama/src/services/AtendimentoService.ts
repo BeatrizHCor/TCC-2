@@ -6,9 +6,16 @@ const api = axios.create({
   baseURL: import.meta.env.FUNC_URL || "http://localhost:3002",
   headers: {
     "Content-Type": "application/json",
-    Authorization: btoa(token || ""),
   },
 });
+
+api.interceptors.request.use((config) => {
+  const token = localStorage.getItem("usuario");
+  config.headers = config.headers || {};
+  config.headers.Authorization = btoa(token || "");
+  return config;
+});
+
 interface AtendimentoPageResponse {
     data: Atendimento[];
     total: number;
@@ -44,7 +51,7 @@ interface AtendimentoPageResponse {
       });
     if (response.status === 403) {
         return false;
-    }console.log("Atendimentos:", response.data);
+    }
       return response.data;
     } catch (error) {
       console.error("Erro ao buscar atendimentos:", error);

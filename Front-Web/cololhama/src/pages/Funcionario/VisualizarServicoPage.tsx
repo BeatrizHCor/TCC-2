@@ -1,4 +1,4 @@
-import react from "react";
+import React from "react";
 import { VisualizarServicos } from "../../components/Funcionario/VisualizarServicos";
 
 const VisualizarServicoPage: React.FC = () => {

@@ -69,7 +69,6 @@ const ManterFuncionario: React.FC = () => {
 
   const handleCpfChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const rawValue = e.target.value.replace(/\D/g, "");
-    // Limit to 11 digits (CPF length)
     const limitedValue = rawValue.slice(0, 11);
     let formattedValue = "";
 
@@ -145,14 +144,26 @@ const ManterFuncionario: React.FC = () => {
 
   return (
     <Box sx={{ width: "100%", p: 3 }}>
-      <Paper elevation={3} sx={{ p: 3, maxWidth: "800px", mx: "auto" }}>
-        <Typography variant="h5" sx={{ mb: 3 }}>
+      <Paper
+        elevation={3}
+        sx={{
+          p: { xs: 1, sm: 3 },
+          maxWidth: { xs: "100%", sm: "800px" },
+          mx: "auto",
+          width: "100%",
+        }}
+      >
+        <Typography variant="h5" sx={{ mb: 3, fontSize: { xs: "1.2rem", sm: "2rem" } }}>
           {isEditing ? "Editar Funcionário" : "Novo Funcionário"}
         </Typography>
 
         <form onSubmit={handleSubmit}>
-          <Box sx={{ display: "flex", gap: 2, flexDirection: "column" }}>
-            <Box sx={{ width: { xs: "100%", sm: "50%" } }}>
+          <Box sx={{ display: "flex", flexDirection: "column", gap: { xs: 2, sm: 3 } }}>
+            <Box sx={{
+              display: "flex",
+              flexDirection: { xs: "column", sm: "row" },
+              gap: { xs: 2, sm: 3 }
+            }}>
               <TextField
                 fullWidth
                 required
@@ -164,7 +175,11 @@ const ManterFuncionario: React.FC = () => {
                 disabled={isLoading}
               />
             </Box>
-            <Box sx={{ display: "flex", gap: 3 }}>
+            <Box sx={{
+              display: "flex",
+              flexDirection: { xs: "column", sm: "row" },
+              gap: { xs: 2, sm: 3 }
+            }}>
               <Box sx={{ flex: 1 }}>
                 <TextField
                   fullWidth
@@ -182,7 +197,7 @@ const ManterFuncionario: React.FC = () => {
                       },
                     },
                   }}
-                  disabled={isLoading}
+                  disabled={isLoading || isEditing}
                 />
               </Box>
               <Box sx={{ flex: 1 }}>
@@ -206,7 +221,9 @@ const ManterFuncionario: React.FC = () => {
                 />
               </Box>
             </Box>
-            <Box sx={{ width: { xs: "100%", sm: "50%" } }}>
+            <Box sx={{
+              width: { xs: "100%", sm: "50%" }
+            }}>
               <TextField
                 fullWidth
                 required

@@ -1,16 +1,21 @@
 import axios from "axios";
 import { Agendamentos } from "../models/agendamentoModel";
 import { StatusAgendamento } from "../models/StatusAgendamento.enum";
+import { ServicoAgendamento } from "../models/servicoAgendamentoModel";
 
 const token = localStorage.getItem("usuario");
 const api = axios.create({
   baseURL: import.meta.env.VITE_GATEWAY_URL || "http://localhost:5000",
   headers: {
     "Content-Type": "application/json",
-    Authorization: btoa(token || ""),
   },
 });
-
+api.interceptors.request.use((config) => {
+  const token = localStorage.getItem("usuario");
+  config.headers = config.headers || {};
+  config.headers.Authorization = btoa(token || "");
+  return config;
+});
 
 interface AgendamentoPaginadoResponse {
   total: number;
@@ -19,11 +24,8 @@ interface AgendamentoPaginadoResponse {
   data: Agendamentos[];
 }
 
-
 class AgendamentoService {
-  static deletarAgendamento(id: string) {
-      throw new Error("Method not implemented.");
-  }
+
   static async getAgendamentosPaginados(
     page: number = 1,
     limit: number = 10,
@@ -52,18 +54,20 @@ class AgendamentoService {
       throw error;
     }
   }
-  static async createAgendamento(
-    Data: Date,
+static async createAgendamento(
+    Data: string,
     ClienteID: string,
+    CabeleireiroID: string,
     SalaoId: string,
-    CabeleireiroID: string
+    ServicoId: string[] = []
   ): Promise<Agendamentos> {
     try {
       const response = await api.post(`/agendamento`, {
-        Data,
-        ClienteID,
-        SalaoId,
-        CabeleireiroID
+      Data,
+      ClienteID,
+      CabeleireiroID,
+      SalaoId,
+      ServicoId
       });
       return response.data;
     } catch (error) {
@@ -74,10 +78,12 @@ class AgendamentoService {
 
   static async updateAgendamento(
     id: string,
-    Data: Date,
+    Data: string,
     Status: StatusAgendamento,
     ClienteID: string,
-    CabeleireiroID: string
+    CabeleireiroID: string,
+    SalaoId: string,
+    ServicoId: string[] = []
   ): Promise<Agendamentos> {
     try {
       const response = await api.put(`/agendamento/${id}`,
@@ -85,7 +91,9 @@ class AgendamentoService {
         Data: Data,
         Status: Status,
         ClienteID,
-        CabeleireiroID
+        CabeleireiroID,
+        SalaoId,
+        ServicoId
       });
       return response.data;
     } catch (error) {
@@ -93,6 +101,40 @@ class AgendamentoService {
       throw error;
     }
   }
+  static async getFuncionarioAgendamentoById(id: string): Promise<Agendamentos> {
+    try {
+      const response = await api.get(`/funcionario/agendamento/${id}`);
+      return response.data;
+    } catch (error) {
+      console.error("Erro ao buscar agendamento por ID:", error);
+      throw error;
+    }
+  }
+  static async getCabeleireiroAgendamentoById(id: string): Promise<Agendamentos> {
+    try {
+      const response = await api.get(`/cabeleireiro/agendamento/${id}`);
+      return response.data;
+    } catch (error) {
+      console.error("Erro ao buscar agendamento por ID:", error);
+      throw error;
+    }
+  }  
+  static async getClienteAgendamentoById(id: string): Promise<Agendamentos> {
+    try {
+      const response = await api.get(`/cliente/agendamento/${id}`);
+      return response.data;
+    } catch (error) {
+      console.error("Erro ao buscar agendamento por ID:", error);
+      throw error;
+    }
+  }
+  static deletarAgendamento(id: string): Promise<Agendamentos> {
+      throw new Error("Method not implemented.");
+  }
+    static deleteAgendamento(agendamentoId: string) {
+      throw new Error("Method not implemented.");
+  }
+
 }
 
 export default AgendamentoService;

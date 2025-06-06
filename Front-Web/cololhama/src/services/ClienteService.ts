@@ -1,14 +1,19 @@
 import axios from "axios";
 import { Cliente } from "../models/clienteModel";
 
-const token = localStorage.getItem("usuario");
 const api = axios.create({
   baseURL: import.meta.env.VITE_GATEWAY_URL || "http://localhost:5000",
-  timeout: 100000,
+  timeout: 10000,
   headers: {
     "Content-Type": "application/json",
-    Authorization: btoa(token || ""),
   },
+});
+
+api.interceptors.request.use((config) => {
+  const token = localStorage.getItem("usuario");
+  config.headers = config.headers || {};
+  config.headers.Authorization = btoa(token || "");
+  return config;
 });
 
 interface ClientePageResponse {
@@ -93,6 +98,7 @@ export const ClienteService = {
         },
       });
       if (response.status === 403) {
+        console.log("Chamada não autorizada");
         return false;
       }
       return response.data;

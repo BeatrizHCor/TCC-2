@@ -1,6 +1,11 @@
 import { Router, Request, Response } from "express";
-import { postLogin, registerLogin } from "../services/Service";
-import { getAgendamentosPage, postAgendamento } from "../services/ServiceAgendamento";
+import { 
+  CabeleireirogetAgendamentoById,
+  ClientegetAgendamentoById,
+  FuncionariogetAgendamentoById, 
+  getAgendamentosPage, 
+  postAgendamento, 
+  updateAgendamento } from "../services/ServiceAgendamento";
 
 
 const RoutesAgendamento = Router();
@@ -9,8 +14,9 @@ RoutesAgendamento.post(
   "/agendamento",
     async(req: Request, res: Response) => {
       const { Data, ClienteID, SalaoId, CabeleireiroID } = req.body;
+      const { ServicoId } = req.body;
       try{
-        const result = await postAgendamento(Data, ClienteID, SalaoId, CabeleireiroID);
+        const result = await postAgendamento(Data, ClienteID,  CabeleireiroID, SalaoId, ServicoId);
         res.status(201).json(result);
       } catch(e){
         console.log(e);
@@ -47,4 +53,73 @@ RoutesAgendamento.get(
         }
     }
 );
+
+RoutesAgendamento.get(
+  "/funcionario/agendamento/:id",
+  async (req: Request, res: Response) => {
+    const { id } = req.params;
+    const includeRelations = req.query.includeRelations === "true";
+    try {
+      const agendamento = await FuncionariogetAgendamentoById(id, includeRelations);
+      res.json(agendamento);
+    } catch (error) {
+      console.error("Erro ao buscar agendamento por ID:", error);
+      res.status(500).json({ message: "Erro interno do servidor" });
+    }
+  }
+);
+
+RoutesAgendamento.get(
+  "/cabeleireiro/agendamento/:id",
+  async (req: Request, res: Response) => {
+    const { id } = req.params;
+    const includeRelations = req.query.includeRelations === "true";
+    try {
+      const agendamento = await CabeleireirogetAgendamentoById(id, includeRelations);
+      res.json(agendamento);
+    } catch (error) {
+      console.error("Erro ao buscar agendamento por ID:", error);
+      res.status(500).json({ message: "Erro interno do servidor" });
+    }
+  }
+);
+
+RoutesAgendamento.get(
+  "/cliente/agendamento/:id",
+  async (req: Request, res: Response) => {
+    const { id } = req.params;
+    const includeRelations = req.query.includeRelations === "true";
+    try {
+      const agendamento = await ClientegetAgendamentoById(id, includeRelations);
+      res.json(agendamento);
+    } catch (error) {
+      console.error("Erro ao buscar agendamento por ID:", error);
+      res.status(500).json({ message: "Erro interno do servidor" });
+    }
+  }
+);
+RoutesAgendamento.put(
+  "/agendamento/:id",
+  async (req: Request, res: Response) => {
+    const { id } = req.params;
+    const { Data, Status, ClienteID, CabeleireiroID, SalaoId, servicosIds } = req.body;
+    try {
+      const agendamento = await updateAgendamento(
+        id,
+        Data,
+        Status,
+        ClienteID,
+        CabeleireiroID,
+        SalaoId,
+        servicosIds
+      );
+      res.json(agendamento);
+    } catch (error) {
+      console.error("Erro ao atualizar agendamento:", error);
+      res.status(500).json({ message: "Erro interno do servidor" });
+    }
+  }
+);
+
+
 export default RoutesAgendamento;

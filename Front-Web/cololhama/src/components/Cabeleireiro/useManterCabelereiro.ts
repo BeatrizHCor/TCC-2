@@ -54,7 +54,7 @@ export const useManterCabeleireiro = (cabeleireiroId?: string) => {
         setCpf(cabeleireiro.CPF || "");
         setEmail(cabeleireiro.Email || "");
         setTelefone(cabeleireiro.Telefone || "");
-        setMei(cabeleireiro.MEI || "");
+        setMei(cabeleireiro.Mei || "");
         setSalaoId(cabeleireiro.SalaoId || null);
       } catch (error) {
         console.error("Erro ao buscar cabeleireiro:", error);
@@ -76,9 +76,9 @@ export const useManterCabeleireiro = (cabeleireiroId?: string) => {
       errors.nome = "Nome do cabeleireiro é obrigatório";
     }
 
-    if (!cpf.trim()) {
+    if (!isEditing && !cpf.trim()) {
       errors.cpf = "CPF é obrigatório";
-    } else if (!validarCPF(cpf)) {
+    } else if (!isEditing && !validarCPF(cpf)) {
       errors.cpf = "CPF inválido";
     }
 

@@ -37,15 +37,6 @@ interface AtendimentoExibicao {
 
 const SalaoID = import.meta.env.VITE_SALAO_ID || "1";
 
-const colunas = [
-  { id: "nomeCliente", label: "Cliente" },
-  { id: "nomeCabeleireiro", label: "Cabeleireiro" },
-  { id: "data", label: "Data" },
-  { id: "hora", label: "Hora" },
-  { id: "valorTotal", label: "Valor Total" },
-  { id: "quantidadeServicos", label: "Qtd. Serviços" },
-];
-
 export const VisualizarAtendimentos: React.FC = () => {
   const {userType, userId} = useContext(AuthContext);
   const [page, setPage] = useState(0);
@@ -60,8 +51,17 @@ export const VisualizarAtendimentos: React.FC = () => {
   const [anoFilter, setAnoFilter] = useState("");
   const [mesFilter, setMesFilter] = useState("");
   const [diaFilter, setDiaFilter] = useState("");
-  const isCliente = userType === userTypes.CLIENTE;
-  const isCabeleireiro = userType === userTypes.CABELEIREIRO;
+  const isCliente = userType === userTypes.Cliente;
+  const isCabeleireiro = userType === userTypes.Cabeleireiro;
+
+  const colunas = [
+  ...(isCliente ? [] : [{ id: "nomeCliente", label: "Cliente" }]),
+  ...(isCabeleireiro ? [] : [{ id: "nomeCabeleireiro", label: "Cabeleireiro" }]),
+  { id: "data", label: "Data" },
+  { id: "hora", label: "Hora" },
+  { id: "valorTotal", label: "Valor Total" },
+  { id: "quantidadeServicos", label: "Qtd. Serviços" },
+];
 
   const {
     atendimentos,
@@ -179,54 +179,57 @@ export const VisualizarAtendimentos: React.FC = () => {
   if (error) return <Box>Erro ao carregar atendimentos: {error}</Box>;
 
   return (
-  <Box sx={{ width: "100%", p: 2 }}>
-    <Typography variant="h5" sx={{ mb: 3 }}>
-      Atendimentos
-    </Typography>
+    <Box sx={{ width: "100%", p: 2 }}>
+      <Typography variant="h5" sx={{ mb: 3 }}>
+        Atendimentos
+      </Typography>
 
       <Paper sx={{ p: 2, mb: 2 }}>
         <Typography variant="h6" sx={{ mb: 2 }}>
           Filtros
         </Typography>
         <Box
-            display="flex"
-            alignItems="center"
-            gap={2}
-            flexWrap="wrap">
-          <Box             
-            display="flex"
-            alignItems="center"
-            gap={1}
-            flexWrap="wrap"
-            width="100%">
+          sx={{
+            display: "flex",
+            flexDirection: { xs: "column", sm: "row" },
+            gap: 2,
+            flexWrap: "wrap",
+            alignItems: { xs: "stretch", sm: "center" },
+            width: "100%",
+          }}
+        >
           {!isCliente && (
-             <Box flex={2} display="flex" alignItems="center">
-              <TextField
-                variant="outlined"
-                label="Cliente"
-                value={clienteFiltroInput}
-                onChange={handleClienteFilterInput}
-                fullWidth
-                size="small"
-              />
-            </Box>
+            <TextField
+              variant="outlined"
+              label="Cliente"
+              value={clienteFiltroInput}
+              onChange={handleClienteFilterInput}
+              fullWidth
+              size="small"
+              sx={{ minWidth: { xs: "100%", sm: 180 } }}
+            />
           )}
-
           {!isCabeleireiro && (
-            <Box flex={2} display="flex" alignItems="center">
-              <TextField
-                variant="outlined"
-                label="Cabeleireiro"
-                value={cabelereiroFiltroInput}
-                onChange={handleCabelereiroFilterInput}
-                fullWidth
-                size="small"
-              />
-            </Box>
+            <TextField
+              variant="outlined"
+              label="Cabeleireiro"
+              value={cabelereiroFiltroInput}
+              onChange={handleCabelereiroFilterInput}
+              fullWidth
+              size="small"
+              sx={{ minWidth: { xs: "100%", sm: 180 } }}
+            />
           )}
-
-          <Box flex={1} display="flex" alignItems="center">
-            <FormControl fullWidth size="small">
+          <Box
+            sx={{
+              display: "flex",
+              flexDirection: { xs: "column", sm: "row" },
+              gap: 2,
+              flex: 1,
+              minWidth: { xs: "100%", sm: "auto" },
+            }}
+          >
+            <FormControl fullWidth size="small" sx={{ minWidth: { xs: "30%", sm: 120 } }}>
               <InputLabel>Ano</InputLabel>
               <Select
                 value={anoFilter}
@@ -241,9 +244,7 @@ export const VisualizarAtendimentos: React.FC = () => {
                 ))}
               </Select>
             </FormControl>
-          </Box>
-          <Box flex={1} display="flex" alignItems="center">
-            <FormControl fullWidth size="small">
+            <FormControl fullWidth size="small" sx={{ minWidth: { xs: "30%", sm: 120 } }}>
               <InputLabel>Mês</InputLabel>
               <Select
                 value={mesFilter}
@@ -259,9 +260,7 @@ export const VisualizarAtendimentos: React.FC = () => {
                 ))}
               </Select>
             </FormControl>
-          </Box>              
-          <Box flex={1} display="flex" alignItems="center">
-            <FormControl fullWidth size="small">
+            <FormControl fullWidth size="small" sx={{ minWidth: { xs: "30%", sm: 100 } }}>
               <InputLabel>Dia</InputLabel>
               <Select
                 value={diaFilter}
@@ -278,38 +277,43 @@ export const VisualizarAtendimentos: React.FC = () => {
               </Select>
             </FormControl>
           </Box>
-        </Box>
-      </Box>  
-        <Box sx={{ mt: 2, display: "flex", gap: 2, alignItems: "center"}}>
-          <Button variant="contained" onClick={aplicarFiltros}>
-            Buscar
-          </Button>
-          <Button variant="outlined" onClick={limparFiltros}>
-            Limpar Filtros
-          </Button>
+          <Box sx={{ display: "flex", gap: 2, width: { xs: "100%", sm: "auto" }, mt: { xs: 2, sm: 0 } }}>
+            <Button variant="contained" onClick={aplicarFiltros} fullWidth={true}>
+              Buscar
+            </Button>
+            <Button variant="outlined" onClick={limparFiltros} fullWidth={true}>
+              Limpar Filtros
+            </Button>
+          </Box>
         </Box>
       </Paper>
 
       <Paper sx={{ width: "100%", mb: 2 }}>
-        <TableContainer>
+        <TableContainer sx={{ overflowX: "auto" }}>
           <Table>
             <TableHead>
               <TableRow>
                 {colunas.map((coluna) => (
                   <TableCell key={coluna.id}>{coluna.label}</TableCell>
                 ))}
-                <TableCell>Ações</TableCell>
               </TableRow>
             </TableHead>
             <TableBody>
               {atendimentos.map((atendimento: AtendimentoExibicao) => (
-                <TableRow key={atendimento.ID}>
-                {!isCliente && (
-                  <TableCell>{atendimento.NomeCliente}</TableCell>
-                )}
-                {!isCabeleireiro && (
-                  <TableCell>{atendimento.NomeCabeleireiro}</TableCell>
-                )}
+                <TableRow
+                  key={atendimento.ID}
+                  hover
+                  sx={{ cursor: "pointer" }}
+                  onClick={() =>
+                    atendimento.ID && handleEditarAtendimento(atendimento.ID)
+                  }
+                >
+                  {!isCliente && (
+                    <TableCell>{atendimento.NomeCliente}</TableCell>
+                  )}
+                  {!isCabeleireiro && (
+                    <TableCell>{atendimento.NomeCabeleireiro}</TableCell>
+                  )}
                   <TableCell>
                     {atendimento.Data
                       ? new Date(atendimento.Data).toLocaleDateString("pt-BR")
@@ -320,19 +324,6 @@ export const VisualizarAtendimentos: React.FC = () => {
                     R$ {atendimento.ValorTotal?.toFixed(2) || "0,00"}
                   </TableCell>
                   <TableCell>{atendimento.QuantidadeServicos}</TableCell>
-                  <TableCell>
-                    <Button
-                      startIcon={<EditIcon />}
-                      variant="outlined"
-                      size="small"
-                      onClick={() =>
-                        atendimento.ID &&
-                        handleEditarAtendimento(atendimento.ID)
-                      }
-                    >
-                      Exibir Detalhes
-                    </Button>
-                  </TableCell>
                 </TableRow>
               ))}
             </TableBody>

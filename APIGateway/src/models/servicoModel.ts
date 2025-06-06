@@ -1,11 +1,13 @@
+import { ServicoAgendamento } from "./servicoAgendamentoModel";
 import { ServicoAtendimento } from "./servicoAtendimentoModel";
 
 export interface Servico {
     ID?: string;
-    SaloId: string;
+    SalaoId: string;
     Nome: string;
     PrecoMin: number;
     PrecoMax: number;
     Descricao: string;
-    ServicoAtendimento: ServicoAtendimento[];
+    ServicoAtendimento?: ServicoAtendimento[];
+    ServicoAgendamento?: ServicoAgendamento[];
   }

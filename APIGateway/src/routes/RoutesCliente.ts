@@ -10,9 +10,9 @@ import {
 import { authenticate, postLogin, registerLogin } from "../services/Service";
 import { userTypes } from "../models/tipo-usuario.enum";
 
-const RoutesCustomer = Router();
+const RoutesCliente = Router();
 
-RoutesCustomer.post("/cliente", async (req: Request, res: Response) => {
+RoutesCliente.post("/cliente", async (req: Request, res: Response) => {
   let { CPF, Nome, Email, Telefone, SalaoId, Password, userType } = req.body;
   try {
     let cliente = await postCliente(CPF, Nome, Email, Telefone, SalaoId);
@@ -46,7 +46,7 @@ RoutesCustomer.post("/cliente", async (req: Request, res: Response) => {
   }
 });
 
-RoutesCustomer.get("/cliente/page", async (req: Request, res: Response) => {
+RoutesCliente.get("/cliente/page", async (req: Request, res: Response) => {
   const page = (req.query.page as string) || "0";
   const limit = (req.query.limit as string) || "10";
   const includeRelations = req.query.include === "true" ? true : false;
@@ -57,37 +57,47 @@ RoutesCustomer.get("/cliente/page", async (req: Request, res: Response) => {
         "utf-8"
       ) || "{}"
     );
-    let userType = JSON.parse(userInfo).userType;
-    const auth = await authenticate(
-      userInfo.userID,
-      userInfo.token,
-      userInfo.userType
-    );
-    if (
-      auth &&
-      [
-        userTypes.Funcionario,
-        userTypes.AdmSalao,
-        userTypes.AdmSistema,
-      ].includes(userType)
-    ) {
-      const clientes = await getClientePage(
-        page,
-        limit,
-        includeRelations,
-        salaoId
-      );
-      res.json(clientes);
-    } else {
-      res.status(403);
-    }
+      if (!userInfo || !userInfo.userID || !userInfo.token || !userInfo.userType) {
+      console.log("Informações de auntenticação ausentes ou inválidas");
+      res.status(403).json({ message: "Unauthorized" });
+      } else {
+      let userType = userInfo.userType;
+      const auth = await authenticate(
+        userInfo.userID,
+        userInfo.token,
+        userInfo.userType
+      ); 
+      if (
+        auth &&
+        [
+          userTypes.FUNCIONARIO,
+          userTypes.ADM_SALAO,
+          userTypes.ADM_SISTEMA,
+        ].includes(userType)
+      ) {
+        const clientes = await getClientePage(
+          page,
+          limit,
+          includeRelations,
+          salaoId
+        );
+          if (clientes) {
+            res.status(200).json(clientes);
+          } else {
+            res.status(204).json({ message: "Cliente não encontrado" });
+          }
+      } else {
+        console.log("Chamada não autorizada");
+        res.status(403).json({ message: "Não autorizado" });
+      }
+  }
   } catch (error) {
     console.error("Erro ao buscar clientes:", error);
     res.status(500).json({ message: "Erro interno do servidor" });
   }
 });
 
-RoutesCustomer.put("/cliente/:id", async (req: Request, res: Response) => {
+RoutesCliente.put("/cliente/:id", async (req: Request, res: Response) => {
   const { id } = req.params;
   const { CPF, Nome, Email, Telefone, SalaoId } = req.body;
   const clienteData = {
@@ -120,7 +130,7 @@ RoutesCustomer.put("/cliente/:id", async (req: Request, res: Response) => {
   }
 });
 
-RoutesCustomer.get("/cliente/:id", async (req, res) => {
+RoutesCliente.get("/cliente/:id", async (req, res) => {
   const { id } = req.params;
   try {
     const userInfo = JSON.parse(
@@ -149,10 +159,23 @@ RoutesCustomer.get("/cliente/:id", async (req, res) => {
   }
 });
 
-RoutesCustomer.get("/cliente/cpf/:cpf/:salaoId", async (req, res) => {
-  const { cpf, salaoId } = req.params;
-  try {
-    const cliente = await getClienteByCPF(cpf, salaoId);
+RoutesCliente.get("/cliente/cpf/:cpf/:salaoId", async (req, res) => {
+   const { cpf, salaoId } = req.params;
+   try {
+    const userInfo = JSON.parse(
+      Buffer.from(req.headers.authorization || "", "base64").toString(
+        "utf-8"
+      ) || "{}"
+    );
+    const auth = await authenticate(
+      userInfo.userID,
+      userInfo.token,
+      userInfo.userType
+    );
+    if (!auth) {
+      res.status(403).json({ message: "Não autorizado a fazer esta chamada" });
+    }
+     const cliente = await getClienteByCPF(cpf, salaoId);
     if (cliente) {
       res.status(200).json(cliente);
     } else {
@@ -164,14 +187,40 @@ RoutesCustomer.get("/cliente/cpf/:cpf/:salaoId", async (req, res) => {
   }
 });
 
-RoutesCustomer.delete("/cliente/:id", async (req, res) => {
-  const { id } = req.params;
-  try {
-    const cliente = await deleteCliente(id);
-    if (cliente) {
-      res.status(200).json(cliente);
+RoutesCliente.delete("/cliente/:id", async (req, res) => {
+   const { id } = req.params;
+   try {
+    const userInfo = JSON.parse(
+      Buffer.from(req.headers.authorization || "", "base64").toString(
+        "utf-8"
+      ) || "{}"
+    );
+
+    if ( !userInfo || !userInfo.userID || !userInfo.token || !userInfo.userType ) {
+      res.status(403).json({ message: "Não autorizado" });
     } else {
-      res.status(204).json({ message: "Cliente não encontrado" });
+      let userType = userInfo.userType;
+      const auth = await authenticate(
+        userInfo.userID,
+        userInfo.token,
+        userInfo.userType
+      ); 
+        if (
+          auth &&
+          [
+            userTypes.ADM_SALAO,
+            userTypes.ADM_SISTEMA,
+          ].includes(userType)
+        ) {
+          const cliente = await deleteCliente(id);
+          if (cliente) {
+            res.status(200).json(cliente);
+          } else {
+            res.status(204).json({ message: "Cliente não encontrado" });
+          }
+        } else {
+            res.status(403).json({ message: "Não autorizado a fazer esta chamada" });
+        }
     }
   } catch (error) {
     console.error("Erro ao buscar cliente:", error);
@@ -179,4 +228,4 @@ RoutesCustomer.delete("/cliente/:id", async (req, res) => {
   }
 });
 
-export default RoutesCustomer;
+export default RoutesCliente;
