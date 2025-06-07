@@ -8,11 +8,11 @@ class FuncionarioController {
       const { page, limit, includeRelations, salaoId } = req.query;
       const nome = req.query.nome ? String(req.query.nome) : null;
       const funcionarios = await FuncionarioService.getFuncionarioPage(
-        page ? Number(page): 1,
-        limit ? Number(limit): 10,
+        !isNaN(Number(page)) ? Number(page): 1,
+        !isNaN(Number(limit)) ? Number(limit): 10,
         nome ? String(nome) : null,
         includeRelations === "true",
-        salaoId ? String(salaoId) : null
+        salaoId ? String(salaoId) : ""
       );
       res.json(funcionarios);
     } catch (error) {
@@ -26,10 +26,10 @@ class FuncionarioController {
       const { limit, nome, includeRelations, salaoId } = req.query;
       const funcionarios = await FuncionarioService.getFuncionarios(
         null,
-        Number(limit),
+        !isNaN(Number(limit)) ? Number(limit): 10,
         nome ? String(nome) : null,
         includeRelations === 'true',
-        salaoId ? String(salaoId) : null
+        salaoId ? String(salaoId) : ""
       );
       res.json(funcionarios);
     } catch (error) {
@@ -41,6 +41,11 @@ class FuncionarioController {
   static async create(req: Request, res: Response): Promise<void> {
     try {
       let { CPF, Nome, Email, Telefone, SalaoId, Auxiliar, Salario } = req.body;
+      const existingFuncionario = await FuncionarioService.findByEmailandSalao(Email, SalaoId);
+      if (existingFuncionario) {
+        console.error('Funcionário já cadastrado neste salão:', { Email, SalaoId });
+        throw new Error('Funcionário já cadastrado neste salão');
+      }
       const newFuncionario = await FuncionarioService.create(
         CPF,
         Nome,

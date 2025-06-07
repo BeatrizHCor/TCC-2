@@ -1,6 +1,6 @@
 import prisma from "../config/database";
 import { Prisma } from "@prisma/client";
-import { isValidNumber, isValidString } from "../utils/ValidacaoValoresBusca";
+
 
 class ServicoService {
   static async getServicos(
@@ -10,23 +10,23 @@ class ServicoService {
     precoMin: number,
     precoMax: number,
     include = false,
-    salaoId: string | null = null
+    salaoId: string
   ) {
     let whereCondition: Prisma.ServicoWhereInput = {};
-    if (isValidString(nome)) {
+    if (nome) {
       whereCondition.Nome = {
         contains: nome,
         mode: 'insensitive',
       };
     }
-    if (salaoId !== null) {
+    if (salaoId) {
       whereCondition.SalaoId = salaoId;
     }
-    if (precoMin !== 0 && !isNaN(precoMin)) {
+    if (precoMin !== 0) {
       whereCondition.PrecoMin = { gte: precoMin };
     }
 
-    if (precoMax !== 0 && !isNaN(precoMax)) {
+    if (precoMax !== 0) {
       whereCondition.PrecoMax = { lte: precoMax };
     }
 
@@ -34,13 +34,13 @@ class ServicoService {
       where: whereCondition,
     };
 
-    if (typeof skip === 'number' && !isNaN(skip)) {
+    if (skip !== null) {
       query.skip = skip;
     } else {
       query.skip = 0; 
     }
 
-    if (typeof limit === 'number' && !isNaN(limit)) {
+    if (skip !== null) {
       query.take = limit;
     } else {
       query.take = 10; 
@@ -62,34 +62,32 @@ class ServicoService {
     precoMin: number,
     precoMax: number,
     includeRelations = false,
-    salaoId: string | null = null
+    salaoId: string
   ) {
-    const pageNum = isValidNumber(page) ? page : 1;
-    const limitNum = isValidNumber(limit) ? limit : 10;
-    const skip = (pageNum - 1) * limitNum;
+    const skip = (page - 1) * limit;
     const where: Prisma.ServicoWhereInput = {};
-    if (salaoId !== null) {
+    if (salaoId) {
       where.SalaoId = salaoId;
     }
-    if (precoMin !== 0 && isValidNumber(precoMin) ) {
+    if (precoMin !== 0) {
       where.PrecoMin = { gte: precoMin };
     }
-    if (precoMin !== 0 && isValidNumber(precoMax)) {
+    if (precoMin !== 0) {
       where.PrecoMax = { lte: precoMax };
     }
-    if(isValidString(nome)){
+    if(nome){
       where.Nome = { contains: nome, mode: 'insensitive' };
     }
 
     const [total, servicos] = await Promise.all([
       prisma.servico.count({ where }), 
-      ServicoService.getServicos(skip, limitNum, nome, precoMin, precoMax, includeRelations, salaoId),
+      ServicoService.getServicos(skip, limit, nome, precoMin, precoMax, includeRelations, salaoId),
     ]);
   
     return {
       total: total,
-      page: pageNum,
-      limit: limitNum,
+      page: page,
+      limit: limit,
       data: servicos,
     };
   }
@@ -104,18 +102,18 @@ class ServicoService {
     try {
       const servico = await prisma.servico.create({
         data: {
-          Nome,
-          SalaoId,
-          PrecoMin,
-          PrecoMax,
-          Descricao,          
+          Nome: Nome,
+          SalaoId: SalaoId,
+          PrecoMin: PrecoMin,
+          PrecoMax: PrecoMax,
+          Descricao: Descricao,          
         },
       });
       
       console.log(servico);
       return servico;
     } catch (error) {
-      console.error('Erro ao criar serviço:', error);
+      console.error("Erro ao criar serviço: ", error);
       throw new Error('Erro ao criar serviço');
     }
   }
@@ -136,7 +134,7 @@ class ServicoService {
           : {}),
       });
     } catch (error) {
-      console.error('Erro ao localizar serviço:', error);
+      console.error("Erro ao localizar serviço: ", error);
       return false;
     }
   }
@@ -149,47 +147,33 @@ class ServicoService {
     Descricao: string,
     SalaoId: string) {
     try {
-      const existingServico = await this.findById(ID);
-      
-      if (!existingServico) {
-        throw new Error("Serviço não encontrado");
-      }
-      if (PrecoMin > PrecoMax) {
-        throw new Error('Preço mínimo não pode ser maior que o preço máximo');
-      }
       return await prisma.servico.update({
         where: {
           ID: ID,
         },
         data: {
-          Nome,
-          PrecoMin,
-          PrecoMax,
-          Descricao,
-          SalaoId,
+          Nome: Nome,
+          PrecoMin: PrecoMin,
+          PrecoMax: PrecoMax,
+          Descricao: Descricao,
+          SalaoId: SalaoId,
         },
       });
     } catch (error) {
-      console.error('Erro ao atualizar serviço:', error);
+      console.error("Erro ao atualizar serviço: ", error);
       throw new Error("Erro ao atualizar serviço");
     }
   }
 
   static async delete(ID: string) {
-    try {
-      const existingServico = await this.findById(ID);
-      
-      if (!existingServico) {
-        throw new Error("Serviço não encontrado");
-      }
-      
+    try {     
       return await prisma.servico.delete({
         where: {
           ID: ID,
         },
       });
     } catch (error) {
-      console.error('Erro ao excluir serviço:', error);
+      console.error("Erro ao excluir serviço: ", error);
       throw new Error("Erro ao excluir serviço");
     }
   }
@@ -209,7 +193,7 @@ class ServicoService {
           : {}),
       });
     } catch (error) {
-      console.error('Erro ao buscar serviços do salão:', error);
+      console.error("Erro ao buscar serviços do salão: ", error);
       throw new Error("Erro ao buscar serviços do salão");
     }
   }
@@ -225,7 +209,7 @@ class ServicoService {
         },
       });
     } catch (error) {
-      console.error('Erro ao buscar serviço pelo nome', error);
+      console.error("Erro ao buscar serviço pelo nome", error);
       throw new Error("Erro ao buscar serviço pelo nome e salão");
     }
   }
