@@ -28,12 +28,14 @@ export const postCliente = async (
 export const getClientePage = async (
   page: string,
   limit: string,
-  includeRelations: boolean = false,
-  salaoId: string
+  salaoId: string,
+  includeRelations: boolean,
+  termoBusca: string,
+  campoBusca: string,
 ) => {
   let responseClientes = await fetch(
     CustomerURL +
-      `/cliente/page?page=${page}&limit=${limit}&includeRelations=${includeRelations}&salaoId=${salaoId}`,
+      `/cliente/page?page=${page}&limit=${limit}&salaoId=${salaoId}&includeRelations=${includeRelations}&termoBusca=${termoBusca}&campoBusca=${campoBusca}`,
     {
       method: "GET",
     }

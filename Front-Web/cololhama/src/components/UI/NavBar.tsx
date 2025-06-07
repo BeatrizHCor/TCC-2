@@ -17,12 +17,12 @@ import ContentCutIcon from "@mui/icons-material/ContentCut";
 import theme from "../../styles/theme";
 import { AuthContext } from "../../contexts/AuthContext";
 import { userTypes } from "../../models/tipo-usuario.enum";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 
 const NavBar: React.FC = () => {
   const { userId, userType, checkLocalStorage, doLogout } = useContext(AuthContext);
   const [drawerOpen, setDrawerOpen] = useState(false);
-
+  const navigate = useNavigate();
   useEffect(() => {
     checkLocalStorage();
   }, [userType]);
@@ -42,7 +42,10 @@ const NavBar: React.FC = () => {
     { route: "/funcionarios", label: "Funcionarios" },
   ];
 
- 
+  const handleLogout = () => {
+    doLogout();
+    navigate("/");
+  }; 
   const navLinks = [
     ...mainRoutes,
     ...(userType ? userRoutes : []),
@@ -77,7 +80,7 @@ const NavBar: React.FC = () => {
       ) : (
         <List>
           <ListItem disablePadding>
-            <ListItemButton onClick={doLogout}>
+            <ListItemButton onClick={handleLogout}>
               <ListItemText primary="Sair" />
             </ListItemButton>
           </ListItem>
@@ -203,7 +206,7 @@ const NavBar: React.FC = () => {
               <Box sx={{ position: "relative", overflow: "hidden" }}>
                 <Button
                   color="inherit"
-                  onClick={doLogout}
+                  onClick={handleLogout}
                   sx={{
                     textTransform: "none",
                     color: theme.palette.customColors?.lightGray,

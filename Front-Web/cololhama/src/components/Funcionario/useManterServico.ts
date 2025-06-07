@@ -4,7 +4,7 @@ import { Servico } from "../../models/servicoModel";
 import ServicoService from "../../services/ServicoService";
 import { AuthContext } from "../../contexts/AuthContext";
 //import { useAuth } from "../../contexts/AuthContext";
-const salaoId = import.meta.env.SALAO_ID || "1"; // ID do salão, pode ser obtido de outra forma se necessário
+const salaoId = import.meta.env.VITE_GATEWAY_URL || "1"; // ID do salão, pode ser obtido de outra forma se necessário
 interface ValidationErrors {
   nome?: string;
   descricao?: string;

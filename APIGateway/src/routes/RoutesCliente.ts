@@ -49,8 +49,10 @@ RoutesCliente.post("/cliente", async (req: Request, res: Response) => {
 RoutesCliente.get("/cliente/page", async (req: Request, res: Response) => {
   const page = (req.query.page as string) || "0";
   const limit = (req.query.limit as string) || "10";
-  const includeRelations = req.query.include === "true" ? true : false;
   const salaoId = (req.query.salaoId as string) || "";
+  const includeRelations = req.query.include === "true";
+  const termoBusca = (req.query.termoBusca as string) || "";
+  const campoBusca = (req.query.campoBusca as string) || "";
   try {
     const userInfo = JSON.parse(
       Buffer.from(req.headers.authorization || "", "base64").toString(
@@ -78,8 +80,10 @@ RoutesCliente.get("/cliente/page", async (req: Request, res: Response) => {
         const clientes = await getClientePage(
           page,
           limit,
+          salaoId,
           includeRelations,
-          salaoId
+          termoBusca,
+          campoBusca,
         );
           if (clientes) {
             res.status(200).json(clientes);

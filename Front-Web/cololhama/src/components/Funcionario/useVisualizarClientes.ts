@@ -5,7 +5,9 @@ import ClienteService from "../../services/ClienteService";
 export const useVisualizarClientes = (
   page: number = 1,
   limit: number = 10,
-  salaoId: string
+  salaoId: string,
+  termoBusca: string, 
+  colunaBusca: string
 ) => {
   const [clientes, setClientes] = useState<Cliente[]>([]);
   const [totalClientes, setTotalClientes] = useState<number>(0);
@@ -22,8 +24,11 @@ export const useVisualizarClientes = (
         const response = await ClienteService.getClientePage(
           page,
           limit,
-          false,
-          salaoId
+          salaoId,
+          termoBusca,
+          colunaBusca,
+          false
+
         );console.log("Response from getClientePage:", response);
         if (typeof response === "boolean") {
           setForbidden(true);
@@ -53,7 +58,7 @@ export const useVisualizarClientes = (
     };
 
     buscarClientes();
-  }, [page, limit, salaoId]);
+  }, [page, limit, salaoId, termoBusca]);
 
   return {
     clientes,

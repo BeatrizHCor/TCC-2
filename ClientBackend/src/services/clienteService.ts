@@ -13,12 +13,27 @@ class ClienteService {
     skip: number | null = null,
     limit: number | null = null,
     include = false,
-    salaoId: string | null = null
+    salaoId: string | null = null,
+    termoBusca: string,
+    campoBusca: string,
   ) {
+
+    const where: Prisma.ClienteWhereInput = {};
+    if (salaoId && salaoId !== null) {
+      where.SalaoId = salaoId;
+    }
+    if (termoBusca && campoBusca) {
+      Object.assign(where, {
+        [campoBusca]: {
+        contains: termoBusca,
+        mode: 'insensitive',
+        },
+      });
+    }
     return await prisma.cliente.findMany({
       ...(skip !== null ? { skip } : {}),
       ...(limit !== null ? { take: limit } : {}),
-      ...(salaoId !== null ? { where: { SalaoId: salaoId } } : {}),
+          where: where,
       ...(include
         ? {
             include: {
@@ -33,18 +48,28 @@ class ClienteService {
   static async getClientePage(
     page = 1,
     limit = 10,
+    salaoId: string,
     includeRelations = false,
-    salaoId: string | null = null
+    termoBusca: string,
+    campoBusca: string
   ) {
     const skip = (page - 1) * limit;
 
     const where: Prisma.ClienteWhereInput = {};
-    if (salaoId !== null) {
+    if (salaoId) {
       where.SalaoId = salaoId;
     }
+    if (termoBusca && campoBusca) {
+      Object.assign(where, {
+        [campoBusca]: {
+        contains: termoBusca,
+        mode: 'insensitive',
+      },
+    });
+   }
     const [total, clientes] = await Promise.all([
       prisma.cliente.count({ where }),
-      ClienteService.getClientes(skip, limit, includeRelations, salaoId),
+      ClienteService.getClientes(skip, limit, includeRelations, salaoId, termoBusca, campoBusca),
     ]);
 
     return {

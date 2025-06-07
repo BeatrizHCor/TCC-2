@@ -25,12 +25,12 @@ import { userTypes } from "../../models/tipo-usuario.enum";
 
 const SalaoID = import.meta.env.VITE_SALAO_ID || "1";
 const colunas = [
-  { id: "nome", label: "Nome" },
-  { id: "email", label: "Email", clienteVisivel: false},
-  { id: "telefone", label: "Telefone", clienteVisivel: false },
-  { id: "mei", label: "MEI", clienteVisivel: false },
-  { id: "portif", label: "Portifólio" },
-  { id: "acoes", label: "Ações", clienteVisivel: false},
+  { id: "nome", label: "Nome", clienteVisivel: true, cabeleireiroVisivel: true},
+  { id: "email", label: "Email", clienteVisivel: false, cabeleireiroVisivel: true},
+  { id: "telefone", label: "Telefone", clienteVisivel: false, cabeleireiroVisivel: true},
+  { id: "mei", label: "MEI", clienteVisivel: false, cabeleireiroVisivel: true },
+  { id: "portif", label: "Portifólio", clienteVisivel: true, cabeleireiroVisivel: true},
+  { id: "acoes", label: "Ações", clienteVisivel: false, cabeleireiroVisivel: false},
 ];
 
 interface VisualizarCabeleireiroProps {
@@ -76,9 +76,10 @@ export const VisualizarCabeleireiro: React.FC<
   if (error) return <Box>Erro ao carregar cabeleireiro: {error}</Box>;
 
 const colunasVisiveis =
-  userType && userType !== userTypes.Cliente
-    ? colunas
-    : colunas.filter((coluna) => coluna.clienteVisivel !==  false);
+  userType && userType === userTypes.Cliente
+    ? colunas.filter((coluna) => coluna.clienteVisivel !==  false)
+    : userType && userType === userTypes.Cabeleireiro ? colunas.filter((coluna) => coluna.cabeleireiroVisivel !==  false) 
+    : colunas;
 
   return (
     <Box sx={{ width: "100%", p: 2 }}>
@@ -112,7 +113,12 @@ const colunasVisiveis =
         >
           Buscar
         </Button>
-        {userType && userType !== userTypes.Cliente ? (
+        {userType && 
+            [
+              userTypes.Funcionario,
+              userTypes.AdmSalao,
+              userTypes.AdmSistema,
+            ].includes(userType) ? (
           <Button
             component={Link}
             variant="outlined"
@@ -153,12 +159,12 @@ const colunasVisiveis =
                   {userType &&
                     userType !== userTypes.Cliente ? (
                     <>
-                      <TableCell>{cabeleireiro.Email}</TableCell>
-                      <TableCell>{cabeleireiro.Telefone}</TableCell>
+                      <TableCell>{cabeleireiro.Email || "Indisponivel"}</TableCell>
+                      <TableCell>{cabeleireiro.Telefone || "Indisponivel"}</TableCell>
                       <TableCell>
                         {cabeleireiro.Mei === undefined
                           ? "Não informado"
-                          : cabeleireiro.Mei}
+                          : cabeleireiro.Mei || "Indisponivel"}
                       </TableCell>
                     </>
                     ) : null }

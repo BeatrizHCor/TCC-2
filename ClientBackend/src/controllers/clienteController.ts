@@ -4,12 +4,15 @@ import ClienteService from "../services/ClienteService";
 class ClienteController {
   static async getClientesPage(req: Request, res: Response): Promise<void> {
     try {
-      const { page, limit, includeRelations, salaoId } = req.query;
+      const { page, limit, includeRelations, salaoId, termoBusca, campoBusca} = req.query;
       const clientes = await ClienteService.getClientePage(
-        Number(page),
-        Number(limit),
+        !isNaN(Number(page)) ? Number(page): 1,
+        !isNaN(Number(limit)) ? Number(limit): 10,
+        salaoId ? String(salaoId) : "",
         includeRelations === "true",
-        salaoId ? String(salaoId) : null
+        termoBusca ? String(termoBusca) : "",
+        campoBusca ? String(campoBusca) : "",
+
       );
       res.json(clientes);
     } catch (error) {
@@ -23,9 +26,11 @@ class ClienteController {
       const { limit, includeRelations, salaoId } = req.query;
       const clientes = await ClienteService.getClientes(
         null,
-        Number(limit),
+        !isNaN(Number(limit)) ? Number(limit): 10,
         includeRelations === "true",
-        salaoId ? String(salaoId) : null
+        salaoId ? String(salaoId) : null,
+        "",
+        ""
       );
       res.json(clientes);
     } catch (error) {

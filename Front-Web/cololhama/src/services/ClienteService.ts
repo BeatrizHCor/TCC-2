@@ -85,16 +85,20 @@ export const ClienteService = {
   async getClientePage(
     page: number = 1,
     limit: number = 10,
-    includeRelations: boolean = false,
-    salaoId: string
+    salaoId: string,
+    termoBusca?: string,
+    campoBusca?: string,
+    includeRelations: boolean = false
   ): Promise<ClientePageResponse | boolean> {
     try {
       const response = await api.get(`/cliente/page`, {
         params: {
           page,
           limit,
-          includeRelations,
           salaoId,
+          includeRelations,
+          termoBusca,
+          campoBusca
         },
       });
       if (response.status === 403) {
