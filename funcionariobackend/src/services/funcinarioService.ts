@@ -5,20 +5,20 @@ import { isValidString } from "../utils/ValidacaoValoresBusca";
 
 class FuncionarioService {
   static async getFuncionarios(
-    skip: number | null = null,
-    limit: number | null = null,
+    skip: number | null,
+    limit: number,
     nome: string | null = null,
     include = false,
-    salaoId: string | null = null
+    salaoId: string
   ) {
     let where: Prisma.FuncionarioWhereInput = {};
-    if (isValidString(nome)) {
+    if (nome) {
       where.Nome = {
         contains: nome,
         mode: 'insensitive',
       };
     }
-    if (salaoId !== null) {
+    if (salaoId) {
         where.SalaoId = salaoId;
     }
     return await prisma.funcionario.findMany({
@@ -28,7 +28,6 @@ class FuncionarioService {
       ...(include
         ? {
             include: {
-              Atendimentos: true,
               AtendimentoAuxiliar: true,
               Holerite: true,
               Salao: true,
@@ -43,14 +42,14 @@ class FuncionarioService {
     limit = 10,
     nome: string | null = null,
     includeRelations = false,
-    salaoId: string | null = null
+    salaoId: string
   ) {
     const skip = (page - 1) * limit;
     const where: Prisma.FuncionarioWhereInput = {};
-    if (salaoId !== null) {
+    if (salaoId) {
       where.SalaoId = salaoId;
     }
-    if (isValidString(nome)){
+    if (nome !== null ){
       where.Nome = { contains: nome, mode: 'insensitive' };
     }
     const [total, funcionarios] = await Promise.all([
@@ -75,11 +74,7 @@ class FuncionarioService {
     Auxiliar: boolean,
     Salario: number
   ) {
-    const existingFuncionario = await this.findByEmailandSalao(Email, SalaoId);
-    if (existingFuncionario) {
-      console.error('Funcionário já cadastrado neste salão:', { Email, SalaoId });
-      throw new Error('Funcionário já cadastrado neste salão');
-    }
+
     try {
       const funcionario = await prisma.funcionario.create({
         data: {
@@ -110,7 +105,6 @@ class FuncionarioService {
           ? {
               include: {
                 Salao: true,
-                Atendimentos: true,
                 AtendimentoAuxiliar: true,
                 Holerite: true
               },
@@ -123,7 +117,6 @@ class FuncionarioService {
   }
 
   static async findByEmailandSalao(Email: string, salaoId: string, include = false) {
-    console.log('Buscando funcionário com Email e SalaoId:', { Email, salaoId });
     try {
       return await prisma.funcionario.findUnique({
         where: {
@@ -135,7 +128,6 @@ class FuncionarioService {
         ...(include ? {
           include: {
             Salao: true,
-            Atendimentos: true,
             AtendimentoAuxiliar: true,
             Holerite: true
           }
@@ -163,7 +155,6 @@ class FuncionarioService {
           ? {
               include: {
                 Salao: true,
-                Atendimentos: true,
                 AtendimentoAuxiliar: true,
                 Holerite: true
               },
