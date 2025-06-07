@@ -65,7 +65,7 @@ export const PerfilCliente: React.FC<PerfilClienteProps> = () => {
   }
 
   return (
-    <AuthGuard allowed={[userTypes.CLIENTE, userTypes.ADM_SISTEMA]}>
+    <AuthGuard allowed={[userTypes.Cliente, userTypes.AdmSistema]}>
       <Container maxWidth="lg">
         <Box
           display="flex"

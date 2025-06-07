@@ -47,7 +47,7 @@ export const useVisualizarAtendimentos = (
 
       try {
         let response; console.log("userType", userType);
-        if (userType === userTypes.ADM_SALAO || userType === userTypes.ADM_SISTEMA || userType === userTypes.FUNCIONARIO) {
+        if (userType === userTypes.AdmSalao || userType === userTypes.AdmSistema || userType === userTypes.Funcionario) {
           response = await AtendimentoService.getAtendimentosPageFuncionario(
             page,
             limit,
@@ -56,7 +56,7 @@ export const useVisualizarAtendimentos = (
             dataFilter,
             salaoId
           );
-        } else if (userType === userTypes.CABELEIREIRO) {
+        } else if (userType === userTypes.Cabeleireiro) {
           response = await AtendimentoService.getAtendimentosPageCabeleireiro(
             page,
             limit,
@@ -65,7 +65,7 @@ export const useVisualizarAtendimentos = (
             userId,
             salaoId
           );
-        } else if (userType === userTypes.CLIENTE) {
+        } else if (userType === userTypes.Cliente) {
           response = await AtendimentoService.getAtendimentosPageCliente(
             page,
             limit,

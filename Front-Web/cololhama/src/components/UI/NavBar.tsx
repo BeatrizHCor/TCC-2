@@ -46,7 +46,7 @@ const NavBar: React.FC = () => {
   const navLinks = [
     ...mainRoutes,
     ...(userType ? userRoutes : []),
-    ...(userType && [userTypes.ADM_SALAO, userTypes.FUNCIONARIO, userTypes.ADM_SISTEMA].includes(userType) ? admRoutes : []),
+    ...(userType && [userTypes.AdmSalao, userTypes.Funcionario, userTypes.AdmSistema].includes(userType) ? admRoutes : []),
   ];
 
   const mobileMenu = (

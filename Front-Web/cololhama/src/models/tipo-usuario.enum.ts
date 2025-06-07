@@ -3,7 +3,7 @@ export enum userTypes {
     Funcionario = 'Funcionario',
     Cabeleireiro = 'Cabeleireiro',
     AdmSalao = 'AdmSalao',
-    AdmSistema = 'AdmSistema'
+    AdmSistema = 'AdmSistema',
 }  
 
 

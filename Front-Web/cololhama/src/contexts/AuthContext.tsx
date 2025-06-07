@@ -29,7 +29,7 @@ interface AuthContextInterface {
 export const AuthContext = createContext({
   token: "",
   userId: "",
-  userType: userTypes.CLIENTE,
+  userType: userTypes.Cliente,
   doLogin: async () => {},
   doAuthenticate: async () => {},
   doLogout: () => {},

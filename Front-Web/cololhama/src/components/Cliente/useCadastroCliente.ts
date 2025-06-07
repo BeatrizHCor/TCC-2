@@ -30,7 +30,7 @@ export const useClienteCadastro = (salaoId: string) => {
     telefone: "",
     salaoId: salaoId,
     password: "",
-    userType: userTypes.CLIENTE,
+    userType: userTypes.Cliente,
   });
 
   const [confirmacaoSenha, setConfirmacaoSenha] = useState("");

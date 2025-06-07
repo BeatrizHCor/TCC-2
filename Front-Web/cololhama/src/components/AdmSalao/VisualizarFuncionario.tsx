@@ -37,7 +37,7 @@ export const VisualizarFuncionarios: React.FC = () => {
   const [rowsPerPage, setRowsPerPage] = useState(10);
   const [nomeFilter, setNomeFilter] = useState("");
   let isADMSalao =
-    userType === userTypes.ADM_SALAO || userType === userTypes.ADM_SISTEMA;
+    userType === userTypes.AdmSalao || userType === userTypes.AdmSistema;
   const {
     funcionarios,
     totalFuncionarios,

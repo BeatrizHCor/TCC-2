@@ -147,16 +147,31 @@ class FuncionarioController {
     }
   }
 
-  static async delete(req: Request, res: Response): Promise<void> {
-    try {
-      const { id } = req.params;
+static async delete(req: Request, res: Response): Promise<void> {
+  try {
+    const { id } = req.params;
+    const existingFuncionario = await FuncionarioService.findById(id);
+
+    if (!existingFuncionario) {
+      res.status(404).json({ message: "Funcionário não encontrado." });
+    } else {
       const funcionarioDeletado = await FuncionarioService.deleteById(id);
-      res.status(200).json(funcionarioDeletado);
-    } catch (error) {
-      console.log(error);
-      res.status(500).send("something went wrong");
+
+      if (!funcionarioDeletado) {
+        throw new Error("Erro ao excluir funcionário.");
+      } else {
+        res.status(200).json(funcionarioDeletado);
+      }
+    }
+  } catch (error) {
+    console.log(error);
+    if (error instanceof Error && error.message.includes("constraint")) {
+      res.status(409).json({ message: "Não é possível excluir: funcionário está em uso." });
+    } else {
+      res.status(500).json({ message: error instanceof Error ? error.message : "Erro ao excluir funcionário" });
     }
   }
+}
 }
 
 export default FuncionarioController;

@@ -39,10 +39,10 @@ interface VisualizarServicosProps {
 }
 
 export const VisualizarServicos: React.FC<VisualizarServicosProps> = ({
-  isCliente: cannotEdit = false,
+  isCliente: canEdit = false,
 }) => {
   const { userType } = useContext(AuthContext);
-  cannotEdit = !!(
+  canEdit = !!(
     userType &&
     [
       userTypes.Funcionario,
@@ -114,9 +114,9 @@ export const VisualizarServicos: React.FC<VisualizarServicosProps> = ({
   if (isLoading) return <Box>Carregando...</Box>;
   if (error) return <Box>Erro ao carregar serviços: {error}</Box>;
 
-  const colunasVisiveis = cannotEdit
-    ? colunas.filter((coluna) => coluna.clienteVisivel !== false)
-    : colunas;
+  const colunasVisiveis = canEdit
+    ? colunas
+    : colunas.filter((coluna) => coluna.clienteVisivel !== false);
 
   return (
     <Box sx={{ width: "100%", p: 2 }}>
@@ -137,7 +137,11 @@ export const VisualizarServicos: React.FC<VisualizarServicosProps> = ({
           label="Buscar por nome"
           value={NomeFiltroInput}
           onChange={handleNomeFilterInput}
-          sx={{ flexGrow: 1, minWidth: { xs: "100%", sm: "200px" } }}
+          sx={{
+            width: { xs: "100%", sm: "auto" },
+            minWidth: { sm: "40%" },
+            maxWidth: { sm: "50%" }
+          }}     
         />
         <Button
           variant="contained"
@@ -146,7 +150,7 @@ export const VisualizarServicos: React.FC<VisualizarServicosProps> = ({
         >
           Buscar
         </Button>
-        {!cannotEdit && (
+        {canEdit && (
           <Button
             component={Link}
             variant="outlined"
@@ -250,7 +254,7 @@ export const VisualizarServicos: React.FC<VisualizarServicosProps> = ({
                         ? servicos.PrecoMax.toFixed(2)
                         : "N/A"}
                     </TableCell>
-                    {!cannotEdit && (
+                    {canEdit && (
                       <TableCell>
                         <Button
                           startIcon={<EditIcon />}

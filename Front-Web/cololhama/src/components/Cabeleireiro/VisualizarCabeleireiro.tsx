@@ -26,11 +26,11 @@ import { userTypes } from "../../models/tipo-usuario.enum";
 const SalaoID = import.meta.env.VITE_SALAO_ID || "1";
 const colunas = [
   { id: "nome", label: "Nome" },
-  { id: "email", label: "Email" },
-  { id: "telefone", label: "Telefone" },
-  { id: "mei", label: "MEI" },
+  { id: "email", label: "Email", clienteVisivel: false},
+  { id: "telefone", label: "Telefone", clienteVisivel: false },
+  { id: "mei", label: "MEI", clienteVisivel: false },
   { id: "portif", label: "Portifólio" },
-  { id: "acoes", label: "Ações" },
+  { id: "acoes", label: "Ações", clienteVisivel: false},
 ];
 
 interface VisualizarCabeleireiroProps {
@@ -75,10 +75,10 @@ export const VisualizarCabeleireiro: React.FC<
   if (isLoading) return <Box>Carregando...</Box>;
   if (error) return <Box>Erro ao carregar cabeleireiro: {error}</Box>;
 
-  const colunasVisiveis =
-    !userType || userType !== userTypes.Cliente
-      ? colunas.filter((coluna) => coluna.id !== "acoes")
-      : colunas;
+const colunasVisiveis =
+  userType && userType !== userTypes.Cliente
+    ? colunas
+    : colunas.filter((coluna) => coluna.clienteVisivel !==  false);
 
   return (
     <Box sx={{ width: "100%", p: 2 }}>
@@ -99,8 +99,12 @@ export const VisualizarCabeleireiro: React.FC<
           label="Buscar por nome"
           value={NomeFiltroInput}
           onChange={handleNomeFilterInput}
-          sx={{ flexGrow: 1, minWidth: { xs: "50%", sm: "200px" } }}
-        />
+          sx={{
+            width: { xs: "100%", sm: "auto" },
+            minWidth: { sm: "40%" },
+            maxWidth: { sm: "50%" }
+          }}        
+          />
         <Button
           variant="contained"
           onClick={aplicarFiltroNome}
@@ -146,13 +150,18 @@ export const VisualizarCabeleireiro: React.FC<
                 cabeleireiros.map((cabeleireiro: Cabeleireiro) => (
                   <TableRow key={cabeleireiro.ID}>
                     <TableCell>{cabeleireiro.Nome}</TableCell>
-                    <TableCell>{cabeleireiro.Email}</TableCell>
-                    <TableCell>{cabeleireiro.Telefone}</TableCell>
-                    <TableCell>
-                      {cabeleireiro.Mei === undefined
-                        ? "Não informado"
-                        : cabeleireiro.Mei}
-                    </TableCell>
+                  {userType &&
+                    userType !== userTypes.Cliente ? (
+                    <>
+                      <TableCell>{cabeleireiro.Email}</TableCell>
+                      <TableCell>{cabeleireiro.Telefone}</TableCell>
+                      <TableCell>
+                        {cabeleireiro.Mei === undefined
+                          ? "Não informado"
+                          : cabeleireiro.Mei}
+                      </TableCell>
+                    </>
+                    ) : null }
                     <TableCell>
                       <Button
                         component={Link}
