@@ -32,10 +32,11 @@ export const getClientePage = async (
   includeRelations: boolean,
   termoBusca: string,
   campoBusca: string,
+  dataFilter: string
 ) => {
   let responseClientes = await fetch(
     CustomerURL +
-      `/cliente/page?page=${page}&limit=${limit}&salaoId=${salaoId}&includeRelations=${includeRelations}&termoBusca=${termoBusca}&campoBusca=${campoBusca}`,
+      `/cliente/page?page=${page}&limit=${limit}&salaoId=${salaoId}&includeRelations=${includeRelations}&termoBusca=${termoBusca}&campoBusca=${campoBusca}&dataFilter=${dataFilter}`,
     {
       method: "GET",
     }

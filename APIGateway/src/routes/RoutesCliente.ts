@@ -53,6 +53,7 @@ RoutesCliente.get("/cliente/page", async (req: Request, res: Response) => {
   const includeRelations = req.query.include === "true";
   const termoBusca = (req.query.termoBusca as string) || "";
   const campoBusca = (req.query.campoBusca as string) || "";
+  const dataFilter = (req.query.dataFilter as string) || "";
   try {
     const userInfo = JSON.parse(
       Buffer.from(req.headers.authorization || "", "base64").toString(
@@ -84,6 +85,7 @@ RoutesCliente.get("/cliente/page", async (req: Request, res: Response) => {
           includeRelations,
           termoBusca,
           campoBusca,
+          dataFilter
         );
           if (clientes) {
             res.status(200).json(clientes);

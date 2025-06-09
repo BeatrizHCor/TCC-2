@@ -7,7 +7,8 @@ export const useVisualizarClientes = (
   limit: number = 10,
   salaoId: string,
   termoBusca: string, 
-  colunaBusca: string
+  colunaBusca: string,
+  dataFilter: string = "",
 ) => {
   const [clientes, setClientes] = useState<Cliente[]>([]);
   const [totalClientes, setTotalClientes] = useState<number>(0);
@@ -16,10 +17,10 @@ export const useVisualizarClientes = (
   const [forbidden, setForbidden] = useState<boolean>(false);
 
   useEffect(() => {
-    const buscarClientes = async () => {
-      setIsLoading(true);
-      setError(null);
-
+    const timeout = setTimeout(() => {
+      const buscarClientes = async () => {
+        setIsLoading(true);
+        setError(null);
       try {
         const response = await ClienteService.getClientePage(
           page,
@@ -27,6 +28,7 @@ export const useVisualizarClientes = (
           salaoId,
           termoBusca,
           colunaBusca,
+          dataFilter,
           false
 
         );console.log("Response from getClientePage:", response);
@@ -57,8 +59,11 @@ export const useVisualizarClientes = (
       }
     };
 
-    buscarClientes();
-  }, [page, limit, salaoId, termoBusca]);
+  buscarClientes();
+  }, 400);
+
+  return () => clearTimeout(timeout);
+}, [page, limit, salaoId, termoBusca, colunaBusca, dataFilter]);
 
   return {
     clientes,

@@ -86,8 +86,9 @@ export const ClienteService = {
     page: number = 1,
     limit: number = 10,
     salaoId: string,
-    termoBusca?: string,
-    campoBusca?: string,
+    termoBusca: string,
+    campoBusca: string,
+    dataFilter: string,
     includeRelations: boolean = false
   ): Promise<ClientePageResponse | boolean> {
     try {
@@ -96,9 +97,10 @@ export const ClienteService = {
           page,
           limit,
           salaoId,
-          includeRelations,
           termoBusca,
-          campoBusca
+          campoBusca,
+          dataFilter,
+          includeRelations,
         },
       });
       if (response.status === 403) {

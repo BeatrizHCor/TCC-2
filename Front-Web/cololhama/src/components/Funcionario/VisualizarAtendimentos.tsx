@@ -38,13 +38,13 @@ interface AtendimentoExibicao {
 const SalaoID = import.meta.env.VITE_SALAO_ID || "1";
 
 export const VisualizarAtendimentos: React.FC = () => {
-  const {userType, userId} = useContext(AuthContext);
+  const { userType, userId } = useContext(AuthContext);
   const [page, setPage] = useState(0);
   const [rowsPerPage, setRowsPerPage] = useState(10);
   const [clienteFilter, setClienteFilter] = useState("");
   const [cabelereiroFilter, setCabelereiroFilter] = useState("");
   const [dataFilter, setDataFilter] = useState("");
-  
+
 
   const [clienteFiltroInput, setClienteFilterInput] = useState("");
   const [cabelereiroFiltroInput, setCabelereiroFilterInput] = useState("");
@@ -55,13 +55,13 @@ export const VisualizarAtendimentos: React.FC = () => {
   const isCabeleireiro = userType === userTypes.Cabeleireiro;
 
   const colunas = [
-  ...(isCliente ? [] : [{ id: "nomeCliente", label: "Cliente" }]),
-  ...(isCabeleireiro ? [] : [{ id: "nomeCabeleireiro", label: "Cabeleireiro" }]),
-  { id: "data", label: "Data" },
-  { id: "hora", label: "Hora" },
-  { id: "valorTotal", label: "Valor Total" },
-  { id: "quantidadeServicos", label: "Qtd. Serviços" },
-];
+    ...(isCliente ? [] : [{ id: "nomeCliente", label: "Cliente" }]),
+    ...(isCabeleireiro ? [] : [{ id: "nomeCabeleireiro", label: "Cabeleireiro" }]),
+    { id: "data", label: "Data" },
+    { id: "hora", label: "Hora" },
+    { id: "valorTotal", label: "Valor Total" },
+    { id: "quantidadeServicos", label: "Qtd. Serviços" },
+  ];
 
   const {
     atendimentos,
@@ -99,21 +99,19 @@ export const VisualizarAtendimentos: React.FC = () => {
   const handleCabelereiroFilterInput = (e: React.ChangeEvent<HTMLInputElement>) => {
     setCabelereiroFilterInput(e.target.value);
   };
-
   const construirFiltroData = () => {
     let filtroData = "";
     if (anoFilter) {
       filtroData = anoFilter;
       if (mesFilter) {
-        filtroData += `-${mesFilter.padStart(2, '0')}`;
+        filtroData += `-${String(mesFilter).padStart(2, '0')}`;
         if (diaFilter) {
-          filtroData += `-${diaFilter.padStart(2, '0')}`;
+          filtroData += `-${String(diaFilter).padStart(2, '0')}`;
         }
       }
     }
     return filtroData;
   };
-
   const aplicarFiltros = () => {
     setClienteFilter(clienteFiltroInput);
     setCabelereiroFilter(cabelereiroFiltroInput);

@@ -1,5 +1,6 @@
 import { Prisma } from "@prisma/client";
 import prisma from "../config/database";
+import { getRangeByStringInputWithTimezone } from "../utils/CalculoPeriododeTempo"
 interface ClienteData {
   CPF: string;
   Nome: string;
@@ -16,9 +17,17 @@ class ClienteService {
     salaoId: string | null = null,
     termoBusca: string,
     campoBusca: string,
+    dataFilter: string
   ) {
 
     const where: Prisma.ClienteWhereInput = {};
+    const range = getRangeByStringInputWithTimezone(dataFilter);
+    if (range !== null) {
+      where.DataCadastro = {
+      gte: range.dataInicial,
+      lte: range.dataFinal,
+      };
+    }  
     if (salaoId && salaoId !== null) {
       where.SalaoId = salaoId;
     }
@@ -44,18 +53,26 @@ class ClienteService {
         : {}),
     });
   }
-
+  
   static async getClientePage(
     page = 1,
     limit = 10,
     salaoId: string,
     includeRelations = false,
     termoBusca: string,
-    campoBusca: string
+    campoBusca: string,
+    dataFilter: string
   ) {
     const skip = (page - 1) * limit;
 
     const where: Prisma.ClienteWhereInput = {};
+    const range = getRangeByStringInputWithTimezone(dataFilter);
+    if (range !== null) {
+      where.DataCadastro = {
+      gte: range.dataInicial,
+      lte: range.dataFinal,
+      };
+    }  
     if (salaoId) {
       where.SalaoId = salaoId;
     }
@@ -69,9 +86,17 @@ class ClienteService {
    }
     const [total, clientes] = await Promise.all([
       prisma.cliente.count({ where }),
-      ClienteService.getClientes(skip, limit, includeRelations, salaoId, termoBusca, campoBusca),
+      ClienteService
+        .getClientes(
+          skip, 
+          limit, 
+          includeRelations, 
+          salaoId, 
+          termoBusca, 
+          campoBusca, 
+          dataFilter),
     ]);
-
+  
     return {
       total: total,
       page,
@@ -79,7 +104,7 @@ class ClienteService {
       data: clientes,
     };
   }
-
+  
   static async create(
     CPF: string,
     Nome: string,
@@ -215,5 +240,4 @@ class ClienteService {
     });
   }
 }
-
 export default ClienteService;

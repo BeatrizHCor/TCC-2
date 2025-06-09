@@ -4,5 +4,4 @@ export enum userTypes {
     CABELEIREIRO = 'Cabeleireiro',
     ADM_SALAO = 'AdmSalao',
     ADM_SISTEMA = 'AdmSistema'
-}  
-
+}

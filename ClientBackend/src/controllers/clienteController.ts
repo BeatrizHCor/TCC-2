@@ -4,7 +4,7 @@ import ClienteService from "../services/ClienteService";
 class ClienteController {
   static async getClientesPage(req: Request, res: Response): Promise<void> {
     try {
-      const { page, limit, includeRelations, salaoId, termoBusca, campoBusca} = req.query;
+      const { page, limit, salaoId, termoBusca, campoBusca, dataFilter, includeRelations } = req.query;
       const clientes = await ClienteService.getClientePage(
         !isNaN(Number(page)) ? Number(page): 1,
         !isNaN(Number(limit)) ? Number(limit): 10,
@@ -12,7 +12,7 @@ class ClienteController {
         includeRelations === "true",
         termoBusca ? String(termoBusca) : "",
         campoBusca ? String(campoBusca) : "",
-
+        dataFilter ? String(dataFilter) : "",
       );
       res.json(clientes);
     } catch (error) {
@@ -29,6 +29,7 @@ class ClienteController {
         !isNaN(Number(limit)) ? Number(limit): 10,
         includeRelations === "true",
         salaoId ? String(salaoId) : null,
+        "",
         "",
         ""
       );
