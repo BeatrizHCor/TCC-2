@@ -22,7 +22,6 @@ api.interceptors.request.use((config) => {
 });
 
 
-// Adicionar interceptor de resposta para debug
 api.interceptors.response.use(
   (response) => {
     console.log("Resposta da API:", response);
@@ -62,7 +61,7 @@ export const ClienteService = {
     
     const dadosEnvio = {
       CPF: CPF,
-      Nome: nome, // Mantém Nome com N maiúsculo como o backend espera
+      Nome: nome, 
       Email: email,
       Telefone: telefone,
       SalaoId: salaoId,
@@ -83,8 +82,7 @@ export const ClienteService = {
         localStorage.setItem("usuario", JSON.stringify(response.data));
         console.log("Token salvo no localStorage");
       }
-      
-      // Considera sucesso se o status for 200 ou 201
+
       return response.status === 200 || response.status === 201;
       
     } catch (error) {
