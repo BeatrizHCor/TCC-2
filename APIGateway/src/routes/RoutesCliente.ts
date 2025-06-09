@@ -1,10 +1,10 @@
-import { Router, Request, Response } from "express";
+import { Request, Response, Router } from "express";
 import {
-  postCliente,
-  getClientePage,
-  getClienteById,
-  getClienteByCPF,
   deleteCliente,
+  getClienteByCPF,
+  getClienteById,
+  getClientePage,
+  postCliente,
   updateCliente,
 } from "../services/ServiceClient";
 import { authenticate, postLogin, registerLogin } from "../services/Service";
@@ -26,7 +26,7 @@ RoutesCliente.post("/cliente", async (req: Request, res: Response) => {
       Email,
       Password,
       SalaoId,
-      userType
+      userType,
     );
     if (!register) {
       console.log("Register auth failed");
@@ -57,19 +57,21 @@ RoutesCliente.get("/cliente/page", async (req: Request, res: Response) => {
   try {
     const userInfo = JSON.parse(
       Buffer.from(req.headers.authorization || "", "base64").toString(
-        "utf-8"
-      ) || "{}"
+        "utf-8",
+      ) || "{}",
     );
-      if (!userInfo || !userInfo.userID || !userInfo.token || !userInfo.userType) {
+    if (
+      !userInfo || !userInfo.userID || !userInfo.token || !userInfo.userType
+    ) {
       console.log("Informações de auntenticação ausentes ou inválidas");
       res.status(403).json({ message: "Unauthorized" });
-      } else {
+    } else {
       let userType = userInfo.userType;
       const auth = await authenticate(
         userInfo.userID,
         userInfo.token,
-        userInfo.userType
-      ); 
+        userInfo.userType,
+      );
       if (
         auth &&
         [
@@ -85,18 +87,18 @@ RoutesCliente.get("/cliente/page", async (req: Request, res: Response) => {
           includeRelations,
           termoBusca,
           campoBusca,
-          dataFilter
+          dataFilter,
         );
-          if (clientes) {
-            res.status(200).json(clientes);
-          } else {
-            res.status(204).json({ message: "Cliente não encontrado" });
-          }
+        if (clientes) {
+          res.status(200).json(clientes);
+        } else {
+          res.status(204).json({ message: "Cliente não encontrado" });
+        }
       } else {
         console.log("Chamada não autorizada");
         res.status(403).json({ message: "Não autorizado" });
       }
-  }
+    }
   } catch (error) {
     console.error("Erro ao buscar clientes:", error);
     res.status(500).json({ message: "Erro interno do servidor" });
@@ -116,13 +118,13 @@ RoutesCliente.put("/cliente/:id", async (req: Request, res: Response) => {
   try {
     const userInfo = JSON.parse(
       Buffer.from(req.headers.authorization || "", "base64").toString(
-        "utf-8"
-      ) || "{}"
+        "utf-8",
+      ) || "{}",
     );
     const auth = await authenticate(
       userInfo.userID,
       userInfo.token,
-      userInfo.userType
+      userInfo.userType,
     );
     if (auth && id === userInfo.userID) {
       const cliente = await updateCliente(id, clienteData);
@@ -141,23 +143,32 @@ RoutesCliente.get("/cliente/:id", async (req, res) => {
   try {
     const userInfo = JSON.parse(
       Buffer.from(req.headers.authorization || "", "base64").toString(
-        "utf-8"
-      ) || "{}"
+        "utf-8",
+      ) || "{}",
     );
-    const auth = await authenticate(
-      userInfo.userID,
-      userInfo.token,
-      userInfo.userType
-    );
-    if (auth) {
-      const cliente = await getClienteById(id);
-      if (cliente) {
-        res.status(200).json(cliente);
-      } else {
-        res.status(204).json({ message: "Cliente não encontrado" });
-      }
+    if (
+      !userInfo || !userInfo.userID || !userInfo.token || !userInfo.userType
+    ) {
+      console.log("Informações de auntenticação ausentes ou inválidas");
+      res.status(403).json({ message: "Unauthorized" });
     } else {
-      res.status(403).json({ message: "Não autorizado a fazer esta chamada" });
+      const auth = await authenticate(
+        userInfo.userID,
+        userInfo.token,
+        userInfo.userType,
+      );
+      if (auth) {
+        const cliente = await getClienteById(id);
+        if (cliente) {
+          res.status(200).json(cliente);
+        } else {
+          res.status(204).json({ message: "Cliente não encontrado" });
+        }
+      } else {
+        res.status(403).json({
+          message: "Não autorizado a fazer esta chamada",
+        });
+      }
     }
   } catch (error) {
     console.error("Erro ao buscar cliente:", error);
@@ -166,26 +177,36 @@ RoutesCliente.get("/cliente/:id", async (req, res) => {
 });
 
 RoutesCliente.get("/cliente/cpf/:cpf/:salaoId", async (req, res) => {
-   const { cpf, salaoId } = req.params;
-   try {
+  const { cpf, salaoId } = req.params;
+  try {
     const userInfo = JSON.parse(
       Buffer.from(req.headers.authorization || "", "base64").toString(
-        "utf-8"
-      ) || "{}"
+        "utf-8",
+      ) || "{}",
     );
-    const auth = await authenticate(
-      userInfo.userID,
-      userInfo.token,
-      userInfo.userType
-    );
-    if (!auth) {
-      res.status(403).json({ message: "Não autorizado a fazer esta chamada" });
-    }
-     const cliente = await getClienteByCPF(cpf, salaoId);
-    if (cliente) {
-      res.status(200).json(cliente);
+    if (
+      !userInfo || !userInfo.userID || !userInfo.token || !userInfo.userType
+    ) {
+      console.log("Informações de auntenticação ausentes ou inválidas");
+      res.status(403).json({ message: "Unauthorized" });
     } else {
-      res.status(204).json({ message: "Cliente não encontrado" });
+      const auth = await authenticate(
+        userInfo.userID,
+        userInfo.token,
+        userInfo.userType,
+      );
+      if (auth) {
+        const cliente = await getClienteByCPF(cpf, salaoId);
+        if (cliente) {
+          res.status(200).json(cliente);
+        } else {
+          res.status(204).json({ message: "Cliente não encontrado" });
+        }
+      } else {
+        res.status(403).json({
+          message: "Não autorizado a fazer esta chamada",
+        });
+      }
     }
   } catch (error) {
     console.error("Erro ao buscar cliente:", error);
@@ -194,39 +215,42 @@ RoutesCliente.get("/cliente/cpf/:cpf/:salaoId", async (req, res) => {
 });
 
 RoutesCliente.delete("/cliente/:id", async (req, res) => {
-   const { id } = req.params;
-   try {
+  const { id } = req.params;
+  try {
     const userInfo = JSON.parse(
       Buffer.from(req.headers.authorization || "", "base64").toString(
-        "utf-8"
-      ) || "{}"
+        "utf-8",
+      ) || "{}",
     );
-
-    if ( !userInfo || !userInfo.userID || !userInfo.token || !userInfo.userType ) {
+    if (
+      !userInfo || !userInfo.userID || !userInfo.token || !userInfo.userType
+    ) {
       res.status(403).json({ message: "Não autorizado" });
     } else {
       let userType = userInfo.userType;
       const auth = await authenticate(
         userInfo.userID,
         userInfo.token,
-        userInfo.userType
-      ); 
-        if (
-          auth &&
-          [
-            userTypes.ADM_SALAO,
-            userTypes.ADM_SISTEMA,
-          ].includes(userType)
-        ) {
-          const cliente = await deleteCliente(id);
-          if (cliente) {
-            res.status(200).json(cliente);
-          } else {
-            res.status(204).json({ message: "Cliente não encontrado" });
-          }
+        userInfo.userType,
+      );
+      if (
+        auth &&
+        [
+          userTypes.ADM_SALAO,
+          userTypes.ADM_SISTEMA,
+        ].includes(userType)
+      ) {
+        const cliente = await deleteCliente(id);
+        if (cliente) {
+          res.status(200).json(cliente);
         } else {
-            res.status(403).json({ message: "Não autorizado a fazer esta chamada" });
+          res.status(204).json({ message: "Cliente não encontrado" });
         }
+      } else {
+        res.status(403).json({
+          message: "Não autorizado a fazer esta chamada",
+        });
+      }
     }
   } catch (error) {
     console.error("Erro ao buscar cliente:", error);
