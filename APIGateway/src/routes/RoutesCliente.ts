@@ -92,7 +92,7 @@ RoutesCliente.get("/cliente/page", async (req: Request, res: Response) => {
         if (clientes) {
           res.status(200).json(clientes);
         } else {
-          res.status(204).json({ message: "Cliente não encontrado" });
+          throw new Error ("Erro ao buscar clientes") 
         }
       } else {
         console.log("Chamada não autorizada");
@@ -128,7 +128,11 @@ RoutesCliente.put("/cliente/:id", async (req: Request, res: Response) => {
     );
     if (auth && id === userInfo.userID) {
       const cliente = await updateCliente(id, clienteData);
-      res.status(200).json(cliente);
+      if (cliente) { 
+        res.status(200).json(cliente);
+      } else {
+         throw new Error("Erro ao atualizar cliente");        
+      }
     } else {
       res.status(403).json({ message: "Não autorizado a fazer esta chamada" });
     }
@@ -242,9 +246,9 @@ RoutesCliente.delete("/cliente/:id", async (req, res) => {
       ) {
         const cliente = await deleteCliente(id);
         if (cliente) {
-          res.status(200).json(cliente);
+          res.status(204).json({ message: "Cliente deletado com sucesso" });
         } else {
-          res.status(204).json({ message: "Cliente não encontrado" });
+          throw new Error("Erro ao deletar cliente");
         }
       } else {
         res.status(403).json({

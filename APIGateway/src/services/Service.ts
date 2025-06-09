@@ -3,7 +3,6 @@ import { userTypes } from "../models/tipo-usuario.enum";
 import { accessSync } from "fs";
 import e from "express";
 
-const CustomerURL = process.env.CUSTOMER_URL || "http://localhost:4001";
 const loginURL = process.env.AUTH_URL || "http://localhost:3000";
 
 export const registerLogin = async (

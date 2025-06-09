@@ -229,10 +229,6 @@ class ClienteService {
   }
 
   static async delete(Id: string) {
-    const existingCliente = await this.findById(Id);
-    if (!existingCliente) {
-      throw new Error("Cliente já cadastrado neste salão");
-    }
     return await prisma.cliente.delete({
       where: {
         ID: Id,
