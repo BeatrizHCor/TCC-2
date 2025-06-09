@@ -93,12 +93,17 @@ export const useClienteCadastro = (salaoId: string) => {
     if (!validarCPF(cadastro.CPF)) {
       newErrors.CPF = "CPF inválido";
     } else {
-      const cpfExiste = await ClienteService.getClienteByCpfAndSalao(
-        cadastro.CPF,
-        salaoId
-      );
-      if (cpfExiste) {
-        newErrors.CPF = "CPF já cadastrado";
+      try {
+        const cpfExiste = await ClienteService.getClienteByCpfAndSalao(
+          cadastro.CPF,
+          salaoId
+        );
+        if (cpfExiste) {
+          newErrors.CPF = "CPF já cadastrado";
+        }
+      } catch (error) {
+        console.error("Erro ao verificar CPF:", error);
+        // Continua a validação mesmo se houver erro na verificação
       }
     }
 
@@ -126,27 +131,55 @@ export const useClienteCadastro = (salaoId: string) => {
     e.preventDefault();
     setLoading(true);
 
-    const isValid = await validateForm();
-
-    if (!isValid) {
-      setLoading(false);
-      return;
-    }
+    console.log("Dados antes da validação:", cadastro);
 
     try {
-      const response = await ClienteService.cadastrarCliente(cadastro);
+      const isValid = await validateForm();
 
-      if (!response) {
-        console.error("Erro ao cadastrar cliente.");
+      if (!isValid) {
+        console.log("Formulário inválido. Erros:", errors);
         setLoading(false);
         return;
       }
 
+      console.log("Enviando dados para cadastro:", {
+        CPF: cadastro.CPF,
+        nome: cadastro.nome,
+        email: cadastro.email,
+        telefone: cadastro.telefone,
+        salaoId: cadastro.salaoId,
+        password: cadastro.password,
+        userType: cadastro.userType,
+      });
+
+      const response = await ClienteService.cadastrarCliente(cadastro);
+
+      if (!response) {
+        console.error("Erro ao cadastrar cliente - resposta falsa.");
+        alert("Erro ao cadastrar cliente. Tente novamente.");
+        setLoading(false);
+        return;
+      }
+
+      console.log("Cliente cadastrado com sucesso!");
+      alert("Cliente cadastrado com sucesso!");
       setLoading(false);
       navigate("/");
     } catch (error) {
       console.error("Erro ao cadastrar:", error);
-      alert("Erro ao cadastrar: " + JSON.stringify(error));
+      
+      // Melhor tratamento de erro
+      if (error && typeof error === 'object' && 'response' in error) {
+        const axiosError = error as any;
+        const errorMessage = axiosError.response?.data?.message || 
+                           axiosError.response?.data?.error || 
+                           axiosError.message || 
+                           "Erro desconhecido";
+        alert(`Erro ao cadastrar: ${errorMessage}`);
+      } else {
+        alert(`Erro ao cadastrar: ${String(error)}`);
+      }
+      
       setLoading(false);
     }
   };
