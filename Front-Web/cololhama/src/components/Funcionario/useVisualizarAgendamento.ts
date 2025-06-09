@@ -11,48 +11,56 @@ export const useVisualizarAgendamentos = (
   ano?: number
 ) => {
   const [agendamentos, setAgendamentos] = useState<Agendamentos[]>([]);
-  const [loading, setLoading] = useState<boolean>(false);
-  const [totalAgendamentos, setTotalAgendamentos] = useState<number>(0);
-  const [limitePorPagina, setLimitePorPagina] = useState<number>(10);
-  const debounceTimeout = useRef<NodeJS.Timeout | null>(null);
+  const [loading, setLoading] = useState(false);
+  const [totalAgendamentos, setTotalAgendamentos] = useState(0);
+  const [limitePorPagina, setLimitePorPagina] = useState(limit);
 
-  const carregarAgendamentos = async () => {
+  const debounceRef = useRef<NodeJS.Timeout | null>(null);
+
+  const dataValida = {
+    dia: dia && dia >= 1 && dia <= 31 ? dia : undefined,
+    mes: mes && mes >= 1 && mes <= 12 ? mes : undefined,
+    ano: ano && ano >= 1900 ? ano : undefined,
+  };
+
+  const fetchAgendamentos = async () => {
     if (!salaoId) return;
 
     setLoading(true);
+
     try {
-      const diaValido = dia !== undefined && dia >= 1 && dia <= 31 ? dia : 0;
-      const mesValido = mes !== undefined && mes >= 1 && mes <= 12 ? mes + 1 : 0;
-      const anoValido = ano !== undefined && ano >= 1900 ? ano : 0;
-      console.log("Valores de d,m,a: ", diaValido, mesValido, anoValido);
       const resultado = await AgendamentoService.getAgendamentosPaginados(
         page,
-        limit,
+        limitePorPagina,
         salaoId,
-        anoValido,
-        mesValido,
-        diaValido,
-        true,
-      );console.log("resultado : ", resultado.data)
+        dataValida.ano ?? 0,
+        (dataValida.mes ?? 0) + 1,
+        dataValida.dia ?? 0,
+        true
+      );
+
+      console.log("Agendamentos carregados:", resultado.data);
       setAgendamentos(resultado.data);
       setTotalAgendamentos(resultado.total);
+
     } catch (error) {
-      console.error('Erro ao carregar agendamentos:', error);
+      console.error('Erro ao buscar agendamentos:', error);
     } finally {
       setLoading(false);
     }
   };
 
   useEffect(() => {
-    if (debounceTimeout.current) clearTimeout(debounceTimeout.current);
-    debounceTimeout.current = setTimeout(() => {
-      carregarAgendamentos();
-    }, 500); 
+    if (debounceRef.current) clearTimeout(debounceRef.current);
+
+    debounceRef.current = setTimeout(() => {
+      fetchAgendamentos();
+    }, 500);
 
     return () => {
-      if (debounceTimeout.current) clearTimeout(debounceTimeout.current);
+      if (debounceRef.current) clearTimeout(debounceRef.current);
     };
-  }, [page, limit, salaoId, dia, mes, ano]);
+  }, [page, limitePorPagina, salaoId, dia, mes, ano]);
 
   return {
     agendamentos,
@@ -60,6 +68,6 @@ export const useVisualizarAgendamentos = (
     totalAgendamentos,
     limitePorPagina,
     setLimitePorPagina,
-    recarregar: carregarAgendamentos
+    recarregar: fetchAgendamentos
   };
 };
