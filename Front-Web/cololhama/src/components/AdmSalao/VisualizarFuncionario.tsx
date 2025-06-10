@@ -79,29 +79,38 @@ export const VisualizarFuncionarios: React.FC = () => {
   if (isLoading) return <Box>Carregando...</Box>;
   if (error) return <Box>Erro ao carregar funcionários: {error}</Box>;
 
-  return (
+ return (
     <Box sx={{ width: "100%", p: { xs: 2, sm: 4 } }}>
       <Typography variant="h4" sx={{ mb: 3, fontWeight: 600 }}>
         Funcionários
       </Typography>
 
+      {/* Container centralizado da linha de busca */}
       <Box
         sx={{
+          width: "100%",
           display: "flex",
-          flexDirection: { xs: "column", sm: "row" },
-          alignItems: { xs: "stretch", sm: "center" },
-          gap: 2,
+          justifyContent: "center",
           mb: 3,
         }}
       >
-        <TextField
-          label="Buscar por nome"
-          variant="outlined"
-          value={nomeFiltroInput}
-          onChange={handleNomeFilterInput}
-          sx={{ flexGrow: 1, minWidth: { xs: "100%", sm: 200 } }}
-        />
-         <Button
+        <Box
+          sx={{
+            width: "80%",
+            display: "flex",
+            flexDirection: { xs: "column", sm: "row" },
+            alignItems: { xs: "stretch", sm: "center" },
+            gap: 2,
+          }}
+        >
+          <TextField
+            label="Buscar por nome"
+            variant="outlined"
+            value={nomeFiltroInput}
+            onChange={handleNomeFilterInput}
+            sx={{ flexGrow: 1 }}
+          />
+          <Button
             variant="contained"
             onClick={aplicarFiltroNome}
             size="medium"
@@ -109,50 +118,68 @@ export const VisualizarFuncionarios: React.FC = () => {
           >
             Buscar
           </Button>
-        {isADMSalao && (
-          <Button
-            component={Link}
-            to="/funcionario/novo"
-            variant="contained"
-            size="medium"
-            sx={{
-              backgroundColor: "#f5f5f5",
-              color: theme.palette.primary.main,
-              border: `1.5px solid ${theme.palette.primary.main}`,
-              height: 45,
-              minWidth: 160,
-              "&:hover": {
-                backgroundColor: "#e0e0e0",
-                borderColor: theme.palette.primary.main,
-              },
-              textTransform: "none",
-              fontWeight: 600,
-              boxShadow: "none",
-            }}
-          >
-            Novo Funcionário
-          </Button>
-        )}
+          {isADMSalao && (
+            <Button
+              component={Link}
+              to="/funcionario/novo"
+              variant="contained"
+              size="medium"
+              sx={{
+                backgroundColor: "#f5f5f5",
+                color: theme.palette.primary.main,
+                border: `1.5px solid ${theme.palette.primary.main}`,
+                height: 45,
+                minWidth: 160,
+                "&:hover": {
+                  backgroundColor: "#e0e0e0",
+                  borderColor: theme.palette.primary.main,
+                },
+                textTransform: "none",
+                fontWeight: 600,
+                boxShadow: "none",
+              }}
+            >
+              Novo Funcionário
+            </Button>
+          )}
+        </Box>
       </Box>
 
-      <Paper elevation={3} sx={{ borderRadius: 2 }}>
+      <Paper
+  elevation={1}
+  sx={{
+    borderRadius: 2,
+    overflow: "hidden", 
+    backgroundColor: "#f5f5f5",
+  }}
+>
+
         <TableContainer>
           <Table>
             <TableHead>
-              <TableRow sx={{ backgroundColor: "#f7f7f7" }}>
+              <TableRow sx={{ backgroundColor: theme.palette.primary.main }}>
                 {colunas.map((coluna) => (
-                  <TableCell key={coluna.id} sx={{ fontWeight: "bold" }}>
+                  <TableCell
+                    key={coluna.id}
+                    sx={{ fontWeight: "bold", color: "#fff" }}
+                  >
                     {coluna.label}
                   </TableCell>
                 ))}
                 {isADMSalao && (
-                  <TableCell sx={{ fontWeight: "bold" }}>Ações</TableCell>
+                  <TableCell sx={{ fontWeight: "bold", color: "#fff" }}>
+                    Ações
+                  </TableCell>
                 )}
               </TableRow>
             </TableHead>
             <TableBody>
               {funcionarios.map((funcionario: Funcionario) => (
-                <TableRow key={funcionario.ID} hover>
+                <TableRow
+                  key={funcionario.ID}
+                  hover
+                  sx={{ backgroundColor: "#f7f7f7" }}
+                >
                   <TableCell>{funcionario.Nome}</TableCell>
                   <TableCell>{funcionario.Email}</TableCell>
                   <TableCell>{funcionario.Telefone}</TableCell>

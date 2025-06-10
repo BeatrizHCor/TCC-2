@@ -147,11 +147,11 @@ export const VisualizarCabeleireiro: React.FC = () => {
 
       {/* Tabela */}
       <Paper elevation={3} sx={{ borderRadius: 2, overflow: "hidden" }}>
-        <TableContainer>
+                <TableContainer sx={{ backgroundColor: "#f0f0f0" }}>
           <Table>
             <TableHead>
               <TableRow
-                sx={{ backgroundColor: "#f0f0f0", borderBottom: "2px solid #ccc" }}
+                sx={{ backgroundColor: theme.palette.primary.main, borderBottom: "2px solid #ccc" }}
               >
                 {colunasVisiveis.map((coluna) => (
                   <TableCell
@@ -160,6 +160,7 @@ export const VisualizarCabeleireiro: React.FC = () => {
                       fontWeight: "bold",
                       textTransform: "uppercase",
                       fontSize: "0.875rem",
+                      color: "white", 
                     }}
                   >
                     {coluna.label}

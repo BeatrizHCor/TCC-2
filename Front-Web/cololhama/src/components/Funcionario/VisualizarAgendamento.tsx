@@ -4,9 +4,6 @@ import {
   Typography,
   Switch,
   FormControlLabel,
-  List,
-  ListItem,
-  ListItemText,
   IconButton,
   Dialog,
   DialogTitle,
@@ -14,51 +11,43 @@ import {
   DialogActions,
   Button,
   CircularProgress,
-  Paper,
   Chip,
   TablePagination,
+  List,
+  ListItem,
+  ListItemText,
 } from '@mui/material';
-import { DatePicker } from '@mui/x-date-pickers/DatePicker';
-import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
+import { DatePicker, LocalizationProvider } from '@mui/x-date-pickers';
 import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns';
 import { ptBR } from 'date-fns/locale';
-import FullCalendar from '@fullcalendar/react';
-import dayGridPlugin from '@fullcalendar/daygrid';
 import InfoIcon from '@mui/icons-material/Info';
 import { Agendamentos } from '../../models/agendamentoModel';
 import { useVisualizarAgendamentos } from './useVisualizarAgendamento';
-import { StatusAgendamento } from '../../models/StatusAgendamento.enum'
-import { useNavigate } from "react-router-dom";
+import { StatusAgendamento } from '../../models/StatusAgendamento.enum';
+import { useNavigate } from 'react-router-dom';
+
+import FullCalendar from '@fullcalendar/react';
+import dayGridPlugin from '@fullcalendar/daygrid';
+import { createTheme, ThemeProvider } from '@mui/material/styles';
+
+const theme = createTheme();
 import { AuthContext } from '../../contexts/AuthContext';
 
 const VisualizarAgendamento: React.FC = () => {
-
-  const SalaoId = import.meta.env.VITE_SALAO_ID || "1";
+  const SalaoId = import.meta.env.VITE_SALAO_ID || '1';
   const navigate = useNavigate();
   const { userType, userId } = useContext(AuthContext);
-  const [modoCalendario, setModoCalendario] = useState<boolean>(false);
+
+  const [modoCalendario, setModoCalendario] = useState(true);
   const [agendamentoSelecionado, setAgendamentoSelecionado] = useState<Agendamentos | null>(null);
-  const [modalAberto, setModalAberto] = useState<boolean>(false);
+  const [modalAberto, setModalAberto] = useState(false);
   const [page, setPage] = useState(0);
   const [rowsPerPage, setRowsPerPage] = useState(10);
-  const [diaFilter, setDiaFilter] = useState<number>(0);
-  const [mesFilter, setMesFilter] = useState<number>(0);
-  const [anoFilter, setAnoFilter] = useState<number>(0);
   const [dataFilter, setDataFilter] = useState<Date | null>(null);
-  const getStatusColor = (status: StatusAgendamento): string => {
-    switch (status) {
-      case StatusAgendamento.Agendado:
-        return "#7d1e26"; // Verde
-      case StatusAgendamento.Confirmado:
-        return "#4caf50"; // Verde       
-      case StatusAgendamento.Finalizado:
-        return "#9c27b0"; // Roxo
-      case StatusAgendamento.Cancelado:
-        return "#f44336"; // Vermelho
-      default:
-        return "#757575"; // Cinza
-    }
-  };
+
+  const diaFilter = dataFilter?.getDate() || 0;
+  const mesFilter = dataFilter?.getMonth() || 0;
+  const anoFilter = dataFilter?.getFullYear() || 0;
 
   const {
     agendamentos,
@@ -69,45 +58,23 @@ const VisualizarAgendamento: React.FC = () => {
   } = useVisualizarAgendamentos(page + 1, rowsPerPage, SalaoId, userType!, userId, diaFilter, mesFilter, anoFilter);
 
 
-  const eventosCalendario = useMemo(() => {
-    return agendamentos.map(agendamento => {
-      const dataEvento = new Date(agendamento.Data);
-      const clienteNome = agendamento.Cliente?.Nome || `Cliente ${agendamento.ClienteID}`;
-      const cabeleireiroNome = agendamento.Cabeleireiro?.Nome || `Cabeleireiro ${agendamento.CabeleireiroID}`;
-
-      return {
-        id: agendamento.ID,
-        title: `${clienteNome} - ${cabeleireiroNome}`,
-        start: dataEvento,
-        end: new Date(dataEvento.getTime() + 60 * 60000),
-        extendedProps: { agendamento },
-        backgroundColor: getStatusColor(agendamento.Status),
-      };
-    });
-  }, [agendamentos]);
-
-
   const formatarDataHora = (data: Date): string => {
     return new Date(data).toLocaleString('pt-BR', {
       day: '2-digit',
       month: '2-digit',
       year: 'numeric',
       hour: '2-digit',
-      minute: '2-digit'
+      minute: '2-digit',
     });
-  };
-  const handleChangePage = (_: unknown, newPage: number) => {
-    setPage(newPage);
-  };
-  const handleChangeRowsPerPage = (
-    event: React.ChangeEvent<HTMLInputElement>
-  ) => {
-    setRowsPerPage(parseInt(event.target.value, 10));
+  }
+  const handleChangePage = (_: unknown, newPage: number) => setPage(newPage);
+  const handleChangeRowsPerPage = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setRowsPerPage(parseInt(e.target.value, 10));
     setPage(0);
   };
 
-  const handleVerDetalhes = (agendamento: Agendamentos) => {
-    setAgendamentoSelecionado(agendamento);
+  const handleVerDetalhes = (ag: Agendamentos) => {
+    setAgendamentoSelecionado(ag);
     setModalAberto(true);
   };
 
@@ -116,162 +83,107 @@ const VisualizarAgendamento: React.FC = () => {
     setAgendamentoSelecionado(null);
   };
 
-  const handleEventClick = (info: any) => {
-    const agendamento = info.event.extendedProps.agendamento;
-    handleVerDetalhes(agendamento);
+  const getStatusColor = (status: StatusAgendamento) => {
+    switch (status) {
+      case StatusAgendamento.Agendado: return '#7d1e26';
+      case StatusAgendamento.Confirmado: return '#4caf50';
+      case StatusAgendamento.Finalizado: return '#9c27b0';
+      case StatusAgendamento.Cancelado: return '#f44336';
+      default: return '#757575';
+    }
   };
-  if (forbidden) {
-    return (
-      <Box sx={{ width: "100%", p: 2, textAlign: "center" }}>
-        <Typography variant="h6" color="error">
-          Acesso negado. Você não tem permissão para visualizar esta página.
-        </Typography>
-      </Box>
-    );
-  }
-  if (isLoading) return <Box>Carregando...</Box>;
-  if (error) return <Box>Erro ao carregar agendamentos: {error}</Box>;
+
+  const eventosCalendario = useMemo(() => {
+    return agendamentos.map((ag) => ({
+      title: `${ag.Cliente?.Nome || `Cliente ${ag.ClienteID}`}`,
+      date: ag.Data,
+      id: String(ag.ID),
+      extendedProps: ag,
+    }));
+  }, [agendamentos]);
+
   return (
-    <LocalizationProvider dateAdapter={AdapterDateFns} adapterLocale={ptBR}>
-      <Box sx={{ p: 3, maxWidth: 1200, mx: 'auto' }}>
-        <Box sx={{ display: 'flex', justifyContent: 'flex-end', mb: 2 }}>
-          <Button
-            variant="contained"
-            color="primary"
-            onClick={() => navigate("/agendamento")}
-          >
-            Novo Agendamento
-          </Button>
-        </Box>
-        <Typography variant="h4" component="h1" margin={2}>
-          Agendamentos
-        </Typography>
-        <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', mb: 2, flexWrap: 'wrap' }}>
-          <Box
-            sx={{
-              display: 'flex',
-              flexDirection: { xs: 'column', sm: 'row' },
-              gap: 2,
-              alignItems: { xs: 'stretch', sm: 'flex-end' },
-              flex: 1,
-            }}
-          >
+    <ThemeProvider theme={theme}>
+      <LocalizationProvider dateAdapter={AdapterDateFns} adapterLocale={ptBR}>
+        <Box sx={{ p: 3, maxWidth: 1200, mx: 'auto' }}>
+          <Typography variant="h4" component="h1" margin={2}>
+            Agendamentos
+          </Typography>
+
+          <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', mb: 2, flexWrap: 'wrap' }}>
             <DatePicker
-              label="Filtrar por dia"
+              label="Filtrar data"
               value={dataFilter}
-              onChange={(novaData) => {
-                setDataFilter(novaData);
-                setAnoFilter(novaData?.getFullYear() || 0);
-                setMesFilter(novaData?.getMonth() || 0);
-                setDiaFilter(novaData?.getDate() || 0);
+              onChange={(d) => {
+                setDataFilter(d);
                 setPage(0);
               }}
               slotProps={{ textField: { size: 'small' } }}
             />
-            <DatePicker
-              label="Filtrar por mês"
-              value={dataFilter}
-              views={['year', 'month']}
-              onChange={(novaData) => {
-                setDataFilter(novaData);
-                setAnoFilter(novaData?.getFullYear() || 0);
-                setMesFilter(novaData?.getMonth() || 0);
-                setPage(0);
-              }}
-              slotProps={{ textField: { size: 'small' } }}
-            />
-            <DatePicker
-              label="Filtrar por ano"
-              views={['year']}
-              value={dataFilter}
-              onChange={(novaData) => {
-                setDataFilter(novaData);
-                setAnoFilter(novaData?.getFullYear() || 0);
-                setPage(0);
-              }}
-              slotProps={{ textField: { size: 'small' } }}
+
+            <FormControlLabel
+              control={<Switch checked={modoCalendario} onChange={() => setModoCalendario(!modoCalendario)} color="primary" />}
+              label={modoCalendario ? 'Modo Calendário' : 'Modo Lista'}
+              sx={{ ml: { xs: 0, sm: 2 }, mt: { xs: 2, sm: 0 } }}
             />
           </Box>
-          <FormControlLabel
-            control={
-              <Switch
-                checked={modoCalendario}
-                onChange={() => setModoCalendario(!modoCalendario)}
-                color="primary"
+
+          {isLoading ? (
+            <Box sx={{ display: 'flex', justifyContent: 'center', py: 5 }}>
+              <CircularProgress />
+            </Box>
+          ) : modoCalendario ? (
+            <Box sx={{ overflowX: 'auto' }}>
+              <FullCalendar
+                plugins={[dayGridPlugin]}
+                initialView="dayGridMonth"
+                locale="pt-br"
+                events={eventosCalendario}
+                height="auto"
+                contentHeight="auto"
+                dayMaxEventRows={3}
+                eventClick={(info) => {
+                  const agendamento = info.event.extendedProps as Agendamentos;
+                  handleVerDetalhes(agendamento);
+                }}
+                dayCellClassNames={({ date, view }) => {
+                  const currentMonth = new Date().getMonth();
+                  return date.getMonth() !== currentMonth ? 'fc-other-month' : '';
+                }}
+                dayCellContent={({ date }) => (
+                  <span>{date.getDate()}</span>
+                )}
+                dayHeaderFormat={{ weekday: 'short' }}
               />
-            }
-            label={modoCalendario ? "Modo Calendário" : "Modo Lista"}
-            sx={{ ml: { xs: 0, sm: 2 }, mt: { xs: 2, sm: 0 } }}
-          />
-
-        </Box>
-
-        {isLoading ? (
-          <Box sx={{ display: 'flex', justifyContent: 'center', py: 5 }}>
-            <CircularProgress />
-          </Box>
-        ) : (
-          <Paper elevation={2} sx={{ p: 2 }}>
-            {modoCalendario ? (
-              <Box sx={{ height: 600 }}>
-                <FullCalendar
-                  themeSystem='material'
-                  dayMaxEventRows={true}
-                  fixedWeekCount={false}
-                  plugins={[dayGridPlugin]}
-                  initialView="dayGridMonth"
-                  events={eventosCalendario}
-                  eventClick={handleEventClick}
-                  headerToolbar={{
-                    left: 'prev,next today',
-                    center: 'title',
-                    right: ''
-                  }}
-                  locale="pt-br"
-                  eventTimeFormat={{
-                    hour: '2-digit',
-                    minute: '2-digit',
-                    hour12: false
-                  }}
-                />
-              </Box>
-            ) : (
+              <style>
+                {`
+                  .fc-other-month {
+                    opacity: 0.1 !important;
+                    pointer-events: none;
+                  }
+                `}
+              </style>
+            </Box>
+          ) : (
+            <>
               <List sx={{ width: '100%' }}>
                 {agendamentos.length > 0 ? (
-                  agendamentos.map((agendamento) => (
-                    <ListItem
-                      key={agendamento.ID}
-                      divider
-                      secondaryAction={
-                        <IconButton edge="end" onClick={() => handleVerDetalhes(agendamento)}>
-                          <InfoIcon />
-                        </IconButton>
-                      }
-                    >
+                  agendamentos.map((ag) => (
+                    <ListItem key={ag.ID} divider secondaryAction={
+                      <IconButton edge="end" onClick={() => handleVerDetalhes(ag)}>
+                        <InfoIcon />
+                      </IconButton>
+                    }>
                       <ListItemText
                         disableTypography
-                        primary={
-                          <Typography variant="subtitle1" fontWeight="bold">
-                            {agendamento.Cliente?.Nome || `Cliente ${agendamento.ClienteID}`}
-                          </Typography>
-                        }
+                        primary={<Typography variant="subtitle1" fontWeight="bold">{ag.Cliente?.Nome || `Cliente ${ag.ClienteID}`}</Typography>}
                         secondary={
                           <Box>
-                            <Typography variant="body2" component="span" display="block">
-                              {formatarDataHora(agendamento.Data)}
+                            <Typography variant="body2" display="block">{formatarDataHora(ag.Data)}</Typography>
+                            <Typography variant="body2" display="block">
+                              Profissional: {ag.Cabeleireiro?.Nome || `ID: ${ag.CabeleireiroID}`}
                             </Typography>
-                            <Typography variant="body2" component="span" display="block">
-                              Profissional: {agendamento.Cabeleireiro?.Nome || `ID: ${agendamento.CabeleireiroID}`}
-                            </Typography>
-                            <Chip
-                              label={agendamento.Status}
-                              size="small"
-                              sx={{
-                                bgcolor: getStatusColor(agendamento.Status),
-                                color: 'white',
-                                mt: 1
-                              }}
-                            />
+                            <Chip label={ag.Status} size="small" sx={{ bgcolor: getStatusColor(ag.Status), color: 'white', mt: 1 }} />
                           </Box>
                         }
                       />
@@ -283,8 +195,7 @@ const VisualizarAgendamento: React.FC = () => {
                   </Typography>
                 )}
               </List>
-            )}
-            {modoCalendario ? null : (
+
               <TablePagination
                 rowsPerPageOptions={[5, 10, 25]}
                 component="div"
@@ -294,65 +205,48 @@ const VisualizarAgendamento: React.FC = () => {
                 onPageChange={handleChangePage}
                 onRowsPerPageChange={handleChangeRowsPerPage}
                 labelRowsPerPage="Itens por página:"
-                labelDisplayedRows={({ from, to, count }) =>
-                  `${from}-${to} de ${count !== -1 ? count : `mais de ${to}`}`
-                }
-              />)}
-          </Paper>
-        )}
-        <Dialog open={modalAberto} onClose={handleFecharModal} maxWidth="sm" fullWidth>
-          {agendamentoSelecionado && (
-            <>
-              <DialogTitle>
-                Detalhes do Agendamento
-                <Chip
-                  label={agendamentoSelecionado.Status}
-                  size="small"
-                  sx={{
-                    ml: 2,
-                    bgcolor: getStatusColor(agendamentoSelecionado.Status),
-                    color: 'white'
-                  }}
-                />
-              </DialogTitle>
-              <DialogContent dividers>
-                <Box sx={{ mt: 2 }}>
-                  <Box sx={{ xs: 12 }}>
-                    <Typography variant="subtitle1" fontWeight="bold">Data e Hora</Typography>
-                    <Typography variant="body1">{formatarDataHora(agendamentoSelecionado.Data)}</Typography>
-                  </Box>
-
-                  <Box sx={{ xs: 12 }}>
-                    <Typography variant="subtitle1" fontWeight="bold">Cliente</Typography>
-                    <Typography variant="body1">
-                      {agendamentoSelecionado.Cliente?.Nome || `ID: ${agendamentoSelecionado.ClienteID}`}
-                    </Typography>
-                  </Box>
-                  <Box sx={{ xs: 12, sm: 6 }}>
-                    <Typography variant="subtitle1" fontWeight="bold">Profissional</Typography>
-                    <Typography variant="body1">
-                      {agendamentoSelecionado.Cabeleireiro?.Nome || `ID: ${agendamentoSelecionado.CabeleireiroID}`}
-                    </Typography>
-                  </Box>
-                </Box>
-              </DialogContent>
-              <DialogActions>
-                <Button onClick={handleFecharModal} color="primary">
-                  Fechar
-                </Button>
-                <Button
-                  variant="contained"
-                  color="primary"
-                  onClick={() => navigate(`/agendamento/${agendamentoSelecionado.ID}`)}
-                >
-                  Ir para página do agendamento
-                </Button>
-              </DialogActions>
+                labelDisplayedRows={({ from, to, count }) => `${from}-${to} de ${count}`}
+              />
             </>
           )}
-        </Dialog>
-      </Box>
-    </LocalizationProvider>
+
+          <Dialog open={modalAberto} onClose={handleFecharModal} maxWidth="sm" fullWidth>
+            {agendamentoSelecionado && (
+              <>
+                <DialogTitle>
+                  Detalhes do Agendamento
+                  <Chip label={agendamentoSelecionado.Status} size="small" sx={{
+                    ml: 2,
+                    bgcolor: getStatusColor(agendamentoSelecionado.Status),
+                    color: 'white',
+                  }} />
+                </DialogTitle>
+
+                <DialogContent dividers>
+                  <Box sx={{ mt: 2 }}>
+                    <Typography variant="subtitle1" fontWeight="bold">Data e Hora</Typography>
+                    <Typography variant="body1">{formatarDataHora(agendamentoSelecionado.Data)}</Typography>
+
+                    <Typography variant="subtitle1" fontWeight="bold" sx={{ mt: 2 }}>Cliente</Typography>
+                    <Typography variant="body1">{agendamentoSelecionado.Cliente?.Nome || `ID: ${agendamentoSelecionado.ClienteID}`}</Typography>
+
+                    <Typography variant="subtitle1" fontWeight="bold" sx={{ mt: 2 }}>Profissional</Typography>
+                    <Typography variant="body1">{agendamentoSelecionado.Cabeleireiro?.Nome || `ID: ${agendamentoSelecionado.CabeleireiroID}`}</Typography>
+                  </Box>
+                </DialogContent>
+
+                <DialogActions>
+                  <Button onClick={handleFecharModal}>Fechar</Button>
+                  <Button variant="contained" color="primary" onClick={() => navigate(`/agendamento/${agendamentoSelecionado.ID}`)}>
+                    Ir para página do agendamento
+                  </Button>
+                </DialogActions>
+              </>
+            )}
+          </Dialog>
+        </Box>
+      </LocalizationProvider>
+    </ThemeProvider>
   );
 };
 
