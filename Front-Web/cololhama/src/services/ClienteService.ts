@@ -21,7 +21,6 @@ api.interceptors.request.use((config) => {
   return config;
 });
 
-
 api.interceptors.response.use(
   (response) => {
     console.log("Resposta da API:", response);
@@ -30,7 +29,7 @@ api.interceptors.response.use(
   (error) => {
     console.error("Erro na API:", error);
     return Promise.reject(error);
-  }
+  },
 );
 
 interface ClientePageResponse {
@@ -58,10 +57,9 @@ export const ClienteService = {
     password: string;
     userType: string;
   }): Promise<boolean> {
-    
     const dadosEnvio = {
       CPF: CPF,
-      Nome: nome, 
+      Nome: nome,
       Email: email,
       Telefone: telefone,
       SalaoId: salaoId,
@@ -70,30 +68,29 @@ export const ClienteService = {
     };
 
     console.log("Dados sendo enviados para a API:", dadosEnvio);
-    
+
     try {
       const response = await api.post(`/cadastrar/cliente`, dadosEnvio);
-      
+
       console.log("Resposta completa da API:", response);
       console.log("Status da resposta:", response.status);
       console.log("Dados da resposta:", response.data);
-      
+
       if (response.data && response.data.token) {
         localStorage.setItem("usuario", JSON.stringify(response.data));
         console.log("Token salvo no localStorage");
       }
 
       return response.status === 200 || response.status === 201;
-      
     } catch (error) {
       console.error("Erro detalhado ao cadastrar cliente:", error);
-      
+
       if (axios.isAxiosError(error)) {
         console.error("Status do erro:", error.response?.status);
         console.error("Dados do erro:", error.response?.data);
         console.error("Headers do erro:", error.response?.headers);
       }
-      
+
       throw error;
     }
   },
@@ -119,7 +116,7 @@ export const ClienteService = {
     termoBusca: string,
     campoBusca: string,
     dataFilter: string,
-    includeRelations: boolean = false
+    includeRelations: boolean = false,
   ): Promise<ClientePageResponse | boolean> {
     try {
       const response = await api.get(`/cliente/page`, {
@@ -146,22 +143,25 @@ export const ClienteService = {
 
   async getClienteByCpfAndSalao(
     cpf: string,
-    salaoId: string
+    salaoId: string,
   ): Promise<boolean> {
     try {
       const path = `/cliente/cpf/${cpf}/${salaoId}`;
       console.log(`Verificando cliente por CPF no caminho: ${path}`);
       const response = await api.get(path);
-      
+
       if (response.status === 204) {
         console.log("Cliente não encontrado (status 204), retornando false.");
         return false;
       }
-      
+
       console.log("Resposta da verificação CPF:", response.data);
       return !!response.data;
     } catch (error) {
-      if (axios.isAxiosError(error) && (error.response?.status === 404 || error.response?.status === 204)) {
+      if (
+        axios.isAxiosError(error) &&
+        (error.response?.status === 404 || error.response?.status === 204)
+      ) {
         console.log("Cliente não encontrado, retornando false.");
         return false;
       }
@@ -186,7 +186,7 @@ export const ClienteService = {
     Nome: string,
     Email: string,
     Telefone: string,
-    SalaoId: string
+    SalaoId: string,
   ): Promise<Cliente> {
     try {
       const response = await api.put(`/cliente/${id}`, {
@@ -200,6 +200,24 @@ export const ClienteService = {
     } catch (error) {
       console.error("Erro ao atualizar cliente:", error);
       throw error;
+    }
+  },
+  async getClientesBySalao(
+    salaoId: string,
+    include: boolean = false,
+  ): Promise<Cliente[]> {
+    try {
+      const response = await api.get(
+        `/cliente/salaoId/${salaoId}?include=${include}`,
+      );
+      return response.data as Cliente[];
+    } catch (error) {
+      if (axios.isAxiosError(error) && error.response?.status === 400) {
+        console.error("SalaoId é obrigatório.");
+          throw error;
+      }
+      console.error("Erro ao buscar clientes do salão:", error);
+        throw error;
     }
   },
 };

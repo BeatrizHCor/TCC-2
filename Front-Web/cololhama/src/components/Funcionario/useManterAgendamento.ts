@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import AgendamentoService from "../../services/AgendamentoService";
 import ServicoService from "../../services/ServicoService";
@@ -7,9 +7,10 @@ import { StatusAgendamento } from "../../models/StatusAgendamento.enum";
 import { Servico } from "../../models/servicoModel";
 import { ServicoAgendamento } from "../../models/servicoAgendamentoModel";
 import { Cabeleireiro } from "../../models/cabelereiroModel";
-import axios from "axios";
+import { Cliente } from "../../models/clienteModel";
 import { userTypes } from "../../models/tipo-usuario.enum";
-
+import ClienteService from "../../services/ClienteService";
+import axios from "axios";
 interface ValidationErrors {
   data?: string;
   status?: string;
@@ -18,37 +19,48 @@ interface ValidationErrors {
   servicos?: string;
 }
 
-export const useManterAgendamento = (userType: userTypes, agendamentoId?: string) => {
+export const useManterAgendamento = (
+  userType: userTypes,
+  agendamentoId?: string,
+) => {
   const [data, setData] = useState("");
-  const [status, setStatus] = useState<StatusAgendamento>(StatusAgendamento.Agendado);
+  const [status, setStatus] = useState<StatusAgendamento>(
+    StatusAgendamento.Agendado,
+  );
   const [clienteId, setClienteId] = useState("");
+  const [clienteNome, setClienteNome] = useState("");
+  const [clientesDisponiveis, setClientesDisponiveis] = useState<Cliente[]>([]);
   const [cabeleireiroId, setCabeleireiroId] = useState("");
   const [cabeleireiroNome, setCabeleireiroNome] = useState("");
-  const [servicosAgendamento, setServicosAgendamento] = useState<ServicoAgendamento[]>([]);
+  const [servicosAgendamento, setServicosAgendamento] = useState<
+    ServicoAgendamento[]
+  >([]);
   const [servicosDisponiveis, setServicosDisponiveis] = useState<Servico[]>([]);
-  const [cabeleireirosDisponiveis, setCabeleireirosDisponiveis] = useState<Cabeleireiro[]>([]);
+  const [cabeleireirosDisponiveis, setCabeleireirosDisponiveis] = useState<
+    Cabeleireiro[]
+  >([]);
   const [salaoId, setSalaoId] = useState<string | null>(
-    import.meta.env.VITE_SALAO_ID
+    import.meta.env.VITE_SALAO_ID,
   );
   const [forbidden, setForbidden] = useState<boolean>(false);
   const [isLoading, setIsLoading] = useState(false);
-  const [validationErrors, setValidationErrors] = useState<ValidationErrors>({});
+  const [validationErrors, setValidationErrors] = useState<ValidationErrors>(
+    {},
+  );
   const [isEditing, setIsEditing] = useState(false);
 
   const navigate = useNavigate();
 
-
   const canSaveEdit = (): boolean => {
     if (!isEditing || !data) return true;
-    
+
     const agendamentoDate = new Date(data);
     const currentDate = new Date();
     const threeDaysFromNow = new Date();
     threeDaysFromNow.setDate(currentDate.getDate() + 3);
-    
+
     return agendamentoDate > threeDaysFromNow;
   };
-
 
   useEffect(() => {
     const loadInitialData = async () => {
@@ -59,8 +71,20 @@ export const useManterAgendamento = (userType: userTypes, agendamentoId?: string
         const servicos = await ServicoService.getServicosBySalao(salaoId);
         setServicosDisponiveis(servicos);
 
-        const cabeleireiros = await CabeleireiroService.getCabeleireiroBySalao(salaoId, false);
+        const cabeleireiros = await CabeleireiroService.getCabeleireiroBySalao(
+          salaoId,
+          false,
+        );
         setCabeleireirosDisponiveis(cabeleireiros);
+
+        if (
+          userType === userTypes.AdmSalao ||
+          userType === userTypes.Funcionario ||
+          userType === userTypes.AdmSistema
+        ) {
+          const clientes = await ClienteService.getClientesBySalao(salaoId);
+          setClientesDisponiveis(clientes);
+        }
       } catch (error) {
         console.error("Erro ao carregar dados iniciais:", error);
       } finally {
@@ -81,47 +105,52 @@ export const useManterAgendamento = (userType: userTypes, agendamentoId?: string
       setIsEditing(true);
       setIsLoading(true);
 
-      try {console.log("user: " , userType);
+      try {
         let agendamento;
         switch (userType) {
-            case userTypes.Funcionario:
-            case userTypes.AdmSalao:
-            case userTypes.AdmSistema:
-            agendamento = await AgendamentoService.getFuncionarioAgendamentoById(agendamentoId);
+          case userTypes.Funcionario:
+          case userTypes.AdmSalao:
+          case userTypes.AdmSistema:
+            agendamento = await AgendamentoService
+              .getFuncionarioAgendamentoById(agendamentoId);
             break;
-            case userTypes.Cabeleireiro:
-            agendamento = await AgendamentoService.getCabeleireiroAgendamentoById(agendamentoId);
+          case userTypes.Cabeleireiro:
+            agendamento = await AgendamentoService
+              .getCabeleireiroAgendamentoById(agendamentoId);
             break;
-            case userTypes.Cliente:
-            agendamento = await AgendamentoService.getClienteAgendamentoById(agendamentoId);
+          case userTypes.Cliente:
+            agendamento = await AgendamentoService.getClienteAgendamentoById(
+              agendamentoId,
+            );
             break;
-            default:
-             throw new Error("Tipo de usuário inválido");
-            break;
+          default:
+            throw new Error("Tipo de usuário inválido");
         }
-        const dataFormatted = new Date(agendamento.Data).toISOString().slice(0, 16);        
+        const dataFormatted = new Date(agendamento.Data).toISOString().slice(
+          0,
+          16,
+        );
         setData(dataFormatted);
         setStatus(agendamento.Status);
         setClienteId(agendamento.ClienteID);
         setCabeleireiroId(agendamento.CabeleireiroID);
         setCabeleireiroNome(agendamento.Cabeleireiro?.Nome || "");
         setSalaoId(agendamento.SalaoId);
-        
+
         if (agendamento.ServicoAgendamento) {
           setServicosAgendamento(agendamento.ServicoAgendamento);
         }
-
       } catch (error: unknown) {
-          console.error("Erro ao salvar agendamento:", error);
-          if (axios.isAxiosError(error)) {
-              if (error.response?.status === 403) {
-              setForbidden(true);
-              }
-          } else {
-              console.error('Erro desconhecido:', error);
-          
-            navigate("/agendamentos", { replace: true });
+        console.error("Erro ao salvar agendamento:", error);
+        if (axios.isAxiosError(error)) {
+          if (error.response?.status === 403) {
+            setForbidden(true);
           }
+        } else {
+          console.error("Erro desconhecido:", error);
+
+          navigate("/agendamentos", { replace: true });
+        }
       } finally {
         setIsLoading(false);
       }
@@ -140,7 +169,7 @@ export const useManterAgendamento = (userType: userTypes, agendamentoId?: string
     } else {
       const agendamentoDate = new Date(data);
       const currentDate = new Date();
-      
+
       if (agendamentoDate <= currentDate) {
         errors.data = "A data do agendamento deve ser futura";
       }
@@ -185,43 +214,42 @@ export const useManterAgendamento = (userType: userTypes, agendamentoId?: string
     setIsLoading(true);
     const servicosIds: string[] = [];
     for (const servico of servicosAgendamento) {
-    if (servico.ServicoId) {
-      servicosIds.push(servico.ServicoId);
+      if (servico.ServicoId) {
+        servicosIds.push(servico.ServicoId);
+      }
     }
-  }
 
     try {
-
-        if (isEditing && agendamentoId) {
-            await AgendamentoService.updateAgendamento(
-                agendamentoId,
-                new Date(data).toISOString(),
-                status,
-                clienteId,
-                cabeleireiroId,
-                salaoId,
-                servicosIds
-            );
-            } else {
-            await AgendamentoService.createAgendamento(
-                new Date(data).toISOString(),
-                clienteId,
-                cabeleireiroId,
-                salaoId,
-                servicosIds
-            );
-            }
+      if (isEditing && agendamentoId) {
+        await AgendamentoService.updateAgendamento(
+          agendamentoId,
+          new Date(data).toISOString(),
+          status,
+          clienteId,
+          cabeleireiroId,
+          salaoId,
+          servicosIds,
+        );
+      } else {
+        await AgendamentoService.createAgendamento(
+          new Date(data).toISOString(),
+          clienteId,
+          cabeleireiroId,
+          salaoId,
+          servicosIds,
+        );
+      }
       navigate(-1);
     } catch (error: unknown) {
-        console.error("Erro ao salvar agendamento:", error);
+      console.error("Erro ao salvar agendamento:", error);
 
-        if (axios.isAxiosError(error)) {
-            if (error.response?.status === 403) {
-            setForbidden(true);
-            }
-        } else {
-            console.error('Erro desconhecido:', error);
+      if (axios.isAxiosError(error)) {
+        if (error.response?.status === 403) {
+          setForbidden(true);
         }
+      } else {
+        console.error("Erro desconhecido:", error);
+      }
     }
   };
 
@@ -235,18 +263,17 @@ export const useManterAgendamento = (userType: userTypes, agendamentoId?: string
     try {
       await AgendamentoService.deleteAgendamento(agendamentoId);
       navigate(-1);
-    } catch ( error: unknown) {
-        console.error("Erro ao excluir agendamento:", error);
+    } catch (error: unknown) {
+      console.error("Erro ao excluir agendamento:", error);
 
-        if (axios.isAxiosError(error)) {
-            if (error.response?.status === 403) {
-            setForbidden(true);
-            }
-        } else {
-            console.error('Erro desconhecido:', error);
+      if (axios.isAxiosError(error)) {
+        if (error.response?.status === 403) {
+          setForbidden(true);
         }
+      } else {
+        console.error("Erro desconhecido:", error);
+      }
     }
-
   };
 
   return {
@@ -263,6 +290,9 @@ export const useManterAgendamento = (userType: userTypes, agendamentoId?: string
     servicosAgendamento,
     setServicosAgendamento,
     servicosDisponiveis,
+    clienteNome,
+    setClienteNome,
+    clientesDisponiveis,
     cabeleireirosDisponiveis,
     salaoId,
     isLoading,

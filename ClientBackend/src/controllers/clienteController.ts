@@ -91,12 +91,12 @@ class ClienteController {
     }
   }
 
-  static async findByEmailandSalao(req: Request, res: Response) {
+  static async findByEmailandSalao(req: Request, res: Response): Promise<void> {
     try {
       const { email, salaoId } = req.params;
       const includeRelations = req.query.include === "true" ? true : false;
       if (!email || !salaoId) {
-        return res.status(400).json({
+        res.status(400).json({
           message: "Email e SalaoId são obrigatórios.",
         });
       } else {
@@ -107,7 +107,7 @@ class ClienteController {
         );
 
         if (!cliente) {
-          return res.status(204).json({ message: "Cliente não encontrado" });
+          res.status(204).json({ message: "Cliente não encontrado" });
         } else {
           res.status(200).json(cliente);
         }
@@ -186,6 +186,24 @@ class ClienteController {
       res.status(500).send("something went wrong");
     }
   }
+
+  static async getClientesBySalao(req: Request, res: Response): Promise<void> {
+  try {
+    const { salaoId } = req.params;
+    const include = req.query.include === "true";
+
+    if (!salaoId) {
+      res.status(400).json({ message: "SalaoId é obrigatório." });
+    } else {
+
+    const clientes = await ClienteService.getClientesBySalao(salaoId, include);
+
+    res.status(200).json(clientes); }
+  } catch (error) {
+    console.log(error);
+    res.status(500).json({ message: "Erro ao buscar clientes do salão." });
+  }
+}
 }
 
 export default ClienteController;
