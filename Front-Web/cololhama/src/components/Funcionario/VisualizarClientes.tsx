@@ -211,15 +211,19 @@ export const VisualizarClientes: React.FC = () => {
         </Button>
       </Box>
 
-      {/* Tabela */}
-      {/* Tabela estilizada */}
-<Paper elevation={3} sx={{ borderRadius: 2, overflow: "hidden" }}>
+{/* Tabela estilizada */}
+<Paper
+  elevation={1}
+  sx={{
+    borderRadius: 2,
+    overflow: "hidden",
+    backgroundColor: "#f5f5f5",
+  }}
+>
   <TableContainer>
     <Table>
       <TableHead>
-        <TableRow
-          sx={{ backgroundColor: "#f0f0f0", borderBottom: "2px solid #ccc" }}
-        >
+        <TableRow sx={{ backgroundColor: theme.palette.primary.main }}>
           {colunas.map((coluna) => (
             <TableCell
               key={coluna.id}
@@ -227,6 +231,7 @@ export const VisualizarClientes: React.FC = () => {
                 fontWeight: "bold",
                 textTransform: "uppercase",
                 fontSize: "0.875rem",
+                color: "#fff",
               }}
             >
               {coluna.label}
@@ -234,6 +239,7 @@ export const VisualizarClientes: React.FC = () => {
           ))}
         </TableRow>
       </TableHead>
+
       <TableBody>
         {clientes.length === 0 ? (
           <TableRow>
@@ -246,7 +252,9 @@ export const VisualizarClientes: React.FC = () => {
             <TableRow
               key={cliente.ID}
               hover
-              sx={{ "&:hover": { backgroundColor: "#fafafa" } }}
+              sx={{
+                "&:hover": { backgroundColor: "#f0f0f0" },
+              }}
             >
               <TableCell>{cliente.Nome || "—"}</TableCell>
               <TableCell>{cliente.Email || "—"}</TableCell>
@@ -262,6 +270,7 @@ export const VisualizarClientes: React.FC = () => {
       </TableBody>
     </Table>
   </TableContainer>
+
   <TablePagination
     rowsPerPageOptions={[5, 10, 25]}
     component="div"
@@ -277,8 +286,12 @@ export const VisualizarClientes: React.FC = () => {
     labelDisplayedRows={({ from, to, count }) =>
       `${from}-${to} de ${count}`
     }
+    sx={{ backgroundColor: "#fff", mt: 1.5 }}
   />
 </Paper>
+
+
+
     </Box>
   );
 };

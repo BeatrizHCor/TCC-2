@@ -136,7 +136,7 @@ return (
     mb: 2,
     width: "100%",
     maxWidth: "800px",
-    mx: "auto", // centraliza horizontalmente
+    mx: "auto",
   }}
 >
   <TextField
@@ -191,7 +191,7 @@ return (
     flexWrap: "wrap",
     width: "100%",
     maxWidth: "800px",
-    mx: "auto", // centraliza horizontalmente
+    mx: "auto", 
     mb: 3,
   }}
 >
@@ -241,26 +241,28 @@ return (
 
     {/* Tabela estilizada */}
     <Paper elevation={3} sx={{ borderRadius: 2, overflow: "hidden" }}>
-      <TableContainer>
-        <Table>
-          <TableHead>
-            <TableRow
-              sx={{ backgroundColor: "#f0f0f0", borderBottom: "2px solid #ccc" }}
-            >
-              {colunasVisiveis.map((coluna) => (
-                <TableCell
-                  key={coluna.id}
-                  sx={{
-                    fontWeight: "bold",
-                    textTransform: "uppercase",
-                    fontSize: "0.875rem",
-                  }}
-                >
-                  {coluna.label}
-                </TableCell>
-              ))}
-            </TableRow>
-          </TableHead>
+             <TableContainer sx={{ backgroundColor: "#f0f0f0" }}>
+          <Table>
+            <TableHead>
+              <TableRow
+                sx={{ backgroundColor: theme.palette.primary.main, borderBottom: "2px solid #ccc" }}
+              >
+                {colunasVisiveis.map((coluna) => (
+                  <TableCell
+                    key={coluna.id}
+                    sx={{
+                      fontWeight: "bold",
+                      textTransform: "uppercase",
+                      fontSize: "0.875rem",
+                      color: "white", 
+                    }}
+                  >
+                    {coluna.label}
+                  </TableCell>
+                ))}
+              </TableRow>
+            </TableHead>
+
           <TableBody>
             {servicos.length === 0 ? (
               <TableRow>
