@@ -1,58 +1,59 @@
-import React, { useEffect, useState } from "react";
+import React from "react";
 import {
   Box,
   Typography,
   Button,
   Paper,
   Container,
-  Avatar,
-  TextField,
-  InputAdornment,
-  IconButton,
   CircularProgress,
   useTheme,
 } from "@mui/material";
-import SearchIcon from "@mui/icons-material/Search";
-import CloseIcon from "@mui/icons-material/Close";
+import ContentCutIcon from "@mui/icons-material/ContentCut";
+import BrushIcon from "@mui/icons-material/Brush";
+import EmojiEmotionsIcon from "@mui/icons-material/EmojiEmotions";
 import ArrowForwardIcon from "@mui/icons-material/ArrowForward";
 import { useNavigate } from "react-router-dom";
-import ServicoService from "../../services/ServicoService";
-import { Servico } from "../../models/servicoModel";
+import { useVisualizarServicos } from "../../components/Funcionario/useVisualizarServicos";
 
 const PaginaHome: React.FC = () => {
   const theme = useTheme();
   const navigate = useNavigate();
-  const [servicos, setServicos] = useState<Servico[]>([]);
-  const [loading, setLoading] = useState(true);
 
   const salaoId = import.meta.env.VITE_SALAO_ID;
+  const { servicos, isLoading } = useVisualizarServicos(1, 10, salaoId);
 
-  useEffect(() => {
-    const fetchServicos = async () => {
-      try {
-        const response = await ServicoService.getServicosBySalao(salaoId);
-        setServicos(response);
-      } catch (error) {
-        console.error("Erro ao carregar serviços:", error);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchServicos();
-  }, [salaoId]);
+  const sugestoes = ["Corte feminino", "Coloração", "Hidratação", "Barbearia"];
 
   return (
-    <Box sx={{ minHeight: "100vh", backgroundColor: "#fdf6f0", py: 6 }}>
-      <Container maxWidth="lg">
-        <Box sx={{ mb: 6, textAlign: "center" }}>
+    <Box
+      sx={{
+        minHeight: "100vh",
+        backgroundColor: theme.palette.background.default,
+        py: 6,
+        overflowX: "hidden",
+      }}
+    >
+      <Container maxWidth="lg" sx={{ px: 2 }}>
+        <Box
+          sx={{
+            mb: 6,
+            textAlign: "center",
+            backgroundColor: theme.palette.customColors?.lightGray,
+            borderRadius: 4,
+            p: 4,
+            border: `2px solid ${theme.palette.customColors?.goldenBorder}`,
+          }}
+        >
           <Typography
             variant="h3"
             sx={{ fontWeight: "bold", color: theme.palette.primary.main }}
           >
-            Bem-vindo ao seu Salão Favorito
+            Bem-vindo ao Salão Cololhama
           </Typography>
-          <Typography variant="subtitle1" sx={{ color: "#555", mt: 1 }}>
+          <Typography
+            variant="subtitle1"
+            sx={{ color: theme.palette.text.secondary, mt: 1 }}
+          >
             Descubra nossos serviços especiais e transforme seu visual
           </Typography>
         </Box>
@@ -65,12 +66,21 @@ const PaginaHome: React.FC = () => {
             justifyContent: "space-between",
           }}
         >
-          <Box sx={{ flex: "1 1 300px" }}>
+          {/* Serviços em Destaque */}
+          <Box
+            sx={{
+              flex: "1 1 300px",
+              backgroundColor: theme.palette.customColors?.lightGray,
+              borderRadius: 4,
+              p: 3,
+              border: `2px solid ${theme.palette.customColors?.goldenBorder}`,
+            }}
+          >
             <Typography variant="h6" gutterBottom>
               Serviços em Destaque
             </Typography>
 
-            {loading ? (
+            {isLoading ? (
               <CircularProgress />
             ) : (
               <Box sx={{ display: "flex", flexWrap: "wrap", gap: 2, mb: 2 }}>
@@ -87,11 +97,12 @@ const PaginaHome: React.FC = () => {
                       alignItems: "center",
                       textAlign: "center",
                       p: 1,
-                      backgroundColor: "#fffefb",
+                      backgroundColor: "#fff",
                       boxShadow: "0px 4px 10px rgba(0,0,0,0.1)",
                       transition: "0.3s",
                       "&:hover": {
-                        backgroundColor: "#f5e8da",
+                        backgroundColor:
+                          theme.palette.customColors?.softPink || "#fdecef",
                         transform: "scale(1.03)",
                       },
                     }}
@@ -109,13 +120,16 @@ const PaginaHome: React.FC = () => {
               onClick={() => navigate("/servicos")}
               endIcon={<ArrowForwardIcon />}
               sx={{
+                mt: 1,
                 backgroundColor: theme.palette.primary.main,
                 color: "#fff",
                 borderRadius: 10,
                 fontWeight: 600,
                 textTransform: "none",
+                transition: "0.3s",
                 "&:hover": {
                   backgroundColor: theme.palette.primary.dark,
+                  transform: "scale(1.02)",
                 },
               }}
             >
@@ -123,7 +137,16 @@ const PaginaHome: React.FC = () => {
             </Button>
           </Box>
 
-          <Box sx={{ flex: "1 1 300px" }}>
+          {/* Buscar Serviços */}
+          <Box
+            sx={{
+              flex: "1 1 300px",
+              backgroundColor: theme.palette.customColors?.lightGray,
+              borderRadius: 4,
+              p: 3,
+              border: `2px solid ${theme.palette.customColors?.goldenBorder}`,
+            }}
+          >
             <Typography variant="h6" gutterBottom>
               Buscar Serviços
             </Typography>
@@ -132,110 +155,91 @@ const PaginaHome: React.FC = () => {
               sx={{
                 borderRadius: 4,
                 p: 2,
-                backgroundColor: "#fffefb",
+                backgroundColor: "#fff",
                 display: "flex",
                 flexDirection: "column",
                 gap: 2,
               }}
             >
-              {["Corte feminino", "Coloração", "Hidratação", "Barbearia"].map(
-                (item, index) => (
-                  <TextField
-                    key={index}
-                    variant="outlined"
-                    size="small"
-                    value={item}
-                    InputProps={{
-                      readOnly: true,
-                      endAdornment: (
-                        <InputAdornment position="end">
-                          <IconButton>
-                            <CloseIcon fontSize="small" />
-                          </IconButton>
-                        </InputAdornment>
-                      ),
-                    }}
-                    sx={{ borderRadius: 2 }}
-                  />
-                )
-              )}
-              <TextField
-                placeholder="Buscar serviços..."
-                variant="outlined"
-                size="small"
-                InputProps={{
-                  startAdornment: (
-                    <InputAdornment position="start">
-                      <SearchIcon />
-                    </InputAdornment>
-                  ),
-                }}
-                sx={{ borderRadius: 2 }}
-              />
+              {sugestoes.map((item, index) => (
+                <Button
+                  key={index}
+                  variant="outlined"
+                  fullWidth
+                  onClick={() =>
+                    navigate(`/servicos?nome=${encodeURIComponent(item)}`)
+                  }
+                  sx={{
+                    justifyContent: "space-between",
+                    borderRadius: 3,
+                    textTransform: "none",
+                    fontWeight: 500,
+                    borderColor: theme.palette.primary.main,
+                    color: theme.palette.primary.main,
+                    transition: "0.3s",
+                    "&:hover": {
+                      backgroundColor:
+                        theme.palette.customColors?.softPink || "#fdecef",
+                      borderColor: theme.palette.primary.dark,
+                    },
+                  }}
+                  endIcon={<ArrowForwardIcon fontSize="small" />}
+                >
+                  {item}
+                </Button>
+              ))}
             </Paper>
           </Box>
 
-          <Box sx={{ flex: "1 1 300px" }}>
-            <Typography variant="h6" gutterBottom>
-              Destaques do Salão
+          {/* Sobre Nós */}
+          <Box
+            sx={{
+              flex: "1 1 300px",
+              backgroundColor: theme.palette.customColors?.lightGray,
+              borderRadius: 4,
+              p: 4,
+              border: `2px solid ${theme.palette.customColors?.goldenBorder}`,
+              boxShadow: "0px 4px 12px rgba(0,0,0,0.08)",
+            }}
+          >
+            <Typography
+              variant="h6"
+              gutterBottom
+              sx={{ display: "flex", alignItems: "center", gap: 1 }}
+            >
+              <EmojiEmotionsIcon sx={{ color: theme.palette.primary.main }} />
+              Sobre nós
             </Typography>
-            <Box sx={{ display: "flex", flexDirection: "column", gap: 2 }}>
-              {[
-                {
-                  title: "Coloração Premium",
-                  desc: "Mechas, luzes e tintura com os melhores produtos.",
-                },
-                {
-                  title: "Corte Personalizado",
-                  desc: "Deixe seu estilo em alta com nossos especialistas.",
-                },
-                {
-                  title: "Spa Capilar Deluxe",
-                  desc: "Hidratação profunda com essências naturais.",
-                },
-              ].map((info, idx) => (
-                <Paper
-                  key={idx}
-                  elevation={3}
+
+            <Box sx={{ display: "flex", flexDirection: "column", gap: 3, mt: 2 }}>
+              <Box sx={{ display: "flex", alignItems: "flex-start", gap: 2 }}>
+                <ContentCutIcon sx={{ color: theme.palette.primary.main, mt: "4px" }} />
+                <Typography
+                  variant="body1"
                   sx={{
-                    borderRadius: 4,
-                    p: 2,
-                    backgroundColor: "#fff",
-                    display: "flex",
-                    alignItems: "center",
-                    gap: 2,
-                    boxShadow: "0px 4px 10px rgba(0,0,0,0.05)",
+                    textAlign: "justify",
+                    color: theme.palette.text.secondary,
                   }}
                 >
-                  <Avatar sx={{ bgcolor: theme.palette.secondary.light }}>
-                    {info.title[0]}
-                  </Avatar>
-                  <Box>
-                    <Typography variant="subtitle1" fontWeight="bold">
-                      {info.title}
-                    </Typography>
-                    <Typography variant="body2" color="text.secondary">
-                      {info.desc}
-                    </Typography>
-                  </Box>
-                </Paper>
-              ))}
+                  Transformamos visual com talento e cuidado. Seu estilo é nossa
+                  prioridade.
+                </Typography>
+              </Box>
+
+              <Box sx={{ display: "flex", alignItems: "flex-start", gap: 2 }}>
+                <BrushIcon sx={{ color: theme.palette.primary.main, mt: "4px" }} />
+                <Typography
+                  variant="body1"
+                  sx={{
+                    textAlign: "justify",
+                    color: theme.palette.text.secondary,
+                  }}
+                >
+                  Produtos de qualidade e equipe apaixonada para realçar sua beleza.
+                </Typography>
+              </Box>
             </Box>
           </Box>
-        </Box>
-
-        <Box sx={{ mt: 8, textAlign: "center" }}>
-          <Typography variant="h5" fontWeight="bold" gutterBottom>
-            Sobre nós
-          </Typography>
-          <Typography
-            variant="body1"
-            sx={{ maxWidth: 700, mx: "auto", color: "#666" }}
-          >
-            No nosso salão, a beleza encontra a arte. Com uma equipe dedicada e
-            produtos de alta qualidade, garantimos que cada cliente saia
-            renovado e feliz. Seu estilo, sua essência, nosso cuidado.
-          </Typography>
         </Box>
       </Container>
     </Box>

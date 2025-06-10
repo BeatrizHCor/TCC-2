@@ -16,13 +16,13 @@ import {
 import EditIcon from "@mui/icons-material/Edit";
 import { Funcionario } from "../../models/funcionarioModel";
 import { useVisualizarFuncionarios } from "./useVisualizarFuncionario";
-import "../../styles/styles.global.css";
-import theme from "../../styles/theme";
 import { Link } from "react-router-dom";
 import { AuthContext } from "../../contexts/AuthContext";
 import { userTypes } from "../../models/tipo-usuario.enum";
+import theme from "../../styles/theme";
+import "../../styles/styles.global.css";
 
-const SalaoID = import.meta.env.VITE_SALAO_ID || "1"; 
+const SalaoID = import.meta.env.VITE_SALAO_ID || "1";
 
 const colunas = [
   { id: "nome", label: "Nome" },
@@ -36,8 +36,11 @@ export const VisualizarFuncionarios: React.FC = () => {
   const [page, setPage] = useState(0);
   const [rowsPerPage, setRowsPerPage] = useState(10);
   const [nomeFilter, setNomeFilter] = useState("");
-  let isADMSalao =
+  const [nomeFiltroInput, setNomeFiltroInput] = useState("");
+
+  const isADMSalao =
     userType === userTypes.AdmSalao || userType === userTypes.AdmSistema;
+
   const {
     funcionarios,
     totalFuncionarios,
@@ -46,7 +49,7 @@ export const VisualizarFuncionarios: React.FC = () => {
     handleEditarFuncionario,
     forbidden,
   } = useVisualizarFuncionarios(page + 1, rowsPerPage, nomeFilter, SalaoID);
-  
+
   useEffect(() => {
     if (forbidden) {
       doLogout();
@@ -63,12 +66,13 @@ export const VisualizarFuncionarios: React.FC = () => {
     setRowsPerPage(parseInt(event.target.value, 10));
     setPage(0);
   };
-  const [NomeFiltroInput, setNomeFilterInput] = useState("");
+
   const handleNomeFilterInput = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setNomeFilterInput(e.target.value);
+    setNomeFiltroInput(e.target.value);
   };
+
   const aplicarFiltroNome = () => {
-    setNomeFilter(NomeFiltroInput);
+    setNomeFilter(nomeFiltroInput);
     setPage(0);
   };
 
@@ -76,65 +80,79 @@ export const VisualizarFuncionarios: React.FC = () => {
   if (error) return <Box>Erro ao carregar funcionários: {error}</Box>;
 
   return (
-    <Box sx={{ width: "100%", p: 2 }}>
-      <Typography variant="h5" sx={{ mb: 3 }}>
+    <Box sx={{ width: "100%", p: { xs: 2, sm: 4 } }}>
+      <Typography variant="h4" sx={{ mb: 3, fontWeight: 600 }}>
         Funcionários
       </Typography>
+
       <Box
         sx={{
           display: "flex",
           flexDirection: { xs: "column", sm: "row" },
-          gap: 2,
-          mb: 2,
           alignItems: { xs: "stretch", sm: "center" },
+          gap: 2,
+          mb: 3,
         }}
       >
         <TextField
-          variant="outlined"
           label="Buscar por nome"
-          value={NomeFiltroInput}
+          variant="outlined"
+          value={nomeFiltroInput}
           onChange={handleNomeFilterInput}
           sx={{ flexGrow: 1, minWidth: { xs: "100%", sm: 200 } }}
         />
-        <Button
-          variant="contained"
-          onClick={aplicarFiltroNome}
-          sx={{ width: { xs: "100%", sm: "auto" } }}
-        >
-          Buscar
-        </Button>
+         <Button
+            variant="contained"
+            onClick={aplicarFiltroNome}
+            size="medium"
+            sx={{ height: 45, minWidth: 120 }}
+          >
+            Buscar
+          </Button>
         {isADMSalao && (
           <Button
             component={Link}
-            variant="outlined"
             to="/funcionario/novo"
+            variant="contained"
+            size="medium"
             sx={{
+              backgroundColor: "#f5f5f5",
               color: theme.palette.primary.main,
-              borderBlockColor: theme.palette.primary.main,
-              borderColor: theme.palette.primary.main,
-              borderWidth: 1,
-              width: { xs: "100%", sm: "auto" },
+              border: `1.5px solid ${theme.palette.primary.main}`,
+              height: 45,
+              minWidth: 160,
+              "&:hover": {
+                backgroundColor: "#e0e0e0",
+                borderColor: theme.palette.primary.main,
+              },
+              textTransform: "none",
+              fontWeight: 600,
+              boxShadow: "none",
             }}
           >
-            Adicionar Funcionário
+            Novo Funcionário
           </Button>
         )}
       </Box>
 
-      <Paper sx={{ width: "100%", mb: 2 }}>
-        <TableContainer sx={{ overflowX: "auto" }}>
+      <Paper elevation={3} sx={{ borderRadius: 2 }}>
+        <TableContainer>
           <Table>
             <TableHead>
-              <TableRow>
+              <TableRow sx={{ backgroundColor: "#f7f7f7" }}>
                 {colunas.map((coluna) => (
-                  <TableCell key={coluna.id}>{coluna.label}</TableCell>
+                  <TableCell key={coluna.id} sx={{ fontWeight: "bold" }}>
+                    {coluna.label}
+                  </TableCell>
                 ))}
-                {isADMSalao && <TableCell>Ações</TableCell>}
+                {isADMSalao && (
+                  <TableCell sx={{ fontWeight: "bold" }}>Ações</TableCell>
+                )}
               </TableRow>
             </TableHead>
             <TableBody>
               {funcionarios.map((funcionario: Funcionario) => (
-                <TableRow key={funcionario.ID}>
+                <TableRow key={funcionario.ID} hover>
                   <TableCell>{funcionario.Nome}</TableCell>
                   <TableCell>{funcionario.Email}</TableCell>
                   <TableCell>{funcionario.Telefone}</TableCell>
@@ -165,6 +183,7 @@ export const VisualizarFuncionarios: React.FC = () => {
             </TableBody>
           </Table>
         </TableContainer>
+
         <TablePagination
           rowsPerPageOptions={[5, 10, 25]}
           component="div"
@@ -177,9 +196,17 @@ export const VisualizarFuncionarios: React.FC = () => {
           labelDisplayedRows={({ from, to, count }) =>
             `${from}-${to} de ${count}`
           }
+          sx={{
+            px: 2,
+            borderTop: "1px solid #e0e0e0",
+            backgroundColor: "#fafafa",
+            borderBottomLeftRadius: 8,
+            borderBottomRightRadius: 8,
+          }}
         />
       </Paper>
     </Box>
   );
 };
+
 export default VisualizarFuncionarios;

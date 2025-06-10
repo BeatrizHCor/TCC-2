@@ -117,178 +117,210 @@ export const VisualizarServicos: React.FC<VisualizarServicosProps> = ({
     ? colunas
     : colunas.filter((coluna) => coluna.clienteVisivel !== false);
 
-  return (
-    <Box sx={{ width: "100%", p: 2 }}>
-      <Typography variant="h5" sx={{ mb: 3 }}>
-        Serviços do Salão
-      </Typography>
-      <Box
-        sx={{
-          display: "flex",
-          flexDirection: { xs: "column", sm: "row" },
-          mb: 2,
-          gap: { xs: 2, sm: 2 },
-          alignItems: { xs: "stretch", sm: "center" },
-        }}
-      >
-        <TextField
-          variant="outlined"
-          label="Buscar por nome"
-          value={NomeFiltroInput}
-          onChange={handleNomeFilterInput}
-          sx={{
-            width: { xs: "100%", sm: "auto" },
-            minWidth: { sm: "40%" },
-            maxWidth: { sm: "50%" }
-          }}     
-        />
-        <Button
-          variant="contained"
-          onClick={aplicarFiltroNome}
-          sx={{ width: { xs: "100%", sm: "auto" } }}
-        >
-          Buscar
-        </Button>
-        {canEdit && (
-          <Button
-            component={Link}
-            variant="outlined"
-            to="/servico/editar/novo"
-            sx={{
-              color: theme.palette.primary.main,
-              borderBlockColor: theme.palette.primary.main,
-              borderColor: theme.palette.primary.main,
-              borderWidth: 1,
-              width: { xs: "100%", sm: "auto" },
-            }}
-          >
-            Novo Serviço
-          </Button>
-        )}
-        <Box
-          display="flex"
-          flexDirection={{ xs: "column", sm: "row" }}
-          gap={2}
-          sx={{ width: { xs: "100%", sm: "auto" } }}
-        >
-          <TextField
-            variant="outlined"
-            label="Preço mínimo"
-            type="text"
-            value={precoMinInput}
-            onChange={handlePrecoMinInputChange}
-            sx={{ width: { xs: "100%", sm: "150px" } }}
-            inputMode="numeric"
-            slotProps={{
-              input: {
-                startAdornment: (
-                  <InputAdornment position="start">R$</InputAdornment>
-                ),
-                endAdornment: (
-                  <InputAdornment position="end">
-                    <IconButton onClick={aplicarFiltroPreco}>
-                      <CheckIcon />
-                    </IconButton>
-                  </InputAdornment>
-                ),
-              },
-            }}
-          />
-          <TextField
-            variant="outlined"
-            label="Preço máximo"
-            type="text"
-            value={precoMaxInput}
-            onChange={handlePrecoMaxInputChange}
-            sx={{ width: { xs: "100%", sm: "150px" } }}
-            inputMode="numeric"
-            slotProps={{
-              input: {
-                startAdornment: (
-                  <InputAdornment position="start">R$</InputAdornment>
-                ),
-                endAdornment: (
-                  <InputAdornment position="end">
-                    <IconButton onClick={aplicarFiltroPrecoMax}>
-                      <CheckIcon />
-                    </IconButton>
-                  </InputAdornment>
-                ),
-              },
-            }}
-          />
-        </Box>
-      </Box>
-      <Paper sx={{ width: "100%", mb: 2 }}>
-        <TableContainer sx={{ overflowX: "auto" }}>
-          <Table>
-            <TableHead>
-              <TableRow key="header-row">
-                {colunasVisiveis.map((coluna) => (
-                  <TableCell key={coluna.id}>{coluna.label}</TableCell>
-                ))}
+return (
+  <Box sx={{ width: "100%", px: { xs: 1, sm: 3 }, py: 2 }}>
+    <Typography
+      variant="h5"
+      sx={{ mb: 3, fontWeight: 600, color: theme.palette.primary.main }}
+    >
+      Serviços do Salão
+    </Typography>
+
+    {/* Filtros - linha 1 */}
+<Box
+  sx={{
+    display: "flex",
+    flexWrap: "wrap",
+    gap: 2,
+    justifyContent: "center",
+    mb: 2,
+    width: "100%",
+    maxWidth: "800px",
+    mx: "auto", // centraliza horizontalmente
+  }}
+>
+  <TextField
+    variant="outlined"
+    label="Buscar por nome"
+    value={NomeFiltroInput}
+    onChange={handleNomeFilterInput}
+    size="medium"
+    sx={{ flex: "1 1 60%", minWidth: "280px" }}
+  />
+  <Button
+    variant="contained"
+    onClick={aplicarFiltroNome}
+    size="medium"
+    sx={{ height: 45, minWidth: 120 }}
+  >
+    Buscar
+  </Button>
+  {canEdit && (
+  <Button
+    component={Link}
+    to="/servico/editar/novo"
+    variant="contained"
+    size="medium"
+    sx={{
+      backgroundColor: "#f5f5f5", 
+      color: theme.palette.primary.main, 
+      border: `1.5px solid ${theme.palette.primary.main}`, // borda vinho do tema
+      height: 45,
+      minWidth: 140,
+      "&:hover": {
+        backgroundColor: "#e0e0e0",
+        borderColor: theme.palette.primary.main,
+      },
+      textTransform: "none",
+      fontWeight: 600,
+      boxShadow: "none",
+    }}
+  >
+    Novo Serviço
+  </Button>
+)}
+
+</Box>
+
+{/* Filtros - linha 2 */}
+<Box
+  sx={{
+    display: "flex",
+    justifyContent: "center",
+    gap: 3,
+    flexWrap: "wrap",
+    width: "100%",
+    maxWidth: "800px",
+    mx: "auto", // centraliza horizontalmente
+    mb: 3,
+  }}
+>
+  <TextField
+    variant="outlined"
+    label="Preço mínimo"
+    type="text"
+    value={precoMinInput}
+    onChange={handlePrecoMinInputChange}
+    size="medium"
+    sx={{ flex: "1 1 35%", minWidth: "200px" }}
+    inputMode="numeric"
+    InputProps={{
+      startAdornment: <InputAdornment position="start">R$</InputAdornment>,
+      endAdornment: (
+        <InputAdornment position="end">
+          <IconButton size="small" onClick={aplicarFiltroPreco} sx={{ p: "4px" }}>
+            <CheckIcon fontSize="small" />
+          </IconButton>
+        </InputAdornment>
+      ),
+    }}
+  />
+
+  <TextField
+    variant="outlined"
+    label="Preço máximo"
+    type="text"
+    value={precoMaxInput}
+    onChange={handlePrecoMaxInputChange}
+    size="medium"
+    sx={{ flex: "1 1 35%", minWidth: "200px" }}
+    inputMode="numeric"
+    InputProps={{
+      startAdornment: <InputAdornment position="start">R$</InputAdornment>,
+      endAdornment: (
+        <InputAdornment position="end">
+          <IconButton size="small" onClick={aplicarFiltroPrecoMax} sx={{ p: "4px" }}>
+            <CheckIcon fontSize="small" />
+          </IconButton>
+        </InputAdornment>
+      ),
+    }}
+  />
+</Box>
+
+
+    {/* Tabela estilizada */}
+    <Paper elevation={3} sx={{ borderRadius: 2, overflow: "hidden" }}>
+      <TableContainer>
+        <Table>
+          <TableHead>
+            <TableRow
+              sx={{ backgroundColor: "#f0f0f0", borderBottom: "2px solid #ccc" }}
+            >
+              {colunasVisiveis.map((coluna) => (
+                <TableCell
+                  key={coluna.id}
+                  sx={{
+                    fontWeight: "bold",
+                    textTransform: "uppercase",
+                    fontSize: "0.875rem",
+                  }}
+                >
+                  {coluna.label}
+                </TableCell>
+              ))}
+            </TableRow>
+          </TableHead>
+          <TableBody>
+            {servicos.length === 0 ? (
+              <TableRow>
+                <TableCell colSpan={colunasVisiveis.length} align="center">
+                  Nenhum serviço encontrado.
+                </TableCell>
               </TableRow>
-            </TableHead>
-            <TableBody>
-              {servicos.length === 0 ? (
-                <TableRow>
-                  <TableCell colSpan={colunasVisiveis.length} align="center">
-                    Nenhum serviço encontrado.
+            ) : (
+              servicos.map((servico: Servico, index) => (
+                <TableRow
+                  key={servico.ID ?? `row-${index}`}
+                  hover
+                  sx={{ "&:hover": { backgroundColor: "#fafafa" } }}
+                >
+                  <TableCell>{servico.Nome || "—"}</TableCell>
+                  <TableCell>{servico.Descricao || "—"}</TableCell>
+                  <TableCell>
+                    R${servico.PrecoMin?.toFixed(2) ?? "N/A"}
                   </TableCell>
+                  <TableCell>
+                    R${servico.PrecoMax?.toFixed(2) ?? "N/A"}
+                  </TableCell>
+                  {canEdit && (
+                    <TableCell>
+                      <Button
+                        variant="outlined"
+                        size="small"
+                        startIcon={<EditIcon />}
+                        onClick={() =>
+                          servico.ID && handleEditarServico(servico.ID)
+                        }
+                      >
+                        Editar
+                      </Button>
+                    </TableCell>
+                  )}
                 </TableRow>
-              ) : (
-                servicos.map((servicos: Servico, index) => (
-                  <TableRow key={servicos.ID ?? `row-${index}`}>
-                    <TableCell>{servicos.Nome || "—"} </TableCell>
-                    <TableCell>{servicos.Descricao || "—"}</TableCell>
-                    <TableCell>
-                      R${" "}
-                      {servicos.PrecoMin !== undefined
-                        ? servicos.PrecoMin.toFixed(2)
-                        : "N/A"}
-                    </TableCell>
-                    <TableCell>
-                      R${" "}
-                      {servicos.PrecoMax !== undefined
-                        ? servicos.PrecoMax.toFixed(2)
-                        : "N/A"}
-                    </TableCell>
-                    {canEdit && (
-                      <TableCell>
-                        <Button
-                          startIcon={<EditIcon />}
-                          variant="outlined"
-                          size="small"
-                          onClick={() =>
-                            servicos.ID && handleEditarServico(servicos.ID)
-                          }
-                        >
-                          Editar
-                        </Button>
-                      </TableCell>
-                    )}
-                  </TableRow>
-                ))
-              )}
-            </TableBody>
-          </Table>
-        </TableContainer>
-        <TablePagination
-          rowsPerPageOptions={[5, 10, 25]}
-          component="div"
-          count={totalServicos}
-          rowsPerPage={rowsPerPage}
-          page={page}
-          onPageChange={handleChangePage}
-          onRowsPerPageChange={handleChangeRowsPerPage}
-          labelRowsPerPage="Itens por página:"
-          labelDisplayedRows={({ from, to, count }) =>
-            `${from}-${to} de ${count}`
-          }
-        />
-      </Paper>
-    </Box>
-  );
+              ))
+            )}
+          </TableBody>
+        </Table>
+      </TableContainer>
+
+      <TablePagination
+        rowsPerPageOptions={[5, 10, 25]}
+        component="div"
+        count={totalServicos}
+        rowsPerPage={rowsPerPage}
+        page={page}
+        onPageChange={handleChangePage}
+        onRowsPerPageChange={handleChangeRowsPerPage}
+        labelRowsPerPage="Itens por página:"
+        labelDisplayedRows={({ from, to, count }) =>
+          `${from}-${to} de ${count}`
+        }
+      />
+    </Paper>
+  </Box>
+);
+
 };
 
 export default VisualizarServicos;
