@@ -3,7 +3,6 @@ import { Agendamentos } from "../models/agendamentoModel";
 import { StatusAgendamento } from "../models/StatusAgendamento.enum";
 import { ServicoAgendamento } from "../models/servicoAgendamentoModel";
 
-const token = localStorage.getItem("usuario");
 const api = axios.create({
   baseURL: import.meta.env.VITE_GATEWAY_URL || "http://localhost:5000",
   headers: {
@@ -25,8 +24,7 @@ interface AgendamentoPaginadoResponse {
 }
 
 class AgendamentoService {
-
-  static async getAgendamentosPaginados(
+  static async FuncionariogetAgendamentosPaginados(
     page: number = 1,
     limit: number = 10,
     salaoId: string,
@@ -54,6 +52,63 @@ class AgendamentoService {
       throw error;
     }
   }
+  static async CabeleireirogetAgendamentosPaginados(
+  page: number = 1,
+  limit: number = 10,
+  salaoId: string,
+  ano?: number,
+  mes?: number,
+  dia?: number,
+  includeRelations: boolean = false
+): Promise<AgendamentoPaginadoResponse> {
+  try {
+    const response = await api.get(`/cabeleireiro/agendamento/page`, {
+      params: {
+        page,
+        limit,
+        salaoId,
+        ano,
+        mes,
+        dia,
+        includeRelations,
+      },
+    });
+    console.log("Agendamentos recebidos (cabeleireiro):", response.data);
+    return response.data;
+  } catch (error) {
+    console.error("Erro ao buscar agendamentos (cabeleireiro):", error);
+    throw error;
+  }
+}
+
+static async ClientegetAgendamentosPaginados(
+  page: number = 1,
+  limit: number = 10,
+  salaoId: string,
+  ano?: number,
+  mes?: number,
+  dia?: number,
+  includeRelations: boolean = false
+): Promise<AgendamentoPaginadoResponse> {
+  try {
+    const response = await api.get(`/cliente/agendamento/page`, {
+      params: {
+        page,
+        limit,
+        salaoId,
+        ano,
+        mes,
+        dia,
+        includeRelations,
+      },
+    });
+    console.log("Agendamentos recebidos (cliente):", response.data);
+    return response.data;
+  } catch (error) {
+    console.error("Erro ao buscar agendamentos (cliente):", error);
+    throw error;
+  }
+}
 static async createAgendamento(
     Data: string,
     ClienteID: string,

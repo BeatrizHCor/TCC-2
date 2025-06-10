@@ -25,10 +25,9 @@ class AgendamentoService{
             gte: range.dataInicial,
             lte: range.dataFinal,
         };
-        }
-        if (ClienteId!){
-          where.CabeleireiroID = ClienteId;
-        }
+        } console.log("cliente: ", ClienteId)
+          where.ClienteID = ClienteId;
+        
         return await prisma.agendamentos.findMany({
         ...(skip !== null ? { skip } : {}),
         ...(limit !== null ? { take: limit } : {}),
@@ -69,9 +68,8 @@ class AgendamentoService{
                 lte: range.dataFinal,
             };
         }
-        if (ClienteId!){
-          where.CabeleireiroID = ClienteId;
-        }
+          where.ClienteID = ClienteId;
+        
         const [total, agendamentos] = await Promise.all([
             prisma.agendamentos.count({ where: where }),
             AgendamentoService.getAgendamentos(

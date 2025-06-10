@@ -1,21 +1,36 @@
 import { Request, Response } from "express";
 import AgendamentoService from "../services/CabeleireiroAgendamentoService";
 
-class AgendamentoController{
+class AgendamentoController {
   static findAllPaginated = async (req: Request, res: Response) => {
     try {
-      const { page, limit, includeRelations, salaoId, cabeleireiroId, dia, mes, ano } = req.query;
-      const agendamentos = await AgendamentoService.getAgendamentosPage(
-        Number(page),
-        Number(limit),
-        includeRelations === "true",
-        salaoId ? String(salaoId) : null,
-        cabeleireiroId ? String(cabeleireiroId) : "",
-        dia !== undefined ? Number(dia) : 0,
-        mes !== undefined ? Number(mes) : 0,
-        ano !== undefined ? Number(ano) : 0,
-      );
-      res.status(200).json(agendamentos);
+      const {
+        page,
+        limit,
+        includeRelations,
+        salaoId,
+        CabeleireiroId,
+        dia,
+        mes,
+        ano,
+      } = req.query;
+      if (!CabeleireiroId) {
+        res.status(403).json({
+          message: "Acesso não autorizado. Controller. findAllPaginated",
+        });
+      } else {
+        const agendamentos = await AgendamentoService.getAgendamentosPage(
+          Number(page),
+          Number(limit),
+          includeRelations === "true",
+          salaoId ? String(salaoId) : null,
+          CabeleireiroId ? String(CabeleireiroId) : "",
+          dia !== undefined ? Number(dia) : 0,
+          mes !== undefined ? Number(mes) : 0,
+          ano !== undefined ? Number(ano) : 0,
+        );
+        res.status(200).json(agendamentos);
+      }
     } catch (error) {
       console.log(error);
       res.status(204).json({ message: "Agendamentos não encontrado" });
@@ -28,12 +43,12 @@ class AgendamentoController{
       const includeRelations = req.query.include === "true";
       const cabeleireiro = await AgendamentoService.findById(
         id,
-        includeRelations
+        includeRelations,
       );
       if (!cabeleireiro) {
         res
-        .status(204)
-        .json({ message: "Agendamentos não encontrado" });
+          .status(204)
+          .json({ message: "Agendamentos não encontrado" });
       } else {
         res.json(cabeleireiro);
       }
@@ -41,37 +56,38 @@ class AgendamentoController{
       console.log(e);
       res.status(204).json({ message: "Agendamentos não encontrado" });
     }
-  }; 
+  };
   static createAgendamento = async (req: Request, res: Response) => {
-    try { 
+    try {
       const { Data, ClienteID, SalaoId, CabeleireiroID, Servicos } = req.body;
       const agendamento = await AgendamentoService.createAgendamento(
-            new Date(Data),
-            "Agendado",
-            ClienteID,
-            SalaoId,
-            CabeleireiroID,
-            Servicos
-          );
+        new Date(Data),
+        "Agendado",
+        ClienteID,
+        SalaoId,
+        CabeleireiroID,
+        Servicos,
+      );
       if (!agendamento || agendamento === null) {
-          res
-            .status(404)
-            .json({ message: "agendamento não pode ser registrado" });
-      } else {
-          res.json(agendamento);
-          }
-      } catch (e) {
-        console.log(e);
         res
-          .status(500)
-          .json({ message: "Não foi possivél criar o agendamento" });
-    }    
+          .status(404)
+          .json({ message: "agendamento não pode ser registrado" });
+      } else {
+        res.json(agendamento);
+      }
+    } catch (e) {
+      console.log(e);
+      res
+        .status(500)
+        .json({ message: "Não foi possivél criar o agendamento" });
+    }
   };
-  
+
   static updateAgendamento = async (req: Request, res: Response) => {
     try {
       const { id } = req.params;
-      const { Data, Status, ClienteID, SalaoId, CabeleireiroID, Servicos } = req.body;
+      const { Data, Status, ClienteID, SalaoId, CabeleireiroID, Servicos } =
+        req.body;
       const agendamento = await AgendamentoService.updateAgendamento(
         id,
         new Date(Data),
@@ -79,7 +95,7 @@ class AgendamentoController{
         ClienteID,
         SalaoId,
         CabeleireiroID,
-        Servicos
+        Servicos,
       );
       if (!agendamento) {
         res.status(404).json({ message: "Agendamento não encontrado" });

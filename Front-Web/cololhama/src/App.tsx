@@ -69,6 +69,7 @@ const App: React.FC = () => {
 
           <Route path="/agendamentos" element={<VisualizarAgendamentoPage />} />
           <Route path="/agendamento/:agendamentoId" element={<ManterAgendamentoPage />}/>
+          <Route path="/agendamento" element={<ManterAgendamentoPage />}/>
 
           <Route path="/atendimentos" element={<VisualizarAtendimentoPage/>}/>
         </Routes>
