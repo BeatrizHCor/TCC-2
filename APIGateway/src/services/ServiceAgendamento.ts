@@ -1,43 +1,10 @@
 import { Agendamentos } from "../models/agendamentoModel";
 import "dotenv/config";
-
+import { handleApiResponse } from "../utils.ts/HandlerDeRespostaDoBackend"
 const FuncionarioURL = process.env.FUNC_URL || "http://localhost:3002";
 const CabeleireiroURL = process.env.CABELEREIRO_URL || "http://localhost:3005";
 const ClienteURL = process.env.CUSTOMER_URL || "http://localhost:3001";
 
-async function handleApiResponse<T>(
-    response: Response,
-    operation: string,
-): Promise<T | false> {
-    switch (response.status) {
-        case 200:
-            return (await response.json()) as T;
-        case 204:
-            console.error(`${operation} não encontrado (204 No Content)`);
-            return false;
-        case 400:
-            console.error(
-                `Requisição inválida ao ${operation} (400): parametros inálidos ou ausentes`,
-            );
-            return false;
-        case 404:
-            console.error(
-                `Erro interno ao ${operation} (404), não localizado`,
-            );
-            return false;
-        case 409:
-            console.error(
-                `Erro interno ao ${operation} (409), rigistro não pode ser duplicado`,
-            );
-            return false;
-        case 500:
-            console.error(`Erro interno ao ${operation} (500)`);
-            return false;
-        default:
-            console.error(`Erro ao ${operation}: status ${response.status}`);
-            return false;
-    }
-}
 
 //-----Funcionario
 export const FuncionarioPostAgendamento = async (
@@ -129,9 +96,7 @@ export const FuncionariogetAgendamentoById = async (
             method: "GET",
         },
     );
-    if (response.status === 204) {
-        return true;
-    }
+
     return handleApiResponse<Agendamentos>(
         response,
         "buscar agendamento por ID",
@@ -145,6 +110,9 @@ export const FuncionarioDeleteAgendamento = async (id: string) => {
             method: "GET",
         },
     );
+        if (response.status === 204) {
+        return true;
+    }
     return handleApiResponse<Agendamentos>(
         response,
         "deletar agendamento",

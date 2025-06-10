@@ -29,7 +29,6 @@ export const useVisualizarAgendamentos = (
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
   const [forbidden, setForbidden] = useState<boolean>(false);
-  const navigate = useNavigate();
   const debounceRef = useRef<NodeJS.Timeout | null>(null);
   const dataValida = {
     dia: dia && dia >= 1 && dia <= 31 ? dia : 0,

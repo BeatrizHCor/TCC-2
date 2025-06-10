@@ -44,6 +44,7 @@ import { StatusAgendamento } from "../../models/StatusAgendamento.enum";
 import { Servico } from "../../models/servicoModel";
 import { ServicoAgendamento } from "../../models/servicoAgendamentoModel";
 import { Cabeleireiro } from "../../models/cabelereiroModel";
+import { Cliente } from "../../models/clienteModel";
 
 const ManterAgendamento: React.FC = () => {
   const navigate = useNavigate();
@@ -52,7 +53,7 @@ const ManterAgendamento: React.FC = () => {
   const [openDeleteDialog, setOpenDeleteDialog] = useState(false);
   const [openServicosModal, setOpenServicosModal] = useState(false);
   const [openCabeleireirosModal, setOpenCabeleireirosModal] = useState(false);
-
+  const [openClientesModal, setOpenClientesModal] = useState(false);
   const {
     data,
     setData,
@@ -67,6 +68,9 @@ const ManterAgendamento: React.FC = () => {
     servicosAgendamento,
     setServicosAgendamento,
     servicosDisponiveis,
+    clienteNome,
+    setClienteNome,
+    clientesDisponiveis,
     cabeleireirosDisponiveis,
     salaoId,
     isLoading,
@@ -92,12 +96,12 @@ const ManterAgendamento: React.FC = () => {
   };
 
   const handleAddServico = (servico: Servico) => {
-    const novoServicoAgendamento: ServicoAgendamento = {  
-        Nome: servico.Nome,      
-        PrecoMin: servico.PrecoMin,
-        PrecoMax: servico.PrecoMax,
-        ServicoId: servico.ID ? servico.ID : "",
-        AgendamentoId: agendamentoId ? agendamentoId : "",
+    const novoServicoAgendamento: ServicoAgendamento = {
+      Nome: servico.Nome,
+      PrecoMin: servico.PrecoMin,
+      PrecoMax: servico.PrecoMax,
+      ServicoId: servico.ID ? servico.ID : "",
+      AgendamentoId: agendamentoId ? agendamentoId : "",
     };
 
     setServicosAgendamento([...servicosAgendamento, novoServicoAgendamento]);
@@ -199,37 +203,40 @@ const ManterAgendamento: React.FC = () => {
                     error={Boolean(validationErrors.data)}
                     helperText={validationErrors.data}
                     slotProps={{
-                        inputLabel: { shrink: true }
+                      inputLabel: { shrink: true }
                     }}
-                    />
-                </Box>                  
+                  />
+                </Box>
                 <Box>
-                  <FormControl fullWidth required>
-                    <InputLabel>Status</InputLabel>
-                    <Select
-                      value={status}
-                      label="Status"
-                      onChange={(e) => setStatus(e.target.value as StatusAgendamento)}
-                    >
-                      {Object.values(StatusAgendamento).map((statusOption) => (
-                        <MenuItem key={statusOption} value={statusOption}>
-                          {statusOption}
-                        </MenuItem>
-                      ))}
-                    </Select>
-                  </FormControl>
+                  <TextField
+                    fullWidth
+                    label="Status"
+                    value={status}
+                    slotProps={{
+                      input: { readOnly: true }
+                    }}
+
+                    variant="outlined"
+                    margin="normal"
+                  />
                 </Box>
 
                 <Box>
                   <TextField
                     fullWidth
                     required
-                    label="ID do Cliente"
-                    value={clienteId}
-                    onChange={(e) => setClienteId(e.target.value)}
+                    label="Cliente"
+                    value={clienteNome}
+                    onClick={() => {
+                      if (userType !== "Cliente") setOpenClientesModal(true);
+                    }}
                     error={Boolean(validationErrors.clienteId)}
                     helperText={validationErrors.clienteId}
-                    placeholder="ID do cliente"
+                    placeholder="Clique para selecionar um cliente"
+                    slotProps={{
+                      input: { readOnly: true }
+                    }}
+                    sx={{ cursor: userType === "Cliente" ? "not-allowed" : "pointer" }}
                   />
                 </Box>
 
@@ -239,21 +246,23 @@ const ManterAgendamento: React.FC = () => {
                     required
                     label="Cabeleireiro"
                     value={cabeleireiroNome}
-                    onClick={() => setOpenCabeleireirosModal(true)}
-                    error={Boolean(validationErrors.cabeleireiroId)}
+                    onClick={() => {
+                      if (userType !== "Cabeleireiro") setOpenCabeleireirosModal(true);
+                    }} error={Boolean(validationErrors.cabeleireiroId)}
                     helperText={validationErrors.cabeleireiroId}
                     placeholder="Clique para selecionar um cabeleireiro"
                     slotProps={{
-                        input: {
+                      input: {
                         readOnly: true,
                         endAdornment: (
-                            <InputAdornment position="end">
+                          <InputAdornment position="end">
                             <PersonIcon />
-                            </InputAdornment>
+                          </InputAdornment>
                         ),
-                        },
+
+                      },
                     }}
-                    sx={{ cursor: "pointer" }}
+                    sx={{ cursor: userType === "Cabeleireiro" ? "not-allowed" : "pointer" }}
                   />
                 </Box>
 
@@ -385,7 +394,45 @@ const ManterAgendamento: React.FC = () => {
           </Box>
         </form>
       </Paper>
-
+      <Dialog
+        open={openClientesModal}
+        onClose={() => setOpenClientesModal(false)}
+        maxWidth="sm"
+        fullWidth
+      >
+        <DialogTitle>Selecionar Cliente</DialogTitle>
+        <DialogContent>
+          <List>
+            {clientesDisponiveis?.map((cliente) => (
+              <ListItem key={cliente.ID} disablePadding>
+                <ListItemButton
+                  onClick={() => {
+                    setClienteId(cliente.ID!);
+                    setClienteNome(cliente.Nome);
+                    setOpenClientesModal(false);
+                  }}
+                >
+                  <ListItemText
+                    primary={cliente.Nome}
+                    secondary={
+                      <Box>
+                        <Typography variant="body2" color="text.secondary">
+                          {cliente.Email}
+                        </Typography>
+                      </Box>
+                    }
+                  />
+                </ListItemButton>
+              </ListItem>
+            ))}
+          </List>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={() => setOpenClientesModal(false)}>
+            Fechar
+          </Button>
+        </DialogActions>
+      </Dialog>
       <Dialog open={openDeleteDialog} onClose={handleCloseDeleteDialog}>
         <DialogTitle>Confirmar exclusão</DialogTitle>
         <DialogContent>

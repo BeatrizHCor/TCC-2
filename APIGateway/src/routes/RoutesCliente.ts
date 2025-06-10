@@ -4,33 +4,55 @@ import {
   getClienteByCPF,
   getClienteById,
   getClientePage,
+  getClientesBySalao,
   postCliente,
   updateCliente,
 } from "../services/ServiceClient";
-import { authenticate, postLogin, registerLogin, cadastrarCliente } from "../services/Service";
+import {
+  authenticate,
+  cadastrarCliente,
+  postLogin,
+  registerLogin,
+} from "../services/Service";
 import { userTypes } from "../models/tipo-usuario.enum";
 
 const RoutesCliente = Router();
 
-RoutesCliente.post("/cadastrar/cliente", async (req: Request, res: Response) => {
-  let { CPF, Nome, Email, Telefone, SalaoId, Password, userType } = req.body;
-  try {
- if (!CPF || !Nome || !Email || !Telefone || !SalaoId || !Password || !userType) {
-       res.status(400).json({ message: "Parametros ausentes ou invalidos, todos os campos obrigatórios devem ser informados." });
-    } else {
-    const result = await cadastrarCliente(CPF, Nome, Email, Telefone, SalaoId, Password, userType);
+RoutesCliente.post(
+  "/cadastrar/cliente",
+  async (req: Request, res: Response) => {
+    let { CPF, Nome, Email, Telefone, SalaoId, Password, userType } = req.body;
+    try {
+      if (
+        !CPF || !Nome || !Email || !Telefone || !SalaoId || !Password ||
+        !userType
+      ) {
+        res.status(400).json({
+          message: "Erro ao cadastrar cliente, arametros ausentes ou invalidos",
+        });
+      } else {
+        const result = await cadastrarCliente(
+          CPF,
+          Nome,
+          Email,
+          Telefone,
+          SalaoId,
+          Password,
+          userType,
+        );
 
-    if (result) {
-      res.status(201).json(result);
-    } else {
-      res.status(500).json({ message: "Erro ao cadastrar cliente" });
+        if (result) {
+          res.status(201).json(result);
+        } else {
+          res.status(500).json({ message: "Erro ao cadastrar cliente" });
+        }
+      }
+    } catch (erro) {
+      console.log(erro);
+      res.status(500).send("Error criando cliente");
     }
-  }
-  } catch (erro){
-    console.log(erro);
-    res.status(500).send("Error criando cliente");
-  }
-});
+  },
+);
 
 RoutesCliente.post("/cliente", async (req: Request, res: Response) => {
   let { CPF, Nome, Email, Telefone, SalaoId, Password, userType } = req.body;
@@ -112,7 +134,7 @@ RoutesCliente.get("/cliente/page", async (req: Request, res: Response) => {
         if (clientes) {
           res.status(200).json(clientes);
         } else {
-          throw new Error ("Erro ao buscar clientes") 
+          throw new Error("Erro ao buscar clientes");
         }
       } else {
         console.log("Chamada não autorizada");
@@ -148,10 +170,10 @@ RoutesCliente.put("/cliente/:id", async (req: Request, res: Response) => {
     );
     if (auth && id === userInfo.userID) {
       const cliente = await updateCliente(id, clienteData);
-      if (cliente) { 
+      if (cliente) {
         res.status(200).json(cliente);
       } else {
-         throw new Error("Erro ao atualizar cliente");        
+        throw new Error("Erro ao atualizar cliente");
       }
     } else {
       res.status(403).json({ message: "Não autorizado a fazer esta chamada" });
@@ -281,5 +303,56 @@ RoutesCliente.delete("/cliente/:id", async (req, res) => {
     res.status(500).json({ message: "Erro interno do servidor" });
   }
 });
+
+RoutesCliente.get(
+  "/cliente/salaoId/:salaoId",
+  async (req: Request, res: Response) => {
+    const { salaoId } = req.params;
+    const include = req.query.include === "true";
+    try {
+      const userInfo = JSON.parse(
+        Buffer.from(req.headers.authorization || "", "base64").toString(
+          "utf-8",
+        ) || "{}",
+      );
+      if (
+        !userInfo || !userInfo.userID || !userInfo.token || !userInfo.userType
+      ) {
+         res.status(403).json({ message: "Não autorizado" });
+      }
+      let userType = userInfo.userType;
+      const auth = await authenticate(
+        userInfo.userID,
+        userInfo.token,
+        userInfo.userType,
+      );
+      if (
+        auth &&
+        [ userTypes.CABELEIREIRO,
+          userTypes.FUNCIONARIO,
+          userTypes.ADM_SALAO,
+          userTypes.ADM_SISTEMA,
+        ].includes(userType)
+      ) {
+        if (!salaoId) {
+          res.status(400).json({ message: "SalaoId é obrigatório." });
+        }
+        const clientes = await getClientesBySalao(salaoId, include);
+        if (clientes) {
+          res.status(200).json(clientes);
+        } else {
+          throw new Error("Erro ao buscar clientes do salão");
+        }
+      } else {
+        res.status(403).json({
+          message: "Não autorizado a fazer esta chamada",
+        });
+      }
+    } catch (error) {
+      console.error("Erro ao buscar clientes do salão:", error);
+      res.status(500).json({ message: "Erro interno do servidor" });
+    }
+  },
+);
 
 export default RoutesCliente;

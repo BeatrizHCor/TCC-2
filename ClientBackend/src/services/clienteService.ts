@@ -1,6 +1,6 @@
 import { Prisma } from "@prisma/client";
 import prisma from "../config/database";
-import { getRangeByStringInputWithTimezone } from "../utils/CalculoPeriododeTempo"
+import { getRangeByStringInputWithTimezone } from "../utils/CalculoPeriododeTempo";
 interface ClienteData {
   CPF: string;
   Nome: string;
@@ -17,43 +17,42 @@ class ClienteService {
     salaoId: string | null = null,
     termoBusca: string,
     campoBusca: string,
-    dataFilter: string
+    dataFilter: string,
   ) {
-
     const where: Prisma.ClienteWhereInput = {};
     const range = getRangeByStringInputWithTimezone(dataFilter);
     if (range !== null) {
       where.DataCadastro = {
-      gte: range.dataInicial,
-      lte: range.dataFinal,
+        gte: range.dataInicial,
+        lte: range.dataFinal,
       };
-    }  
+    }
     if (salaoId && salaoId !== null) {
       where.SalaoId = salaoId;
     }
     if (termoBusca && campoBusca) {
       Object.assign(where, {
         [campoBusca]: {
-        contains: termoBusca,
-        mode: 'insensitive',
+          contains: termoBusca,
+          mode: "insensitive",
         },
       });
     }
     return await prisma.cliente.findMany({
       ...(skip !== null ? { skip } : {}),
       ...(limit !== null ? { take: limit } : {}),
-          where: where,
+      where: where,
       ...(include
         ? {
-            include: {
-              Agendamentos: true,
-              HistoricoSimulacao: true,
-            },
-          }
+          include: {
+            Agendamentos: true,
+            HistoricoSimulacao: true,
+          },
+        }
         : {}),
     });
   }
-  
+
   static async getClientePage(
     page = 1,
     limit = 10,
@@ -61,7 +60,7 @@ class ClienteService {
     includeRelations = false,
     termoBusca: string,
     campoBusca: string,
-    dataFilter: string
+    dataFilter: string,
   ) {
     const skip = (page - 1) * limit;
 
@@ -69,34 +68,35 @@ class ClienteService {
     const range = getRangeByStringInputWithTimezone(dataFilter);
     if (range !== null) {
       where.DataCadastro = {
-      gte: range.dataInicial,
-      lte: range.dataFinal,
+        gte: range.dataInicial,
+        lte: range.dataFinal,
       };
-    }  
+    }
     if (salaoId) {
       where.SalaoId = salaoId;
     }
     if (termoBusca && campoBusca) {
       Object.assign(where, {
         [campoBusca]: {
-        contains: termoBusca,
-        mode: 'insensitive',
-      },
-    });
-   }
+          contains: termoBusca,
+          mode: "insensitive",
+        },
+      });
+    }
     const [total, clientes] = await Promise.all([
       prisma.cliente.count({ where }),
       ClienteService
         .getClientes(
-          skip, 
-          limit, 
-          includeRelations, 
-          salaoId, 
-          termoBusca, 
-          campoBusca, 
-          dataFilter),
+          skip,
+          limit,
+          includeRelations,
+          salaoId,
+          termoBusca,
+          campoBusca,
+          dataFilter,
+        ),
     ]);
-  
+
     return {
       total: total,
       page,
@@ -104,13 +104,13 @@ class ClienteService {
       data: clientes,
     };
   }
-  
+
   static async create(
     CPF: string,
     Nome: string,
     Email: string,
     Telefone: string,
-    SalaoId: string
+    SalaoId: string,
   ) {
     const existingCliente = await this.findByEmailandSalao(Email, SalaoId);
     if (existingCliente) {
@@ -130,7 +130,7 @@ class ClienteService {
       console.log(cliente);
       return cliente;
     } catch (error) {
-      throw new Error("Erro ao criar cliente");
+      return false;
     }
   }
 
@@ -142,23 +142,23 @@ class ClienteService {
         },
         ...(include
           ? {
-              include: {
-                Salao: true,
-                Agendamentos: true,
-                HistoricoSimulacao: true,
-              },
-            }
+            include: {
+              Salao: true,
+              Agendamentos: true,
+              HistoricoSimulacao: true,
+            },
+          }
           : {}),
       });
     } catch (error) {
-      throw new Error("Erro ao localizar cliente ID");
+      return false;
     }
   }
 
   static async findByEmailandSalao(
     Email: string,
     salaoId: string,
-    include = false
+    include = false,
   ) {
     try {
       return await prisma.cliente.findUnique({
@@ -170,24 +170,24 @@ class ClienteService {
         },
         ...(include
           ? {
-              include: {
-                Salao: true,
-                Agendamentos: true,
-                HistoricoSimulacao: true,
-              },
-            }
+            include: {
+              Salao: true,
+              Agendamentos: true,
+              HistoricoSimulacao: true,
+            },
+          }
           : {}),
       });
     } catch (error) {
       console.error("Erro ao localizar cliente:", error);
-      throw new Error("Erro ao localizar cliente");
+      return false;
     }
   }
 
   static async findByCpfandSalao(
     Cpf: string,
     salaoId: string,
-    include = false
+    include = false,
   ) {
     try {
       return await prisma.cliente.findFirst({
@@ -197,16 +197,16 @@ class ClienteService {
         },
         ...(include
           ? {
-              include: {
-                Salao: true,
-                Agendamentos: true,
-                HistoricoSimulacao: true,
-              },
-            }
+            include: {
+              Salao: true,
+              Agendamentos: true,
+              HistoricoSimulacao: true,
+            },
+          }
           : {}),
       });
     } catch (error) {
-      throw new Error("Erro ao localizar cliente");
+      return false;
     }
   }
 
@@ -214,7 +214,7 @@ class ClienteService {
     try {
       const existingCliente = await this.findById(Id);
       if (!existingCliente) {
-        throw new Error("Cliente já cadastrado neste salão");
+        throw Error("Erro ao atualizar, Cliente não existe.");
       }
 
       return await prisma.cliente.update({
@@ -224,7 +224,7 @@ class ClienteService {
         data: data,
       });
     } catch (error) {
-      throw new Error("Erro ao atualizar cliente");
+      return false;
     }
   }
 
@@ -235,5 +235,18 @@ class ClienteService {
       },
     });
   }
+  static async getClientesBySalao(salaoId: string, include = false) {
+    if (!salaoId) return [];
+    return await this.getClientes(
+      null,
+      null,
+      include,
+      salaoId,
+      "",
+      "",
+      "",
+    );
+  }
 }
+
 export default ClienteService;

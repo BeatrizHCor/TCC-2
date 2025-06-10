@@ -25,13 +25,13 @@ import { Agendamentos } from '../../models/agendamentoModel';
 import { useVisualizarAgendamentos } from './useVisualizarAgendamento';
 import { StatusAgendamento } from '../../models/StatusAgendamento.enum';
 import { useNavigate } from 'react-router-dom';
+import { AuthContext } from '../../contexts/AuthContext';
 
 import FullCalendar from '@fullcalendar/react';
 import dayGridPlugin from '@fullcalendar/daygrid';
 import { createTheme, ThemeProvider } from '@mui/material/styles';
 
 const theme = createTheme();
-import { AuthContext } from '../../contexts/AuthContext';
 
 const VisualizarAgendamento: React.FC = () => {
   const SalaoId = import.meta.env.VITE_SALAO_ID || '1';
@@ -106,6 +106,15 @@ const VisualizarAgendamento: React.FC = () => {
     <ThemeProvider theme={theme}>
       <LocalizationProvider dateAdapter={AdapterDateFns} adapterLocale={ptBR}>
         <Box sx={{ p: 3, maxWidth: 1200, mx: 'auto' }}>
+          <Box sx={{ display: 'flex', justifyContent: 'flex-end', mb: 2 }}>
+            <Button
+              variant="contained"
+              color="primary"
+              onClick={() => navigate("/agendamento")}
+            >
+              Novo Agendamento
+            </Button>
+          </Box>
           <Typography variant="h4" component="h1" margin={2}>
             Agendamentos
           </Typography>
