@@ -36,7 +36,7 @@ class AgendamentoService {
     includeRelations: boolean = false
   ): Promise<AgendamentoPaginadoResponse> {
     try {
-      const response = await api.get(`/agendamento/page`, {
+      const response = await api.get(`/funcionario/agendamento/page`, {
         params: {
           page,
           limit,

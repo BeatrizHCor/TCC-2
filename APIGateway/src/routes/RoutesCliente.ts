@@ -7,10 +7,30 @@ import {
   postCliente,
   updateCliente,
 } from "../services/ServiceClient";
-import { authenticate, postLogin, registerLogin } from "../services/Service";
+import { authenticate, postLogin, registerLogin, cadastrarCliente } from "../services/Service";
 import { userTypes } from "../models/tipo-usuario.enum";
 
 const RoutesCliente = Router();
+
+RoutesCliente.post("/cadastrar/cliente", async (req: Request, res: Response) => {
+  let { CPF, Nome, Email, Telefone, SalaoId, Password, userType } = req.body;
+  try {
+ if (!CPF || !Nome || !Email || !Telefone || !SalaoId || !Password || !userType) {
+       res.status(400).json({ message: "Parametros ausentes ou invalidos, todos os campos obrigatórios devem ser informados." });
+    } else {
+    const result = await cadastrarCliente(CPF, Nome, Email, Telefone, SalaoId, Password, userType);
+
+    if (result) {
+      res.status(201).json(result);
+    } else {
+      res.status(500).json({ message: "Erro ao cadastrar cliente" });
+    }
+  }
+  } catch (erro){
+    console.log(erro);
+    res.status(500).send("Error criando cliente");
+  }
+});
 
 RoutesCliente.post("/cliente", async (req: Request, res: Response) => {
   let { CPF, Nome, Email, Telefone, SalaoId, Password, userType } = req.body;

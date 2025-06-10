@@ -150,19 +150,6 @@ export const useClienteCadastro = (salaoId: string) => {
 
     if (!validarCPF(cadastro.CPF)) {
       newErrors.CPF = "CPF inválido";
-    } else {
-      try {
-        const cpfExiste = await ClienteService.getClienteByCpfAndSalao(
-          cadastro.CPF,
-          salaoId
-        );
-        if (cpfExiste) {
-          newErrors.CPF = "CPF já cadastrado neste salão";
-        }
-      } catch (error) {
-        console.error("Erro ao verificar CPF:", error);
-        newErrors.general = "Erro ao verificar CPF. Tente novamente.";
-      }
     }
 
     if (!validarTelefone(cadastro.telefone)) {

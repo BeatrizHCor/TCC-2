@@ -57,16 +57,6 @@ class ClienteController {
           message: "Todos os campos obrigatórios devem ser informados.",
         });
       } else {
-        const existingCliente = await ClienteService.findByEmailandSalao(
-          Email,
-          SalaoId,
-          false,
-        );
-        if (existingCliente) {
-          res.status(409).json({
-            message: "Já existe um cliente com este email para este salão.",
-          });
-        } else {
           const newCliente = await ClienteService.create(
             CPF,
             Nome,
@@ -74,8 +64,7 @@ class ClienteController {
             Telefone,
             SalaoId,
           );
-          res.status(201).json(newCliente);
-        }
+          res.status(201).json(newCliente);        
       }
     } catch (error) {
       console.log(error);
@@ -118,7 +107,7 @@ class ClienteController {
         );
 
         if (!cliente) {
-          return res.status(404).json({ message: "Cliente não encontrado" });
+          return res.status(204).json({ message: "Cliente não encontrado" });
         } else {
           res.status(200).json(cliente);
         }

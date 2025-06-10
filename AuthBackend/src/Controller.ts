@@ -7,7 +7,7 @@ import {
   findLoginbyUserId,
   updateLogin,
   deleteLogin,
-} from "./Service";
+} from "./Services/Service";
 import { userTypes } from "@prisma/client";
 
 const SALT = process.env.SALT;
