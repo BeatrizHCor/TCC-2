@@ -72,7 +72,7 @@ export const ClienteService = {
     console.log("Dados sendo enviados para a API:", dadosEnvio);
     
     try {
-      const response = await api.post(`/cliente`, dadosEnvio);
+      const response = await api.post(`/cadastrar/cliente`, dadosEnvio);
       
       console.log("Resposta completa da API:", response);
       console.log("Status da resposta:", response.status);

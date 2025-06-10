@@ -32,6 +32,38 @@ export const registerLogin = async (
   }
   return responseRegister.ok;
 };
+export const cadastrarCliente = async (
+  CPF: string,
+  Nome: string,
+  Email: string,
+  Telefone: string,
+  SalaoId: string,
+  Password: string,
+  userType: userTypes
+) => {
+  let responseRegister = await fetch(loginURL + "/cadastrar/cliente", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({
+      CPF,
+      Nome,
+      Email,
+      Telefone,
+      SalaoId,
+      Password,
+      userType,
+    }),
+  });
+  if (responseRegister.ok) {
+    console.log("Register response for client", CPF, ":", responseRegister.ok);
+    return await responseRegister.json();
+  } else {
+    console.log("Register failed", responseRegister.status);
+  }
+  return responseRegister.ok;
+};
 
 export const postLogin = async (
   Email: string,
