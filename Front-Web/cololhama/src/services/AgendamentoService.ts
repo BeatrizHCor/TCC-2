@@ -308,5 +308,28 @@ class AgendamentoService {
       return false;
     }
   }
+  static async getHorariosOcupadosFuturos(
+    salaoId: string,
+    cabeleireiroId: string,
+    data: string,
+  ): Promise<string[] | false> {
+    try {
+      const response = await api.get(
+        `/agendamento/horarios/${salaoId}/${cabeleireiroId}`,
+        { params: { data } },
+      );
+      if (response.status === 200) {
+        return response.data;
+      }
+      console.error(
+        "Erro ao buscar horários ocupados futuros:",
+        response.status,
+      );
+      return false;
+    } catch (error) {
+      console.error("Erro ao buscar horários ocupados futuros:", error);
+      return false;
+    }
+  }
 }
 export default AgendamentoService;

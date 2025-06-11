@@ -29,6 +29,7 @@ import {
   ListItemButton,
   Alert,
   InputAdornment,
+  Tooltip,
 } from "@mui/material";
 import { useNavigate, useParams } from "react-router-dom";
 import { useManterAgendamento } from "./useManterAgendamento";
@@ -38,6 +39,8 @@ import ArrowBackIcon from "@mui/icons-material/ArrowBack";
 import AddIcon from "@mui/icons-material/Add";
 import RemoveIcon from "@mui/icons-material/Remove";
 import PersonIcon from "@mui/icons-material/Person";
+import AccessTimeIcon from "@mui/icons-material/AccessTime";
+import BlockIcon from "@mui/icons-material/Block";
 import "../../styles/styles.global.css";
 import { AuthContext } from "../../contexts/AuthContext";
 import { StatusAgendamento } from "../../models/StatusAgendamento.enum";
@@ -49,11 +52,12 @@ import { Cliente } from "../../models/clienteModel";
 const ManterAgendamento: React.FC = () => {
   const navigate = useNavigate();
   const { agendamentoId } = useParams();
-  const { doLogout, userType } = useContext(AuthContext);
+  const { doLogout, userType, userId } = useContext(AuthContext); // Adicionar userId do contexto
   const [openDeleteDialog, setOpenDeleteDialog] = useState(false);
   const [openServicosModal, setOpenServicosModal] = useState(false);
   const [openCabeleireirosModal, setOpenCabeleireirosModal] = useState(false);
   const [openClientesModal, setOpenClientesModal] = useState(false);
+
   const {
     data,
     setData,
@@ -80,7 +84,10 @@ const ManterAgendamento: React.FC = () => {
     handleDelete,
     forbidden,
     canSaveEdit,
-  } = useManterAgendamento(userType!, agendamentoId);
+    horariosOcupados,
+    loadingHorarios,
+    isHorarioOcupado,
+  } = useManterAgendamento(userType!, agendamentoId, userId);
 
   const handleOpenDeleteDialog = () => {
     setOpenDeleteDialog(true);
@@ -125,6 +132,37 @@ const ManterAgendamento: React.FC = () => {
       style: "currency",
       currency: "BRL",
     }).format(value);
+  };
+
+  // Função para verificar se a data/hora atual está ocupada
+  const getDataTimeHelperText = () => {
+    if (!cabeleireiroId) {
+      return "Selecione um cabeleireiro primeiro";
+    }
+    if (loadingHorarios) {
+      return "Verificando disponibilidade...";
+    }
+    if (data && isHorarioOcupado(data)) {
+      return "Este horário já está ocupado";
+    }
+    if (validationErrors.data) {
+      return validationErrors.data;
+    }
+    return "";
+  };
+
+  // Função para obter a cor do helper text
+  const getDataTimeHelperColor = () => {
+    if (!cabeleireiroId || loadingHorarios) {
+      return "text.secondary";
+    }
+    if (data && isHorarioOcupado(data)) {
+      return "error";
+    }
+    if (validationErrors.data) {
+      return "error";
+    }
+    return "text.secondary";
   };
 
   useEffect(() => {
@@ -200,13 +238,42 @@ const ManterAgendamento: React.FC = () => {
                     label="Data e Hora"
                     value={data}
                     onChange={(e) => setData(e.target.value)}
-                    error={Boolean(validationErrors.data)}
-                    helperText={validationErrors.data}
+                    disabled={!cabeleireiroId || loadingHorarios}
+                    error={Boolean(validationErrors.data) || Boolean(data && isHorarioOcupado(data))}
+                    helperText={getDataTimeHelperText()}
                     slotProps={{
-                      inputLabel: { shrink: true }
+                      inputLabel: { shrink: true },
+                      input: {
+                        endAdornment: (
+                          <InputAdornment position="end">
+                            {loadingHorarios ? (
+                              <CircularProgress size={20} />
+                            ) : !cabeleireiroId ? (
+                              <Tooltip title="Selecione um cabeleireiro primeiro">
+                                <BlockIcon color="disabled" />
+                              </Tooltip>
+                            ) : (
+                              <AccessTimeIcon />
+                            )}
+                          </InputAdornment>
+                        ),
+                      },
+                      formHelperText: {
+                        sx: { color: getDataTimeHelperColor() }
+                      }
                     }}
                   />
+                  {horariosOcupados.length > 0 && cabeleireiroId && (
+                    <Typography 
+                      variant="caption" 
+                      color="text.secondary" 
+                      sx={{ mt: 1, display: 'block' }}
+                    >
+                      {horariosOcupados.length} horário(s) ocupado(s) encontrado(s) para este cabeleireiro
+                    </Typography>
+                  )}
                 </Box>
+
                 <Box>
                   <TextField
                     fullWidth
@@ -215,7 +282,6 @@ const ManterAgendamento: React.FC = () => {
                     slotProps={{
                       input: { readOnly: true }
                     }}
-
                     variant="outlined"
                     margin="normal"
                   />
@@ -232,7 +298,7 @@ const ManterAgendamento: React.FC = () => {
                     }}
                     error={Boolean(validationErrors.clienteId)}
                     helperText={validationErrors.clienteId}
-                    placeholder="Clique para selecionar um cliente"
+                    placeholder={userType === "Cliente" ? "Cliente atual (você)" : "Clique para selecionar um cliente"}
                     slotProps={{
                       input: { readOnly: true }
                     }}
@@ -248,9 +314,10 @@ const ManterAgendamento: React.FC = () => {
                     value={cabeleireiroNome}
                     onClick={() => {
                       if (userType !== "Cabeleireiro") setOpenCabeleireirosModal(true);
-                    }} error={Boolean(validationErrors.cabeleireiroId)}
+                    }}
+                    error={Boolean(validationErrors.cabeleireiroId)}
                     helperText={validationErrors.cabeleireiroId}
-                    placeholder="Clique para selecionar um cabeleireiro"
+                    placeholder={userType === "Cabeleireiro" ? "Cabeleireiro atual (você)" : "Clique para selecionar um cabeleireiro"}
                     slotProps={{
                       input: {
                         readOnly: true,
@@ -259,7 +326,6 @@ const ManterAgendamento: React.FC = () => {
                             <PersonIcon />
                           </InputAdornment>
                         ),
-
                       },
                     }}
                     sx={{ cursor: userType === "Cabeleireiro" ? "not-allowed" : "pointer" }}
@@ -269,6 +335,12 @@ const ManterAgendamento: React.FC = () => {
                 {isEditing && !canSaveEdit && (
                   <Alert severity="warning">
                     Não é possível salvar alterações em agendamentos com menos de 3 dias da data atual.
+                  </Alert>
+                )}
+
+                {!cabeleireiroId && (
+                  <Alert severity="info">
+                    Selecione um cabeleireiro para poder escolher a data e hora do agendamento.
                   </Alert>
                 )}
               </Box>

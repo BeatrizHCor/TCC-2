@@ -11,6 +11,7 @@ import { Cliente } from "../../models/clienteModel";
 import { userTypes } from "../../models/tipo-usuario.enum";
 import ClienteService from "../../services/ClienteService";
 import axios from "axios";
+
 interface ValidationErrors {
   data?: string;
   status?: string;
@@ -22,6 +23,7 @@ interface ValidationErrors {
 export const useManterAgendamento = (
   userType: userTypes,
   agendamentoId?: string,
+  userId?: string, // Adicionar userId como parâmetro
 ) => {
   const [data, setData] = useState("");
   const [status, setStatus] = useState<StatusAgendamento>(
@@ -48,6 +50,8 @@ export const useManterAgendamento = (
     {},
   );
   const [isEditing, setIsEditing] = useState(false);
+  const [horariosOcupados, setHorariosOcupados] = useState<string[]>([]);
+  const [loadingHorarios, setLoadingHorarios] = useState(false);
 
   const navigate = useNavigate();
 
@@ -60,6 +64,60 @@ export const useManterAgendamento = (
     threeDaysFromNow.setDate(currentDate.getDate() + 3);
 
     return agendamentoDate > threeDaysFromNow;
+  };
+
+  const fetchHorariosOcupados = async (cabeleireiroIdParam: string, dataParam?: string) => {
+    if (!salaoId || !cabeleireiroIdParam) return;
+
+    setLoadingHorarios(true);
+    try {
+      const dataParaBusca = dataParam || new Date().toISOString().split('T')[0];
+      const horarios = await AgendamentoService.getHorariosOcupadosFuturos(
+        salaoId,
+        cabeleireiroIdParam,
+        dataParaBusca
+      );
+      if (horarios !== false) {
+        setHorariosOcupados(horarios);
+      } else {
+        setHorariosOcupados([]);
+      }
+    } catch (error) {
+      console.error("Erro ao buscar horários ocupados:", error);
+      setHorariosOcupados([]);
+    } finally {
+      setLoadingHorarios(false);
+    }
+  };
+
+  // Função para verificar se um horário está ocupado
+  const isHorarioOcupado = (dataHora: string): boolean => {
+    if (!dataHora || horariosOcupados.length === 0) return false;
+    
+    const dataHoraISO = new Date(dataHora).toISOString();
+    return horariosOcupados.some(horario => {
+      const horarioISO = new Date(horario).toISOString();
+      return horarioISO === dataHoraISO;
+    });
+  };
+
+  // Função customizada para setar cabeleireiro que também busca horários
+  const setCabeleireiroIdWithHorarios = (id: string) => {
+    setCabeleireiroId(id);
+    if (id) {
+      fetchHorariosOcupados(id, data);
+    } else {
+      setHorariosOcupados([]);
+    }
+  };
+
+  // Função customizada para setar data que também busca horários
+  const setDataWithHorarios = (novaData: string) => {
+    setData(novaData);
+    if (cabeleireiroId && novaData) {
+      const dataParaBusca = novaData.split('T')[0]; // Pega apenas a data (YYYY-MM-DD)
+      fetchHorariosOcupados(cabeleireiroId, dataParaBusca);
+    }
   };
 
   useEffect(() => {
@@ -85,6 +143,25 @@ export const useManterAgendamento = (
           const clientes = await ClienteService.getClientesBySalao(salaoId);
           setClientesDisponiveis(clientes);
         }
+
+        // Preencher automaticamente baseado no tipo de usuário
+        if (!isEditing && userId) {
+          if (userType === userTypes.Cliente) {
+            setClienteId(userId);
+            // Buscar nome do cliente se necessário
+            const clientes = await ClienteService.getClientesBySalao(salaoId);
+            const clienteLogado = clientes.find(c => c.ID === userId);
+            if (clienteLogado) {
+              setClienteNome(clienteLogado.Nome);
+            }
+          } else if (userType === userTypes.Cabeleireiro) {
+            const cabeleireiroLogado = cabeleireiros.find(c => c.ID === userId);
+            if (cabeleireiroLogado) {
+              setCabeleireiroId(userId);
+              setCabeleireiroNome(cabeleireiroLogado.Nome);
+            }
+          }
+        }
       } catch (error) {
         console.error("Erro ao carregar dados iniciais:", error);
       } finally {
@@ -93,7 +170,7 @@ export const useManterAgendamento = (
     };
 
     loadInitialData();
-  }, [salaoId]);
+  }, [salaoId, userType, userId, isEditing]);
 
   useEffect(() => {
     const fetchAgendamento = async () => {
@@ -140,15 +217,20 @@ export const useManterAgendamento = (
         if (agendamento.ServicoAgendamento) {
           setServicosAgendamento(agendamento.ServicoAgendamento);
         }
+
+        // Buscar horários ocupados para o cabeleireiro do agendamento
+        if (agendamento.CabeleireiroID && agendamento.SalaoId) {
+          const dataParaBusca = dataFormatted.split('T')[0];
+          fetchHorariosOcupados(agendamento.CabeleireiroID, dataParaBusca);
+        }
       } catch (error: unknown) {
-        console.error("Erro ao salvar agendamento:", error);
+        console.error("Erro ao carregar agendamento:", error);
         if (axios.isAxiosError(error)) {
           if (error.response?.status === 403) {
             setForbidden(true);
           }
         } else {
           console.error("Erro desconhecido:", error);
-
           navigate("/agendamentos", { replace: true });
         }
       } finally {
@@ -172,6 +254,8 @@ export const useManterAgendamento = (
 
       if (agendamentoDate <= currentDate) {
         errors.data = "A data do agendamento deve ser futura";
+      } else if (isHorarioOcupado(data) && !isEditing) {
+        errors.data = "Este horário já está ocupado";
       }
     }
 
@@ -306,6 +390,8 @@ export const useManterAgendamento = (
       } else {
         console.error("Erro desconhecido:", error);
       }
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -359,13 +445,13 @@ export const useManterAgendamento = (
 
   return {
     data,
-    setData,
+    setData: setDataWithHorarios,
     status,
     setStatus,
     clienteId,
     setClienteId,
     cabeleireiroId,
-    setCabeleireiroId,
+    setCabeleireiroId: setCabeleireiroIdWithHorarios,
     cabeleireiroNome,
     setCabeleireiroNome,
     servicosAgendamento,
@@ -383,6 +469,9 @@ export const useManterAgendamento = (
     handleDelete,
     forbidden,
     canSaveEdit: canSaveEdit(),
+    horariosOcupados,
+    loadingHorarios,
+    isHorarioOcupado,
   };
 };
 
