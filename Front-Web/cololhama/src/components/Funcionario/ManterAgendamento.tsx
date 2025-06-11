@@ -18,11 +18,6 @@ import {
   TableHead,
   TableRow,
   IconButton,
-  Chip,
-  Select,
-  MenuItem,
-  FormControl,
-  InputLabel,
   List,
   ListItem,
   ListItemText,
@@ -48,11 +43,14 @@ import { Servico } from "../../models/servicoModel";
 import { ServicoAgendamento } from "../../models/servicoAgendamentoModel";
 import { Cabeleireiro } from "../../models/cabelereiroModel";
 import { Cliente } from "../../models/clienteModel";
+import { DateTimePicker } from '@mui/x-date-pickers/DateTimePicker';
+import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
+import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns';
 
 const ManterAgendamento: React.FC = () => {
   const navigate = useNavigate();
   const { agendamentoId } = useParams();
-  const { doLogout, userType, userId } = useContext(AuthContext); // Adicionar userId do contexto
+  const { doLogout, userType, userId } = useContext(AuthContext);
   const [openDeleteDialog, setOpenDeleteDialog] = useState(false);
   const [openServicosModal, setOpenServicosModal] = useState(false);
   const [openCabeleireirosModal, setOpenCabeleireirosModal] = useState(false);
@@ -87,6 +85,8 @@ const ManterAgendamento: React.FC = () => {
     horariosOcupados,
     loadingHorarios,
     isHorarioOcupado,
+    isTimeSlotOccupied,
+    setCabeleireiroIdWithHorarios,
   } = useManterAgendamento(userType!, agendamentoId, userId);
 
   const handleOpenDeleteDialog = () => {
@@ -121,11 +121,11 @@ const ManterAgendamento: React.FC = () => {
     );
   };
 
-  const handleSelectCabeleireiro = (cabeleireiro: Cabeleireiro) => {
-    setCabeleireiroId(cabeleireiro.ID!);
-    setCabeleireiroNome(cabeleireiro.Nome);
-    setOpenCabeleireirosModal(false);
-  };
+const handleSelectCabeleireiro = (cabeleireiro: Cabeleireiro) => {
+  setCabeleireiroIdWithHorarios(cabeleireiro.ID!);
+  setCabeleireiroNome(cabeleireiro.Nome);
+  setOpenCabeleireirosModal(false);
+};
 
   const formatCurrency = (value: number) => {
     return new Intl.NumberFormat("pt-BR", {
@@ -134,7 +134,6 @@ const ManterAgendamento: React.FC = () => {
     }).format(value);
   };
 
-  // Função para verificar se a data/hora atual está ocupada
   const getDataTimeHelperText = () => {
     if (!cabeleireiroId) {
       return "Selecione um cabeleireiro primeiro";
@@ -143,15 +142,14 @@ const ManterAgendamento: React.FC = () => {
       return "Verificando disponibilidade...";
     }
     if (data && isHorarioOcupado(data)) {
-      return "Este horário já está ocupado";
+      return "Este horário está ocupado (considera 1h de duração do serviço)";
     }
     if (validationErrors.data) {
       return validationErrors.data;
     }
-    return "";
+    return "Selecione data e horário para o agendamento";
   };
 
-  // Função para obter a cor do helper text
   const getDataTimeHelperColor = () => {
     if (!cabeleireiroId || loadingHorarios) {
       return "text.secondary";
@@ -230,63 +228,54 @@ const ManterAgendamento: React.FC = () => {
                   gap: { xs: 2, sm: 3 },
                 }}
               >
-                <Box>
-                  <TextField
-                    fullWidth
-                    required
-                    type="datetime-local"
+                <LocalizationProvider dateAdapter={AdapterDateFns}>
+                  <DateTimePicker
                     label="Data e Hora"
-                    value={data}
-                    onChange={(e) => setData(e.target.value)}
-                    disabled={!cabeleireiroId || loadingHorarios}
-                    error={Boolean(validationErrors.data) || Boolean(data && isHorarioOcupado(data))}
-                    helperText={getDataTimeHelperText()}
+                    value={data ? new Date(data) : null}
+                    onChange={(newValue) => {
+                      if (newValue) {
+                        const isoString = newValue.toISOString().slice(0, 16);
+                        setData(isoString);
+                      } else {
+                        setData('');
+                      }
+                    }}
+                    disabled={!cabeleireiroId || loadingHorarios}         
+                    shouldDisableTime={(timeValue, clockType) => {
+                      if (clockType === 'hours' && data) {
+                        const selectedDate = new Date(data.split('T')[0]);
+                        const hour = Math.max(0, Math.min(23, Number(timeValue)));
+                        return isTimeSlotOccupied(selectedDate, hour);
+                      }
+                      return false;
+                    }}
+                    minDateTime={new Date()}
                     slotProps={{
-                      inputLabel: { shrink: true },
-                      input: {
-                        endAdornment: (
-                          <InputAdornment position="end">
-                            {loadingHorarios ? (
-                              <CircularProgress size={20} />
-                            ) : !cabeleireiroId ? (
-                              <Tooltip title="Selecione um cabeleireiro primeiro">
-                                <BlockIcon color="disabled" />
-                              </Tooltip>
-                            ) : (
-                              <AccessTimeIcon />
-                            )}
-                          </InputAdornment>
-                        ),
-                      },
-                      formHelperText: {
-                        sx: { color: getDataTimeHelperColor() }
+                      textField: {
+                        fullWidth: true,
+                        required: true,
+                        error: Boolean(validationErrors.data) || Boolean(data && isHorarioOcupado(data)),
+                        helperText: getDataTimeHelperText(),
+                       
                       }
                     }}
                   />
-                  {horariosOcupados.length > 0 && cabeleireiroId && (
-                    <Typography 
-                      variant="caption" 
-                      color="text.secondary" 
-                      sx={{ mt: 1, display: 'block' }}
-                    >
-                      {horariosOcupados.length} horário(s) ocupado(s) encontrado(s) para este cabeleireiro
-                    </Typography>
-                  )}
-                </Box>
+                </LocalizationProvider>
 
-                <Box>
-                  <TextField
-                    fullWidth
-                    label="Status"
-                    value={status}
-                    slotProps={{
-                      input: { readOnly: true }
-                    }}
-                    variant="outlined"
-                    margin="normal"
-                  />
-                </Box>
-
+                {isEditing && (
+                  <Box>
+                    <TextField
+                      fullWidth
+                      label="Status"
+                      value={status}
+                      slotProps={{
+                        input: { readOnly: true }
+                      }}
+                      variant="outlined"
+                      margin="normal"
+                    />
+                  </Box>
+                )}
                 <Box>
                   <TextField
                     fullWidth
@@ -487,11 +476,9 @@ const ManterAgendamento: React.FC = () => {
                   <ListItemText
                     primary={cliente.Nome}
                     secondary={
-                      <Box>
-                        <Typography variant="body2" color="text.secondary">
-                          {cliente.Email}
-                        </Typography>
-                      </Box>
+                      <Typography component="span" variant="body2" color="text.secondary">
+                        {cliente.Email}
+                      </Typography>
                     }
                   />
                 </ListItemButton>
@@ -543,14 +530,15 @@ const ManterAgendamento: React.FC = () => {
                     <ListItemText
                       primary={servico.Nome}
                       secondary={
-                        <>
-                          <Typography variant="body2" color="text.secondary">
+                        <span>
+                          <Typography variant="body2" color="text.secondary" component="span">
                             {servico.Descricao}
                           </Typography>
-                          <Typography variant="body2" color="primary">
+                          <br />
+                          <Typography variant="body2" color="primary" component="span">
                             {formatCurrency(servico.PrecoMin)} - {formatCurrency(servico.PrecoMax)}
                           </Typography>
-                        </>
+                        </span>
                       }
                     />
                   </ListItemButton>
@@ -580,11 +568,9 @@ const ManterAgendamento: React.FC = () => {
                   <ListItemText
                     primary={cabeleireiro.Nome}
                     secondary={
-                      <Box>
-                        <Typography variant="body2" color="text.secondary">
-                          {cabeleireiro.Email}
-                        </Typography>
-                      </Box>
+                      <Typography component="span" variant="body2" color="text.secondary">
+                        {cabeleireiro.Email}
+                      </Typography>
                     }
                   />
                 </ListItemButton>

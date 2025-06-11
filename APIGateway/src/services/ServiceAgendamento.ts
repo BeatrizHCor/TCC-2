@@ -344,7 +344,7 @@ export const getHorariosOcupadosFuturos = async (
     cabeleireiroId: string,
     data: string
 ) => {
-    const url = `${ClienteURL}/agendamento/horarios-ocupados/${salaoId}/${cabeleireiroId}?data=${encodeURIComponent(data)}`;
+    const url = `${ClienteURL}/agendamento/horarios/${salaoId}/${cabeleireiroId}?data=${encodeURIComponent(data)}`;
     let response = await fetch(url, {
         method: "GET",
         headers: {

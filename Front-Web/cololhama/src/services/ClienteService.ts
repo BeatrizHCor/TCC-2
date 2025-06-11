@@ -95,20 +95,6 @@ export const ClienteService = {
     }
   },
 
-  async getClienteByID(ID: string): Promise<boolean> {
-    try {
-      const response = await api.get(`/cliente/${ID}`);
-      return !!response.data;
-    } catch (error) {
-      if (axios.isAxiosError(error) && error.response?.status === 404) {
-        console.log("Cliente não encontrado, retornando false.");
-        return false;
-      }
-      console.error("Erro ao verificar cliente:", error);
-      throw error;
-    }
-  },
-
   async getClientePage(
     page: number = 1,
     limit: number = 10,

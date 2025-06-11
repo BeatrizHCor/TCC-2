@@ -23,7 +23,7 @@ interface ValidationErrors {
 export const useManterAgendamento = (
   userType: userTypes,
   agendamentoId?: string,
-  userId?: string, // Adicionar userId como parâmetro
+  userId?: string,
 ) => {
   const [data, setData] = useState("");
   const [status, setStatus] = useState<StatusAgendamento>(
@@ -66,16 +66,18 @@ export const useManterAgendamento = (
     return agendamentoDate > threeDaysFromNow;
   };
 
-  const fetchHorariosOcupados = async (cabeleireiroIdParam: string, dataParam?: string) => {
+  const fetchHorariosOcupados = async (
+    cabeleireiroIdParam: string,
+  ) => {
     if (!salaoId || !cabeleireiroIdParam) return;
 
     setLoadingHorarios(true);
     try {
-      const dataParaBusca = dataParam || new Date().toISOString().split('T')[0];
+      const dataParaBusca = new Date().toISOString().split("T")[0];
       const horarios = await AgendamentoService.getHorariosOcupadosFuturos(
         salaoId,
         cabeleireiroIdParam,
-        dataParaBusca
+        dataParaBusca,
       );
       if (horarios !== false) {
         setHorariosOcupados(horarios);
@@ -90,36 +92,58 @@ export const useManterAgendamento = (
     }
   };
 
-  // Função para verificar se um horário está ocupado
   const isHorarioOcupado = (dataHora: string): boolean => {
     if (!dataHora || horariosOcupados.length === 0) return false;
-    
-    const dataHoraISO = new Date(dataHora).toISOString();
-    return horariosOcupados.some(horario => {
-      const horarioISO = new Date(horario).toISOString();
-      return horarioISO === dataHoraISO;
+
+    const dataHoraAgendamento = new Date(dataHora);
+
+    return horariosOcupados.some((horario) => {
+      const horarioOcupado = new Date(horario);
+      const horarioOcupadoFim = new Date(
+        horarioOcupado.getTime() + 60 * 60 * 1000,
+      );
+
+      return dataHoraAgendamento >= horarioOcupado &&
+        dataHoraAgendamento < horarioOcupadoFim;
     });
   };
 
-  // Função customizada para setar cabeleireiro que também busca horários
   const setCabeleireiroIdWithHorarios = (id: string) => {
     setCabeleireiroId(id);
     if (id) {
-      fetchHorariosOcupados(id, data);
+      fetchHorariosOcupados(id);
+      console.log("cabeleireiroId", cabeleireiroId, "loadingHorarios", loadingHorarios);
     } else {
       setHorariosOcupados([]);
     }
   };
 
-  // Função customizada para setar data que também busca horários
   const setDataWithHorarios = (novaData: string) => {
     setData(novaData);
-    if (cabeleireiroId && novaData) {
-      const dataParaBusca = novaData.split('T')[0]; // Pega apenas a data (YYYY-MM-DD)
-      fetchHorariosOcupados(cabeleireiroId, dataParaBusca);
+
+    if (validationErrors.data) {
+      setValidationErrors((prev) => ({
+        ...prev,
+        data: undefined,
+      }));
     }
   };
 
+  const isTimeSlotOccupied = (date: Date, hour: number): boolean => {
+    if (!date || horariosOcupados.length === 0) return false;
+
+    const testDate = new Date(date);
+    testDate.setHours(hour, 0, 0, 0);
+
+    return horariosOcupados.some((horario) => {
+      const horarioOcupado = new Date(horario);
+      const horarioOcupadoFim = new Date(
+        horarioOcupado.getTime() + 60 * 60 * 1000,
+      );
+
+      return testDate >= horarioOcupado && testDate < horarioOcupadoFim;
+    });
+  };
   useEffect(() => {
     const loadInitialData = async () => {
       if (!salaoId) return;
@@ -129,12 +153,6 @@ export const useManterAgendamento = (
         const servicos = await ServicoService.getServicosBySalao(salaoId);
         setServicosDisponiveis(servicos);
 
-        const cabeleireiros = await CabeleireiroService.getCabeleireiroBySalao(
-          salaoId,
-          false,
-        );
-        setCabeleireirosDisponiveis(cabeleireiros);
-
         if (
           userType === userTypes.AdmSalao ||
           userType === userTypes.Funcionario ||
@@ -142,22 +160,34 @@ export const useManterAgendamento = (
         ) {
           const clientes = await ClienteService.getClientesBySalao(salaoId);
           setClientesDisponiveis(clientes);
+          const cabeleireiros = await CabeleireiroService
+            .getCabeleireiroBySalao(
+              salaoId,
+              false,
+            );
+          setCabeleireirosDisponiveis(cabeleireiros);
         }
 
-        // Preencher automaticamente baseado no tipo de usuário
         if (!isEditing && userId) {
           if (userType === userTypes.Cliente) {
             setClienteId(userId);
-            // Buscar nome do cliente se necessário
-            const clientes = await ClienteService.getClientesBySalao(salaoId);
-            const clienteLogado = clientes.find(c => c.ID === userId);
-            if (clienteLogado) {
+            const clienteLogado = await ClienteService.getClienteById(userId);
+            const cabeleireiros = await CabeleireiroService
+              .getCabeleireiroBySalao(
+                salaoId,
+                false,
+              );
+            setCabeleireirosDisponiveis(cabeleireiros);
+            if (clienteLogado && clienteLogado.Nome) {
               setClienteNome(clienteLogado.Nome);
             }
           } else if (userType === userTypes.Cabeleireiro) {
-            const cabeleireiroLogado = cabeleireiros.find(c => c.ID === userId);
-            if (cabeleireiroLogado) {
-              setCabeleireiroId(userId);
+            setCabeleireiroId(userId);
+            const clientes = await ClienteService.getClientesBySalao(salaoId);
+            setClientesDisponiveis(clientes);
+            const cabeleireiroLogado = await CabeleireiroService
+              .getCabeleireiroById(userId);
+            if (cabeleireiroLogado && cabeleireiroLogado.Nome) {
               setCabeleireiroNome(cabeleireiroLogado.Nome);
             }
           }
@@ -218,10 +248,8 @@ export const useManterAgendamento = (
           setServicosAgendamento(agendamento.ServicoAgendamento);
         }
 
-        // Buscar horários ocupados para o cabeleireiro do agendamento
         if (agendamento.CabeleireiroID && agendamento.SalaoId) {
-          const dataParaBusca = dataFormatted.split('T')[0];
-          fetchHorariosOcupados(agendamento.CabeleireiroID, dataParaBusca);
+          fetchHorariosOcupados(agendamento.CabeleireiroID);
         }
       } catch (error: unknown) {
         console.error("Erro ao carregar agendamento:", error);
@@ -243,6 +271,17 @@ export const useManterAgendamento = (
     }
   }, [agendamentoId, navigate]);
 
+  useEffect(() => {
+    if (data && horariosOcupados.length > 0) {
+      setValidationErrors((prev) => ({
+        ...prev,
+        data: isHorarioOcupado(data)
+          ? "Este horário já está ocupado"
+          : undefined,
+      }));
+    }
+  }, [horariosOcupados, data]);
+
   const validateForm = (): boolean => {
     const errors: ValidationErrors = {};
 
@@ -254,17 +293,26 @@ export const useManterAgendamento = (
 
       if (agendamentoDate <= currentDate) {
         errors.data = "A data do agendamento deve ser futura";
-      } else if (isHorarioOcupado(data) && !isEditing) {
-        errors.data = "Este horário já está ocupado";
+      } else if (isHorarioOcupado(data)) {
+        errors.data = "Este horário está ocupado (considera período de 1 hora)";
+      }
+
+      const tomorrow = new Date(currentDate);
+      tomorrow.setDate(currentDate.getDate() + 1);
+      tomorrow.setHours(0, 0, 0, 0);
+
+      if (agendamentoDate < tomorrow && !isEditing) {
+        errors.data =
+          "Agendamento só pode ser feito para o dia seguinte ou datas futuras";
       }
     }
 
-    if (!status) {
+    if (!status && isEditing) {
       errors.status = "Status é obrigatório";
     }
 
     if (!clienteId.trim()) {
-      errors.clienteId = "ID do cliente é obrigatório";
+      errors.clienteId = "Cliente é obrigatório";
     }
 
     if (!cabeleireiroId.trim()) {
@@ -472,6 +520,8 @@ export const useManterAgendamento = (
     horariosOcupados,
     loadingHorarios,
     isHorarioOcupado,
+    isTimeSlotOccupied,
+    setCabeleireiroIdWithHorarios,
   };
 };
 

@@ -319,6 +319,10 @@ class AgendamentoService {
         { params: { data } },
       );
       if (response.status === 200) {
+        console.error(
+        "buscar horários ocupados futuros: ",
+        response.data,
+      );
         return response.data;
       }
       console.error(

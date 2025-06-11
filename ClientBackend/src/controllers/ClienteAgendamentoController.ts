@@ -127,7 +127,7 @@ class AgendamentoController {
     try {
       const { salaoId, cabeleireiroId } = req.params;
       const { data } = req.query;
-
+      console.log("data controller: ", data);
       if (!salaoId || !cabeleireiroId || !data) {
         res.status(400).json({
           message: "Parâmetros obrigatórios: salaoId, cabeleireiroId e data.",
