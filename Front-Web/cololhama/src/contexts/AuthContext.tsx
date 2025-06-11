@@ -1,6 +1,4 @@
 import React, {
-  Children,
-  Component,
   createContext,
   ReactNode,
   useEffect,
@@ -11,11 +9,7 @@ import { userTypes } from "../models/tipo-usuario.enum";
 interface ComponentProps {
   children: ReactNode;
 }
-enum userTypeEnum {
-  Cliente,
-  Funcionario,
-  Cabeleireiro,
-}
+
 interface AuthContextInterface {
   token: string;
   userId: string;
@@ -40,28 +34,41 @@ export const AuthContextProvider = ({ children }: ComponentProps) => {
   const [token, setToken] = useState("");
   const [userId, setuserId] = useState("");
   const [userType, setUserType] = useState<userTypes | undefined>();
-  const url = import.meta.env.VITE_GATEWAY_URL;
+
+  const url = import.meta.env.VITE_GATEWAY_URL || "http://localhost:5000";
   const salaoId = import.meta.env.VITE_SALAO_ID || "1";
 
   const doLogin = async (email: string, password: string) => {
-    let response = await fetch(url + "/login", {
-      method: "POST",
-      body: JSON.stringify({ Email: email, password, SalaoID: salaoId }),
-      headers: {
-        "Content-Type": "application/json",
-      },
-    });
+    try {
+      console.log("Fazendo login com:", { email, password, salaoId, url });
 
-    if (response.ok) {
-      let infos = await response.json();
+      const response = await fetch(`${url}/login`, {
+        method: "POST",
+        body: JSON.stringify({ Email: email, password, SalaoID: salaoId }),
+        headers: {
+          "Content-Type": "application/json",
+        },
+      });
+
+      if (!response.ok) {
+        console.error("Login falhou. Status:", response.status);
+        return;
+      }
+
+      const infos = await response.json();
+      console.log("Login bem-sucedido. Infos recebidas:", infos);
+
       localStorage.setItem("usuario", JSON.stringify(infos));
       setToken(infos.token);
       setuserId(infos.userId);
       setUserType(infos.userType);
+    } catch (error) {
+      console.error("Erro ao fazer login:", error);
     }
   };
 
-  const doAuthenticate = async () => {};
+  const doAuthenticate = async () => {
+  };
 
   const doLogout = () => {
     localStorage.removeItem("usuario");
@@ -71,15 +78,20 @@ export const AuthContextProvider = ({ children }: ComponentProps) => {
   };
 
   const checkLocalStorage = async () => {
-    let userStr = localStorage.getItem("usuario");
+    const userStr = localStorage.getItem("usuario");
     if (userStr) {
-      console.log(userStr);
-      let user = await JSON.parse(userStr);
-      setToken(user.token);
-      setuserId(user.userID);
-      setUserType(user.userType);
+      try {
+        const user = JSON.parse(userStr);
+        console.log("Usuário encontrado no localStorage:", user);
+        setToken(user.token);
+        setuserId(user.userID); 
+        setUserType(user.userType);
+        return true;
+      } catch (error) {
+        console.error("Erro ao interpretar localStorage:", error);
+      }
     }
-    return userStr !== null;
+    return false;
   };
 
   useEffect(() => {
