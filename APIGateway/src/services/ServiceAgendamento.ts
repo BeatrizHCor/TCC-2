@@ -338,3 +338,21 @@ export const ClienteDeleteAgendamento = async (id: string) => {
         "buscar agendamento por ID",
     );
 };
+
+export const getHorariosOcupadosFuturos = async (
+    salaoId: string,
+    cabeleireiroId: string,
+    data: string
+) => {
+    const url = `${ClienteURL}/agendamento/horarios-ocupados/${salaoId}/${cabeleireiroId}?data=${encodeURIComponent(data)}`;
+    let response = await fetch(url, {
+        method: "GET",
+        headers: {
+            "Content-Type": "application/json",
+        },
+    });
+    return handleApiResponse<Date[]>(
+        response,
+        "busacar horários ocupados",
+    );    
+};

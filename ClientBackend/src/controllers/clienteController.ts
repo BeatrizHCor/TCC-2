@@ -1,5 +1,5 @@
 import { Request, Response } from "express";
-import ClienteService from "../services/ClienteService";
+import ClienteService from "../services/clienteService";
 
 class ClienteController {
   static async getClientesPage(req: Request, res: Response): Promise<void> {

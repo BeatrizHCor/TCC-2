@@ -122,5 +122,36 @@ class AgendamentoController {
       res.status(500).json({ message: "Erro ao deletar o agendamento" });
     }
   };
+
+  static getHorariosOcupadosFuturos = async (req: Request, res: Response): Promise<void> => {
+    try {
+      const { salaoId, cabeleireiroId } = req.params;
+      const { data } = req.query;
+
+      if (!salaoId || !cabeleireiroId || !data) {
+        res.status(400).json({
+          message: "Parâmetros obrigatórios: salaoId, cabeleireiroId e data.",
+        });
+      } else {
+        const dataInicial = new Date(String(data));
+        if (isNaN(dataInicial.getTime())) {
+          res.status(400).json({ message: "Data inválida." });
+        } else {
+          const horarios = await AgendamentoService.getHorariosOcupadosFuturos(
+            salaoId,
+            cabeleireiroId,
+            dataInicial,
+          );
+          res.status(200).json(horarios);
+        }
+      }
+    } catch (e) {
+      console.error(e);
+      res.status(500).json({
+        message: "Erro ao buscar horários ocupados futuros.",
+      });
+    }
+  };
 }
+
 export default AgendamentoController;

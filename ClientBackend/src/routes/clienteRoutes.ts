@@ -1,5 +1,5 @@
 import express from "express";
-import ClienteController from "../controllers/ClienteController";
+import ClienteController from "../controllers/clienteController";
 
 
 const router = express.Router();
@@ -16,5 +16,6 @@ router.post("/cliente", ClienteController.create);
 router.put("/cliente/:id", ClienteController.update);
 router.delete("/cliente/delete/:id", ClienteController.delete);
 router.get("/cliente/salaoId/:salaoId", ClienteController.getClientesBySalao);
+
 
 export default router;

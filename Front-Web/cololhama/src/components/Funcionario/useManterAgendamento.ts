@@ -221,23 +221,79 @@ export const useManterAgendamento = (
 
     try {
       if (isEditing && agendamentoId) {
-        await AgendamentoService.updateAgendamento(
-          agendamentoId,
-          new Date(data).toISOString(),
-          status,
-          clienteId,
-          cabeleireiroId,
-          salaoId,
-          servicosIds,
-        );
+        switch (userType) {
+          case userTypes.Funcionario:
+          case userTypes.AdmSalao:
+          case userTypes.AdmSistema:
+            await AgendamentoService.updateFuncionarioAgendamento(
+              agendamentoId,
+              new Date(data).toISOString(),
+              status,
+              clienteId,
+              cabeleireiroId,
+              salaoId,
+              servicosIds,
+            );
+            break;
+          case userTypes.Cabeleireiro:
+            await AgendamentoService.updateCabeleireiroAgendamento(
+              agendamentoId,
+              new Date(data).toISOString(),
+              status,
+              clienteId,
+              cabeleireiroId,
+              salaoId,
+              servicosIds,
+            );
+            break;
+          case userTypes.Cliente:
+            await AgendamentoService.updateClienteAgendamento(
+              agendamentoId,
+              new Date(data).toISOString(),
+              status,
+              clienteId,
+              cabeleireiroId,
+              salaoId,
+              servicosIds,
+            );
+            break;
+          default:
+            throw new Error("Tipo de usuário inválido");
+        }
       } else {
-        await AgendamentoService.createAgendamento(
-          new Date(data).toISOString(),
-          clienteId,
-          cabeleireiroId,
-          salaoId,
-          servicosIds,
-        );
+        switch (userType) {
+          case userTypes.Funcionario:
+          case userTypes.AdmSalao:
+          case userTypes.AdmSistema:
+            await AgendamentoService.createFuncionarioAgendamento(
+              new Date(data).toISOString(),
+              clienteId,
+              cabeleireiroId,
+              salaoId,
+              servicosIds,
+            );
+            break;
+          case userTypes.Cabeleireiro:
+            await AgendamentoService.createCabeleireiroAgendamento(
+              new Date(data).toISOString(),
+              clienteId,
+              cabeleireiroId,
+              salaoId,
+              servicosIds,
+            );
+            break;
+          case userTypes.Cliente:
+            await AgendamentoService.createClienteAgendamento(
+              new Date(data).toISOString(),
+              clienteId,
+              cabeleireiroId,
+              salaoId,
+              servicosIds,
+            );
+            break;
+          default:
+            throw new Error("Tipo de usuário inválido");
+        }
       }
       navigate(-1);
     } catch (error: unknown) {
@@ -261,8 +317,31 @@ export const useManterAgendamento = (
     setIsLoading(true);
 
     try {
-      await AgendamentoService.deleteAgendamento(agendamentoId);
-      navigate(-1);
+      let deleted = false;
+      switch (userType) {
+        case userTypes.Funcionario:
+        case userTypes.AdmSalao:
+        case userTypes.AdmSistema:
+          deleted = await AgendamentoService.deleteFuncionarioAgendamento(
+            agendamentoId,
+          );
+          break;
+        case userTypes.Cabeleireiro:
+          deleted = await AgendamentoService.deleteCabeleireiroAgendamento(
+            agendamentoId,
+          );
+          break;
+        case userTypes.Cliente:
+          deleted = await AgendamentoService.deleteClienteAgendamento(
+            agendamentoId,
+          );
+          break;
+        default:
+          throw new Error("Tipo de usuário inválido");
+      }
+      if (deleted) {
+        navigate(-1);
+      }
     } catch (error: unknown) {
       console.error("Erro ao excluir agendamento:", error);
 
@@ -273,6 +352,8 @@ export const useManterAgendamento = (
       } else {
         console.error("Erro desconhecido:", error);
       }
+    } finally {
+      setIsLoading(false);
     }
   };
 
