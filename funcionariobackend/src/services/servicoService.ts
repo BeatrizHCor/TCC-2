@@ -108,9 +108,7 @@ class ServicoService {
           PrecoMax: PrecoMax,
           Descricao: Descricao,          
         },
-      });
-      
-      console.log(servico);
+      });      
       return servico;
     } catch (error) {
       console.error("Erro ao criar serviço: ", error);

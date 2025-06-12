@@ -211,7 +211,6 @@ export const VisualizarClientes: React.FC = () => {
         </Button>
       </Box>
 
-{/* Tabela estilizada */}
 <Paper
   elevation={1}
   sx={{

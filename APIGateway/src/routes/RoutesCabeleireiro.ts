@@ -157,6 +157,7 @@ RoutesCabeleireiro.get(
     if (
       !auth ||
       ![
+        userTypes.CABELEIREIRO,
         userTypes.FUNCIONARIO,
         userTypes.ADM_SALAO,
         userTypes.ADM_SISTEMA,

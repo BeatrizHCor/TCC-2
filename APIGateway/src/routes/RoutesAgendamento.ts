@@ -15,6 +15,7 @@ import {
   FuncionariogetAgendamentosPage,
   FuncionarioPostAgendamento,
   FuncionarioUpdateAgendamento,
+  getHorariosOcupadosFuturos,
 } from "../services/ServiceAgendamento";
 import { authenticate } from "../services/Service";
 import { userTypes } from "../models/tipo-usuario.enum";
@@ -680,5 +681,45 @@ RoutesAgendamento.delete(
       res.status(500).json({ message: "Erro interno do servidor" });
     }
   },
+);
+
+RoutesAgendamento.get(
+  "/agendamento/horarios/:salaoId/:cabeleireiroId",
+  async (req: Request, res: Response) => {
+    const { salaoId, cabeleireiroId } = req.params;
+    const { data } = req.query;
+    try {
+      const { userInfo, auth } = await getUserInfoAndAuth(req.headers);
+      if (!userInfo) {
+        res.status(403).json({ message: "Não autorizado" });
+      } else {
+      if (
+        auth &&
+        [
+          userTypes.CLIENTE,
+          userTypes.FUNCIONARIO,
+          userTypes.CABELEIREIRO,
+          userTypes.ADM_SALAO,
+          userTypes.ADM_SISTEMA,
+        ].includes(userInfo.userType)
+      ) {
+        if (!salaoId || !cabeleireiroId || !data) {
+          res.status(400).json({ message: "Parâmetros obrigatórios: salaoId, cabeleireiroId e data." });
+        }
+        const horarios = await getHorariosOcupadosFuturos(salaoId, cabeleireiroId, String(data));
+        if (horarios !== false) {
+          res.status(200).json(horarios);
+        } else {
+          throw new Error("Erro ao buscar horários ocupados futuros");
+        }
+      } else {
+        res.status(403).json({ message: "Não autorizado a fazer esta chamada" });
+      }
+    }
+    } catch (erro) {
+      console.error("Erro ao buscar horários ocupados futuros:", erro);
+      res.status(500).json({ message: "Erro interno do servidor" });
+    }
+  }
 );
 export default RoutesAgendamento;

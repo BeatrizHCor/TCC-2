@@ -43,8 +43,6 @@ export const useVisualizarAgendamentos = (
 
       try {
         let response;
-        let show = localStorage.getItem("usuario");
-        console.log("auth: ", show)
         if ([userTypes.AdmSistema, userTypes.AdmSalao, userTypes.Funcionario].includes(userType)) {
           response = await AgendamentoService.FuncionariogetAgendamentosPaginados(
             page,

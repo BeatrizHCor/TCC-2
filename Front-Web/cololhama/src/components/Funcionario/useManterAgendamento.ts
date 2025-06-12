@@ -11,6 +11,7 @@ import { Cliente } from "../../models/clienteModel";
 import { userTypes } from "../../models/tipo-usuario.enum";
 import ClienteService from "../../services/ClienteService";
 import axios from "axios";
+
 interface ValidationErrors {
   data?: string;
   status?: string;
@@ -22,6 +23,7 @@ interface ValidationErrors {
 export const useManterAgendamento = (
   userType: userTypes,
   agendamentoId?: string,
+  userId?: string,
 ) => {
   const [data, setData] = useState("");
   const [status, setStatus] = useState<StatusAgendamento>(
@@ -48,6 +50,8 @@ export const useManterAgendamento = (
     {},
   );
   const [isEditing, setIsEditing] = useState(false);
+  const [horariosOcupados, setHorariosOcupados] = useState<string[]>([]);
+  const [loadingHorarios, setLoadingHorarios] = useState(false);
 
   const navigate = useNavigate();
 
@@ -62,6 +66,84 @@ export const useManterAgendamento = (
     return agendamentoDate > threeDaysFromNow;
   };
 
+  const fetchHorariosOcupados = async (
+    cabeleireiroIdParam: string,
+  ) => {
+    if (!salaoId || !cabeleireiroIdParam) return;
+
+    setLoadingHorarios(true);
+    try {
+      const dataParaBusca = new Date().toISOString().split("T")[0];
+      const horarios = await AgendamentoService.getHorariosOcupadosFuturos(
+        salaoId,
+        cabeleireiroIdParam,
+        dataParaBusca,
+      );
+      if (horarios !== false) {
+        setHorariosOcupados(horarios);
+      } else {
+        setHorariosOcupados([]);
+      }
+    } catch (error) {
+      console.error("Erro ao buscar horários ocupados:", error);
+      setHorariosOcupados([]);
+    } finally {
+      setLoadingHorarios(false);
+    }
+  };
+
+  const isHorarioOcupado = (dataHora: string): boolean => {
+    if (!dataHora || horariosOcupados.length === 0) return false;
+
+    const dataHoraAgendamento = new Date(dataHora);
+
+    return horariosOcupados.some((horario) => {
+      const horarioOcupado = new Date(horario);
+      const horarioOcupadoFim = new Date(
+        horarioOcupado.getTime() + 60 * 60 * 1000,
+      );
+
+      return dataHoraAgendamento >= horarioOcupado &&
+        dataHoraAgendamento < horarioOcupadoFim;
+    });
+  };
+
+  const setCabeleireiroIdWithHorarios = (id: string) => {
+    setCabeleireiroId(id);
+    if (id) {
+      fetchHorariosOcupados(id);
+      console.log("cabeleireiroId", cabeleireiroId, "loadingHorarios", loadingHorarios);
+    } else {
+      setHorariosOcupados([]);
+    }
+  };
+
+  const setDataWithHorarios = (novaData: string) => {
+    setData(novaData);
+
+    if (validationErrors.data) {
+      setValidationErrors((prev) => ({
+        ...prev,
+        data: undefined,
+      }));
+    }
+  };
+
+  const isTimeSlotOccupied = (date: Date, hour: number): boolean => {
+    if (!date || horariosOcupados.length === 0) return false;
+
+    const testDate = new Date(date);
+    testDate.setHours(hour, 0, 0, 0);
+
+    return horariosOcupados.some((horario) => {
+      const horarioOcupado = new Date(horario);
+      const horarioOcupadoFim = new Date(
+        horarioOcupado.getTime() + 60 * 60 * 1000,
+      );
+
+      return testDate >= horarioOcupado && testDate < horarioOcupadoFim;
+    });
+  };
   useEffect(() => {
     const loadInitialData = async () => {
       if (!salaoId) return;
@@ -71,12 +153,6 @@ export const useManterAgendamento = (
         const servicos = await ServicoService.getServicosBySalao(salaoId);
         setServicosDisponiveis(servicos);
 
-        const cabeleireiros = await CabeleireiroService.getCabeleireiroBySalao(
-          salaoId,
-          false,
-        );
-        setCabeleireirosDisponiveis(cabeleireiros);
-
         if (
           userType === userTypes.AdmSalao ||
           userType === userTypes.Funcionario ||
@@ -84,6 +160,37 @@ export const useManterAgendamento = (
         ) {
           const clientes = await ClienteService.getClientesBySalao(salaoId);
           setClientesDisponiveis(clientes);
+          const cabeleireiros = await CabeleireiroService
+            .getCabeleireiroBySalao(
+              salaoId,
+              false,
+            );
+          setCabeleireirosDisponiveis(cabeleireiros);
+        }
+
+        if (!isEditing && userId) {
+          if (userType === userTypes.Cliente) {
+            setClienteId(userId);
+            const clienteLogado = await ClienteService.getClienteById(userId);
+            const cabeleireiros = await CabeleireiroService
+              .getCabeleireiroBySalao(
+                salaoId,
+                false,
+              );
+            setCabeleireirosDisponiveis(cabeleireiros);
+            if (clienteLogado && clienteLogado.Nome) {
+              setClienteNome(clienteLogado.Nome);
+            }
+          } else if (userType === userTypes.Cabeleireiro) {
+            setCabeleireiroId(userId);
+            const clientes = await ClienteService.getClientesBySalao(salaoId);
+            setClientesDisponiveis(clientes);
+            const cabeleireiroLogado = await CabeleireiroService
+              .getCabeleireiroById(userId);
+            if (cabeleireiroLogado && cabeleireiroLogado.Nome) {
+              setCabeleireiroNome(cabeleireiroLogado.Nome);
+            }
+          }
         }
       } catch (error) {
         console.error("Erro ao carregar dados iniciais:", error);
@@ -93,7 +200,7 @@ export const useManterAgendamento = (
     };
 
     loadInitialData();
-  }, [salaoId]);
+  }, [salaoId, userType, userId, isEditing]);
 
   useEffect(() => {
     const fetchAgendamento = async () => {
@@ -140,15 +247,18 @@ export const useManterAgendamento = (
         if (agendamento.ServicoAgendamento) {
           setServicosAgendamento(agendamento.ServicoAgendamento);
         }
+
+        if (agendamento.CabeleireiroID && agendamento.SalaoId) {
+          fetchHorariosOcupados(agendamento.CabeleireiroID);
+        }
       } catch (error: unknown) {
-        console.error("Erro ao salvar agendamento:", error);
+        console.error("Erro ao carregar agendamento:", error);
         if (axios.isAxiosError(error)) {
           if (error.response?.status === 403) {
             setForbidden(true);
           }
         } else {
           console.error("Erro desconhecido:", error);
-
           navigate("/agendamentos", { replace: true });
         }
       } finally {
@@ -161,6 +271,17 @@ export const useManterAgendamento = (
     }
   }, [agendamentoId, navigate]);
 
+  useEffect(() => {
+    if (data && horariosOcupados.length > 0) {
+      setValidationErrors((prev) => ({
+        ...prev,
+        data: isHorarioOcupado(data)
+          ? "Este horário já está ocupado"
+          : undefined,
+      }));
+    }
+  }, [horariosOcupados, data]);
+
   const validateForm = (): boolean => {
     const errors: ValidationErrors = {};
 
@@ -172,15 +293,26 @@ export const useManterAgendamento = (
 
       if (agendamentoDate <= currentDate) {
         errors.data = "A data do agendamento deve ser futura";
+      } else if (isHorarioOcupado(data)) {
+        errors.data = "Este horário está ocupado (considera período de 1 hora)";
+      }
+
+      const tomorrow = new Date(currentDate);
+      tomorrow.setDate(currentDate.getDate() + 1);
+      tomorrow.setHours(0, 0, 0, 0);
+
+      if (agendamentoDate < tomorrow && !isEditing) {
+        errors.data =
+          "Agendamento só pode ser feito para o dia seguinte ou datas futuras";
       }
     }
 
-    if (!status) {
+    if (!status && isEditing) {
       errors.status = "Status é obrigatório";
     }
 
     if (!clienteId.trim()) {
-      errors.clienteId = "ID do cliente é obrigatório";
+      errors.clienteId = "Cliente é obrigatório";
     }
 
     if (!cabeleireiroId.trim()) {
@@ -221,23 +353,79 @@ export const useManterAgendamento = (
 
     try {
       if (isEditing && agendamentoId) {
-        await AgendamentoService.updateAgendamento(
-          agendamentoId,
-          new Date(data).toISOString(),
-          status,
-          clienteId,
-          cabeleireiroId,
-          salaoId,
-          servicosIds,
-        );
+        switch (userType) {
+          case userTypes.Funcionario:
+          case userTypes.AdmSalao:
+          case userTypes.AdmSistema:
+            await AgendamentoService.updateFuncionarioAgendamento(
+              agendamentoId,
+              new Date(data).toISOString(),
+              status,
+              clienteId,
+              cabeleireiroId,
+              salaoId,
+              servicosIds,
+            );
+            break;
+          case userTypes.Cabeleireiro:
+            await AgendamentoService.updateCabeleireiroAgendamento(
+              agendamentoId,
+              new Date(data).toISOString(),
+              status,
+              clienteId,
+              cabeleireiroId,
+              salaoId,
+              servicosIds,
+            );
+            break;
+          case userTypes.Cliente:
+            await AgendamentoService.updateClienteAgendamento(
+              agendamentoId,
+              new Date(data).toISOString(),
+              status,
+              clienteId,
+              cabeleireiroId,
+              salaoId,
+              servicosIds,
+            );
+            break;
+          default:
+            throw new Error("Tipo de usuário inválido");
+        }
       } else {
-        await AgendamentoService.createAgendamento(
-          new Date(data).toISOString(),
-          clienteId,
-          cabeleireiroId,
-          salaoId,
-          servicosIds,
-        );
+        switch (userType) {
+          case userTypes.Funcionario:
+          case userTypes.AdmSalao:
+          case userTypes.AdmSistema:
+            await AgendamentoService.createFuncionarioAgendamento(
+              new Date(data).toISOString(),
+              clienteId,
+              cabeleireiroId,
+              salaoId,
+              servicosIds,
+            );
+            break;
+          case userTypes.Cabeleireiro:
+            await AgendamentoService.createCabeleireiroAgendamento(
+              new Date(data).toISOString(),
+              clienteId,
+              cabeleireiroId,
+              salaoId,
+              servicosIds,
+            );
+            break;
+          case userTypes.Cliente:
+            await AgendamentoService.createClienteAgendamento(
+              new Date(data).toISOString(),
+              clienteId,
+              cabeleireiroId,
+              salaoId,
+              servicosIds,
+            );
+            break;
+          default:
+            throw new Error("Tipo de usuário inválido");
+        }
       }
       navigate(-1);
     } catch (error: unknown) {
@@ -250,6 +438,8 @@ export const useManterAgendamento = (
       } else {
         console.error("Erro desconhecido:", error);
       }
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -261,8 +451,31 @@ export const useManterAgendamento = (
     setIsLoading(true);
 
     try {
-      await AgendamentoService.deleteAgendamento(agendamentoId);
-      navigate(-1);
+      let deleted = false;
+      switch (userType) {
+        case userTypes.Funcionario:
+        case userTypes.AdmSalao:
+        case userTypes.AdmSistema:
+          deleted = await AgendamentoService.deleteFuncionarioAgendamento(
+            agendamentoId,
+          );
+          break;
+        case userTypes.Cabeleireiro:
+          deleted = await AgendamentoService.deleteCabeleireiroAgendamento(
+            agendamentoId,
+          );
+          break;
+        case userTypes.Cliente:
+          deleted = await AgendamentoService.deleteClienteAgendamento(
+            agendamentoId,
+          );
+          break;
+        default:
+          throw new Error("Tipo de usuário inválido");
+      }
+      if (deleted) {
+        navigate(-1);
+      }
     } catch (error: unknown) {
       console.error("Erro ao excluir agendamento:", error);
 
@@ -273,18 +486,20 @@ export const useManterAgendamento = (
       } else {
         console.error("Erro desconhecido:", error);
       }
+    } finally {
+      setIsLoading(false);
     }
   };
 
   return {
     data,
-    setData,
+    setData: setDataWithHorarios,
     status,
     setStatus,
     clienteId,
     setClienteId,
     cabeleireiroId,
-    setCabeleireiroId,
+    setCabeleireiroId: setCabeleireiroIdWithHorarios,
     cabeleireiroNome,
     setCabeleireiroNome,
     servicosAgendamento,
@@ -302,6 +517,11 @@ export const useManterAgendamento = (
     handleDelete,
     forbidden,
     canSaveEdit: canSaveEdit(),
+    horariosOcupados,
+    loadingHorarios,
+    isHorarioOcupado,
+    isTimeSlotOccupied,
+    setCabeleireiroIdWithHorarios,
   };
 };
 
