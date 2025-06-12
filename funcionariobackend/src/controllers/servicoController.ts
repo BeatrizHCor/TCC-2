@@ -42,9 +42,10 @@ class ServicoController {
 
 static async create(req: Request, res: Response): Promise<void> {
   try {
-    const {Nome, PrecoMin, PrecoMax, Descricao, SalaoId} = req.body;
+    const {Nome, SalaoId, PrecoMin, PrecoMax, Descricao} = req.body;
 
-    if (!Nome || PrecoMin === undefined || !isNaN(Number(PrecoMin)) || PrecoMax === undefined || !isNaN(Number(PrecoMax)) || !SalaoId) {
+    if (!Nome || !PrecoMin || isNaN(Number(PrecoMin)) || !PrecoMax || isNaN(Number(PrecoMax)) || !SalaoId) {
+      console.log("Parametros errados no createServico");
       res.status(400).json({ message: "Campos obrigatórios ausentes." });
     } else {
     if (PrecoMin > PrecoMax) {
@@ -92,7 +93,7 @@ static async update(req: Request, res: Response): Promise<void> {
     const { id } = req.params;
     const { Nome, PrecoMin, PrecoMax, Descricao, SalaoId } = req.body;
 
-    if (!Nome || PrecoMin === undefined || !isNaN(Number(PrecoMin)) || PrecoMax === undefined || !isNaN(Number(PrecoMax)) || !SalaoId) {
+    if (!Nome || !PrecoMin || isNaN(Number(PrecoMin)) || !PrecoMax|| isNaN(Number(PrecoMax)) || !SalaoId) {
        res.status(400).json({ message: "Campos obrigatórios ausentes." });
     } else {
       const existingServico = await ServicoService.findById(id);
@@ -135,7 +136,7 @@ static async delete(req: Request, res: Response): Promise<void> {
       if (!servicoDeletado) {
         throw new Error("Erro ao excluir serviço.");
       } else {
-        res.status(200).json(servicoDeletado);
+        res.status(204).json({ message: "Serviço deletado com sucesso." });
       }
     }
   } catch (error) {

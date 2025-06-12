@@ -177,7 +177,7 @@ const handleSelectCabeleireiro = (cabeleireiro: Cabeleireiro) => {
     );
   }
 
-  if (!salaoId) {
+  if (!salaoId || !userType || !userId) {
     return (
       <Box sx={{ p: 3, textAlign: "center" }}>
         <Typography variant="h6" color="error">

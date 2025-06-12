@@ -43,9 +43,8 @@ class FuncionarioController {
       let { CPF, Nome, Email, Telefone, SalaoId, Auxiliar, Salario } = req.body;
       const existingFuncionario = await FuncionarioService.findByEmailandSalao(Email, SalaoId);
       if (existingFuncionario) {
-        console.error('Funcionário já cadastrado neste salão:', { Email, SalaoId });
-        throw new Error('Funcionário já cadastrado neste salão');
-      }
+        res.status(409).send(`Cliente com o email ${Email} já cadastrado no salao`);    
+      } else {
       const newFuncionario = await FuncionarioService.create(
         CPF,
         Nome,
@@ -55,7 +54,7 @@ class FuncionarioController {
         Auxiliar,
         Salario
       );
-      res.status(201).json(newFuncionario);
+      res.status(201).json(newFuncionario);}
     } catch (error) {
       console.log(error);
       res.status(500).send("something went wrong");

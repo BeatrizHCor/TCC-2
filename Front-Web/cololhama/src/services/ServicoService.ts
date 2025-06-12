@@ -1,11 +1,12 @@
 import axios from "axios";
 import { Servico } from "../models/servicoModel";
 
+
 const api = axios.create({
   baseURL: import.meta.env.VITE_GATEWAY_URL || "http://localhost:5000",
   timeout: 15000,
   headers: {
-    "Content-Type": "application/json"
+    "Content-Type": "application/json",
   },
 });
 api.interceptors.request.use((config) => {
@@ -29,7 +30,7 @@ class ServicoService {
     nome?: string,
     precoMin: number = 0,
     precoMax: number = 0,
-    includeRelations: boolean = false
+    includeRelations: boolean = false,
   ): Promise<ServicoPaginadoResponse> {
     try {
       const response = await api.get(`/servico/page`, {
@@ -78,20 +79,30 @@ class ServicoService {
   static async createServico(
     Nome: string,
     SalaoId: string,
-    PrecoMin: number = 0,
-    PrecoMax: number = 0,
-    Descricao: string
+    PrecoMin: number,
+    PrecoMax: number,
+    Descricao: string,
   ): Promise<Servico> {
     try {
-      const servicoData: Servico = {
+      const response = await api.post(`/servico`, {
         Nome: Nome,
         SalaoId: SalaoId,
         PrecoMin: PrecoMin,
         PrecoMax: PrecoMax,
         Descricao: Descricao,
-      };
-      const response = await api.post(`/servico`, servicoData);
-      return response.data;
+      });
+      if (response.status === 201) {
+        return response.data;
+      } else {
+        return {
+          Id: "",
+          Nome: "",
+          SalaoId: "",
+          PrecoMin: 0,
+          PrecoMax: 0,
+          Descricao: "",
+        } as Servico;
+      }
     } catch (error) {
       console.error("Erro ao criar serviço:", error);
       throw error;
@@ -104,17 +115,16 @@ class ServicoService {
     SalaoId: string,
     PrecoMin: number = 0,
     PrecoMax: number = 0,
-    Descricao: string
+    Descricao: string,
   ): Promise<Servico> {
     try {
-      const servicoData: Servico = {
+      const response = await api.put(`/servico/update/${id}`, {
         Nome: Nome,
         SalaoId: SalaoId,
         PrecoMin: PrecoMin,
         PrecoMax: PrecoMax,
         Descricao: Descricao,
-      };
-      const response = await api.put(`/servico/update/${id}`, servicoData);
+      });
       return response.data;
     } catch (error) {
       console.error(`Erro ao atualizar serviço com ID ${id}:`, error);
@@ -122,11 +132,14 @@ class ServicoService {
     }
   }
 
-  static async deleteServico(id: string): Promise<void> {
+  static async deleteServico(id: string): Promise<boolean> {
     try {
       const response = await api.delete(`/servico/delete/${id}`);
-      if (response.status === 200) {
-        console.log("Serviço deletedo: ", response.data.Nome);
+      if (response.status === 204) {
+        console.log("Serviço deletedo");
+        return true;
+      } else {
+        return false;
       }
     } catch (error) {
       console.error(`Erro ao excluir serviço com ID ${id}:`, error);
@@ -136,7 +149,7 @@ class ServicoService {
 
   static async getServicoByNomeAndSalao(
     nome: string,
-    salaoId: string
+    salaoId: string,
   ): Promise<Servico> {
     try {
       const response = await api.get(`/servico/nome/${nome}/${salaoId}`);
@@ -144,7 +157,7 @@ class ServicoService {
     } catch (error) {
       console.error(
         `Erro ao buscar serviço com nome ${nome} do salão ${salaoId}:`,
-        error
+        error,
       );
       throw error;
     }
@@ -152,7 +165,7 @@ class ServicoService {
 
   static async findServicoByNomeAndSalaoId(
     nome: string,
-    salaoId: string
+    salaoId: string,
   ): Promise<Servico[]> {
     try {
       const response = await api.get(`/servico/find/${nome}/${salaoId}`);
@@ -160,7 +173,7 @@ class ServicoService {
     } catch (error) {
       console.error(
         `Erro ao buscar serviço com nome ${nome} do salão ${salaoId}:`,
-        error
+        error,
       );
       throw error;
     }

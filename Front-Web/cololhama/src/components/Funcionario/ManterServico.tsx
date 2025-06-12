@@ -37,7 +37,7 @@ const ManterServico: React.FC = () => {
     setPrecoMin,
     PrecoMax,
     setPrecoMax,
-    salaoId,
+    SalaoId,
     isLoading,
     isEditing,
     validationErrors,
@@ -65,7 +65,7 @@ const ManterServico: React.FC = () => {
     }
   }, [forbidden]);
 
-  if (!salaoId) {
+  if (!SalaoId) {
     return (
       <Box sx={{ p: 3, textAlign: "center" }}>
         <Typography variant="h6" color="error">
