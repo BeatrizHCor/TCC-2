@@ -21,22 +21,33 @@ import { DatePicker, LocalizationProvider } from '@mui/x-date-pickers';
 import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns';
 import { ptBR } from 'date-fns/locale';
 import InfoIcon from '@mui/icons-material/Info';
-import { Agendamentos } from '../../models/agendamentoModel';
-import { useVisualizarAgendamentos } from './useVisualizarAgendamento';
-import { StatusAgendamento } from '../../models/StatusAgendamento.enum';
 import { useNavigate } from 'react-router-dom';
-import { AuthContext } from '../../contexts/AuthContext';
+import { createTheme, ThemeProvider } from '@mui/material/styles';
 
 import FullCalendar from '@fullcalendar/react';
 import dayGridPlugin from '@fullcalendar/daygrid';
-import { createTheme, ThemeProvider } from '@mui/material/styles';
 
-const theme = createTheme();
+import { Agendamentos } from '../../models/agendamentoModel';
+import { StatusAgendamento } from '../../models/StatusAgendamento.enum';
+import { useVisualizarAgendamentos } from './useVisualizarAgendamento';
+import { AuthContext } from '../../contexts/AuthContext';
+
+const theme = createTheme({
+  palette: {
+    primary: {
+      main: '#7d1e26',
+      contrastText: '#ffffff',
+    },
+    secondary: {
+      main: '#f5f5f5',
+    },
+  },
+});
 
 const VisualizarAgendamento: React.FC = () => {
   const SalaoId = import.meta.env.VITE_SALAO_ID || '1';
-  const navigate = useNavigate();
   const { userType, userId } = useContext(AuthContext);
+  const navigate = useNavigate();
 
   const [modoCalendario, setModoCalendario] = useState(true);
   const [agendamentoSelecionado, setAgendamentoSelecionado] = useState<Agendamentos | null>(null);
@@ -45,33 +56,15 @@ const VisualizarAgendamento: React.FC = () => {
   const [rowsPerPage, setRowsPerPage] = useState(10);
   const [dataFilter, setDataFilter] = useState<Date | null>(null);
 
-  const diaFilter = dataFilter?.getDate() || 0;
-  const mesFilter = dataFilter?.getMonth() || 0;
-  const anoFilter = dataFilter?.getFullYear() || 0;
+  const dia = dataFilter?.getDate() || 0;
+  const mes = dataFilter?.getMonth() || 0;
+  const ano = dataFilter?.getFullYear() || 0;
 
   const {
     agendamentos,
     totalAgendamentos,
     isLoading,
-    error,
-    forbidden,
-  } = useVisualizarAgendamentos(page + 1, rowsPerPage, SalaoId, userType!, userId, diaFilter, mesFilter, anoFilter);
-
-
-  const formatarDataHora = (data: Date): string => {
-    return new Date(data).toLocaleString('pt-BR', {
-      day: '2-digit',
-      month: '2-digit',
-      year: 'numeric',
-      hour: '2-digit',
-      minute: '2-digit',
-    });
-  }
-  const handleChangePage = (_: unknown, newPage: number) => setPage(newPage);
-  const handleChangeRowsPerPage = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setRowsPerPage(parseInt(e.target.value, 10));
-    setPage(0);
-  };
+  } = useVisualizarAgendamentos(page + 1, rowsPerPage, SalaoId, userType!, userId, dia, mes, ano);
 
   const handleVerDetalhes = (ag: Agendamentos) => {
     setAgendamentoSelecionado(ag);
@@ -83,9 +76,24 @@ const VisualizarAgendamento: React.FC = () => {
     setAgendamentoSelecionado(null);
   };
 
+  const handleChangePage = (_: unknown, newPage: number) => setPage(newPage);
+  const handleChangeRowsPerPage = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setRowsPerPage(parseInt(e.target.value, 10));
+    setPage(0);
+  };
+
+  const formatarDataHora = (data: Date): string =>
+    new Date(data).toLocaleString('pt-BR', {
+      day: '2-digit',
+      month: '2-digit',
+      year: 'numeric',
+      hour: '2-digit',
+      minute: '2-digit',
+    });
+
   const getStatusColor = (status: StatusAgendamento) => {
     switch (status) {
-      case StatusAgendamento.Agendado: return '#7d1e26';
+      case StatusAgendamento.Agendado: return '#7d1e26'; // vermelho institucional
       case StatusAgendamento.Confirmado: return '#4caf50';
       case StatusAgendamento.Finalizado: return '#9c27b0';
       case StatusAgendamento.Cancelado: return '#f44336';
@@ -95,7 +103,7 @@ const VisualizarAgendamento: React.FC = () => {
 
   const eventosCalendario = useMemo(() => {
     return agendamentos.map((ag) => ({
-      title: `${ag.Cliente?.Nome || `Cliente ${ag.ClienteID}`}`,
+      title: ag.Cliente?.Nome || `Cliente ${ag.ClienteID}`,
       date: ag.Data,
       id: String(ag.ID),
       extendedProps: ag,
@@ -106,40 +114,32 @@ const VisualizarAgendamento: React.FC = () => {
     <ThemeProvider theme={theme}>
       <LocalizationProvider dateAdapter={AdapterDateFns} adapterLocale={ptBR}>
         <Box sx={{ p: 3, maxWidth: 1200, mx: 'auto' }}>
-          <Box sx={{ display: 'flex', justifyContent: 'flex-end', mb: 2 }}>
-            <Button
-              variant="contained"
-              color="primary"
-              onClick={() => navigate("/agendamento/novo")}
-            >
+          <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
+            <Typography variant="h4" color="primary">Agendamentos</Typography>
+            <Button variant="contained" color="primary" onClick={() => navigate('/agendamento/novo')}>
               Novo Agendamento
             </Button>
           </Box>
-          <Typography variant="h4" component="h1" margin={2}>
-            Agendamentos
-          </Typography>
 
-          <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', mb: 2, flexWrap: 'wrap' }}>
+          <Box sx={{ display: 'flex', justifyContent: 'space-between', flexWrap: 'wrap', gap: 2, mb: 2 }}>
             <DatePicker
-              label="Filtrar data"
+              label="Filtrar por data"
               value={dataFilter}
-              onChange={(d) => {
-                setDataFilter(d);
+              onChange={(date) => {
+                setDataFilter(date);
                 setPage(0);
               }}
               slotProps={{ textField: { size: 'small' } }}
             />
-
             <FormControlLabel
-              control={<Switch checked={modoCalendario} onChange={() => setModoCalendario(!modoCalendario)} color="primary" />}
+              control={<Switch checked={modoCalendario} onChange={() => setModoCalendario(!modoCalendario)} />}
               label={modoCalendario ? 'Modo Calendário' : 'Modo Lista'}
-              sx={{ ml: { xs: 0, sm: 2 }, mt: { xs: 2, sm: 0 } }}
             />
           </Box>
 
           {isLoading ? (
             <Box sx={{ display: 'flex', justifyContent: 'center', py: 5 }}>
-              <CircularProgress />
+              <CircularProgress color="primary" />
             </Box>
           ) : modoCalendario ? (
             <Box sx={{ overflowX: 'auto' }}>
@@ -152,56 +152,69 @@ const VisualizarAgendamento: React.FC = () => {
                 contentHeight="auto"
                 dayMaxEventRows={3}
                 eventClick={(info) => {
-                  const agendamento = info.event.extendedProps as Agendamentos;
-                  handleVerDetalhes(agendamento);
+                  handleVerDetalhes(info.event.extendedProps as Agendamentos);
                 }}
-                dayCellClassNames={({ date, view }) => {
-                  const currentMonth = new Date().getMonth();
-                  return date.getMonth() !== currentMonth ? 'fc-other-month' : '';
-                }}
-                dayCellContent={({ date }) => (
-                  <span>{date.getDate()}</span>
-                )}
-                dayHeaderFormat={{ weekday: 'short' }}
+                dayCellClassNames={({ date }) =>
+                  date.getMonth() !== new Date().getMonth() ? 'fc-other-month' : ''
+                }
+                dayCellContent={({ date }) => <span>{date.getDate()}</span>}
               />
-              <style>
-                {`
-                  .fc-other-month {
-                    opacity: 0.1 !important;
-                    pointer-events: none;
-                  }
-                `}
-              </style>
+              <style>{`
+                .fc {
+                  --fc-today-bg-color: #fdecea;
+                  --fc-event-bg-color: #7d1e26;
+                  --fc-event-text-color: white;
+                }
+                .fc-other-month {
+                  opacity: 0.15 !important;
+                  pointer-events: none;
+                  background-color: #f5f5f5 !important;
+                }
+              `}</style>
             </Box>
           ) : (
             <>
-              <List sx={{ width: '100%' }}>
+              <List>
                 {agendamentos.length > 0 ? (
                   agendamentos.map((ag) => (
-                    <ListItem key={ag.ID} divider secondaryAction={
-                      <IconButton edge="end" onClick={() => handleVerDetalhes(ag)}>
-                        <InfoIcon />
-                      </IconButton>
-                    }>
+                    <ListItem
+                      key={ag.ID}
+                      divider
+                      secondaryAction={
+                        <IconButton edge="end" onClick={() => handleVerDetalhes(ag)}>
+                          <InfoIcon color="primary" />
+                        </IconButton>
+                      }
+                    >
                       <ListItemText
-                        disableTypography
-                        primary={<Typography variant="subtitle1" fontWeight="bold">{ag.Cliente?.Nome || `Cliente ${ag.ClienteID}`}</Typography>}
+                        primary={
+                          <Typography fontWeight="bold" color="primary">
+                            {ag.Cliente?.Nome || `Cliente ${ag.ClienteID}`}
+                          </Typography>
+                        }
                         secondary={
                           <Box>
-                            <Typography variant="body2" display="block">{formatarDataHora(ag.Data)}</Typography>
-                            <Typography variant="body2" display="block">
+                            <Typography variant="body2">{formatarDataHora(ag.Data)}</Typography>
+                            <Typography variant="body2">
                               Profissional: {ag.Cabeleireiro?.Nome || `ID: ${ag.CabeleireiroID}`}
                             </Typography>
-                            <Chip label={ag.Status} size="small" sx={{ bgcolor: getStatusColor(ag.Status), color: 'white', mt: 1 }} />
+                            <Chip
+                              label={ag.Status}
+                              size="small"
+                              sx={{
+                                mt: 1,
+                                bgcolor: getStatusColor(ag.Status),
+                                color: '#fff',
+                                fontWeight: 'bold',
+                              }}
+                            />
                           </Box>
                         }
                       />
                     </ListItem>
                   ))
                 ) : (
-                  <Typography variant="body2" sx={{ px: 2 }}>
-                    Nenhum agendamento encontrado.
-                  </Typography>
+                  <Typography sx={{ px: 2 }}>Nenhum agendamento encontrado.</Typography>
                 )}
               </List>
 
@@ -219,35 +232,41 @@ const VisualizarAgendamento: React.FC = () => {
             </>
           )}
 
+          {/* Modal de detalhes */}
           <Dialog open={modalAberto} onClose={handleFecharModal} maxWidth="sm" fullWidth>
             {agendamentoSelecionado && (
               <>
                 <DialogTitle>
                   Detalhes do Agendamento
-                  <Chip label={agendamentoSelecionado.Status} size="small" sx={{
-                    ml: 2,
-                    bgcolor: getStatusColor(agendamentoSelecionado.Status),
-                    color: 'white',
-                  }} />
+                  <Chip
+                    label={agendamentoSelecionado.Status}
+                    size="small"
+                    sx={{
+                      ml: 2,
+                      bgcolor: getStatusColor(agendamentoSelecionado.Status),
+                      color: 'white',
+                      fontWeight: 'bold',
+                    }}
+                  />
                 </DialogTitle>
-
                 <DialogContent dividers>
-                  <Box sx={{ mt: 2 }}>
-                    <Typography variant="subtitle1" fontWeight="bold">Data e Hora</Typography>
-                    <Typography variant="body1">{formatarDataHora(agendamentoSelecionado.Data)}</Typography>
+                  <Typography fontWeight="bold" sx={{ mt: 2 }}>Data e Hora</Typography>
+                  <Typography>{formatarDataHora(agendamentoSelecionado.Data)}</Typography>
 
-                    <Typography variant="subtitle1" fontWeight="bold" sx={{ mt: 2 }}>Cliente</Typography>
-                    <Typography variant="body1">{agendamentoSelecionado.Cliente?.Nome || `ID: ${agendamentoSelecionado.ClienteID}`}</Typography>
+                  <Typography fontWeight="bold" sx={{ mt: 2 }}>Cliente</Typography>
+                  <Typography>{agendamentoSelecionado.Cliente?.Nome || `ID: ${agendamentoSelecionado.ClienteID}`}</Typography>
 
-                    <Typography variant="subtitle1" fontWeight="bold" sx={{ mt: 2 }}>Profissional</Typography>
-                    <Typography variant="body1">{agendamentoSelecionado.Cabeleireiro?.Nome || `ID: ${agendamentoSelecionado.CabeleireiroID}`}</Typography>
-                  </Box>
+                  <Typography fontWeight="bold" sx={{ mt: 2 }}>Profissional</Typography>
+                  <Typography>{agendamentoSelecionado.Cabeleireiro?.Nome || `ID: ${agendamentoSelecionado.CabeleireiroID}`}</Typography>
                 </DialogContent>
-
                 <DialogActions>
                   <Button onClick={handleFecharModal}>Fechar</Button>
-                  <Button variant="contained" color="primary" onClick={() => navigate(`/agendamento/editar/${agendamentoSelecionado.ID}`)}>
-                    Ir para página do agendamento
+                  <Button
+                    variant="contained"
+                    color="primary"
+                    onClick={() => navigate(`/agendamento/editar/${agendamentoSelecionado.ID}`)}
+                  >
+                    Editar Agendamento
                   </Button>
                 </DialogActions>
               </>
