@@ -122,7 +122,7 @@ export const useClienteCadastro = (salaoId: string) => {
     return Object.keys(newErrors).length === 0;
   };
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent): Promise<boolean> => {
     e.preventDefault();
     setLoading(true);
 
@@ -130,7 +130,7 @@ export const useClienteCadastro = (salaoId: string) => {
 
     if (!isValid) {
       setLoading(false);
-      return;
+      return false;
     }
 
     try {
@@ -139,15 +139,15 @@ export const useClienteCadastro = (salaoId: string) => {
       if (!response) {
         console.error("Erro ao cadastrar cliente.");
         setLoading(false);
-        return;
+        return false;
       }
-
       setLoading(false);
-      navigate("/");
+      return true;
     } catch (error) {
       console.error("Erro ao cadastrar:", error);
       alert("Erro ao cadastrar: " + JSON.stringify(error));
       setLoading(false);
+      return false;
     }
   };
 

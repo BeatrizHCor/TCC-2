@@ -30,7 +30,7 @@ import {
   Alert,
   InputAdornment,
 } from "@mui/material";
-import { useNavigate, useParams } from "react-router-dom";
+import { useLocation, useNavigate, useParams } from "react-router-dom";
 import { useManterAgendamento } from "./useManterAgendamento";
 import SaveIcon from "@mui/icons-material/Save";
 import DeleteIcon from "@mui/icons-material/Delete";
@@ -44,15 +44,24 @@ import { StatusAgendamento } from "../../models/StatusAgendamento.enum";
 import { Servico } from "../../models/servicoModel";
 import { ServicoAgendamento } from "../../models/servicoAgendamentoModel";
 import { Cabeleireiro } from "../../models/cabelereiroModel";
+import useManterAtendimento from "./useManterAtendimento";
 
-const ManterAgendamento: React.FC = () => {
+const ManterAtendimento: React.FC = () => {
   const navigate = useNavigate();
-  const { agendamentoId } = useParams();
   const { doLogout, userType } = useContext(AuthContext);
   const [openDeleteDialog, setOpenDeleteDialog] = useState(false);
   const [openServicosModal, setOpenServicosModal] = useState(false);
   const [openCabeleireirosModal, setOpenCabeleireirosModal] = useState(false);
-
+  const { state } = useLocation();
+  const {
+    data: stateData,
+    status: stateStatus,
+    servicosAgendamento: stateServicos,
+    cabeleireiroId: stateCabId,
+    cabeleireiroNome: stateCabNome,
+    clienteId: stateCliId,
+    agendamentoId,
+  } = state;
   const {
     data,
     setData,
@@ -65,7 +74,8 @@ const ManterAgendamento: React.FC = () => {
     cabeleireiroNome,
     setCabeleireiroNome,
     servicosAgendamento,
-    setServicosAgendamento,
+    precoTotal,
+    setPrecoTotal,
     servicosDisponiveis,
     cabeleireirosDisponiveis,
     salaoId,
@@ -75,9 +85,8 @@ const ManterAgendamento: React.FC = () => {
     handleSubmit,
     handleDelete,
     forbidden,
-
     canSaveEdit,
-  } = useManterAgendamento(userType!, agendamentoId);
+  } = useManterAtendimento(userType!, agendamentoId);
 
   const handleOpenDeleteDialog = () => {
     setOpenDeleteDialog(true);
@@ -92,24 +101,7 @@ const ManterAgendamento: React.FC = () => {
     handleCloseDeleteDialog();
   };
 
-  const handleAddServico = (servico: Servico) => {
-    const novoServicoAgendamento: ServicoAgendamento = {
-      Nome: servico.Nome,
-      PrecoMin: servico.PrecoMin,
-      PrecoMax: servico.PrecoMax,
-      ServicoId: servico.ID ? servico.ID : "",
-      AgendamentoId: agendamentoId ? agendamentoId : "",
-    };
-
-    setServicosAgendamento([...servicosAgendamento, novoServicoAgendamento]);
-    setOpenServicosModal(false);
-  };
-
-  const handleRemoveServico = (servicoId: string) => {
-    setServicosAgendamento(
-      servicosAgendamento.filter((s) => s.ServicoId !== servicoId)
-    );
-  };
+  const handleAddServico = (servico: Servico) => {};
 
   const handleSelectCabeleireiro = (cabeleireiro: Cabeleireiro) => {
     setCabeleireiroId(cabeleireiro.ID!);
@@ -316,15 +308,7 @@ const ManterAgendamento: React.FC = () => {
                             {formatCurrency(servicoAgendamento.PrecoMax)}
                           </TableCell>
                           <TableCell align="center">
-                            <IconButton
-                              size="small"
-                              color="error"
-                              onClick={() =>
-                                handleRemoveServico(
-                                  servicoAgendamento.ServicoId
-                                )
-                              }
-                            >
+                            <IconButton size="small" color="error">
                               <RemoveIcon />
                             </IconButton>
                           </TableCell>
@@ -420,11 +404,9 @@ const ManterAgendamento: React.FC = () => {
                         status,
                         servicosAgendamento,
                         cabeleireiroId,
-                        cabeleireiroNome,
                         clienteId,
                         salaoId,
                         agendamentoId,
-                        isEditing: false,
                       },
                     })
                   }
@@ -533,4 +515,4 @@ const ManterAgendamento: React.FC = () => {
   );
 };
 
-export default ManterAgendamento;
+export default ManterAtendimento;

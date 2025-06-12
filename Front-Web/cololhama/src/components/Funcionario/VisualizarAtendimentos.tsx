@@ -16,14 +16,20 @@ import {
   Select,
   FormControl,
   InputLabel,
+  Dialog,
+  DialogTitle,
+  Chip,
+  DialogContent,
+  DialogActions,
 } from "@mui/material";
 import EditIcon from "@mui/icons-material/Edit";
 import { useVisualizarAtendimentos } from "./useVisualizarAtendimento";
 import "../../styles/styles.global.css";
 import theme from "../../styles/theme";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { AuthContext } from "../../contexts/AuthContext";
 import { userTypes } from "../../models/tipo-usuario.enum";
+import { Atendimento } from "../../models/atendimentoModal";
 
 interface AtendimentoExibicao {
   ID: string;
@@ -44,8 +50,10 @@ export const VisualizarAtendimentos: React.FC = () => {
   const [clienteFilter, setClienteFilter] = useState("");
   const [cabelereiroFilter, setCabelereiroFilter] = useState("");
   const [dataFilter, setDataFilter] = useState("");
-
-
+  const [modalAberto, setModalAberto] = useState<boolean>(false);
+  const [atendimentoSelecionado, setAtendimentoSelecionado] = useState<
+    Atendimento | undefined
+  >();
   const [clienteFiltroInput, setClienteFilterInput] = useState("");
   const [cabelereiroFiltroInput, setCabelereiroFilterInput] = useState("");
   const [anoFilter, setAnoFilter] = useState("");
@@ -53,10 +61,13 @@ export const VisualizarAtendimentos: React.FC = () => {
   const [diaFilter, setDiaFilter] = useState("");
   const isCliente = userType === userTypes.Cliente;
   const isCabeleireiro = userType === userTypes.Cabeleireiro;
+  const navigate = useNavigate();
 
   const colunas = [
     ...(isCliente ? [] : [{ id: "nomeCliente", label: "Cliente" }]),
-    ...(isCabeleireiro ? [] : [{ id: "nomeCabeleireiro", label: "Cabeleireiro" }]),
+    ...(isCabeleireiro
+      ? []
+      : [{ id: "nomeCabeleireiro", label: "Cabeleireiro" }]),
     { id: "data", label: "Data" },
     { id: "hora", label: "Hora" },
     { id: "valorTotal", label: "Valor Total" },
@@ -85,6 +96,19 @@ export const VisualizarAtendimentos: React.FC = () => {
     setPage(newPage);
   };
 
+  const handleFecharModal = () => {
+    setAtendimentoSelecionado(undefined);
+    setModalAberto(false);
+  };
+  const formatarDataHora = (data: Date): string => {
+    return new Date(data).toLocaleString("pt-BR", {
+      day: "2-digit",
+      month: "2-digit",
+      year: "numeric",
+      hour: "2-digit",
+      minute: "2-digit",
+    });
+  };
   const handleChangeRowsPerPage = (
     event: React.ChangeEvent<HTMLInputElement>
   ) => {
@@ -96,7 +120,9 @@ export const VisualizarAtendimentos: React.FC = () => {
     setClienteFilterInput(e.target.value);
   };
 
-  const handleCabelereiroFilterInput = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleCabelereiroFilterInput = (
+    e: React.ChangeEvent<HTMLInputElement>
+  ) => {
     setCabelereiroFilterInput(e.target.value);
   };
   const construirFiltroData = () => {
@@ -104,9 +130,9 @@ export const VisualizarAtendimentos: React.FC = () => {
     if (anoFilter) {
       filtroData = anoFilter;
       if (mesFilter) {
-        filtroData += `-${String(mesFilter).padStart(2, '0')}`;
+        filtroData += `-${String(mesFilter).padStart(2, "0")}`;
         if (diaFilter) {
-          filtroData += `-${String(diaFilter).padStart(2, '0')}`;
+          filtroData += `-${String(diaFilter).padStart(2, "0")}`;
         }
       }
     }
@@ -227,7 +253,11 @@ export const VisualizarAtendimentos: React.FC = () => {
               minWidth: { xs: "100%", sm: "auto" },
             }}
           >
-            <FormControl fullWidth size="small" sx={{ minWidth: { xs: "30%", sm: 120 } }}>
+            <FormControl
+              fullWidth
+              size="small"
+              sx={{ minWidth: { xs: "30%", sm: 120 } }}
+            >
               <InputLabel>Ano</InputLabel>
               <Select
                 value={anoFilter}
@@ -242,7 +272,11 @@ export const VisualizarAtendimentos: React.FC = () => {
                 ))}
               </Select>
             </FormControl>
-            <FormControl fullWidth size="small" sx={{ minWidth: { xs: "30%", sm: 120 } }}>
+            <FormControl
+              fullWidth
+              size="small"
+              sx={{ minWidth: { xs: "30%", sm: 120 } }}
+            >
               <InputLabel>Mês</InputLabel>
               <Select
                 value={mesFilter}
@@ -258,7 +292,11 @@ export const VisualizarAtendimentos: React.FC = () => {
                 ))}
               </Select>
             </FormControl>
-            <FormControl fullWidth size="small" sx={{ minWidth: { xs: "30%", sm: 100 } }}>
+            <FormControl
+              fullWidth
+              size="small"
+              sx={{ minWidth: { xs: "30%", sm: 100 } }}
+            >
               <InputLabel>Dia</InputLabel>
               <Select
                 value={diaFilter}
@@ -275,8 +313,19 @@ export const VisualizarAtendimentos: React.FC = () => {
               </Select>
             </FormControl>
           </Box>
-          <Box sx={{ display: "flex", gap: 2, width: { xs: "100%", sm: "auto" }, mt: { xs: 2, sm: 0 } }}>
-            <Button variant="contained" onClick={aplicarFiltros} fullWidth={true}>
+          <Box
+            sx={{
+              display: "flex",
+              gap: 2,
+              width: { xs: "100%", sm: "auto" },
+              mt: { xs: 2, sm: 0 },
+            }}
+          >
+            <Button
+              variant="contained"
+              onClick={aplicarFiltros}
+              fullWidth={true}
+            >
               Buscar
             </Button>
             <Button variant="outlined" onClick={limparFiltros} fullWidth={true}>
@@ -341,6 +390,63 @@ export const VisualizarAtendimentos: React.FC = () => {
           }
         />
       </Paper>
+      <Dialog
+        open={modalAberto}
+        onClose={handleFecharModal}
+        maxWidth="sm"
+        fullWidth
+      >
+        {atendimentoSelecionado && (
+          <>
+            <DialogTitle>Detalhes do Atendimento</DialogTitle>
+            <DialogContent dividers>
+              <Box sx={{ mt: 2 }}>
+                <Box sx={{ xs: 12 }}>
+                  <Typography variant="subtitle1" fontWeight="bold">
+                    Data e Hora
+                  </Typography>
+                  <Typography variant="body1">
+                    {formatarDataHora(atendimentoSelecionado.Data)}
+                  </Typography>
+                </Box>
+
+                <Box sx={{ xs: 12 }}>
+                  <Typography variant="subtitle1" fontWeight="bold">
+                    Cliente
+                  </Typography>
+                  <Typography variant="body1">
+                    {atendimentoSelecionado.Agendamentos?.Cliente?.Nome ||
+                      `ID: ${atendimentoSelecionado.Agendamentos?.ClienteID}`}
+                  </Typography>
+                </Box>
+                <Box sx={{ xs: 12, sm: 6 }}>
+                  <Typography variant="subtitle1" fontWeight="bold">
+                    Profissional
+                  </Typography>
+                  <Typography variant="body1">
+                    {atendimentoSelecionado.Agendamentos?.Cabeleireiro?.Nome ||
+                      `ID: ${atendimentoSelecionado.Agendamentos?.CabeleireiroID}`}
+                  </Typography>
+                </Box>
+              </Box>
+            </DialogContent>
+            <DialogActions>
+              <Button onClick={handleFecharModal} color="primary">
+                Fechar
+              </Button>
+              <Button
+                variant="contained"
+                color="primary"
+                onClick={() =>
+                  navigate(`/atendimento/${atendimentoSelecionado.ID}`)
+                }
+              >
+                Ir para página do atendimento
+              </Button>
+            </DialogActions>
+          </>
+        )}
+      </Dialog>
     </Box>
   );
 };

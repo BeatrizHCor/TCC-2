@@ -1,5 +1,5 @@
 import "../../styles/styles.global.css";
-import React from "react";
+import React, { useContext } from "react";
 import {
   Container,
   Paper,
@@ -15,9 +15,10 @@ import {
   Link as MuiLink,
 } from "@mui/material";
 import { Visibility, VisibilityOff } from "@mui/icons-material";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { useClienteCadastro } from "./useCadastroCliente";
 import theme from "../../styles/theme";
+import { AuthContext } from "../../contexts/AuthContext";
 
 interface ClienteCadastroProps {}
 
@@ -39,9 +40,21 @@ export const ClienteCadastro: React.FC<ClienteCadastroProps> = () => {
 
   const [showPassword, setShowPassword] = React.useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = React.useState(false);
-
+  const { checkLocalStorage } = useContext(AuthContext);
+  const navigate = useNavigate();
   const handleClickShowPassword = () => {
     setShowPassword(!showPassword);
+  };
+
+  const handleCadastroandLogin = (e: React.FormEvent) => {
+    handleSubmit(e)
+      .then((e) => {
+        checkLocalStorage();
+        return navigate("/");
+      })
+      .catch((er) => {
+        return;
+      });
   };
 
   const handleClickShowConfirmPassword = () => {
@@ -97,7 +110,7 @@ export const ClienteCadastro: React.FC<ClienteCadastroProps> = () => {
 
             <Box
               component="form"
-              onSubmit={handleSubmit}
+              onSubmit={handleCadastroandLogin}
               noValidate
               sx={{ mt: 1 }}
             >

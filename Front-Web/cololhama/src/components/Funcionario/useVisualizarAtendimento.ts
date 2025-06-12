@@ -39,15 +39,19 @@ export const useVisualizarAtendimentos = (
   const [error, setError] = useState<string | null>(null);
   const [forbidden, setForbidden] = useState<boolean>(false);
   const navigate = useNavigate();
-  
+
   useEffect(() => {
     const buscarAtendimentos = async () => {
       setIsLoading(true);
       setError(null);
 
       try {
-        let response; console.log("userType", userType);
-        if (userType === userTypes.AdmSalao || userType === userTypes.AdmSistema || userType === userTypes.Funcionario) {
+        let response;
+        if (
+          userType === userTypes.AdmSalao ||
+          userType === userTypes.AdmSistema ||
+          userType === userTypes.Funcionario
+        ) {
           response = await AtendimentoService.getAtendimentosPageFuncionario(
             page,
             limit,
@@ -75,22 +79,25 @@ export const useVisualizarAtendimentos = (
             salaoId
           );
         }
-        const listaAtendimentos: AtendimentoExibicao[] = (response.data || []).map(
-          (item: any) => ({
-            ID: item.ID ?? "",
-            NomeCliente: item.Agendamentos[0]?.Cliente.Nome ?? "",
-            NomeCabeleireiro: item.Agendamentos[0]?.Cabeleireiro.Nome ?? "",
-            Data: item.Data ?? "",
-            Hora: item.Data
-                  ? new Date(item.Data).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
-                  : "",
-            ValorTotal: item.ValorTotal ?? 0,
-            QuantidadeServicos: item.ServicoAtendimento?.length ?? 0,
-          })
-        );
+        console.log(response);
+        const listaAtendimentos: AtendimentoExibicao[] = (
+          response.data || []
+        ).map((item: any) => ({
+          ID: item.ID ?? "",
+          NomeCliente: item.Agendamentos[0]?.Cliente.Nome ?? "",
+          NomeCabeleireiro: item.Agendamentos[0]?.Cabeleireiro.Nome ?? "",
+          Data: item.Data ?? "",
+          Hora: item.Data
+            ? new Date(item.Data).toLocaleTimeString([], {
+                hour: "2-digit",
+                minute: "2-digit",
+              })
+            : "",
+          ValorTotal: item.ValorTotal ?? 0,
+          QuantidadeServicos: item.ServicoAtendimento?.length ?? 0,
+        }));
         setAtendimentos(listaAtendimentos);
         setTotalAtendimentos(response.total);
-        
       } catch (err: any) {
         if (err?.response?.status === 403) {
           setForbidden(true);
@@ -106,7 +113,16 @@ export const useVisualizarAtendimentos = (
     };
 
     buscarAtendimentos();
-  }, [page, limit, clienteFilter, cabelereiroFilter, dataFilter, salaoId, userType, userId]);
+  }, [
+    page,
+    limit,
+    clienteFilter,
+    cabelereiroFilter,
+    dataFilter,
+    salaoId,
+    userType,
+    userId,
+  ]);
 
   const handleEditarAtendimento = (atendimentoId: string) => {
     navigate(`/atendimento/editar/${atendimentoId}`);

@@ -9,6 +9,9 @@ import { ServicoAgendamento } from "../../models/servicoAgendamentoModel";
 import { Cabeleireiro } from "../../models/cabelereiroModel";
 import axios from "axios";
 import { userTypes } from "../../models/tipo-usuario.enum";
+import AtendimentoService from "../../services/AtendimentoService";
+import { AtendimentoAuxiliar } from "../../models/atendimentoAuxiliarModel";
+import { ServicoAtendimento } from "../../models/servicoAtendimentoModel";
 
 interface ValidationErrors {
   data?: string;
@@ -17,9 +20,16 @@ interface ValidationErrors {
   cabeleireiroId?: string;
   servicos?: string;
 }
+const formatCurrency = (value: number) => {
+  return new Intl.NumberFormat("pt-BR", {
+    style: "currency",
+    currency: "BRL",
+  }).format(value);
+};
 
-export const useManterAgendamento = (
+export const useManterAtendimento = (
   userType: userTypes,
+  servicosAgendamento: ServicoAgendamento[],
   agendamentoId?: string
 ) => {
   const [data, setData] = useState("");
@@ -29,9 +39,7 @@ export const useManterAgendamento = (
   const [clienteId, setClienteId] = useState("");
   const [cabeleireiroId, setCabeleireiroId] = useState("");
   const [cabeleireiroNome, setCabeleireiroNome] = useState("");
-  const [servicosAgendamento, setServicosAgendamento] = useState<
-    ServicoAgendamento[]
-  >([]);
+
   const [servicosDisponiveis, setServicosDisponiveis] = useState<Servico[]>([]);
   const [cabeleireirosDisponiveis, setCabeleireirosDisponiveis] = useState<
     Cabeleireiro[]
@@ -45,9 +53,12 @@ export const useManterAgendamento = (
     {}
   );
   const [isEditing, setIsEditing] = useState(false);
-
+  const [precoTotal, setPrecoTotal] = useState(0);
   const navigate = useNavigate();
-
+  const [auxiliares, setAuxiliares] = useState<AtendimentoAuxiliar[]>([]);
+  const [servicoAtendimento, setServicoAtendimento] = useState<
+    ServicoAtendimento[]
+  >([]);
   const canSaveEdit = (): boolean => {
     if (!isEditing || !data) return true;
 
@@ -58,6 +69,24 @@ export const useManterAgendamento = (
 
     return agendamentoDate > threeDaysFromNow;
   };
+  useEffect(() => {
+    if (!isEditing) {
+      let v = servicosAgendamento.reduce(
+        (sum: number, s: ServicoAgendamento) => sum + s.PrecoMin,
+        0
+      );
+      let serv = servicosAgendamento.map((a) => {
+        return {
+          PrecoItem: a.PrecoMin,
+          ServicoId: a.ServicoId,
+        } as ServicoAtendimento;
+      });
+      setPrecoTotal(v);
+      setServicoAtendimento(serv);
+    } else {
+      return;
+    }
+  });
 
   useEffect(() => {
     const loadInitialData = async () => {
@@ -82,77 +111,6 @@ export const useManterAgendamento = (
 
     loadInitialData();
   }, [salaoId]);
-
-  useEffect(() => {
-    const fetchAgendamento = async () => {
-      if (!agendamentoId) {
-        setIsEditing(false);
-        return;
-      }
-
-      setIsEditing(true);
-      setIsLoading(true);
-
-      try {
-        console.log("user: ", userType);
-        let agendamento;
-        switch (userType) {
-          case userTypes.Funcionario:
-          case userTypes.AdmSalao:
-          case userTypes.AdmSistema:
-            agendamento =
-              await AgendamentoService.getFuncionarioAgendamentoById(
-                agendamentoId
-              );
-            break;
-          case userTypes.Cabeleireiro:
-            agendamento =
-              await AgendamentoService.getCabeleireiroAgendamentoById(
-                agendamentoId
-              );
-            break;
-          case userTypes.Cliente:
-            agendamento = await AgendamentoService.getClienteAgendamentoById(
-              agendamentoId
-            );
-            break;
-          default:
-            throw new Error("Tipo de usuário inválido");
-            break;
-        }
-        const dataFormatted = new Date(agendamento.Data)
-          .toISOString()
-          .slice(0, 16);
-        setData(dataFormatted);
-        setStatus(agendamento.Status);
-        setClienteId(agendamento.ClienteID);
-        setCabeleireiroId(agendamento.CabeleireiroID);
-        setCabeleireiroNome(agendamento.Cabeleireiro?.Nome || "");
-        setSalaoId(agendamento.SalaoId);
-
-        if (agendamento.ServicoAgendamento) {
-          setServicosAgendamento(agendamento.ServicoAgendamento);
-        }
-      } catch (error: unknown) {
-        console.error("Erro ao salvar agendamento:", error);
-        if (axios.isAxiosError(error)) {
-          if (error.response?.status === 403) {
-            setForbidden(true);
-          }
-        } else {
-          console.error("Erro desconhecido:", error);
-
-          navigate("/agendamentos", { replace: true });
-        }
-      } finally {
-        setIsLoading(false);
-      }
-    };
-
-    if (agendamentoId) {
-      fetchAgendamento();
-    }
-  }, [agendamentoId, navigate]);
 
   const validateForm = (): boolean => {
     const errors: ValidationErrors = {};
@@ -214,22 +172,15 @@ export const useManterAgendamento = (
 
     try {
       if (isEditing && agendamentoId) {
-        await AgendamentoService.updateAgendamento(
-          agendamentoId,
-          new Date(data).toISOString(),
-          status,
-          clienteId,
-          cabeleireiroId,
-          salaoId,
-          servicosIds
-        );
       } else {
-        await AgendamentoService.createAgendamento(
-          new Date(data).toISOString(),
-          clienteId,
-          cabeleireiroId,
+        await AtendimentoService.createAtendimento(
+          new Date(data),
+          precoTotal,
+          false,
           salaoId,
-          servicosIds
+          servicoAtendimento,
+          auxiliares,
+          agendamentoId!
         );
       }
       navigate(-1);
@@ -281,7 +232,6 @@ export const useManterAgendamento = (
     cabeleireiroNome,
     setCabeleireiroNome,
     servicosAgendamento,
-    setServicosAgendamento,
     servicosDisponiveis,
     cabeleireirosDisponiveis,
     salaoId,
@@ -291,8 +241,12 @@ export const useManterAgendamento = (
     handleSubmit,
     handleDelete,
     forbidden,
+    precoTotal,
+    setPrecoTotal,
+    servicoAtendimento,
+    setServicoAtendimento,
     canSaveEdit: canSaveEdit(),
   };
 };
 
-export default useManterAgendamento;
+export default useManterAtendimento;

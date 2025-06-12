@@ -8,6 +8,7 @@ import RoutesCliente from "./routes/RoutesCliente";
 import RoutesFuncionario from "./routes/RoutesFuncionario";
 import RoutesCabeleireiro from "./routes/RoutesCabeleireiro";
 import RoutesAgendamento from "./routes/RoutesAgendamento";
+import RoutesAtendimento from "./routes/RoutesAtendimento";
 
 const app = express();
 const port = process.env.PORT;
@@ -23,6 +24,7 @@ app.use(cors());
 
 app.use(route);
 app.use(RoutesCabeleireiro);
+app.use(RoutesAtendimento);
 app.use(RoutesLogin);
 app.use(RoutesCliente);
 app.use(RoutesFuncionario);

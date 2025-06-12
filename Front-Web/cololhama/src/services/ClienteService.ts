@@ -119,7 +119,7 @@ export const ClienteService = {
     salaoId: string
   ): Promise<boolean> {
     try {
-      const path = `/cliente/cpf/${cpf}/${salaoId}`;
+      const path = `/cliente/checkcpf/${cpf}/${salaoId}`;
       console.log(`Verificando cliente por CPF no caminho: ${path}`);
       const response = await api.get(path);
       if (response.status === 204) {
@@ -127,7 +127,7 @@ export const ClienteService = {
         return false;
       }
       console.log("Resposta do servidor:", response.data);
-      return !!response.data;
+      return response.data;
     } catch (error) {
       if (axios.isAxiosError(error) && error.response?.status === 404) {
         console.log("Cliente não encontrado, retornando false.");

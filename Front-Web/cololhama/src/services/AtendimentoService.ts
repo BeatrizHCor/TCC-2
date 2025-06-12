@@ -1,9 +1,11 @@
 import axios from "axios";
 import { Atendimento } from "../models/atendimentoModal";
+import { ServicoAtendimento } from "../models/servicoAtendimentoModel";
+import { AtendimentoAuxiliar } from "../models/atendimentoAuxiliarModel";
 
 const token = localStorage.getItem("usuario");
 const api = axios.create({
-  baseURL: import.meta.env.FUNC_URL || "http://localhost:3002",
+  baseURL: import.meta.env.VITE_GATEWAY_URL || "http://localhost:3002",
   headers: {
     "Content-Type": "application/json",
   },
@@ -17,16 +19,30 @@ api.interceptors.request.use((config) => {
 });
 
 interface AtendimentoPageResponse {
-    data: Atendimento[];
-    total: number;
-    page: number;
-    limit: number;
-    }
-  class AtendimentoService {
-  static getAtendimentosPageCabeleireiro(page: number, limit: number, clienteFilter: string, dataFilter: string, userId: string, salaoId: string): any {
+  data: Atendimento[];
+  total: number;
+  page: number;
+  limit: number;
+}
+class AtendimentoService {
+  static getAtendimentosPageCabeleireiro(
+    page: number,
+    limit: number,
+    clienteFilter: string,
+    dataFilter: string,
+    userId: string,
+    salaoId: string
+  ): any {
     throw new Error("Method not implemented.");
   }
-  static getAtendimentosPageCliente(page: number, limit: number, cabelereiroFilter: string, dataFilter: string, userId: string, salaoId: string): any {
+  static getAtendimentosPageCliente(
+    page: number,
+    limit: number,
+    cabelereiroFilter: string,
+    dataFilter: string,
+    userId: string,
+    salaoId: string
+  ): any {
     throw new Error("Method not implemented.");
   }
   static async getAtendimentosPageFuncionario(
@@ -49,15 +65,43 @@ interface AtendimentoPageResponse {
           data: dataFilter,
         },
       });
-    if (response.status === 403) {
+      if (response.status === 403) {
         return false;
-    }
+      }
       return response.data;
     } catch (error) {
       console.error("Erro ao buscar atendimentos:", error);
       return false;
     }
   }
+  static createAtendimento = async (
+    Data: Date,
+    PrecoTotal: number,
+    Auxiliar: boolean,
+    SalaoId: string,
+    servicosAtendimento: ServicoAtendimento[] = [],
+    auxiliares: AtendimentoAuxiliar[] = [],
+    AgendamentoID: string
+  ) => {
+    try {
+      const response = await api.post(`/atendimento`, {
+        Data,
+        PrecoTotal,
+        Auxiliar,
+        SalaoId,
+        servicosAtendimento,
+        auxiliares,
+        AgendamentoID,
+      });
+      if (response.status === 403) {
+        return false;
+      }
+      return response.data;
+    } catch (error) {
+      console.error("Erro ao criar atendimentos:", error);
+      return false;
+    }
+  };
 }
 
 export default AtendimentoService;

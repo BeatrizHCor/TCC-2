@@ -22,6 +22,7 @@ import VisualizarAgendamentoPage from "./pages/Funcionario/VisulaizarAgendamento
 import { AuthContextProvider } from "./contexts/AuthContext";
 import VisualizarAtendimentoPage from "./pages/Funcionario/VisualizarAtendimento";
 import ManterAgendamentoPage from "./pages/Funcionario/ManterAgendamentoPage";
+import ManterAtendimento from "./components/Funcionario/ManterAtendimento";
 
 const App: React.FC = () => {
   return (
@@ -45,7 +46,10 @@ const App: React.FC = () => {
             element={<ManterServicoPage />}
           />
 
-          <Route path="/portfolio/:cabeleireiroId" element={<PortfolioPage />} />
+          <Route
+            path="/portfolio/:cabeleireiroId"
+            element={<PortfolioPage />}
+          />
           <Route path="/portfolio" element={<PortfolioCabeleireiro />} />
           <Route
             path="/cabeleireiros"
@@ -68,9 +72,16 @@ const App: React.FC = () => {
           />
 
           <Route path="/agendamentos" element={<VisualizarAgendamentoPage />} />
-          <Route path="/agendamento/:agendamentoId" element={<ManterAgendamentoPage />}/>
+          <Route
+            path="/agendamento/:agendamentoId"
+            element={<ManterAgendamentoPage />}
+          />
+          <Route
+            path="/atendimento/:atendimentoId"
+            element={<ManterAtendimento />}
+          />
 
-          <Route path="/atendimentos" element={<VisualizarAtendimentoPage/>}/>
+          <Route path="/atendimentos" element={<VisualizarAtendimentoPage />} />
         </Routes>
       </ThemeProvider>
     </AuthContextProvider>

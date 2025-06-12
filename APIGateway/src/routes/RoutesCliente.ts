@@ -26,7 +26,7 @@ RoutesCliente.post("/cliente", async (req: Request, res: Response) => {
       Email,
       Password,
       SalaoId,
-      userType,
+      userType
     );
     if (!register) {
       console.log("Register auth failed");
@@ -46,6 +46,21 @@ RoutesCliente.post("/cliente", async (req: Request, res: Response) => {
   }
 });
 
+RoutesCliente.get("/cliente/checkcpf/:cpf/:salaoId", async (req, res) => {
+  const { cpf, salaoId } = req.params;
+  try {
+    const cliente = await getClienteByCPF(cpf, salaoId);
+    if (cliente) {
+      res.status(200).json(true);
+    } else {
+      res.status(204).json(false);
+    }
+  } catch (error) {
+    console.error("Erro ao buscar cliente:", error);
+    res.status(500).json({ message: "Erro interno do servidor" });
+  }
+});
+
 RoutesCliente.get("/cliente/page", async (req: Request, res: Response) => {
   const page = (req.query.page as string) || "0";
   const limit = (req.query.limit as string) || "10";
@@ -57,11 +72,14 @@ RoutesCliente.get("/cliente/page", async (req: Request, res: Response) => {
   try {
     const userInfo = JSON.parse(
       Buffer.from(req.headers.authorization || "", "base64").toString(
-        "utf-8",
-      ) || "{}",
+        "utf-8"
+      ) || "{}"
     );
     if (
-      !userInfo || !userInfo.userID || !userInfo.token || !userInfo.userType
+      !userInfo ||
+      !userInfo.userID ||
+      !userInfo.token ||
+      !userInfo.userType
     ) {
       console.log("Informações de auntenticação ausentes ou inválidas");
       res.status(403).json({ message: "Unauthorized" });
@@ -70,7 +88,7 @@ RoutesCliente.get("/cliente/page", async (req: Request, res: Response) => {
       const auth = await authenticate(
         userInfo.userID,
         userInfo.token,
-        userInfo.userType,
+        userInfo.userType
       );
       if (
         auth &&
@@ -87,7 +105,7 @@ RoutesCliente.get("/cliente/page", async (req: Request, res: Response) => {
           includeRelations,
           termoBusca,
           campoBusca,
-          dataFilter,
+          dataFilter
         );
         if (clientes) {
           res.status(200).json(clientes);
@@ -118,13 +136,13 @@ RoutesCliente.put("/cliente/:id", async (req: Request, res: Response) => {
   try {
     const userInfo = JSON.parse(
       Buffer.from(req.headers.authorization || "", "base64").toString(
-        "utf-8",
-      ) || "{}",
+        "utf-8"
+      ) || "{}"
     );
     const auth = await authenticate(
       userInfo.userID,
       userInfo.token,
-      userInfo.userType,
+      userInfo.userType
     );
     if (auth && id === userInfo.userID) {
       const cliente = await updateCliente(id, clienteData);
@@ -143,11 +161,14 @@ RoutesCliente.get("/cliente/:id", async (req, res) => {
   try {
     const userInfo = JSON.parse(
       Buffer.from(req.headers.authorization || "", "base64").toString(
-        "utf-8",
-      ) || "{}",
+        "utf-8"
+      ) || "{}"
     );
     if (
-      !userInfo || !userInfo.userID || !userInfo.token || !userInfo.userType
+      !userInfo ||
+      !userInfo.userID ||
+      !userInfo.token ||
+      !userInfo.userType
     ) {
       console.log("Informações de auntenticação ausentes ou inválidas");
       res.status(403).json({ message: "Unauthorized" });
@@ -155,7 +176,7 @@ RoutesCliente.get("/cliente/:id", async (req, res) => {
       const auth = await authenticate(
         userInfo.userID,
         userInfo.token,
-        userInfo.userType,
+        userInfo.userType
       );
       if (auth) {
         const cliente = await getClienteById(id);
@@ -181,11 +202,14 @@ RoutesCliente.get("/cliente/cpf/:cpf/:salaoId", async (req, res) => {
   try {
     const userInfo = JSON.parse(
       Buffer.from(req.headers.authorization || "", "base64").toString(
-        "utf-8",
-      ) || "{}",
+        "utf-8"
+      ) || "{}"
     );
     if (
-      !userInfo || !userInfo.userID || !userInfo.token || !userInfo.userType
+      !userInfo ||
+      !userInfo.userID ||
+      !userInfo.token ||
+      !userInfo.userType
     ) {
       console.log("Informações de auntenticação ausentes ou inválidas");
       res.status(403).json({ message: "Unauthorized" });
@@ -193,7 +217,7 @@ RoutesCliente.get("/cliente/cpf/:cpf/:salaoId", async (req, res) => {
       const auth = await authenticate(
         userInfo.userID,
         userInfo.token,
-        userInfo.userType,
+        userInfo.userType
       );
       if (auth) {
         const cliente = await getClienteByCPF(cpf, salaoId);
@@ -219,11 +243,14 @@ RoutesCliente.delete("/cliente/:id", async (req, res) => {
   try {
     const userInfo = JSON.parse(
       Buffer.from(req.headers.authorization || "", "base64").toString(
-        "utf-8",
-      ) || "{}",
+        "utf-8"
+      ) || "{}"
     );
     if (
-      !userInfo || !userInfo.userID || !userInfo.token || !userInfo.userType
+      !userInfo ||
+      !userInfo.userID ||
+      !userInfo.token ||
+      !userInfo.userType
     ) {
       res.status(403).json({ message: "Não autorizado" });
     } else {
@@ -231,14 +258,11 @@ RoutesCliente.delete("/cliente/:id", async (req, res) => {
       const auth = await authenticate(
         userInfo.userID,
         userInfo.token,
-        userInfo.userType,
+        userInfo.userType
       );
       if (
         auth &&
-        [
-          userTypes.ADM_SALAO,
-          userTypes.ADM_SISTEMA,
-        ].includes(userType)
+        [userTypes.ADM_SALAO, userTypes.ADM_SISTEMA].includes(userType)
       ) {
         const cliente = await deleteCliente(id);
         if (cliente) {

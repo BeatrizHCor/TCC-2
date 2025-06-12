@@ -2,6 +2,7 @@ import dotenv from "dotenv";
 import express, { NextFunction, Request, Response, Router } from "express";
 import cabeleireiroRoutes from "./routes/CabeleireiroRoutes";
 import agendamentoRoutes from "./routes/CabeleireiroAgendamentoRoutes";
+import atendimentoRoutes from "./routes/CabeleireiroAtendimentoRoutes";
 import cors from "cors";
 
 dotenv.config();
@@ -20,7 +21,7 @@ route.get("/", (_req: Request, res: Response) => {
 app.use(route);
 app.use(cabeleireiroRoutes);
 app.use(agendamentoRoutes);
-
+app.use(atendimentoRoutes);
 
 app.listen(PORT, () => {
   console.log(`Servidor rodando na porta ${PORT}`);
