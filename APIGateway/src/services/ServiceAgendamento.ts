@@ -1,10 +1,9 @@
 import { Agendamentos } from "../models/agendamentoModel";
 import "dotenv/config";
-import { handleApiResponse } from "../utils.ts/HandlerDeRespostaDoBackend"
+import { handleApiResponse } from "../utils.ts/HandlerDeRespostaDoBackend";
 const FuncionarioURL = process.env.FUNC_URL || "http://localhost:3002";
 const CabeleireiroURL = process.env.CABELEREIRO_URL || "http://localhost:3005";
 const ClienteURL = process.env.CUSTOMER_URL || "http://localhost:3001";
-
 
 //-----Funcionario
 export const FuncionarioPostAgendamento = async (
@@ -110,7 +109,7 @@ export const FuncionarioDeleteAgendamento = async (id: string) => {
             method: "GET",
         },
     );
-        if (response.status === 204) {
+    if (response.status === 204) {
         return true;
     }
     return handleApiResponse<Agendamentos>(
@@ -342,9 +341,12 @@ export const ClienteDeleteAgendamento = async (id: string) => {
 export const getHorariosOcupadosFuturos = async (
     salaoId: string,
     cabeleireiroId: string,
-    data: string
+    data: string,
 ) => {
-    const url = `${ClienteURL}/agendamento/horarios/${salaoId}/${cabeleireiroId}?data=${encodeURIComponent(data)}`;
+    const url =
+        `${ClienteURL}/agendamento/horarios/${salaoId}/${cabeleireiroId}?data=${
+            encodeURIComponent(data)
+        }`;
     let response = await fetch(url, {
         method: "GET",
         headers: {
@@ -354,5 +356,5 @@ export const getHorariosOcupadosFuturos = async (
     return handleApiResponse<Date[]>(
         response,
         "busacar horários ocupados",
-    );    
+    );
 };

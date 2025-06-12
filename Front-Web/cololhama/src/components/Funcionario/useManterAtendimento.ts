@@ -205,7 +205,19 @@ export const useManterAtendimento = (
     setIsLoading(true);
 
     try {
-      await AgendamentoService.deleteAgendamento(agendamentoId);
+          switch (userType) {
+      case userTypes.Funcionario:
+        await AgendamentoService.deleteFuncionarioAgendamento(agendamentoId);
+        break;
+      case userTypes.Cabeleireiro:
+        await AgendamentoService.deleteCabeleireiroAgendamento(agendamentoId);
+        break;
+      case userTypes.Cliente:
+        await AgendamentoService.deleteClienteAgendamento(agendamentoId);
+        break;
+      default:
+        throw new Error("Tipo de usuário não suportado para exclusão");
+    }
       navigate(-1);
     } catch (error: unknown) {
       console.error("Erro ao excluir agendamento:", error);

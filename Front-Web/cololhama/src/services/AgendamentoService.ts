@@ -24,6 +24,7 @@ interface AgendamentoPaginadoResponse {
 }
 
 class AgendamentoService {
+
   static async FuncionariogetAgendamentosPaginados(
     page: number = 1,
     limit: number = 10,
@@ -116,13 +117,20 @@ class AgendamentoService {
     SalaoId: string,
     ServicoId: string[] = [],
   ): Promise<Agendamentos> {
-    try {
+    try { 
+      console.log("Parâmetros recebidos em createFuncionarioAgendamento:", {
+      Data,
+      ClienteID,
+      CabeleireiroID,
+      SalaoId,
+      ServicoId,
+      });
       const response = await api.post(`/funcionario/agendamento`, {
-        Data,
-        ClienteID,
-        CabeleireiroID,
-        SalaoId,
-        ServicoId,
+      Data,
+      ClienteID,
+      CabeleireiroID,
+      SalaoId,
+      ServicoId,
       });
       return response.data;
     } catch (error) {
@@ -250,9 +258,12 @@ class AgendamentoService {
   }
   static async getFuncionarioAgendamentoById(
     id: string,
+    includeRelations: boolean,
   ): Promise<Agendamentos> {
     try {
-      const response = await api.get(`/funcionario/agendamento/${id}`);
+      const response = await api.get(`/funcionario/agendamento/${id}`, {
+        params: { includeRelations }
+      });
       return response.data;
     } catch (error) {
       console.error("Erro ao buscar agendamento por ID:", error);
@@ -261,25 +272,35 @@ class AgendamentoService {
   }
   static async getCabeleireiroAgendamentoById(
     id: string,
+    includeRelations: boolean,
   ): Promise<Agendamentos> {
     try {
-      const response = await api.get(`/cabeleireiro/agendamento/${id}`);
+      const response = await api.get(`/cabeleireiro/agendamento/${id}`, {
+        params: { includeRelations }
+      });
       return response.data;
     } catch (error) {
       console.error("Erro ao buscar agendamento por ID:", error);
       throw error;
     }
   }
-  static async getClienteAgendamentoById(id: string): Promise<Agendamentos> {
+  static async getClienteAgendamentoById(
+    id: string,
+    includeRelations: boolean,
+  ): Promise<Agendamentos> {
     try {
-      const response = await api.get(`/cliente/agendamento/${id}`);
+      const response = await api.get(`/cliente/agendamento/${id}`, {
+        params: { includeRelations }
+      });
       return response.data;
     } catch (error) {
       console.error("Erro ao buscar agendamento por ID:", error);
       throw error;
     }
   }
-  static async deleteFuncionarioAgendamento(id: string): Promise<boolean> {
+  static async deleteFuncionarioAgendamento(
+    id: string,
+  ): Promise<boolean> {
     try {
       const response = await api.delete(`/funcionario/agendamento/${id}`);
       return response.status === 204;
@@ -320,9 +341,9 @@ class AgendamentoService {
       );
       if (response.status === 200) {
         console.error(
-        "buscar horários ocupados futuros: ",
-        response.data,
-      );
+          "buscar horários ocupados futuros: ",
+          response.data,
+        );
         return response.data;
       }
       console.error(
