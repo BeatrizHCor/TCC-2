@@ -11,6 +11,7 @@ import {
   Button,
   CircularProgress,
   Fade,
+  useMediaQuery,
 } from "@mui/material";
 import CheckCircleIcon from "@mui/icons-material/CheckCircle";
 import { Error } from "@mui/icons-material";
@@ -26,6 +27,7 @@ const salaoId = import.meta.env.SALAO_ID || "1";
 
 export const PerfilCliente: React.FC<PerfilClienteProps> = () => {
   const { userId, checkLocalStorage } = useContext(AuthContext);
+  const isMobile = useMediaQuery(theme.breakpoints.down("md"));
   const {
     perfil,
     cpfFormatado,
@@ -66,31 +68,47 @@ export const PerfilCliente: React.FC<PerfilClienteProps> = () => {
 
   return (
     <AuthGuard allowed={[userTypes.Cliente, userTypes.AdmSistema]}>
-      <Container maxWidth="lg">
+      <Container maxWidth="lg" sx={{ px: isMobile ? 2 : 3 }}>
         <Box
           display="flex"
           justifyContent="center"
           alignItems="center"
-          height="90vh"
+          height={isMobile ? "auto" : "90vh"}
+          flexDirection={isMobile ? "column" : "row"}
+          py={isMobile ? 4 : 0}
+          gap={isMobile ? 4 : 0}
         >
-          <Box flex={1} display="flex" justifyContent="center">
-            <img
-              src="/icone.svg"
-              alt="Logo"
-              style={{
-                width: "450px",
-                height: "450px",
-                filter:
-                  "invert(16%) sepia(90%) saturate(400%) hue-rotate(-5deg)",
-              }}
-            />
-          </Box>
 
-          <Box flex={1} display="flex" justifyContent="flex-start">
+          {!isMobile && (
+            <Box flex={1} display="flex" justifyContent="flex-end" pr={4}>
+              <img
+                src="/icone.svg"
+                alt="Logo"
+                style={{
+                  width: "450px",
+                  height: "450px",
+                  filter: "invert(16%) sepia(90%) saturate(400%) hue-rotate(-5deg)",
+                }}
+              />
+            </Box>
+          )}
+
+          <Box
+            flex={1}
+            display="flex"
+            justifyContent={isMobile ? "center" : "flex-start"}
+            width={isMobile ? "100%" : "auto"}
+          >
             <Paper
               elevation={3}
-              sx={{ p: 5, width: 520, position: "relative" }}
+              sx={{ 
+                p: isMobile ? 3 : 5, 
+                width: isMobile ? "100%" : 520, 
+                position: "relative",
+                maxWidth: "100%"
+              }}
             >
+
               {saveSuccess && (
                 <Fade in={saveSuccess}>
                   <Box
@@ -140,7 +158,7 @@ export const PerfilCliente: React.FC<PerfilClienteProps> = () => {
               )}
 
               <Typography
-                variant="h4"
+                variant={isMobile ? "h5" : "h4"}
                 component="h1"
                 gutterBottom
                 sx={{ color: theme.palette.primary.main }}
@@ -175,9 +193,14 @@ export const PerfilCliente: React.FC<PerfilClienteProps> = () => {
                     }}
                   />
 
-                  <Box sx={{ mx: -1 }}>
-                    <Box display="flex" gap={2} alignItems="center">
-                      <Box flex={1}>
+                  <Box sx={{ mx: isMobile ? 0 : -1 }}>
+                    <Box 
+                      display="flex" 
+                      gap={2} 
+                      alignItems="center"
+                      flexDirection={isMobile ? "column" : "row"}
+                    >
+                      <Box flex={1} width={isMobile ? "100%" : "auto"}>
                         <TextField
                           label="CPF"
                           value={cpfFormatado}
@@ -191,7 +214,7 @@ export const PerfilCliente: React.FC<PerfilClienteProps> = () => {
                           }}
                         />
                       </Box>
-                      <Box flex={1}>
+                      <Box flex={1} width={isMobile ? "100%" : "auto"}>
                         <TextField
                           label="Telefone"
                           value={telefoneFormatado || ""}
@@ -226,6 +249,8 @@ export const PerfilCliente: React.FC<PerfilClienteProps> = () => {
                     justifyContent="space-between"
                     alignItems="center"
                     mt={3}
+                    flexDirection={isMobile ? "column-reverse" : "row"}
+                    gap={isMobile ? 2 : 0}
                   >
                     <Button
                       variant="outlined"
@@ -235,6 +260,7 @@ export const PerfilCliente: React.FC<PerfilClienteProps> = () => {
                         borderColor: theme.palette.primary.main,
                         color: theme.palette.primary.main,
                         "&:hover": { bgcolor: "#f8f8f8" },
+                        width: isMobile ? "100%" : "auto",
                       }}
                       disabled={loading}
                     >
@@ -255,6 +281,7 @@ export const PerfilCliente: React.FC<PerfilClienteProps> = () => {
                           bgcolor: theme.palette.primary.main,
                           color: "#fff",
                           "&:hover": { bgcolor: "#600000" },
+                          width: isMobile ? "100%" : "auto",
                         }}
                         disabled={loading || saveSuccess}
                       >
@@ -267,6 +294,20 @@ export const PerfilCliente: React.FC<PerfilClienteProps> = () => {
             </Paper>
           </Box>
         </Box>
+
+        {isMobile && (
+          <Box display="flex" justifyContent="center" mt={4}>
+            <img
+              src="/icone.svg"
+              alt="Logo"
+              style={{
+                width: "250px",
+                height: "250px",
+                filter: "invert(16%) sepia(90%) saturate(400%) hue-rotate(-5deg)",
+              }}
+            />
+          </Box>
+        )}
       </Container>
     </AuthGuard>
   );

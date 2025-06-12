@@ -18,17 +18,13 @@ import {
   TableHead,
   TableRow,
   IconButton,
-  Chip,
-  Select,
-  MenuItem,
-  FormControl,
-  InputLabel,
   List,
   ListItem,
   ListItemText,
   ListItemButton,
   Alert,
   InputAdornment,
+  Tooltip,
 } from "@mui/material";
 import { useNavigate, useParams } from "react-router-dom";
 import { useManterAgendamento } from "./useManterAgendamento";
@@ -38,20 +34,27 @@ import ArrowBackIcon from "@mui/icons-material/ArrowBack";
 import AddIcon from "@mui/icons-material/Add";
 import RemoveIcon from "@mui/icons-material/Remove";
 import PersonIcon from "@mui/icons-material/Person";
+import AccessTimeIcon from "@mui/icons-material/AccessTime";
+import BlockIcon from "@mui/icons-material/Block";
 import "../../styles/styles.global.css";
 import { AuthContext } from "../../contexts/AuthContext";
 import { StatusAgendamento } from "../../models/StatusAgendamento.enum";
 import { Servico } from "../../models/servicoModel";
 import { ServicoAgendamento } from "../../models/servicoAgendamentoModel";
 import { Cabeleireiro } from "../../models/cabelereiroModel";
+import { Cliente } from "../../models/clienteModel";
+import { DateTimePicker } from "@mui/x-date-pickers/DateTimePicker";
+import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
+import { AdapterDateFns } from "@mui/x-date-pickers/AdapterDateFns";
 
 const ManterAgendamento: React.FC = () => {
   const navigate = useNavigate();
   const { agendamentoId } = useParams();
-  const { doLogout, userType } = useContext(AuthContext);
+  const { doLogout, userType, userId } = useContext(AuthContext);
   const [openDeleteDialog, setOpenDeleteDialog] = useState(false);
   const [openServicosModal, setOpenServicosModal] = useState(false);
   const [openCabeleireirosModal, setOpenCabeleireirosModal] = useState(false);
+  const [openClientesModal, setOpenClientesModal] = useState(false);
 
   const {
     data,
@@ -67,6 +70,9 @@ const ManterAgendamento: React.FC = () => {
     servicosAgendamento,
     setServicosAgendamento,
     servicosDisponiveis,
+    clienteNome,
+    setClienteNome,
+    clientesDisponiveis,
     cabeleireirosDisponiveis,
     salaoId,
     isLoading,
@@ -77,7 +83,12 @@ const ManterAgendamento: React.FC = () => {
     forbidden,
 
     canSaveEdit,
-  } = useManterAgendamento(userType!, agendamentoId);
+    horariosOcupados,
+    loadingHorarios,
+    isHorarioOcupado,
+    isTimeSlotOccupied,
+    setCabeleireiroIdWithHorarios,
+  } = useManterAgendamento(userType!, agendamentoId, userId);
 
   const handleOpenDeleteDialog = () => {
     setOpenDeleteDialog(true);
@@ -112,7 +123,7 @@ const ManterAgendamento: React.FC = () => {
   };
 
   const handleSelectCabeleireiro = (cabeleireiro: Cabeleireiro) => {
-    setCabeleireiroId(cabeleireiro.ID!);
+    setCabeleireiroIdWithHorarios(cabeleireiro.ID!);
     setCabeleireiroNome(cabeleireiro.Nome);
     setOpenCabeleireirosModal(false);
   };
@@ -122,6 +133,35 @@ const ManterAgendamento: React.FC = () => {
       style: "currency",
       currency: "BRL",
     }).format(value);
+  };
+
+  const getDataTimeHelperText = () => {
+    if (!cabeleireiroId) {
+      return "Selecione um cabeleireiro primeiro";
+    }
+    if (loadingHorarios) {
+      return "Verificando disponibilidade...";
+    }
+    if (data && isHorarioOcupado(data)) {
+      return "Este horário está ocupado (considera 1h de duração do serviço)";
+    }
+    if (validationErrors.data) {
+      return validationErrors.data;
+    }
+    return "Selecione data e horário para o agendamento";
+  };
+
+  const getDataTimeHelperColor = () => {
+    if (!cabeleireiroId || loadingHorarios) {
+      return "text.secondary";
+    }
+    if (data && isHorarioOcupado(data)) {
+      return "error";
+    }
+    if (validationErrors.data) {
+      return "error";
+    }
+    return "text.secondary";
   };
 
   useEffect(() => {
@@ -138,7 +178,7 @@ const ManterAgendamento: React.FC = () => {
     );
   }
 
-  if (!salaoId) {
+  if (!salaoId || !userType || !userId) {
     return (
       <Box sx={{ p: 3, textAlign: "center" }}>
         <Typography variant="h6" color="error">
@@ -189,50 +229,81 @@ const ManterAgendamento: React.FC = () => {
                   gap: { xs: 2, sm: 3 },
                 }}
               >
-                <Box>
-                  <TextField
-                    fullWidth
-                    required
-                    type="datetime-local"
+                <LocalizationProvider dateAdapter={AdapterDateFns}>
+                  <DateTimePicker
                     label="Data e Hora"
-                    value={data}
-                    onChange={(e) => setData(e.target.value)}
-                    error={Boolean(validationErrors.data)}
-                    helperText={validationErrors.data}
+                    value={data ? new Date(data) : null}
+                    onChange={(newValue) => {
+                      if (newValue) {
+                        const isoString = newValue.toISOString().slice(0, 16);
+                        setData(isoString);
+                      } else {
+                        setData("");
+                      }
+                    }}
+                    disabled={!cabeleireiroId || loadingHorarios}
+                    shouldDisableTime={(timeValue, clockType) => {
+                      if (clockType === "hours" && data) {
+                        const selectedDate = new Date(data.split("T")[0]);
+                        const hour = Math.max(
+                          0,
+                          Math.min(23, Number(timeValue))
+                        );
+                        return isTimeSlotOccupied(selectedDate, hour);
+                      }
+                      return false;
+                    }}
+                    minDateTime={new Date()}
                     slotProps={{
-                      inputLabel: { shrink: true },
+                      textField: {
+                        fullWidth: true,
+                        required: true,
+                        error:
+                          Boolean(validationErrors.data) ||
+                          Boolean(data && isHorarioOcupado(data)),
+                        helperText: getDataTimeHelperText(),
+                      },
                     }}
                   />
-                </Box>
-                <Box>
-                  <FormControl fullWidth required>
-                    <InputLabel>Status</InputLabel>
-                    <Select
-                      value={status}
-                      label="Status"
-                      onChange={(e) =>
-                        setStatus(e.target.value as StatusAgendamento)
-                      }
-                    >
-                      {Object.values(StatusAgendamento).map((statusOption) => (
-                        <MenuItem key={statusOption} value={statusOption}>
-                          {statusOption}
-                        </MenuItem>
-                      ))}
-                    </Select>
-                  </FormControl>
-                </Box>
+                </LocalizationProvider>
 
+                {isEditing && (
+                  <Box>
+                    <TextField
+                      fullWidth
+                      label="Status"
+                      value={status}
+                      slotProps={{
+                        input: { readOnly: true },
+                      }}
+                      variant="outlined"
+                      margin="normal"
+                    />
+                  </Box>
+                )}
                 <Box>
                   <TextField
                     fullWidth
                     required
-                    label="ID do Cliente"
-                    value={clienteId}
-                    onChange={(e) => setClienteId(e.target.value)}
+                    label="Cliente"
+                    value={clienteNome}
+                    onClick={() => {
+                      if (userType !== "Cliente") setOpenClientesModal(true);
+                    }}
                     error={Boolean(validationErrors.clienteId)}
                     helperText={validationErrors.clienteId}
-                    placeholder="ID do cliente"
+                    placeholder={
+                      userType === "Cliente"
+                        ? "Cliente atual (você)"
+                        : "Clique para selecionar um cliente"
+                    }
+                    slotProps={{
+                      input: { readOnly: true },
+                    }}
+                    sx={{
+                      cursor:
+                        userType === "Cliente" ? "not-allowed" : "pointer",
+                    }}
                   />
                 </Box>
 
@@ -242,10 +313,17 @@ const ManterAgendamento: React.FC = () => {
                     required
                     label="Cabeleireiro"
                     value={cabeleireiroNome}
-                    onClick={() => setOpenCabeleireirosModal(true)}
+                    onClick={() => {
+                      if (userType !== "Cabeleireiro")
+                        setOpenCabeleireirosModal(true);
+                    }}
                     error={Boolean(validationErrors.cabeleireiroId)}
                     helperText={validationErrors.cabeleireiroId}
-                    placeholder="Clique para selecionar um cabeleireiro"
+                    placeholder={
+                      userType === "Cabeleireiro"
+                        ? "Cabeleireiro atual (você)"
+                        : "Clique para selecionar um cabeleireiro"
+                    }
                     slotProps={{
                       input: {
                         readOnly: true,
@@ -256,7 +334,10 @@ const ManterAgendamento: React.FC = () => {
                         ),
                       },
                     }}
-                    sx={{ cursor: "pointer" }}
+                    sx={{
+                      cursor:
+                        userType === "Cabeleireiro" ? "not-allowed" : "pointer",
+                    }}
                   />
                 </Box>
 
@@ -264,6 +345,13 @@ const ManterAgendamento: React.FC = () => {
                   <Alert severity="warning">
                     Não é possível salvar alterações em agendamentos com menos
                     de 3 dias da data atual.
+                  </Alert>
+                )}
+
+                {!cabeleireiroId && (
+                  <Alert severity="info">
+                    Selecione um cabeleireiro para poder escolher a data e hora
+                    do agendamento.
                   </Alert>
                 )}
               </Box>
@@ -436,7 +524,45 @@ const ManterAgendamento: React.FC = () => {
           </Box>
         </form>
       </Paper>
-
+      <Dialog
+        open={openClientesModal}
+        onClose={() => setOpenClientesModal(false)}
+        maxWidth="sm"
+        fullWidth
+      >
+        <DialogTitle>Selecionar Cliente</DialogTitle>
+        <DialogContent>
+          <List>
+            {clientesDisponiveis?.map((cliente) => (
+              <ListItem key={cliente.ID} disablePadding>
+                <ListItemButton
+                  onClick={() => {
+                    setClienteId(cliente.ID!);
+                    setClienteNome(cliente.Nome);
+                    setOpenClientesModal(false);
+                  }}
+                >
+                  <ListItemText
+                    primary={cliente.Nome}
+                    secondary={
+                      <Typography
+                        component="span"
+                        variant="body2"
+                        color="text.secondary"
+                      >
+                        {cliente.Email}
+                      </Typography>
+                    }
+                  />
+                </ListItemButton>
+              </ListItem>
+            ))}
+          </List>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={() => setOpenClientesModal(false)}>Fechar</Button>
+        </DialogActions>
+      </Dialog>
       <Dialog open={openDeleteDialog} onClose={handleCloseDeleteDialog}>
         <DialogTitle>Confirmar exclusão</DialogTitle>
         <DialogContent>
@@ -473,15 +599,24 @@ const ManterAgendamento: React.FC = () => {
                     <ListItemText
                       primary={servico.Nome}
                       secondary={
-                        <>
-                          <Typography variant="body2" color="text.secondary">
+                        <span>
+                          <Typography
+                            variant="body2"
+                            color="text.secondary"
+                            component="span"
+                          >
                             {servico.Descricao}
                           </Typography>
-                          <Typography variant="body2" color="primary">
+                          <br />
+                          <Typography
+                            variant="body2"
+                            color="primary"
+                            component="span"
+                          >
                             {formatCurrency(servico.PrecoMin)} -{" "}
                             {formatCurrency(servico.PrecoMax)}
                           </Typography>
-                        </>
+                        </span>
                       }
                     />
                   </ListItemButton>
@@ -511,11 +646,13 @@ const ManterAgendamento: React.FC = () => {
                   <ListItemText
                     primary={cabeleireiro.Nome}
                     secondary={
-                      <Box>
-                        <Typography variant="body2" color="text.secondary">
-                          {cabeleireiro.Email}
-                        </Typography>
-                      </Box>
+                      <Typography
+                        component="span"
+                        variant="body2"
+                        color="text.secondary"
+                      >
+                        {cabeleireiro.Email}
+                      </Typography>
                     }
                   />
                 </ListItemButton>

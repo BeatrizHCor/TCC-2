@@ -23,10 +23,10 @@ const NavBar: React.FC = () => {
   const { userId, userType, checkLocalStorage, doLogout } = useContext(AuthContext);
   const [drawerOpen, setDrawerOpen] = useState(false);
   const navigate = useNavigate();
+  
   useEffect(() => {
     checkLocalStorage();
   }, [userType]);
-
 
   const mainRoutes = [
     { route: "/servicos", label: "Serviços" },
@@ -45,7 +45,8 @@ const NavBar: React.FC = () => {
   const handleLogout = () => {
     doLogout();
     navigate("/");
-  }; 
+  };
+
   const navLinks = [
     ...mainRoutes,
     ...(userType ? userRoutes : []),
@@ -67,26 +68,26 @@ const NavBar: React.FC = () => {
       {!userId ? (
         <List>
           <ListItem disablePadding>
-            <ListItemButton component={Link} to="/cadastro">
-              <ListItemText primary="Cadastre-se" />
+            <ListItemButton component={Link} to="/login">
+              <ListItemText primary="Login" />
             </ListItemButton>
           </ListItem>
           <ListItem disablePadding>
-            <ListItemButton component={Link} to="/login">
-              <ListItemText primary="Login" />
+            <ListItemButton component={Link} to="/cadastro">
+              <ListItemText primary="Cadastre-se" />
             </ListItemButton>
           </ListItem>
         </List>
       ) : (
         <List>
           <ListItem disablePadding>
-            <ListItemButton onClick={handleLogout}>
-              <ListItemText primary="Sair" />
+            <ListItemButton component={Link} to="/perfil">
+              <ListItemText primary="Meu Perfil" />
             </ListItemButton>
           </ListItem>
           <ListItem disablePadding>
-            <ListItemButton component={Link} to="/perfil">
-              <ListItemText primary="Meu Perfil" />
+            <ListItemButton onClick={handleLogout}>
+              <ListItemText primary="Sair" />
             </ListItemButton>
           </ListItem>
         </List>
@@ -150,9 +151,28 @@ const NavBar: React.FC = () => {
           ))}
         </Box>
 
-        <Box sx={{ display: { xs: "none", md: "flex" }, gap: 2 }}>
+        <Box sx={{ display: { xs: "none", md: "flex" }, gap: 2, alignItems: "center" }}>
           {!userId ? (
             <>
+              <Button
+                component={Link}
+                to="/login"
+                sx={{
+                  backgroundColor: theme.palette.primary.main,
+                  color: theme.palette.customColors?.lightGray,
+                  borderRadius: "5px",
+                  padding: "5px 15px",
+                  fontWeight: "bold",
+                  textTransform: "none",
+                  border: `2px solid ${theme.palette.customColors?.goldenBorder}`,
+                  transition: "0.3s ease-in-out",
+                  "&:hover": {
+                    backgroundColor: theme.palette.customColors?.softPink,
+                  },
+                }}
+              >
+                Login
+              </Button>
               <Box sx={{ position: "relative", overflow: "hidden" }}>
                 <Button
                   color="inherit"
@@ -181,9 +201,12 @@ const NavBar: React.FC = () => {
                   Cadastre-se
                 </Button>
               </Box>
+            </>
+          ) : (
+            <>
               <Button
                 component={Link}
-                to="/login"
+                to="/perfil"
                 sx={{
                   backgroundColor: theme.palette.primary.main,
                   color: theme.palette.customColors?.lightGray,
@@ -198,11 +221,8 @@ const NavBar: React.FC = () => {
                   },
                 }}
               >
-                Login
+                Meu Perfil
               </Button>
-            </>
-          ) : (
-            <>
               <Box sx={{ position: "relative", overflow: "hidden" }}>
                 <Button
                   color="inherit"
@@ -228,34 +248,6 @@ const NavBar: React.FC = () => {
                   }}
                 >
                   Sair
-                </Button>
-              </Box>
-              <Box sx={{ position: "relative", overflow: "hidden" }}>
-                <Button
-                  color="inherit"
-                  component={Link}
-                  to="/perfil"
-                  sx={{
-                    textTransform: "none",
-                    color: theme.palette.customColors?.lightGray,
-                    fontFamily: '"The Seasons", serif',
-                    fontSize: "1rem",
-                    transition: "0.3s ease-in-out",
-                    "&::after": {
-                      content: '""',
-                      display: "block",
-                      width: "0%",
-                      height: "2px",
-                      backgroundColor: "#fff",
-                      position: "absolute",
-                      bottom: 0,
-                      left: 0,
-                      transition: "width 0.3s ease-in-out",
-                    },
-                    "&:hover::after": { width: "100%" },
-                  }}
-                >
-                  Meu Perfil
                 </Button>
               </Box>
             </>

@@ -10,26 +10,40 @@ import {
   TablePagination,
   Paper,
   TextField,
-  MenuItem,
-  Select,
+  Button,
+  Typography,
   FormControl,
   InputLabel,
-  Button,
+  Select,
+  MenuItem,
+  SelectChangeEvent,
 } from "@mui/material";
 import { Cliente } from "../../models/clienteModel";
 import { useVisualizarClientes } from "./useVisualizarClientes";
-import "../../styles/styles.global.css";
 import { AuthContext } from "../../contexts/AuthContext";
+import theme from "../../styles/theme";
+
 const salaoId = import.meta.env.VITE_SALAO_ID || "1";
+
 const colunas = [
   { id: "Nome", label: "Nome" },
   { id: "Email", label: "Email" },
   { id: "Telefone", label: "Telefone" },
   { id: "DataCadastro", label: "Data de Cadastro" },
 ];
-const colunasSelecionadas = colunas.filter(col => col.id !== "DataCadastro");
+
+const colunasSelecionadas = colunas.filter((col) => col.id !== "DataCadastro");
+
+const meses = Array.from({ length: 12 }, (_, i) => ({
+  valor: (i + 1).toString(),
+  nome: new Date(0, i)
+    .toLocaleString("pt-BR", { month: "long" })
+    .replace(/^\w/, (c) => c.toUpperCase()),
+}));
+
 export const VisualizarClientes: React.FC = () => {
   const { doLogout } = useContext(AuthContext);
+
   const [page, setPage] = useState(0);
   const [rowsPerPage, setRowsPerPage] = useState(10);
   const [colunaBusca, setColunaBusca] = useState("Nome");
@@ -38,13 +52,20 @@ export const VisualizarClientes: React.FC = () => {
   const [mesFilter, setMesFilter] = useState("");
   const [diaFilter, setDiaFilter] = useState("");
   const [dataFilter, setDataFilter] = useState("");
-  
+  const [termoFiltroInput, setTermoFiltroInput] = useState("");
+
   const { clientes, totalClientes, isLoading, error, forbidden } =
-    useVisualizarClientes(page + 1, rowsPerPage, salaoId, termoBusca, colunaBusca, dataFilter,);
+    useVisualizarClientes(
+      page + 1,
+      rowsPerPage,
+      salaoId,
+      termoBusca,
+      colunaBusca,
+      dataFilter
+    );
+
   useEffect(() => {
-    if (forbidden) {
-      doLogout();
-    }
+    if (forbidden) doLogout();
   }, [forbidden]);
 
   const limparFiltrosData = () => {
@@ -53,103 +74,68 @@ export const VisualizarClientes: React.FC = () => {
     setDiaFilter("");
     setDataFilter("");
   };
+
   const gerarAnos = () => {
     const anoAtual = new Date().getFullYear();
-    const anos = [];
-    for (let i = anoAtual - 5; i <= anoAtual + 2; i++) {
-      anos.push(i);
-    }
-    return anos;
+    return Array.from({ length: 8 }, (_, i) => (anoAtual - 5 + i).toString());
   };
 
-  const meses = [
-    { valor: 1, nome: "Janeiro" },
-    { valor: 2, nome: "Fevereiro" },
-    { valor: 3, nome: "Março" },
-    { valor: 4, nome: "Abril" },
-    { valor: 5, nome: "Maio" },
-    { valor: 6, nome: "Junho" },
-    { valor: 7, nome: "Julho" },
-    { valor: 8, nome: "Agosto" },
-    { valor: 9, nome: "Setembro" },
-    { valor: 10, nome: "Outubro" },
-    { valor: 11, nome: "Novembro" },
-    { valor: 12, nome: "Dezembro" },
-  ];
-
-    const gerarDias = () => {
-    const dias = [];
-    for (let i = 1; i <= 31; i++) {
-      dias.push(i);
-    }
-    return dias;
-  };
+  const gerarDias = () => Array.from({ length: 31 }, (_, i) => (i + 1).toString());
 
   const construirFiltroData = () => {
     let filtroData = "";
     if (anoFilter) {
       filtroData = anoFilter;
       if (mesFilter) {
-        filtroData += `-${String(mesFilter).padStart(2, '0')}`;
+        filtroData += `-${mesFilter.padStart(2, "0")}`;
         if (diaFilter) {
-          filtroData += `-${String(diaFilter).padStart(2, '0')}`;
+          filtroData += `-${diaFilter.padStart(2, "0")}`;
         }
       }
     }
     return filtroData;
   };
-  const handleChangePage = (_: unknown, newPage: number) => {
-    setPage(newPage);
-  };
 
-  const handleChangeRowsPerPage = (
-    event: React.ChangeEvent<HTMLInputElement>
-  ) => {
-    setRowsPerPage(parseInt(event.target.value, 10));
-    setPage(0);
-  };
-
-  const handleColunaBuscaChange = (event: any) => {
-    setColunaBusca(event.target.value);
-    limparFiltrosData();
-  };
-
-  const [termoFiltroInput, setTermoFiltroInput] = useState("");
-  const handleTermoFiltroInput = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setTermoFiltroInput(e.target.value);
-  };
   const aplicarFiltro = () => {
     setDataFilter(construirFiltroData());
-    console.log("datamontada: ", dataFilter);
     setTermoBusca(termoFiltroInput);
     setPage(0);
   };
+
   if (isLoading) return <Box>Carregando...</Box>;
   if (error) return <Box>Erro ao carregar clientes: {error}</Box>;
 
   return (
-    <Box sx={{ width: "100%", p: { xs: 1, sm: 2 } }}>
+    <Box sx={{ width: "100%", px: { xs: 1, sm: 3 }, py: 2 }}>
+      <Typography
+        variant="h5"
+        sx={{ mb: 3, fontWeight: 600, color: theme.palette.primary.main }}
+      >
+        Clientes Cadastrados
+      </Typography>
+
+      {/* Filtros */}
       <Box
         sx={{
           display: "flex",
-          flexDirection: { xs: "column", sm: "row" },
-          mb: 2,
+          flexWrap: "wrap",
           gap: 2,
-          alignItems: { xs: "stretch", sm: "center" },
+          justifyContent: "center",
+          mb: 2,
+          width: "100%",
+          maxWidth: "900px",
+          mx: "auto",
         }}
       >
-        <FormControl
-          variant="outlined"
-          sx={{
-            minWidth: { xs: "100%", sm: 120 },
-            mr: { xs: 0, sm: 1 },
-          }}
-        >
+        <FormControl variant="outlined" size="small" sx={{ minWidth: 140 }}>
           <InputLabel id="coluna-busca-label">Buscar por</InputLabel>
           <Select
             labelId="coluna-busca-label"
             value={colunaBusca}
-            onChange={handleColunaBuscaChange}
+            onChange={(e) => {
+              setColunaBusca(e.target.value);
+              limparFiltrosData();
+            }}
             label="Buscar por"
           >
             {colunasSelecionadas.map((coluna) => (
@@ -159,31 +145,19 @@ export const VisualizarClientes: React.FC = () => {
             ))}
           </Select>
         </FormControl>
+
         <TextField
           variant="outlined"
           label="Buscar"
           value={termoFiltroInput}
-          onChange={handleTermoFiltroInput}
-          sx={{
-            width: { xs: "100%", sm: "auto" },
-            minWidth: { sm: "200px" },
-            maxWidth: { sm: "40%" },
-            flexGrow: 1,
-          }}
+          onChange={(e) => setTermoFiltroInput(e.target.value)}
+          size="small"
+          sx={{ flexGrow: 1, minWidth: 200, maxWidth: 320 }}
         />
-        <FormControl fullWidth size="small"
-        sx={{
-          width: { xs: "100%", sm: "auto" },
-          minWidth: { sm: 100 },
-          maxWidth: { sm: 120 },
-          flex: { xs: "1 1 100%", sm: "0 1 auto" },
-        }}>
+
+        <FormControl size="small" sx={{ minWidth: 100 }}>
           <InputLabel>Ano</InputLabel>
-          <Select
-            value={anoFilter}
-            label="Ano"
-            onChange={(e) => setAnoFilter(e.target.value)}
-          >
+          <Select value={anoFilter} label="Ano" onChange={(e) => setAnoFilter(e.target.value)}>
             <MenuItem value="">Todos</MenuItem>
             {gerarAnos().map((ano) => (
               <MenuItem key={ano} value={ano}>
@@ -192,13 +166,8 @@ export const VisualizarClientes: React.FC = () => {
             ))}
           </Select>
         </FormControl>
-        <FormControl fullWidth size="small" 
-        sx={{
-          width: { xs: "100%", sm: "auto" },
-          minWidth: { sm: 100 },
-          maxWidth: { sm: 120 },
-          flex: { xs: "1 1 100%", sm: "0 1 auto" },
-        }}>
+
+        <FormControl size="small" sx={{ minWidth: 100 }}>
           <InputLabel>Mês</InputLabel>
           <Select
             value={mesFilter}
@@ -214,13 +183,8 @@ export const VisualizarClientes: React.FC = () => {
             ))}
           </Select>
         </FormControl>
-        <FormControl fullWidth size="small"         
-        sx={{
-          width: { xs: "100%", sm: "auto" },
-          minWidth: { sm: 100 },
-          maxWidth: { sm: 120 },
-          flex: { xs: "1 1 100%", sm: "0 1 auto" },
-        }}>
+
+        <FormControl size="small" sx={{ minWidth: 100 }}>
           <InputLabel>Dia</InputLabel>
           <Select
             value={diaFilter}
@@ -236,60 +200,99 @@ export const VisualizarClientes: React.FC = () => {
             ))}
           </Select>
         </FormControl>
+
         <Button
           variant="contained"
           onClick={aplicarFiltro}
-          sx={{
-            width: { xs: "100%", sm: "auto" },
-            mt: { xs: 1, sm: 0 },
-          }}
+          size="medium"
+          sx={{ minWidth: 110, height: 40 }}
         >
           Buscar
         </Button>
       </Box>
 
-      <Paper sx={{ width: "100%", mb: 2, overflowX: "auto" }}>
-        <TableContainer>
-          <Table size="small">
-            <TableHead>
-              <TableRow>
-                {colunas.map((coluna) => (
-                  <TableCell key={coluna.id}>{coluna.label}</TableCell>
-                ))}
-              </TableRow>
-            </TableHead>
-            <TableBody>
-              {clientes.map((cliente: Cliente) => (
-                <TableRow key={cliente.ID}>
-                  <TableCell>{cliente.Nome}</TableCell>
-                  <TableCell>{cliente.Email}</TableCell>
-                  <TableCell>{cliente.Telefone}</TableCell>
-                  <TableCell>
-                    {cliente.DataCadastro
-                      ? new Date(cliente.DataCadastro).toLocaleDateString("pt-BR")
-                      : ""}
-                  </TableCell>
-                </TableRow>
-              ))}
-            </TableBody>
-          </Table>
-        </TableContainer>
-        <TablePagination
-          rowsPerPageOptions={[5, 10, 25]}
-          component="div"
-          count={totalClientes}
-          rowsPerPage={rowsPerPage}
-          page={page}
-          onPageChange={handleChangePage}
-          onRowsPerPageChange={handleChangeRowsPerPage}
-          labelRowsPerPage="Itens por página:"
-          labelDisplayedRows={({ from, to, count }) =>
-            `${from}-${to} de ${count}`
-          }
-        />
-      </Paper>
+<Paper
+  elevation={1}
+  sx={{
+    borderRadius: 2,
+    overflow: "hidden",
+    backgroundColor: "#f5f5f5",
+  }}
+>
+  <TableContainer>
+    <Table>
+      <TableHead>
+        <TableRow sx={{ backgroundColor: theme.palette.primary.main }}>
+          {colunas.map((coluna) => (
+            <TableCell
+              key={coluna.id}
+              sx={{
+                fontWeight: "bold",
+                textTransform: "uppercase",
+                fontSize: "0.875rem",
+                color: "#fff",
+              }}
+            >
+              {coluna.label}
+            </TableCell>
+          ))}
+        </TableRow>
+      </TableHead>
+
+      <TableBody>
+        {clientes.length === 0 ? (
+          <TableRow>
+            <TableCell colSpan={colunas.length} align="center">
+              Nenhum cliente encontrado.
+            </TableCell>
+          </TableRow>
+        ) : (
+          clientes.map((cliente: Cliente) => (
+            <TableRow
+              key={cliente.ID}
+              hover
+              sx={{
+                "&:hover": { backgroundColor: "#f0f0f0" },
+              }}
+            >
+              <TableCell>{cliente.Nome || "—"}</TableCell>
+              <TableCell>{cliente.Email || "—"}</TableCell>
+              <TableCell>{cliente.Telefone || "—"}</TableCell>
+              <TableCell>
+                {cliente.DataCadastro
+                  ? new Date(cliente.DataCadastro).toLocaleDateString("pt-BR")
+                  : "—"}
+              </TableCell>
+            </TableRow>
+          ))
+        )}
+      </TableBody>
+    </Table>
+  </TableContainer>
+
+  <TablePagination
+    rowsPerPageOptions={[5, 10, 25]}
+    component="div"
+    count={totalClientes}
+    rowsPerPage={rowsPerPage}
+    page={page}
+    onPageChange={(_, newPage) => setPage(newPage)}
+    onRowsPerPageChange={(e) => {
+      setRowsPerPage(parseInt(e.target.value, 10));
+      setPage(0);
+    }}
+    labelRowsPerPage="Itens por página:"
+    labelDisplayedRows={({ from, to, count }) =>
+      `${from}-${to} de ${count}`
+    }
+    sx={{ backgroundColor: "#fff", mt: 1.5 }}
+  />
+</Paper>
+
+
+
     </Box>
   );
-
 };
+
 export default VisualizarClientes;

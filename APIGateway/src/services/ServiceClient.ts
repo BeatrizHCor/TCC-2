@@ -1,6 +1,7 @@
 import "dotenv/config";
 import { Cliente } from "../models/clienteModel";
 import { response } from "express";
+import { handleApiResponse } from "../utils.ts/HandlerDeRespostaDoBackend";
 
 const CustomerURL = process.env.CUSTOMER_URL || "http://localhost:4001";
 
@@ -9,7 +10,7 @@ export const postCliente = async (
   Nome: string,
   Email: string,
   Telefone: string,
-  SalaoId: string
+  SalaoId: string,
 ) => {
   let responseCliente = await fetch(CustomerURL + "/cliente", {
     method: "POST",
@@ -18,11 +19,10 @@ export const postCliente = async (
     },
     body: JSON.stringify({ CPF, Nome, Email, Telefone, SalaoId }),
   });
-  if (responseCliente.ok) {
-    return (await responseCliente.json()) as Cliente;
-  } else {
-    throw new Error("Error in posting customer");
-  }
+  return handleApiResponse<Cliente>(
+    responseCliente,
+    "criar Cliente",
+  );
 };
 
 export const getClientePage = async (
@@ -32,20 +32,19 @@ export const getClientePage = async (
   includeRelations: boolean,
   termoBusca: string,
   campoBusca: string,
-  dataFilter: string
+  dataFilter: string,
 ) => {
   let responseClientes = await fetch(
     CustomerURL +
       `/cliente/page?page=${page}&limit=${limit}&salaoId=${salaoId}&includeRelations=${includeRelations}&termoBusca=${termoBusca}&campoBusca=${campoBusca}&dataFilter=${dataFilter}`,
     {
       method: "GET",
-    }
+    },
   );
-  if (responseClientes.ok) {
-    return (await responseClientes.json()) as Cliente[];
-  } else {
-    throw new Error("Error in getting cliente page");
-  }
+  return handleApiResponse<Cliente[]>(
+    responseClientes,
+    "buscar cliente Paginado",
+  );
 };
 
 export const getClienteById = async (id: string, includeRelations = false) => {
@@ -53,39 +52,38 @@ export const getClienteById = async (id: string, includeRelations = false) => {
     CustomerURL + `/cliente/ID/${id}?include=${includeRelations}`,
     {
       method: "GET",
-    }
+    },
   );
-  if (responseCliente.ok) {
-    return (await responseCliente.json()) as Cliente;
-  } else {
-    throw new Error("Error in getting cliente");
-  }
+  return handleApiResponse<Cliente>(
+    responseCliente,
+    "buscar cliente por ID",
+  );
 };
-
 export const getClienteByCPF = async (cpf: string, salaoId: string) => {
   console.log(CustomerURL + `/cliente/cpf/${cpf}/${salaoId}`);
   let responseCliente = await fetch(
     CustomerURL + `/cliente/cpf/${cpf}/${salaoId}`,
     {
       method: "GET",
-    }
+    },
   );
-  if (responseCliente.ok) {
-    return (await responseCliente.json()) as Cliente;
-  } else {
-    throw new Error("Error in getting cliente by CPF");
-  }
+  return handleApiResponse<Cliente>(
+    responseCliente,
+    "buscar cliente por CPF",
+  );
 };
 
 export const deleteCliente = async (id: string) => {
   let responseCliente = await fetch(CustomerURL + `/cliente/delete/${id}`, {
     method: "DELETE",
   });
-  if (responseCliente.ok) {
-    return (await responseCliente.json()) as Cliente;
-  } else {
-    throw new Error("Error in deleting cliente");
+  if (responseCliente.status === 204) {
+    return true;
   }
+  return handleApiResponse<Cliente>(
+    responseCliente,
+    "buscar cliente por CPF",
+  );
 };
 
 export const updateCliente = async (id: string, data: Cliente) => {
@@ -98,9 +96,24 @@ export const updateCliente = async (id: string, data: Cliente) => {
     },
     body: JSON.stringify(data),
   });
-  if (responseCliente.ok) {
-    return (await responseCliente.json()) as Cliente;
-  } else {
-    throw new Error("Error in updating cliente");
-  }
+  return handleApiResponse<Cliente>(
+    responseCliente,
+    "atualizar cliente",
+  );
+};
+
+export const getClientesBySalao = async (
+  salaoId: string,
+  include: boolean = false,
+) => {
+  let responseCliente = await fetch(
+    CustomerURL + `/cliente/salaoId/${salaoId}?include=${include}`,
+    {
+      method: "GET",
+    },
+  );
+  return handleApiResponse<Cliente[]>(
+    responseCliente,
+    "buscar clientes do salao",
+  );
 };

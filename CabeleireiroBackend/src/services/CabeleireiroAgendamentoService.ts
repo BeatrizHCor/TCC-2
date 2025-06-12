@@ -50,6 +50,48 @@ class AgendamentoService {
     });
   };
 
+  // static getAgendamentosPage = async (
+  //   page = 1,
+  //   limit = 10,
+  //   includeRelations: boolean,
+  //   salaoId: string | null = null,
+  //   cabeleireiroId: string,
+  //   dia: number,
+  //   mes: number,
+  //   ano: number
+  // ) => {
+  //   try {
+  //     const skip = (page - 1) * limit;
+
+  //     let where: Prisma.AgendamentosWhereInput = {};
+  //     const range = getRangeByDataInputWithTimezone(ano, mes, dia);
+  //     if (salaoId !== null) {
+  //       where.SalaoId = salaoId;
+  //     }
+  //     if (range !== null) {
+  //       where.Data = {
+  //         gte: range.dataInicial,
+  //         lte: range.dataFinal,
+  //       };
+  //       }
+  //       where.CabeleireiroID = cabeleireiroId;
+
+  //       return await prisma.agendamentos.findMany({
+  //       ...(skip !== null ? { skip } : {}),
+  //       ...(limit !== null ? { take: limit } : {}),
+  //       where: where,
+  //       ...(includeRelations
+  //           ? {
+  //               include: {
+  //               Cliente: true,
+  //               Cabeleireiro: true,
+  //               Atendimento: true,
+  //               },
+  //           }
+  //           : {}),
+  //       });
+  //   } }
+
   static getAgendamentosPage = async (
     page = 1,
     limit = 10,
@@ -74,9 +116,9 @@ class AgendamentoService {
           lte: range.dataFinal,
         };
       }
-      if (cabeleireiroId!) {
-        where.CabeleireiroID = cabeleireiroId;
-      }
+
+      where.CabeleireiroID = cabeleireiroId;
+
       const [total, agendamentos] = await Promise.all([
         prisma.agendamentos.count({ where: where }),
         AgendamentoService.getAgendamentos(
@@ -181,7 +223,10 @@ class AgendamentoService {
     try {
       return await prisma.$transaction(async (tx) => {
         const agendamento = await tx.agendamentos.update({
-          where: { ID: id },
+          where: {
+            ID: id,
+            CabeleireiroID: CabeleireiroID,
+          },
           data: {
             Data: Data,
             Status: Status,

@@ -13,6 +13,7 @@ import {
   LinearProgress,
   Alert,
   Link as MuiLink,
+  useMediaQuery,
 } from "@mui/material";
 import { Visibility, VisibilityOff } from "@mui/icons-material";
 import { Link, useNavigate } from "react-router-dom";
@@ -38,6 +39,8 @@ export const ClienteCadastro: React.FC<ClienteCadastroProps> = () => {
     handleConfirmacaoSenhaChange,
   } = useClienteCadastro(salaoId);
 
+  const isMobile = useMediaQuery(theme.breakpoints.down("md"));
+
   const [showPassword, setShowPassword] = React.useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = React.useState(false);
   const { checkLocalStorage } = useContext(AuthContext);
@@ -62,36 +65,51 @@ export const ClienteCadastro: React.FC<ClienteCadastroProps> = () => {
   };
 
   return (
-    <Container maxWidth="lg">
+    <Container maxWidth="lg" sx={{ px: 2 }}>
       <Box
         display="flex"
-        justifyContent="center"
+        flexDirection={isMobile ? "column" : "row"}
         alignItems="center"
-        height="90vh"
+        justifyContent="center"
+        minHeight="100vh"
+        py={4}
+        gap={isMobile ? 4 : 0}
       >
-        <Box flex={1} display="flex" justifyContent="center">
+        {/* Imagem */}
+        <Box
+          flex={1}
+          display="flex"
+          justifyContent="center"
+          alignItems="center"
+          mb={isMobile ? 0 : 10}
+        >
           <img
             src="/icone.svg"
             alt="Logo"
             style={{
-              width: "450px",
-              height: "450px",
+              width: isMobile ? "180px" : "400px",
+              height: isMobile ? "180px" : "400px",
               filter: "invert(16%) sepia(90%) saturate(400%) hue-rotate(-5deg)",
             }}
           />
         </Box>
 
-        <Box
-          flex={1}
-          display="flex"
-          justifyContent="flex-start"
-          sx={{ mt: 10 }}
-        >
-          <Paper elevation={3} sx={{ p: 5, width: 520 }}>
+        {/* Formulário */}
+        <Box flex={1} display="flex" justifyContent="center">
+          <Paper
+            elevation={3}
+            sx={{
+              p: 4,
+              borderRadius: 4,
+              width: "100%",
+              maxWidth: 520,
+              bgcolor: "#fff",
+            }}
+          >
             {loading && <LinearProgress />}
 
             <Typography
-              variant="h4"
+              variant="h5"
               component="h1"
               gutterBottom
               sx={{ color: theme.palette.primary.main }}
@@ -99,12 +117,7 @@ export const ClienteCadastro: React.FC<ClienteCadastroProps> = () => {
               Cadastre-se
             </Typography>
 
-            <Typography
-              variant="body1"
-              color="textSecondary"
-              component="p"
-              sx={{ marginBottom: "16px" }}
-            >
+            <Typography variant="body1" color="textSecondary" paragraph>
               Preencha os campos abaixo
             </Typography>
 
@@ -115,13 +128,6 @@ export const ClienteCadastro: React.FC<ClienteCadastroProps> = () => {
               sx={{ mt: 1 }}
             >
               <Stack spacing={2}>
-                <Typography
-                  variant="h6"
-                  sx={{ color: theme.palette.primary.main }}
-                >
-                  Informações Pessoais
-                </Typography>
-
                 <TextField
                   name="nome"
                   label="Nome Completo"
@@ -132,37 +138,29 @@ export const ClienteCadastro: React.FC<ClienteCadastroProps> = () => {
                   fullWidth
                 />
 
-                <Box sx={{ mx: -1 }}>
-                  <Box display="flex" gap={2} alignItems="center">
-                    <Box flex={1}>
-                      <TextField
-                        label="CPF"
-                        required
-                        value={cpfFormatado}
-                        onChange={handleCPFChange}
-                        error={!!errors.CPF}
-                        helperText={errors.CPF}
-                        fullWidth
-                        slotProps={{
-                          input: { sx: { maxLength: 14 } },
-                        }}
-                      />
-                    </Box>
-                    <Box flex={1}>
-                      <TextField
-                        label="Telefone"
-                        required
-                        value={telefoneFormatado}
-                        onChange={handleTelefoneChange}
-                        error={!!errors.telefone}
-                        helperText={errors.telefone}
-                        fullWidth
-                        slotProps={{
-                          input: { sx: { maxLength: 15 } },
-                        }}
-                      />
-                    </Box>
-                  </Box>
+                <Box
+                  display="flex"
+                  flexDirection={isMobile ? "column" : "row"}
+                  gap={2}
+                >
+                  <TextField
+                    label="CPF"
+                    required
+                    value={cpfFormatado}
+                    onChange={handleCPFChange}
+                    error={!!errors.CPF}
+                    helperText={errors.CPF}
+                    fullWidth
+                  />
+                  <TextField
+                    label="Telefone"
+                    required
+                    value={telefoneFormatado}
+                    onChange={handleTelefoneChange}
+                    error={!!errors.telefone}
+                    helperText={errors.telefone}
+                    fullWidth
+                  />
                 </Box>
 
                 <TextField
@@ -176,75 +174,64 @@ export const ClienteCadastro: React.FC<ClienteCadastroProps> = () => {
                   fullWidth
                 />
 
-                <Typography
-                  variant="h6"
-                  sx={{ color: theme.palette.primary.main, mt: 2 }}
+                <Box
+                  display="flex"
+                  flexDirection={isMobile ? "column" : "row"}
+                  gap={2}
                 >
-                  Senha
-                </Typography>
-
-                <Box sx={{ mx: -1 }}>
-                  <Box display="flex" gap={2} alignItems="center">
-                    <Box flex={1}>
-                      <TextField
-                        name="password"
-                        label="Senha"
-                        required
-                        type={showPassword ? "text" : "password"}
-                        onChange={handleChange}
-                        error={!!errors.password}
-                        helperText={errors.password}
-                        fullWidth
-                        InputProps={{
-                          endAdornment: (
-                            <InputAdornment position="end">
-                              <IconButton
-                                onClick={handleClickShowPassword}
-                                edge="end"
-                              >
-                                {showPassword ? (
-                                  <VisibilityOff />
-                                ) : (
-                                  <Visibility />
-                                )}
-                              </IconButton>
-                            </InputAdornment>
-                          ),
-                        }}
-                      />
-                    </Box>
-                    <Box flex={1}>
-                      <TextField
-                        label="Confirmar Senha"
-                        required
-                        type={showConfirmPassword ? "text" : "password"}
-                        value={confirmacaoSenha}
-                        onChange={handleConfirmacaoSenhaChange}
-                        error={!!errors.confirmacaoSenha}
-                        helperText={errors.confirmacaoSenha}
-                        fullWidth
-                        InputProps={{
-                          endAdornment: (
-                            <InputAdornment position="end">
-                              <IconButton
-                                onClick={handleClickShowConfirmPassword}
-                                edge="end"
-                              >
-                                {showConfirmPassword ? (
-                                  <VisibilityOff />
-                                ) : (
-                                  <Visibility />
-                                )}
-                              </IconButton>
-                            </InputAdornment>
-                          ),
-                        }}
-                      />
-                    </Box>
-                  </Box>
+                  <TextField
+                    name="password"
+                    label="Senha"
+                    required
+                    type={showPassword ? "text" : "password"}
+                    onChange={handleChange}
+                    error={!!errors.password}
+                    helperText={errors.password}
+                    fullWidth
+                    InputProps={{
+                      endAdornment: (
+                        <InputAdornment position="end">
+                          <IconButton
+                            onClick={() => setShowPassword(!showPassword)}
+                            edge="end"
+                          >
+                            {showPassword ? <VisibilityOff /> : <Visibility />}
+                          </IconButton>
+                        </InputAdornment>
+                      ),
+                    }}
+                  />
+                  <TextField
+                    label="Confirmar Senha"
+                    required
+                    type={showConfirmPassword ? "text" : "password"}
+                    value={confirmacaoSenha}
+                    onChange={handleConfirmacaoSenhaChange}
+                    error={!!errors.confirmacaoSenha}
+                    helperText={errors.confirmacaoSenha}
+                    fullWidth
+                    InputProps={{
+                      endAdornment: (
+                        <InputAdornment position="end">
+                          <IconButton
+                            onClick={() =>
+                              setShowConfirmPassword(!showConfirmPassword)
+                            }
+                            edge="end"
+                          >
+                            {showConfirmPassword ? (
+                              <VisibilityOff />
+                            ) : (
+                              <Visibility />
+                            )}
+                          </IconButton>
+                        </InputAdornment>
+                      ),
+                    }}
+                  />
                 </Box>
 
-                <Alert severity="info" sx={{ mt: 2 }}>
+                <Alert severity="info" sx={{ mt: 1 }}>
                   A senha deve conter pelo menos 8 caracteres, incluindo letras
                   maiúsculas, minúsculas, números e caracteres especiais.
                 </Alert>
@@ -253,7 +240,9 @@ export const ClienteCadastro: React.FC<ClienteCadastroProps> = () => {
                   display="flex"
                   justifyContent="space-between"
                   alignItems="center"
-                  mt={3}
+                  flexDirection={isMobile ? "column" : "row"}
+                  gap={2}
+                  mt={2}
                 >
                   <MuiLink component={Link} to="/login" variant="body2">
                     Já possui uma conta? Faça login
@@ -267,6 +256,7 @@ export const ClienteCadastro: React.FC<ClienteCadastroProps> = () => {
                       bgcolor: theme.palette.primary.main,
                       color: "#fff",
                       "&:hover": { bgcolor: "#600000" },
+                      width: isMobile ? "100%" : "auto",
                     }}
                     disabled={loading}
                   >

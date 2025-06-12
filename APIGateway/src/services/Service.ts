@@ -3,7 +3,6 @@ import { userTypes } from "../models/tipo-usuario.enum";
 import { accessSync } from "fs";
 import e from "express";
 
-const CustomerURL = process.env.CUSTOMER_URL || "http://localhost:4001";
 const loginURL = process.env.AUTH_URL || "http://localhost:3000";
 
 export const registerLogin = async (
@@ -28,6 +27,38 @@ export const registerLogin = async (
   });
   if (responseRegister.ok) {
     console.log("Register response for user", userID, ":", responseRegister.ok);
+  } else {
+    console.log("Register failed", responseRegister.status);
+  }
+  return responseRegister.ok;
+};
+export const cadastrarCliente = async (
+  CPF: string,
+  Nome: string,
+  Email: string,
+  Telefone: string,
+  SalaoId: string,
+  Password: string,
+  userType: userTypes
+) => {
+  let responseRegister = await fetch(loginURL + "/cadastrar/cliente", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({
+      CPF,
+      Nome,
+      Email,
+      Telefone,
+      SalaoId,
+      Password,
+      userType,
+    }),
+  });
+  if (responseRegister.ok) {
+    console.log("Register response for client", CPF, ":", responseRegister.ok);
+    return await responseRegister.json();
   } else {
     console.log("Register failed", responseRegister.status);
   }

@@ -1,10 +1,15 @@
-import { Router, Request, Response } from "express";
+import { Request, Response, Router } from "express";
 import {
+  deleteAuth,
   registerLogin,
   verifyPasswordAndReturnToken,
   verifyTokenAndType,
-  deleteAuth,
 } from "./Controller";
+import {
+  deleteCliente,
+  getClienteByCPF,
+  postCliente,
+} from "./Services/ServiceClient";
 
 const RoutesLogin = Router();
 
@@ -14,10 +19,9 @@ RoutesLogin.get("/login", (req: Request, res: Response) => {
 
 RoutesLogin.post("/register", (req: Request, res: Response) => {
   let { userID, Email, Password, SalaoId, userType } = req.body;
-  console.log("Password recebido:", Password);
   if (typeof Password !== "string" || Password.trim() === "") {
     res.status(400).json({ message: "Password inválido" });
-    return; 
+    return;
   }
   registerLogin(userID, Email, Password, SalaoId, userType)
     .then((r) => {
@@ -72,4 +76,42 @@ RoutesLogin.delete("/login", (req: Request, res: Response) => {
     });
 });
 
+RoutesLogin.post("/cadastrar/cliente", async (req: Request, res: Response) => {
+  let { CPF, Nome, Email, Telefone, SalaoId, Password, userType } = req.body;
+  try {
+    let ChecarCPF = await getClienteByCPF(CPF, SalaoId);
+    console.log("Resposta de checagem de cpf:", ChecarCPF);
+    if (ChecarCPF) {
+      res.status(409).json({ message: "CPF já cadastrado no salão" });
+      return;
+    }
+    let cliente = await postCliente(CPF, Nome, Email, Telefone, SalaoId);
+    if (!cliente) {
+      throw new Error("Cliente not created");
+    }
+    console.log("Cliente ID: ", cliente.ID);
+    let register = await registerLogin(
+      cliente.ID!,
+      Email,
+      Password,
+      SalaoId,
+      userType,
+    );
+    if (!register) {
+      console.log("Register auth failed");
+      let clienteDelete = await deleteCliente(cliente.ID!);
+      if (clienteDelete) {
+        console.log("Cliente deleted successfully");
+      } else {
+        console.log("Failed to delete cliente after register failure");
+      }
+      throw new Error("Login registration failed");
+    }
+    let token = await verifyPasswordAndReturnToken(Email, Password, SalaoId);
+    res.status(200).send(token);
+  } catch (e) {
+    console.log(e);
+    res.status(500).send("Error in creating customer");
+  }
+});
 export default RoutesLogin;

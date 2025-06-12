@@ -10,11 +10,27 @@ const api = axios.create({
 });
 
 api.interceptors.request.use((config) => {
+  if (config.headers?.skipAuth) {
+    delete config.headers.skipAuth;
+    return config;
+  }
+
   const token = localStorage.getItem("usuario");
   config.headers = config.headers || {};
   config.headers.Authorization = btoa(token || "");
   return config;
 });
+
+api.interceptors.response.use(
+  (response) => {
+    console.log("Resposta da API:", response);
+    return response;
+  },
+  (error) => {
+    console.error("Erro na API:", error);
+    return Promise.reject(error);
+  }
+);
 
 interface ClientePageResponse {
   data: Cliente[];
@@ -22,6 +38,7 @@ interface ClientePageResponse {
   page: number;
   limit: number;
 }
+
 export const ClienteService = {
   async cadastrarCliente({
     CPF,
@@ -40,44 +57,40 @@ export const ClienteService = {
     password: string;
     userType: string;
   }): Promise<boolean> {
-    console.log("Dados recebidos para cadastro:", {
-      CPF,
-      nome,
-      email,
-      telefone,
-      salaoId,
-      userType,
-    });
-    try {
-      const response = await api.post(`/cliente`, {
-        CPF: CPF,
-        Nome: nome,
-        Email: email,
-        Telefone: telefone,
-        SalaoId: salaoId,
-        Password: password,
-        userType: userType,
-      });
-      if (response.data.token) {
-        localStorage.setItem("usuario", JSON.stringify(response.data));
-      }
-      return !!response.data;
-    } catch (error) {
-      console.error("Erro ao cadastrar cliente:", error);
-      throw error;
-    }
-  },
+    const dadosEnvio = {
+      CPF: CPF,
+      Nome: nome,
+      Email: email,
+      Telefone: telefone,
+      SalaoId: salaoId,
+      Password: password,
+      userType: userType,
+    };
 
-  async getClienteByID(ID: string): Promise<boolean> {
+    console.log("Dados sendo enviados para a API:", dadosEnvio);
+
     try {
-      const response = await api.get(`/cliente/${ID}`);
-      return !!response.data;
-    } catch (error) {
-      if (axios.isAxiosError(error) && error.response?.status === 404) {
-        console.log("Cliente não encontrado, retornando false.");
-        return false;
+      const response = await api.post(`/cadastrar/cliente`, dadosEnvio);
+
+      console.log("Resposta completa da API:", response);
+      console.log("Status da resposta:", response.status);
+      console.log("Dados da resposta:", response.data);
+
+      if (response.data && response.data.token) {
+        localStorage.setItem("usuario", JSON.stringify(response.data));
+        console.log("Token salvo no localStorage");
       }
-      console.error("Erro ao verificar cliente:", error);
+
+      return response.status === 200 || response.status === 201;
+    } catch (error) {
+      console.error("Erro detalhado ao cadastrar cliente:", error);
+
+      if (axios.isAxiosError(error)) {
+        console.error("Status do erro:", error.response?.status);
+        console.error("Dados do erro:", error.response?.data);
+        console.error("Headers do erro:", error.response?.headers);
+      }
+
       throw error;
     }
   },
@@ -122,14 +135,19 @@ export const ClienteService = {
       const path = `/cliente/checkcpf/${cpf}/${salaoId}`;
       console.log(`Verificando cliente por CPF no caminho: ${path}`);
       const response = await api.get(path);
+
       if (response.status === 204) {
-        console.log("Cliente não encontrado, retornando false.");
+        console.log("Cliente não encontrado (status 204), retornando false.");
         return false;
       }
-      console.log("Resposta do servidor:", response.data);
-      return response.data;
+
+      console.log("Resposta da verificação CPF:", response.data);
+      return !!response.data;
     } catch (error) {
-      if (axios.isAxiosError(error) && error.response?.status === 404) {
+      if (
+        axios.isAxiosError(error) &&
+        (error.response?.status === 404 || error.response?.status === 204)
+      ) {
         console.log("Cliente não encontrado, retornando false.");
         return false;
       }
@@ -167,6 +185,24 @@ export const ClienteService = {
       return response.data;
     } catch (error) {
       console.error("Erro ao atualizar cliente:", error);
+      throw error;
+    }
+  },
+  async getClientesBySalao(
+    salaoId: string,
+    include: boolean = false
+  ): Promise<Cliente[]> {
+    try {
+      const response = await api.get(
+        `/cliente/salaoId/${salaoId}?include=${include}`
+      );
+      return response.data as Cliente[];
+    } catch (error) {
+      if (axios.isAxiosError(error) && error.response?.status === 400) {
+        console.error("SalaoId é obrigatório.");
+        throw error;
+      }
+      console.error("Erro ao buscar clientes do salão:", error);
       throw error;
     }
   },

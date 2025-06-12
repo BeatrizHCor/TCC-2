@@ -3,8 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { Servico } from "../../models/servicoModel";
 import ServicoService from "../../services/ServicoService";
 import { AuthContext } from "../../contexts/AuthContext";
-//import { useAuth } from "../../contexts/AuthContext";
-const salaoId = import.meta.env.VITE_GATEWAY_URL || "1"; // ID do salão, pode ser obtido de outra forma se necessário
+
 interface ValidationErrors {
   nome?: string;
   descricao?: string;
@@ -89,7 +88,7 @@ export const useManterServico = (servicoId?: string) => {
       return;
     }
 
-    if (!salaoId) {
+    if (!SalaoId) {
       console.error("ID do salão não disponível");
       return;
     }
@@ -101,7 +100,7 @@ export const useManterServico = (servicoId?: string) => {
         await ServicoService.updateServico(
           servicoId,
           Nome,
-          salaoId,
+          SalaoId,
           PrecoMin,
           PrecoMax,
           Descricao
@@ -109,9 +108,9 @@ export const useManterServico = (servicoId?: string) => {
       } else {
         await ServicoService.createServico(
           Nome,
-          salaoId,
-          PrecoMin,
-          PrecoMax,
+          SalaoId,
+          PrecoMin!,
+          PrecoMax!,
           Descricao
         );
       }
@@ -150,7 +149,7 @@ export const useManterServico = (servicoId?: string) => {
     setPrecoMin,
     PrecoMax,
     setPrecoMax,
-    salaoId,
+    SalaoId,
     isLoading,
     isEditing,
     validationErrors,
