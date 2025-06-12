@@ -219,29 +219,35 @@ export const useManterAgendamento = (
           case userTypes.AdmSistema:
             agendamento =
               await AgendamentoService.getFuncionarioAgendamentoById(
-                agendamentoId
+                agendamentoId,
+                true
               );
             break;
           case userTypes.Cabeleireiro:
             agendamento =
               await AgendamentoService.getCabeleireiroAgendamentoById(
-                agendamentoId
+                agendamentoId,
+                true
               );
             break;
           case userTypes.Cliente:
             agendamento = await AgendamentoService.getClienteAgendamentoById(
-              agendamentoId
+              agendamentoId,
+              true
             );
             break;
           default:
             throw new Error("Tipo de usuário inválido");
         }
+        console.log("Valor de agendamento.Data:", agendamento.Data);
         const dataFormatted = new Date(agendamento.Data)
           .toISOString()
           .slice(0, 16);
         setData(dataFormatted);
         setStatus(agendamento.Status);
         setClienteId(agendamento.ClienteID);
+        console.log("teste: ", agendamento)
+        setClienteNome(agendamento.Cliente?.Nome || "")
         setCabeleireiroId(agendamento.CabeleireiroID);
         setCabeleireiroNome(agendamento.Cabeleireiro?.Nome || "");
         setSalaoId(agendamento.SalaoId);

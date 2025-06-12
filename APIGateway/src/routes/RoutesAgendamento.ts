@@ -189,6 +189,7 @@ RoutesAgendamento.get(
           );
 
           if (agendamento) {
+            console.log("teste: ", agendamento)
             res.status(200).json(agendamento);
           } else {
             res.status(204).send();

@@ -110,7 +110,7 @@ const VisualizarAgendamento: React.FC = () => {
             <Button
               variant="contained"
               color="primary"
-              onClick={() => navigate("/agendamento")}
+              onClick={() => navigate("/agendamento/novo")}
             >
               Novo Agendamento
             </Button>
@@ -246,7 +246,7 @@ const VisualizarAgendamento: React.FC = () => {
 
                 <DialogActions>
                   <Button onClick={handleFecharModal}>Fechar</Button>
-                  <Button variant="contained" color="primary" onClick={() => navigate(`/agendamento/${agendamentoSelecionado.ID}`)}>
+                  <Button variant="contained" color="primary" onClick={() => navigate(`/agendamento/editar/${agendamentoSelecionado.ID}`)}>
                     Ir para página do agendamento
                   </Button>
                 </DialogActions>
