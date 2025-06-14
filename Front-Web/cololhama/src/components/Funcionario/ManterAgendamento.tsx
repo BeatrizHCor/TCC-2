@@ -82,7 +82,6 @@ const ManterAgendamento: React.FC = () => {
     handleSubmit,
     handleDelete,
     forbidden,
-
     canSaveEdit,
     horariosOcupados,
     loadingHorarios,
@@ -201,7 +200,7 @@ const ManterAgendamento: React.FC = () => {
     try {
       setStatus(StatusAgendamento.Confirmado);
       await handleSubmit(e);
-      navigate("/atendimento", {
+      navigate("/atendimento/editar/", {
         state: {
           data,
           status,
@@ -306,27 +305,30 @@ const ManterAgendamento: React.FC = () => {
                 )}
                 <Box>
                   <TextField
-                  fullWidth
-                  required
-                  label="Cliente"
-                  value={clienteNome}
-                  onClick={() => {
-                    if (userType !== "Cliente" && !isEditing) setOpenClientesModal(true);
-                  }}
-                  error={Boolean(validationErrors.clienteId)}
-                  helperText={validationErrors.clienteId}
-                  placeholder={
-                    userType === "Cliente"
-                    ? "Cliente atual (você)"
-                    : "Clique para selecionar um cliente"
-                  }
-                  slotProps={{
-                    input: { readOnly: true },
-                  }}
-                  sx={{
-                    cursor:
-                    userType === "Cliente" || isEditing ? "not-allowed" : "pointer",
-                  }}
+                    fullWidth
+                    required
+                    label="Cliente"
+                    value={clienteNome}
+                    onClick={() => {
+                      if (userType !== "Cliente" && !isEditing)
+                        setOpenClientesModal(true);
+                    }}
+                    error={Boolean(validationErrors.clienteId)}
+                    helperText={validationErrors.clienteId}
+                    placeholder={
+                      userType === "Cliente"
+                        ? "Cliente atual (você)"
+                        : "Clique para selecionar um cliente"
+                    }
+                    slotProps={{
+                      input: { readOnly: true },
+                    }}
+                    sx={{
+                      cursor:
+                        userType === "Cliente" || isEditing
+                          ? "not-allowed"
+                          : "pointer",
+                    }}
                   />
                 </Box>
 
@@ -522,8 +524,8 @@ const ManterAgendamento: React.FC = () => {
                     )
                   }
                   disabled={
-                    isLoading ||
-                    (isEditing && status !== StatusAgendamento.Finalizado)
+                    status === StatusAgendamento.Finalizado ||
+                    status === StatusAgendamento.Confirmado
                   }
                   onClick={handleConfirmar}
                 >

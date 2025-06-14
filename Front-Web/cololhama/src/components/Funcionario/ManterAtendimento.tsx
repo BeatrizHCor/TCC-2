@@ -89,8 +89,16 @@ const ManterAtendimento: React.FC = () => {
     handleDelete,
     forbidden,
     canSaveEdit,
-  } = useManterAtendimento(userType!, agendamentoId);
-
+  } = useManterAtendimento(
+    userType!,
+    stateServicos,
+    agendamentoId,
+    stateData,
+    stateCabId,
+    stateCabNome,
+    stateCliId,
+    stateStatus
+  );
   const handleOpenDeleteDialog = () => {
     setOpenDeleteDialog(true);
   };

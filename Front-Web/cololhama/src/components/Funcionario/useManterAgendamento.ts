@@ -246,8 +246,8 @@ export const useManterAgendamento = (
         setData(dataFormatted);
         setStatus(agendamento.Status);
         setClienteId(agendamento.ClienteID);
-        console.log("teste: ", agendamento)
-        setClienteNome(agendamento.Cliente?.Nome || "")
+        console.log("teste: ", agendamento);
+        setClienteNome(agendamento.Cliente?.Nome || "");
         setCabeleireiroId(agendamento.CabeleireiroID);
         setCabeleireiroNome(agendamento.Cabeleireiro?.Nome || "");
         setSalaoId(agendamento.SalaoId);

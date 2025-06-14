@@ -30,16 +30,19 @@ const formatCurrency = (value: number) => {
 export const useManterAtendimento = (
   userType: userTypes,
   servicosAgendamento: ServicoAgendamento[],
-  agendamentoId?: string
+  agendamentoId: string,
+  stateData: string,
+  stateCabId: string,
+  stateCabNome: string,
+  stateCliId: string,
+  stateStatus: StatusAgendamento
 ) => {
-  const [data, setData] = useState("");
-  const [status, setStatus] = useState<StatusAgendamento>(
-    StatusAgendamento.Agendado
-  );
-  const [clienteId, setClienteId] = useState("");
+  const [data, setData] = useState(stateData);
+  const [status, setStatus] = useState<StatusAgendamento>(stateStatus);
+  const [clienteId, setClienteId] = useState(stateCliId);
   const [cabeleireiroId, setCabeleireiroId] = useState("");
-  const [cabeleireiroNome, setCabeleireiroNome] = useState("");
-  const [atendimentoId, setAtendimentoId] = useState("");
+  const [cabeleireiroNome, setCabeleireiroNome] = useState(stateCabNome);
+  const [atendimentoId, setAtendimentoId] = useState(stateCabId);
   const [servicosDisponiveis, setServicosDisponiveis] = useState<Servico[]>([]);
   const [cabeleireirosDisponiveis, setCabeleireirosDisponiveis] = useState<
     Cabeleireiro[]

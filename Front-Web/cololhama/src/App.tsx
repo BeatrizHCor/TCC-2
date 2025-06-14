@@ -34,18 +34,15 @@ const App: React.FC = () => {
         <Routes>
           <Route path="/" element={<HomePage />} />
           <Route path="/perfil" element={<PerfilCliente />} />
-
           <Route path="/cadastro" element={<CadastroPage />} />
           <Route path="/login" element={<LoginPage />} />
           <Route path="/listaClientes" element={<VisualizarClientesPage />} />
-
           <Route path="/servicos" element={<VisualizarServicoPage />} />
           <Route path="/servico/editar/novo" element={<ManterServicoPage />} />
           <Route
             path="/servico/editar/:servicoId"
             element={<ManterServicoPage />}
           />
-
           <Route
             path="/portfolio/:cabeleireiroId"
             element={<PortfolioPage />}
@@ -63,27 +60,19 @@ const App: React.FC = () => {
             path="/cabeleireiro/editar/:cabeleireiroId"
             element={<ManterCabeleireiroPage />}
           />
-
           <Route path="/funcionarios" element={<VisualizarFuncionarioPage />} />
           <Route path="/funcionario/novo" element={<ManterFuncionarioPage />} />
           <Route
             path="/funcionario/editar/:funcionarioId"
             element={<ManterFuncionarioPage />}
           />
-
           <Route path="/agendamentos" element={<VisualizarAgendamentoPage />} />
           <Route
             path="/agendamento/editar/:agendamentoId"
             element={<ManterAgendamentoPage />}
-          />          <Route
-            path="/agendamento/novo"
-            element={<ManterAgendamentoPage />}
-          />
-          <Route
-            path="/atendimento/editar/:atendimentoId"
-            element={<ManterAtendimento />}
-          />
-
+          />{" "}
+          <Route path="/agendamento/novo" element={<ManterAgendamentoPage />} />
+          <Route path="/atendimento/editar/" element={<ManterAtendimento />} />
           <Route path="/atendimentos" element={<VisualizarAtendimentoPage />} />
         </Routes>
       </ThemeProvider>

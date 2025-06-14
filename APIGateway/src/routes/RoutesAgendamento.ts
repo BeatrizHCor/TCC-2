@@ -47,7 +47,7 @@ RoutesAgendamento.post(
             ClienteID,
             CabeleireiroID,
             SalaoId,
-            ServicoId,
+            ServicoId
           );
 
           if (agendamento) {
@@ -65,7 +65,7 @@ RoutesAgendamento.post(
       console.log(erro);
       res.status(500).send("Erro no ao criar agendamento");
     }
-  },
+  }
 );
 RoutesAgendamento.put(
   "/funcionario/agendamento/:id",
@@ -94,7 +94,7 @@ RoutesAgendamento.put(
             ClienteID,
             CabeleireiroID,
             SalaoId,
-            servicosIds,
+            servicosIds
           );
           if (agendamento) {
             res.status(200).json(agendamento);
@@ -111,7 +111,7 @@ RoutesAgendamento.put(
       console.error("Erro ao atualizar agendamento por ID:", erro);
       res.status(500).json({ message: "Erro interno do servidor" });
     }
-  },
+  }
 );
 RoutesAgendamento.get(
   "/funcionario/agendamento/page",
@@ -144,7 +144,7 @@ RoutesAgendamento.get(
             salaoId,
             dia,
             mes,
-            ano,
+            ano
           );
           if (agendamentos) {
             res.status(200).json(agendamentos);
@@ -161,7 +161,7 @@ RoutesAgendamento.get(
       console.error("Erro ao buscar agendamento:", erro);
       res.status(500).json({ message: "Erro interno do servidor" });
     }
-  },
+  }
 );
 
 RoutesAgendamento.get(
@@ -185,11 +185,11 @@ RoutesAgendamento.get(
         ) {
           const agendamento = await FuncionariogetAgendamentoById(
             id,
-            includeRelations,
+            includeRelations
           );
 
           if (agendamento) {
-            console.log("teste: ", agendamento)
+            console.log("teste: ", agendamento);
             res.status(200).json(agendamento);
           } else {
             res.status(204).send();
@@ -204,7 +204,7 @@ RoutesAgendamento.get(
       console.error("Erro ao buscar agendamento por ID:", erro);
       res.status(500).json({ message: "Erro interno do servidor" });
     }
-  },
+  }
 );
 RoutesAgendamento.delete(
   "/funcionario/agendamento/:id",
@@ -239,7 +239,7 @@ RoutesAgendamento.delete(
       console.error("Erro ao deletar agendamento:", erro);
       res.status(500).json({ message: "Erro interno do servidor" });
     }
-  },
+  }
 );
 
 //-----Cabeleireiro
@@ -267,7 +267,7 @@ RoutesAgendamento.post(
             ClienteID,
             CabeleireiroID,
             SalaoId,
-            ServicoId,
+            ServicoId
           );
 
           if (agendamento) {
@@ -285,7 +285,7 @@ RoutesAgendamento.post(
       console.log(erro);
       res.status(500).send("Erro no ao criar agendamento");
     }
-  },
+  }
 );
 RoutesAgendamento.put(
   "/cabeleireiro/agendamento/:id",
@@ -314,7 +314,7 @@ RoutesAgendamento.put(
             ClienteID,
             CabeleireiroID,
             SalaoId,
-            servicosIds,
+            servicosIds
           );
           if (agendamento) {
             res.status(200).json(agendamento);
@@ -331,7 +331,7 @@ RoutesAgendamento.put(
       console.error("Erro ao atualizar agendamento por ID:", erro);
       res.status(500).json({ message: "Erro interno do servidor" });
     }
-  },
+  }
 );
 RoutesAgendamento.get(
   "/cabeleireiro/agendamento/page",
@@ -366,7 +366,7 @@ RoutesAgendamento.get(
             userInfo.userID,
             dia,
             mes,
-            ano,
+            ano
           );
           if (agendamentos) {
             res.status(200).json(agendamentos);
@@ -383,7 +383,7 @@ RoutesAgendamento.get(
       console.error("Erro ao buscar agendamento:", erro);
       res.status(500).json({ message: "Erro interno do servidor" });
     }
-  },
+  }
 );
 
 RoutesAgendamento.get(
@@ -407,7 +407,7 @@ RoutesAgendamento.get(
         ) {
           const agendamento = await CabeleireirogetAgendamentoById(
             id,
-            includeRelations,
+            includeRelations
           );
 
           if (agendamento) {
@@ -425,7 +425,7 @@ RoutesAgendamento.get(
       console.error("Erro ao buscar agendamento por ID:", erro);
       res.status(500).json({ message: "Erro interno do servidor" });
     }
-  },
+  }
 );
 RoutesAgendamento.delete(
   "/cabeleireiro/agendamento/:id",
@@ -460,7 +460,7 @@ RoutesAgendamento.delete(
       console.error("Erro ao deletar agendamento:", erro);
       res.status(500).json({ message: "Erro interno do servidor" });
     }
-  },
+  }
 );
 
 //-----Cliente
@@ -488,7 +488,7 @@ RoutesAgendamento.post(
             ClienteID,
             CabeleireiroID,
             SalaoId,
-            ServicoId,
+            ServicoId
           );
 
           if (agendamento) {
@@ -506,7 +506,7 @@ RoutesAgendamento.post(
       console.log(erro);
       res.status(500).send("Erro no ao criar agendamento");
     }
-  },
+  }
 );
 RoutesAgendamento.put(
   "/cliente/agendamento/:id",
@@ -535,7 +535,7 @@ RoutesAgendamento.put(
             ClienteID,
             CabeleireiroID,
             SalaoId,
-            servicosIds,
+            servicosIds
           );
           if (agendamento) {
             res.status(200).json(agendamento);
@@ -552,7 +552,7 @@ RoutesAgendamento.put(
       console.error("Erro ao atualizar agendamento por ID:", erro);
       res.status(500).json({ message: "Erro interno do servidor" });
     }
-  },
+  }
 );
 RoutesAgendamento.get(
   "/cliente/agendamento/page",
@@ -587,7 +587,7 @@ RoutesAgendamento.get(
             userInfo.userID,
             dia,
             mes,
-            ano,
+            ano
           );
           if (agendamentos) {
             res.status(200).json(agendamentos);
@@ -604,7 +604,7 @@ RoutesAgendamento.get(
       console.error("Erro ao buscar agendamento:", erro);
       res.status(500).json({ message: "Erro interno do servidor" });
     }
-  },
+  }
 );
 RoutesAgendamento.get(
   "/cliente/agendamento/:id",
@@ -627,7 +627,7 @@ RoutesAgendamento.get(
         ) {
           const agendamento = await ClientegetAgendamentoById(
             id,
-            includeRelations,
+            includeRelations
           );
 
           if (agendamento) {
@@ -645,7 +645,7 @@ RoutesAgendamento.get(
       console.error("Erro ao buscar agendamento por ID:", erro);
       res.status(500).json({ message: "Erro interno do servidor" });
     }
-  },
+  }
 );
 
 RoutesAgendamento.delete(
@@ -681,7 +681,7 @@ RoutesAgendamento.delete(
       console.error("Erro ao deletar agendamento:", erro);
       res.status(500).json({ message: "Erro interno do servidor" });
     }
-  },
+  }
 );
 
 RoutesAgendamento.get(
@@ -694,29 +694,38 @@ RoutesAgendamento.get(
       if (!userInfo) {
         res.status(403).json({ message: "Não autorizado" });
       } else {
-      if (
-        auth &&
-        [
-          userTypes.CLIENTE,
-          userTypes.FUNCIONARIO,
-          userTypes.CABELEIREIRO,
-          userTypes.ADM_SALAO,
-          userTypes.ADM_SISTEMA,
-        ].includes(userInfo.userType)
-      ) {
-        if (!salaoId || !cabeleireiroId || !data) {
-          res.status(400).json({ message: "Parâmetros obrigatórios: salaoId, cabeleireiroId e data." });
-        }
-        const horarios = await getHorariosOcupadosFuturos(salaoId, cabeleireiroId, String(data));
-        if (horarios !== false) {
-          res.status(200).json(horarios);
+        if (
+          auth &&
+          [
+            userTypes.CLIENTE,
+            userTypes.FUNCIONARIO,
+            userTypes.CABELEIREIRO,
+            userTypes.ADM_SALAO,
+            userTypes.ADM_SISTEMA,
+          ].includes(userInfo.userType)
+        ) {
+          if (!salaoId || !cabeleireiroId || !data) {
+            res.status(400).json({
+              message:
+                "Parâmetros obrigatórios: salaoId, cabeleireiroId e data.",
+            });
+          }
+          const horarios = await getHorariosOcupadosFuturos(
+            salaoId,
+            cabeleireiroId,
+            String(data)
+          );
+          if (horarios !== false) {
+            res.status(200).json(horarios);
+          } else {
+            throw new Error("Erro ao buscar horários ocupados futuros");
+          }
         } else {
-          throw new Error("Erro ao buscar horários ocupados futuros");
+          res
+            .status(403)
+            .json({ message: "Não autorizado a fazer esta chamada" });
         }
-      } else {
-        res.status(403).json({ message: "Não autorizado a fazer esta chamada" });
       }
-    }
     } catch (erro) {
       console.error("Erro ao buscar horários ocupados futuros:", erro);
       res.status(500).json({ message: "Erro interno do servidor" });
