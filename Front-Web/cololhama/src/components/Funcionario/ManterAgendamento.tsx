@@ -49,7 +49,8 @@ import { AdapterDateFns } from "@mui/x-date-pickers/AdapterDateFns";
 
 const ManterAgendamento: React.FC = () => {
   const navigate = useNavigate();
-  const { agendamentoId } = useParams();
+  const { agendamentoId: agendamentoId } = useParams();
+  const isEditing = !!agendamentoId;
   const { doLogout, userType, userId } = useContext(AuthContext);
   const [openDeleteDialog, setOpenDeleteDialog] = useState(false);
   const [openServicosModal, setOpenServicosModal] = useState(false);
@@ -76,7 +77,7 @@ const ManterAgendamento: React.FC = () => {
     cabeleireirosDisponiveis,
     salaoId,
     isLoading,
-    isEditing,
+    isEditing: hookIsEditing,
     validationErrors,
     handleSubmit,
     handleDelete,
@@ -305,27 +306,27 @@ const ManterAgendamento: React.FC = () => {
                 )}
                 <Box>
                   <TextField
-                    fullWidth
-                    required
-                    label="Cliente"
-                    value={clienteNome}
-                    onClick={() => {
-                      if (userType !== "Cliente") setOpenClientesModal(true);
-                    }}
-                    error={Boolean(validationErrors.clienteId)}
-                    helperText={validationErrors.clienteId}
-                    placeholder={
-                      userType === "Cliente"
-                        ? "Cliente atual (você)"
-                        : "Clique para selecionar um cliente"
-                    }
-                    slotProps={{
-                      input: { readOnly: true },
-                    }}
-                    sx={{
-                      cursor:
-                        userType === "Cliente" ? "not-allowed" : "pointer",
-                    }}
+                  fullWidth
+                  required
+                  label="Cliente"
+                  value={clienteNome}
+                  onClick={() => {
+                    if (userType !== "Cliente" && !isEditing) setOpenClientesModal(true);
+                  }}
+                  error={Boolean(validationErrors.clienteId)}
+                  helperText={validationErrors.clienteId}
+                  placeholder={
+                    userType === "Cliente"
+                    ? "Cliente atual (você)"
+                    : "Clique para selecionar um cliente"
+                  }
+                  slotProps={{
+                    input: { readOnly: true },
+                  }}
+                  sx={{
+                    cursor:
+                    userType === "Cliente" || isEditing ? "not-allowed" : "pointer",
+                  }}
                   />
                 </Box>
 

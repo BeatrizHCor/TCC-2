@@ -99,7 +99,7 @@ export const CabeleireiroService = {
     salaoId: string,
     nome?: string
   ): Promise<CabeleireiroPageResponse> {
-    try {console.log("Enviando params:", { page, limit, includeRelations, salaoId, nome });
+    try {
       const response = await api.get(`/cabeleireiro/page`, {
         params: {
           page,

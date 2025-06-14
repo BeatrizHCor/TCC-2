@@ -438,7 +438,7 @@ export const VisualizarAtendimentos: React.FC = () => {
                 variant="contained"
                 color="primary"
                 onClick={() =>
-                  navigate(`/atendimento/${atendimentoSelecionado.ID}`)
+                  navigate(`/atendimento/editar/${atendimentoSelecionado.ID}`)
                 }
               >
                 Ir para página do atendimento

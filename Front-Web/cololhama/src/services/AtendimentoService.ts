@@ -3,7 +3,7 @@ import { Atendimento } from "../models/atendimentoModal";
 import { ServicoAtendimento } from "../models/servicoAtendimentoModel";
 import { AtendimentoAuxiliar } from "../models/atendimentoAuxiliarModel";
 
-const token = localStorage.getItem("usuario");
+
 const api = axios.create({
   baseURL: import.meta.env.VITE_GATEWAY_URL || "http://localhost:3002",
   headers: {
@@ -65,10 +65,10 @@ class AtendimentoService {
           data: dataFilter,
         },
       });
-      if (response.status === 403) {
-        return false;
+      if (response.status === 200) {
+        return response.data;
       }
-      return response.data;
+      return false;
     } catch (error) {
       console.error("Erro ao buscar atendimentos:", error);
       return false;
@@ -107,10 +107,10 @@ class AtendimentoService {
         auxiliares,
         AgendamentoID,
       });
-      if (response.status === 403) {
-        return false;
+      if (response.status === 201) {
+        return response.data;
       }
-      return response.data;
+      return false;
     } catch (error) {
       console.error("Erro ao criar atendimentos:", error);
       return false;
