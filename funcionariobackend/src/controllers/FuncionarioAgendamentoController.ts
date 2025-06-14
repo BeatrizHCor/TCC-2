@@ -6,6 +6,7 @@ class AgendamentoController {
     try {
       const { page, limit, includeRelations, salaoId, dia, mes, ano } =
         req.query;
+      console.log(req.query);
       const agendamentos = await AgendamentoService.getAgendamentosPage(
         Number(page),
         Number(limit),
