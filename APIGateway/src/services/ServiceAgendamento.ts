@@ -95,7 +95,6 @@ export const FuncionariogetAgendamentoById = async (
       method: "GET",
     }
   );
-
   return handleApiResponse<Agendamentos>(response, "buscar agendamento por ID");
 };
 export const FuncionarioDeleteAgendamento = async (id: string) => {
