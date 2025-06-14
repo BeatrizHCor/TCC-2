@@ -196,6 +196,28 @@ const ManterAgendamento: React.FC = () => {
     );
   }
 
+  const handleConfirmar = async (e: React.FormEvent) => {
+    try {
+      setStatus(StatusAgendamento.Confirmado);
+      await handleSubmit(e);
+      navigate("/atendimento", {
+        state: {
+          data,
+          status,
+          servicosAgendamento,
+          cabeleireiroId,
+          cabeleireiroNome,
+          clienteId,
+          salaoId,
+          agendamentoId,
+          isEditing: false,
+        },
+      });
+    } catch (e) {
+      console.log(e);
+    }
+  };
+
   return (
     <Box sx={{ width: "100%", p: 3 }}>
       <Paper
@@ -490,6 +512,7 @@ const ManterAgendamento: React.FC = () => {
               {isEditing ? (
                 <Button
                   variant="contained"
+                  type="submit"
                   startIcon={
                     isLoading ? (
                       <CircularProgress size={20} color="inherit" />
@@ -501,23 +524,9 @@ const ManterAgendamento: React.FC = () => {
                     isLoading ||
                     (isEditing && status !== StatusAgendamento.Finalizado)
                   }
-                  onClick={() =>
-                    navigate("/atendimento", {
-                      state: {
-                        data,
-                        status,
-                        servicosAgendamento,
-                        cabeleireiroId,
-                        cabeleireiroNome,
-                        clienteId,
-                        salaoId,
-                        agendamentoId,
-                        isEditing: false,
-                      },
-                    })
-                  }
+                  onClick={handleConfirmar}
                 >
-                  Finalizar Atendimento
+                  Confirmar Atendimento
                 </Button>
               ) : null}
             </Box>

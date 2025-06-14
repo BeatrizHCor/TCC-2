@@ -1,6 +1,9 @@
 import { Router, Request, Response } from "express";
 
-import { postAtendimento } from "../services/ServiceAtendimento";
+import {
+  getAtendimentobyAgendamentoId,
+  postAtendimento,
+} from "../services/ServiceAtendimento";
 import { userTypes } from "../models/tipo-usuario.enum";
 import { authenticate } from "../services/Service";
 
@@ -55,5 +58,19 @@ RoutesAtendimento.post("/atendimento", async (req: Request, res: Response) => {
     res.status(500).send("Erro no ao criar agendamento");
   }
 });
+
+RoutesAtendimento.get(
+  `/atendimentobyagendamento/:agendamentoId`,
+  async (req: Request, res: Response) => {
+    let { agendamentoId } = req.params;
+    try {
+      let atendimento = await getAtendimentobyAgendamentoId(agendamentoId);
+      res.status(201).json(atendimento);
+    } catch (e) {
+      console.log(e);
+      res.status(500).send("Error querying Cabeleireiros");
+    }
+  }
+);
 
 export default RoutesAtendimento;

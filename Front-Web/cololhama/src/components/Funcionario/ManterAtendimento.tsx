@@ -45,6 +45,7 @@ import { Servico } from "../../models/servicoModel";
 import { ServicoAgendamento } from "../../models/servicoAgendamentoModel";
 import { Cabeleireiro } from "../../models/cabelereiroModel";
 import useManterAtendimento from "./useManterAtendimento";
+import { ServicoAtendimento } from "../../models/servicoAtendimentoModel";
 
 const ManterAtendimento: React.FC = () => {
   const navigate = useNavigate();
@@ -82,6 +83,8 @@ const ManterAtendimento: React.FC = () => {
     isLoading,
     isEditing,
     validationErrors,
+    servicoAtendimento,
+    setServicoAtendimento,
     handleSubmit,
     handleDelete,
     forbidden,
@@ -146,6 +149,23 @@ const ManterAtendimento: React.FC = () => {
         </Button>
       </Box>
     );
+  }
+
+  function handlePrecoItem(ID: string | undefined, value: number): void {
+    let servicoAtendimentos = [...servicoAtendimento];
+    let index = servicoAtendimentos.findIndex((sa) => sa.ID === ID);
+    if (index >= 0) {
+      servicoAtendimentos[index] = {
+        ...servicoAtendimentos[index],
+        PrecoItem: value,
+      };
+    }
+    let total = servicoAtendimentos.reduce(
+      (sum: number, s: ServicoAtendimento) => sum + s.PrecoItem,
+      0
+    );
+    setServicoAtendimento(servicoAtendimentos);
+    setPrecoTotal(total);
   }
 
   return (
@@ -262,7 +282,7 @@ const ManterAtendimento: React.FC = () => {
             </Box>
             <Box sx={{ flex: 1 }}>
               <Typography variant="h6" sx={{ mb: 2 }}>
-                Serviços do Agendamento
+                Serviços do Atendimento
               </Typography>
 
               <Button
@@ -286,7 +306,7 @@ const ManterAtendimento: React.FC = () => {
                     </TableRow>
                   </TableHead>
                   <TableBody>
-                    {servicosAgendamento.length === 0 ? (
+                    {servicoAtendimento.length === 0 ? (
                       <TableRow>
                         <TableCell colSpan={4} align="center">
                           <Typography variant="body2" color="text.secondary">
@@ -295,17 +315,25 @@ const ManterAtendimento: React.FC = () => {
                         </TableCell>
                       </TableRow>
                     ) : (
-                      servicosAgendamento.map((servicoAgendamento) => (
-                        <TableRow key={servicoAgendamento.ID}>
+                      servicoAtendimento.map((servicoAtendimento) => (
+                        <TableRow key={servicoAtendimento.ID}>
                           <TableCell>
-                            {servicoAgendamento.Nome ||
+                            {servicoAtendimento.Servico?.Nome ||
                               "Serviço não encontrado"}
                           </TableCell>
                           <TableCell align="right">
-                            {formatCurrency(servicoAgendamento.PrecoMin)}
-                          </TableCell>
-                          <TableCell align="right">
-                            {formatCurrency(servicoAgendamento.PrecoMax)}
+                            <TextField
+                              variant="outlined"
+                              value={formatCurrency(
+                                servicoAtendimento.PrecoItem
+                              )}
+                              onChange={(e) =>
+                                handlePrecoItem(
+                                  servicoAtendimento.ID,
+                                  +e.target.value
+                                )
+                              }
+                            />
                           </TableCell>
                           <TableCell align="center">
                             <IconButton size="small" color="error">
@@ -319,23 +347,10 @@ const ManterAtendimento: React.FC = () => {
                 </Table>
               </TableContainer>
 
-              {servicosAgendamento.length > 0 && (
+              {servicoAtendimento.length > 0 && (
                 <Box sx={{ mt: 2 }}>
                   <Typography variant="subtitle2">
-                    Total estimado:{" "}
-                    {formatCurrency(
-                      servicosAgendamento.reduce(
-                        (sum, s) => sum + s.PrecoMin,
-                        0
-                      )
-                    )}{" "}
-                    -{" "}
-                    {formatCurrency(
-                      servicosAgendamento.reduce(
-                        (sum, s) => sum + s.PrecoMax,
-                        0
-                      )
-                    )}
+                    Total: {formatCurrency(precoTotal)}
                   </Typography>
                 </Box>
               )}
@@ -381,39 +396,8 @@ const ManterAtendimento: React.FC = () => {
                 }
                 disabled={isLoading || (isEditing && !canSaveEdit)}
               >
-                {isEditing ? "Salvar Alterações" : "Criar Agendamento"}
+                {isEditing ? "Salvar Alterações" : "Criar Atendimento"}
               </Button>
-              {isEditing ? (
-                <Button
-                  variant="contained"
-                  startIcon={
-                    isLoading ? (
-                      <CircularProgress size={20} color="inherit" />
-                    ) : (
-                      <SaveIcon />
-                    )
-                  }
-                  disabled={
-                    isLoading ||
-                    (isEditing && status !== StatusAgendamento.Finalizado)
-                  }
-                  onClick={() =>
-                    navigate("/atendimento", {
-                      state: {
-                        data,
-                        status,
-                        servicosAgendamento,
-                        cabeleireiroId,
-                        clienteId,
-                        salaoId,
-                        agendamentoId,
-                      },
-                    })
-                  }
-                >
-                  Finalizar Atendimento
-                </Button>
-              ) : null}
             </Box>
           </Box>
         </form>
@@ -423,7 +407,7 @@ const ManterAtendimento: React.FC = () => {
         <DialogTitle>Confirmar exclusão</DialogTitle>
         <DialogContent>
           <DialogContentText>
-            Tem certeza que deseja excluir este agendamento? Esta ação não pode
+            Tem certeza que deseja excluir este atendimento? Esta ação não pode
             ser desfeita.
           </DialogContentText>
         </DialogContent>
@@ -447,7 +431,7 @@ const ManterAtendimento: React.FC = () => {
             {servicosDisponiveis
               .filter(
                 (servico) =>
-                  !servicosAgendamento.some((sa) => sa.ServicoId === servico.ID)
+                  !servicoAtendimento.some((sa) => sa.ServicoId === servico.ID)
               )
               .map((servico) => (
                 <ListItem key={servico.ID} disablePadding>

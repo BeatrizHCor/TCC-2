@@ -126,6 +126,19 @@ export const CabeleireirogetAgendamentoById = async (
     throw new Error("Erro ao buscar agendamento por ID");
   }
 };
+export const getAtendimentobyAgendamentoId = async (agendamentoId: string) => {
+  let response = await fetch(
+    CabeleireiroURL + `/atendimentobyagendamento/${agendamentoId}`,
+    {
+      method: "GET",
+    }
+  );
+  if (response.ok) {
+    return (await response.json()) as Atendimento;
+  } else {
+    throw new Error("Erro ao buscar agendamento por ID");
+  }
+};
 
 export const postAtendimento = async (
   Data: Date,

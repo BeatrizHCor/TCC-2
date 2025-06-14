@@ -74,6 +74,20 @@ class AtendimentoService {
       return false;
     }
   }
+  static getAtendimentobyAgendamentoId = async (agendamentoId: string) => {
+    try {
+      const response = await api.get(
+        `/atendimentobyagendamento/${agendamentoId}`
+      );
+      if (response.status === 403) {
+        return false;
+      }
+      return response.data;
+    } catch (error) {
+      console.error("Erro ao criar atendimentos:", error);
+      return false;
+    }
+  };
   static createAtendimento = async (
     Data: Date,
     PrecoTotal: number,
@@ -85,6 +99,35 @@ class AtendimentoService {
   ) => {
     try {
       const response = await api.post(`/atendimento`, {
+        Data,
+        PrecoTotal,
+        Auxiliar,
+        SalaoId,
+        servicosAtendimento,
+        auxiliares,
+        AgendamentoID,
+      });
+      if (response.status === 403) {
+        return false;
+      }
+      return response.data;
+    } catch (error) {
+      console.error("Erro ao criar atendimentos:", error);
+      return false;
+    }
+  };
+  static updateAtendimento = async (
+    AtendimentoId: string,
+    Data: Date,
+    PrecoTotal: number,
+    Auxiliar: boolean,
+    SalaoId: string,
+    servicosAtendimento: ServicoAtendimento[] = [],
+    auxiliares: AtendimentoAuxiliar[] = [],
+    AgendamentoID: string
+  ) => {
+    try {
+      const response = await api.put(`/atendimento/${AtendimentoId}`, {
         Data,
         PrecoTotal,
         Auxiliar,

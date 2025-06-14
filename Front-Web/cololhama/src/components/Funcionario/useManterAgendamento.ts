@@ -368,7 +368,7 @@ export const useManterAgendamento = (
               salaoId,
               servicosIds
             );
-            break;
+            return;
           case userTypes.Cabeleireiro:
             await AgendamentoService.updateCabeleireiroAgendamento(
               agendamentoId,
@@ -379,7 +379,7 @@ export const useManterAgendamento = (
               salaoId,
               servicosIds
             );
-            break;
+            return;
           case userTypes.Cliente:
             await AgendamentoService.updateClienteAgendamento(
               agendamentoId,
@@ -390,7 +390,7 @@ export const useManterAgendamento = (
               salaoId,
               servicosIds
             );
-            break;
+            return;
           default:
             throw new Error("Tipo de usuário inválido");
         }
@@ -406,7 +406,7 @@ export const useManterAgendamento = (
               salaoId,
               servicosIds
             );
-            break;
+            return;
           case userTypes.Cabeleireiro:
             await AgendamentoService.createCabeleireiroAgendamento(
               new Date(data).toISOString(),
@@ -415,7 +415,7 @@ export const useManterAgendamento = (
               salaoId,
               servicosIds
             );
-            break;
+            return;
           case userTypes.Cliente:
             await AgendamentoService.createClienteAgendamento(
               new Date(data).toISOString(),
@@ -424,7 +424,7 @@ export const useManterAgendamento = (
               salaoId,
               servicosIds
             );
-            break;
+            return;
           default:
             throw new Error("Tipo de usuário inválido");
         }

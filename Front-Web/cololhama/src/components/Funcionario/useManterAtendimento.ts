@@ -39,7 +39,7 @@ export const useManterAtendimento = (
   const [clienteId, setClienteId] = useState("");
   const [cabeleireiroId, setCabeleireiroId] = useState("");
   const [cabeleireiroNome, setCabeleireiroNome] = useState("");
-
+  const [atendimentoId, setAtendimentoId] = useState("");
   const [servicosDisponiveis, setServicosDisponiveis] = useState<Servico[]>([]);
   const [cabeleireirosDisponiveis, setCabeleireirosDisponiveis] = useState<
     Cabeleireiro[]
@@ -94,6 +94,14 @@ export const useManterAtendimento = (
 
       setIsLoading(true);
       try {
+        let atendimentoId = "";
+        if (agendamentoId) {
+          atendimentoId =
+            await AtendimentoService.getAtendimentobyAgendamentoId(
+              agendamentoId
+            );
+          setAtendimentoId(atendimentoId);
+        }
         const servicos = await ServicoService.getServicosBySalao(salaoId);
         setServicosDisponiveis(servicos);
 
@@ -173,7 +181,8 @@ export const useManterAtendimento = (
     try {
       if (isEditing && agendamentoId) {
       } else {
-        await AtendimentoService.createAtendimento(
+        await AtendimentoService.updateAtendimento(
+          atendimentoId,
           new Date(data),
           precoTotal,
           false,
@@ -205,8 +214,7 @@ export const useManterAtendimento = (
     setIsLoading(true);
 
     try {
-      await AgendamentoService.deleteAgendamento(agendamentoId);
-      navigate(-1);
+      return;
     } catch (error: unknown) {
       console.error("Erro ao excluir agendamento:", error);
 
