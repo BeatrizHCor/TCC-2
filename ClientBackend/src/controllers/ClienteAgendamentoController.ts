@@ -111,7 +111,9 @@ class AgendamentoController {
   static deleteAgendamento = async (req: Request, res: Response) => {
     try {
       const { id } = req.params;
+      console.log("controller do delete: ", id)
       const agendamento = await AgendamentoService.deleteAgendamento(id);
+       console.log(agendamento)
       if (!agendamento) {
         res.status(404).json({ message: "Agendamento não encontrado" });
       } else {
