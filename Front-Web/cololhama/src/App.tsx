@@ -23,6 +23,7 @@ import { AuthContextProvider } from "./contexts/AuthContext";
 import VisualizarAtendimentoPage from "./pages/Funcionario/VisualizarAtendimento";
 import ManterAgendamentoPage from "./pages/Funcionario/ManterAgendamentoPage";
 import ManterAtendimento from "./components/Funcionario/ManterAtendimento";
+import HairColorSimulator from "./components/IA/Simulacao";
 
 const App: React.FC = () => {
   return (
@@ -74,6 +75,8 @@ const App: React.FC = () => {
           <Route path="/agendamento/novo" element={<ManterAgendamentoPage />} />
           <Route path="/atendimento/editar/" element={<ManterAtendimento />} />
           <Route path="/atendimentos" element={<VisualizarAtendimentoPage />} />
+
+          <Route path="/simulacao" element={<HairColorSimulator/>}/>
         </Routes>
       </ThemeProvider>
     </AuthContextProvider>
