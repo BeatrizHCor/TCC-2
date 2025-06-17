@@ -9,6 +9,7 @@ import {
   CardMedia,
   CircularProgress,
   Alert,
+  Dialog,
 } from '@mui/material';
 import { Upload, Download, Palette, Camera, AlertCircle, Loader2 } from 'lucide-react';
 
@@ -26,12 +27,14 @@ interface ResultsType {
   };
 }
 
-const HairColorSimulator: React.FC = () => {
+const Cololhama: React.FC = () => {
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [preview, setPreview] = useState<string | null>(null);
   const [results, setResults] = useState<ResultsType | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [modalOpen, setModalOpen] = useState(false);
+  const [modalImage, setModalImage] = useState<string | null>(null);
   const fileInputRef = useRef<HTMLInputElement | null>(null);
 
   const handleFileSelect = (event: ChangeEvent<HTMLInputElement>) => {
@@ -39,7 +42,7 @@ const HairColorSimulator: React.FC = () => {
     if (file) {
       setSelectedFile(file);
       setError(null);
-
+      setResults(null); // limpar resultados ao trocar imagem
       const reader = new FileReader();
       reader.onload = (e) => {
         setPreview(e.target?.result as string);
@@ -105,11 +108,21 @@ const HairColorSimulator: React.FC = () => {
     </Card>
   );
 
-  const ImageResult: React.FC<{ src: string; title: string; onDownload: () => void }> = ({
-    src, title, onDownload,
-  }) => (
+  const ImageResult: React.FC<{
+    src: string;
+    title: string;
+    onDownload: () => void;
+    onClickImage: () => void;
+  }> = ({ src, title, onDownload, onClickImage }) => (
     <Card>
-      <CardMedia component="img" height="180" image={src} alt={title} />
+      <CardMedia
+        component="img"
+        height="180"
+        image={src}
+        alt={title}
+        sx={{ cursor: 'pointer' }}
+        onClick={onClickImage}
+      />
       <CardContent>
         <Typography variant="h6" gutterBottom>{title}</Typography>
         <Button fullWidth variant="contained" onClick={onDownload} startIcon={<Download size={16} />}>
@@ -157,8 +170,12 @@ const HairColorSimulator: React.FC = () => {
             <Typography variant="caption" color="text.secondary">ou arraste e solte aqui</Typography>
           </Box>
         ) : (
-          <Box textAlign="center">
-            <img src={preview} alt="Preview" style={{ maxWidth: 400, marginBottom: 16 }} />
+          <>
+            {!results && preview && (
+              <Box textAlign="center" mb={4}>
+                <img src={preview} alt="Preview" style={{ maxWidth: 300, borderRadius: 8 }} />
+              </Box>
+            )}
             <Box display="flex" justifyContent="center" gap={2}>
               <Button variant="outlined" onClick={() => fileInputRef.current?.click()}>
                 Escolher Outra Imagem
@@ -173,7 +190,7 @@ const HairColorSimulator: React.FC = () => {
                 {loading ? 'Processando...' : 'Simular Cores'}
               </Button>
             </Box>
-          </Box>
+          </>
         )}
       </Card>
 
@@ -199,18 +216,24 @@ const HairColorSimulator: React.FC = () => {
           <Card sx={{ p: 4, mb: 4 }}>
             <Typography variant="h6" mb={2}>Simulações</Typography>
             <Grid container spacing={2}>
-              <Grid item xs={12} sm={6} md={3}>
-                <ImageResult src={results.images.original} title="Original" onDownload={() => downloadImage(results.images.original, 'original.jpg')} />
-              </Grid>
-              <Grid item xs={12} sm={6} md={3}>
-                <ImageResult src={results.images.analogous_1} title="Análoga 1" onDownload={() => downloadImage(results.images.analogous_1, 'analogous_1.jpg')} />
-              </Grid>
-              <Grid item xs={12} sm={6} md={3}>
-                <ImageResult src={results.images.analogous_2} title="Análoga 2" onDownload={() => downloadImage(results.images.analogous_2, 'analogous_2.jpg')} />
-              </Grid>
-              <Grid item xs={12} sm={6} md={3}>
-                <ImageResult src={results.images.complementary} title="Complementar" onDownload={() => downloadImage(results.images.complementary, 'complementary.jpg')} />
-              </Grid>
+              {[
+                { title: 'Original', src: results.images.original },
+                { title: 'Análoga 1', src: results.images.analogous_1 },
+                { title: 'Análoga 2', src: results.images.analogous_2 },
+                { title: 'Complementar', src: results.images.complementary },
+              ].map((img, index) => (
+                <Grid item xs={12} sm={6} md={3} key={index}>
+                  <ImageResult
+                    src={img.src}
+                    title={img.title}
+                    onDownload={() => downloadImage(img.src, `${img.title.toLowerCase()}.jpg`)}
+                    onClickImage={() => {
+                      setModalImage(img.src);
+                      setModalOpen(true);
+                    }}
+                  />
+                </Grid>
+              ))}
             </Grid>
           </Card>
 
@@ -227,8 +250,51 @@ const HairColorSimulator: React.FC = () => {
           </Card>
         </>
       )}
+
+      <Dialog
+        open={modalOpen}
+        onClose={() => setModalOpen(false)}
+        maxWidth="xl"
+        fullWidth
+        BackdropProps={{
+          style: { backgroundColor: 'rgba(0, 0, 0, 0.7)' },
+        }}
+        PaperProps={{
+          sx: {
+            backgroundColor: 'transparent',
+            boxShadow: 'none',
+            display: 'flex',
+            justifyContent: 'center',
+            alignItems: 'center',
+          },
+        }}
+      >
+        <Box
+          onClick={() => setModalOpen(false)}
+          sx={{
+            width: '100%',
+            height: '100%',
+            display: 'flex',
+            justifyContent: 'center',
+            alignItems: 'center',
+            cursor: 'zoom-out',
+          }}
+        >
+          {modalImage && (
+            <img
+              src={modalImage}
+              alt="Visualização Ampliada"
+              style={{
+                maxWidth: '90vw',
+                maxHeight: '90vh',
+                objectFit: 'contain',
+              }}
+            />
+          )}
+        </Box>
+      </Dialog>
     </Box>
   );
 };
 
-export default HairColorSimulator;
+export default Cololhama;
