@@ -1,7 +1,6 @@
 import prisma from "../config/database";
 import { Prisma } from "@prisma/client";
 
-
 class ServicoService {
   static async getServicos(
     skip: number | null = null,
@@ -10,13 +9,13 @@ class ServicoService {
     precoMin: number,
     precoMax: number,
     include = false,
-    salaoId: string
+    salaoId: string,
   ) {
     let whereCondition: Prisma.ServicoWhereInput = {};
     if (nome) {
       whereCondition.Nome = {
         contains: nome,
-        mode: 'insensitive',
+        mode: "insensitive",
       };
     }
     if (salaoId) {
@@ -37,13 +36,13 @@ class ServicoService {
     if (skip !== null) {
       query.skip = skip;
     } else {
-      query.skip = 0; 
+      query.skip = 0;
     }
 
     if (skip !== null) {
       query.take = limit;
     } else {
-      query.take = 10; 
+      query.take = 10;
     }
 
     if (include) {
@@ -52,9 +51,11 @@ class ServicoService {
         ServicoAtendimento: true,
       };
     }
+    query.orderBy = { Nome: "asc" };
+
     return await prisma.servico.findMany(query);
   }
-  
+
   static async getServicoPage(
     page: number,
     limit: number,
@@ -62,7 +63,7 @@ class ServicoService {
     precoMin: number,
     precoMax: number,
     includeRelations = false,
-    salaoId: string
+    salaoId: string,
   ) {
     const skip = (page - 1) * limit;
     const where: Prisma.ServicoWhereInput = {};
@@ -75,15 +76,23 @@ class ServicoService {
     if (precoMin !== 0) {
       where.PrecoMax = { lte: precoMax };
     }
-    if(nome){
-      where.Nome = { contains: nome, mode: 'insensitive' };
+    if (nome) {
+      where.Nome = { contains: nome, mode: "insensitive" };
     }
 
     const [total, servicos] = await Promise.all([
-      prisma.servico.count({ where }), 
-      ServicoService.getServicos(skip, limit, nome, precoMin, precoMax, includeRelations, salaoId),
+      prisma.servico.count({ where }),
+      ServicoService.getServicos(
+        skip,
+        limit,
+        nome,
+        precoMin,
+        precoMax,
+        includeRelations,
+        salaoId,
+      ),
     ]);
-  
+
     return {
       total: total,
       page: page,
@@ -91,13 +100,13 @@ class ServicoService {
       data: servicos,
     };
   }
-  
+
   static async create(
     Nome: string,
     PrecoMin: number,
     PrecoMax: number,
     Descricao: string,
-    SalaoId: string
+    SalaoId: string,
   ) {
     try {
       const servico = await prisma.servico.create({
@@ -106,13 +115,13 @@ class ServicoService {
           SalaoId: SalaoId,
           PrecoMin: PrecoMin,
           PrecoMax: PrecoMax,
-          Descricao: Descricao,          
+          Descricao: Descricao,
         },
-      });      
+      });
       return servico;
     } catch (error) {
       console.error("Erro ao criar serviço: ", error);
-      throw new Error('Erro ao criar serviço');
+      throw new Error("Erro ao criar serviço");
     }
   }
 
@@ -124,11 +133,11 @@ class ServicoService {
         },
         ...(include
           ? {
-              include: {
-                Salao: true,
-                ServicoAtendimento: true,
-              },
-            }
+            include: {
+              Salao: true,
+              ServicoAtendimento: true,
+            },
+          }
           : {}),
       });
     } catch (error) {
@@ -138,12 +147,13 @@ class ServicoService {
   }
 
   static async update(
-    ID: string, 
+    ID: string,
     Nome: string,
     PrecoMin: number,
     PrecoMax: number,
     Descricao: string,
-    SalaoId: string) {
+    SalaoId: string,
+  ) {
     try {
       return await prisma.servico.update({
         where: {
@@ -164,7 +174,7 @@ class ServicoService {
   }
 
   static async delete(ID: string) {
-    try {     
+    try {
       return await prisma.servico.delete({
         where: {
           ID: ID,
@@ -184,11 +194,14 @@ class ServicoService {
         },
         ...(include
           ? {
-              include: {
-                ServicoAtendimento: true,
-              },
-            }
+            include: {
+              ServicoAtendimento: true,
+            },
+          }
           : {}),
+        orderBy: {
+          Nome: "asc",
+        },
       });
     } catch (error) {
       console.error("Erro ao buscar serviços do salão: ", error);
@@ -202,8 +215,11 @@ class ServicoService {
           SalaoId: salaoId,
           Nome: {
             contains: nome,
-            mode: 'insensitive',
+            mode: "insensitive",
           },
+        },
+        orderBy: {
+          Nome: "asc",
         },
       });
     } catch (error) {

@@ -50,6 +50,9 @@ class ClienteService {
           },
         }
         : {}),
+      orderBy: {
+        Nome: "asc",
+      },
     });
   }
 

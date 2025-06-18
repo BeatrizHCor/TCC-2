@@ -1,9 +1,9 @@
 import {
-  Prisma,
-  StatusAgendamento,
   Agendamentos,
+  Prisma,
   Servico,
   ServicoAgendamento,
+  StatusAgendamento,
 } from "@prisma/client";
 import prisma from "../config/database";
 import { getRangeByDataInputWithTimezone } from "../utils/CalculoPeriododeTempo";
@@ -16,7 +16,7 @@ class AgendamentoService {
     salaoId: string | null = null,
     dia: number = 0,
     mes: number = 0,
-    ano: number = 0
+    ano: number = 0,
   ) => {
     let whereCondition: Prisma.AgendamentosWhereInput = {};
     console.log("Valores d,m,a: ", dia, mes, ano);
@@ -36,13 +36,16 @@ class AgendamentoService {
       where: whereCondition,
       ...(include
         ? {
-            include: {
-              Cliente: true,
-              Cabeleireiro: true,
-              Atendimento: true,
-            },
-          }
+          include: {
+            Cliente: true,
+            Cabeleireiro: true,
+            Atendimento: true,
+          },
+        }
         : {}),
+      orderBy: {
+        Data: "asc",
+      },
     });
   };
 
@@ -53,7 +56,7 @@ class AgendamentoService {
     salaoId: string | null = null,
     dia: number,
     mes: number,
-    ano: number
+    ano: number,
   ) => {
     try {
       const skip = (page - 1) * limit;
@@ -78,7 +81,7 @@ class AgendamentoService {
           salaoId,
           dia,
           mes,
-          ano
+          ano,
         ),
       ]);
 
@@ -102,13 +105,13 @@ class AgendamentoService {
         },
         ...(include
           ? {
-              include: {
-                Cliente: true,
-                Cabeleireiro: true,
-                Atendimento: true,
-                ServicoAgendamento: true,
-              },
-            }
+            include: {
+              Cliente: true,
+              Cabeleireiro: true,
+              Atendimento: true,
+              ServicoAgendamento: true,
+            },
+          }
           : {}),
       });
     } catch (e) {
@@ -123,7 +126,7 @@ class AgendamentoService {
     ClienteID: string,
     SalaoId: string,
     CabeleireiroID: string,
-    servicos: string[] = []
+    servicos: string[] = [],
   ) => {
     try {
       return await prisma.$transaction(async (tx) => {
@@ -168,7 +171,7 @@ class AgendamentoService {
     ClienteID: string,
     SalaoId: string,
     CabeleireiroID: string,
-    servicosIds: string[] = []
+    servicosIds: string[] = [],
   ) => {
     try {
       return await prisma.$transaction(async (tx) => {
@@ -223,7 +226,7 @@ class AgendamentoService {
   }
   static updateAdicionarAtendimento = async (
     agendamentoId: string,
-    atendimentoId: string
+    atendimentoId: string,
   ) => {
     try {
       return await prisma.agendamentos.update({

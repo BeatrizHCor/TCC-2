@@ -370,8 +370,8 @@ const ManterAgendamento: React.FC = () => {
 
                 {isEditing && !canSaveEdit && (
                   <Alert severity="warning">
-                    Não é possível salvar alterações em agendamentos com menos
-                    de 3 dias da data atual.
+                    Não é possível salvar alterações em agendamentos marcados a
+                    3 dias ou menos da data atual.
                   </Alert>
                 )}
 

@@ -7,7 +7,7 @@ class CabeleireiroService {
     limit: number | null = null,
     include = false,
     salaoId: string | null = null,
-    nome: string | null = null
+    nome: string | null = null,
   ) => {
     let whereCondition: Prisma.CabeleireiroWhereInput = {};
     if (nome && nome.trim().length > 0) {
@@ -25,11 +25,14 @@ class CabeleireiroService {
       where: whereCondition,
       ...(include
         ? {
-            include: {
-              Agendamentos: true,
-            },
-          }
+          include: {
+            Agendamentos: true,
+          },
+        }
         : {}),
+      orderBy: {
+        Nome: "asc",
+      },
     });
   };
 
@@ -38,7 +41,7 @@ class CabeleireiroService {
     limit = 10,
     includeRelations = false,
     salaoId: string | null = null,
-    nome: string | null = null
+    nome: string | null = null,
   ) => {
     const skip = (page - 1) * limit;
     const where: Prisma.CabeleireiroWhereInput = {};
@@ -58,7 +61,7 @@ class CabeleireiroService {
         limit,
         includeRelations,
         salaoId,
-        nome
+        nome,
       ),
     ]);
 
@@ -78,11 +81,11 @@ class CabeleireiroService {
         },
         ...(include
           ? {
-              include: {
-                Salao: true,
-                Agendamentos: true,
-              },
-            }
+            include: {
+              Salao: true,
+              Agendamentos: true,
+            },
+          }
           : {}),
       });
     } catch (e) {
@@ -97,7 +100,7 @@ class CabeleireiroService {
     Mei: string,
     Nome: string,
     Telefone: string,
-    SalaoId: string
+    SalaoId: string,
   ) => {
     try {
       return await prisma.cabeleireiro.create({
@@ -122,7 +125,7 @@ class CabeleireiroService {
     Nome: string,
     Telefone: string,
     SalaoId: string,
-    ID: string
+    ID: string,
   ) => {
     try {
       return await prisma.cabeleireiro.update({
@@ -161,21 +164,23 @@ class CabeleireiroService {
         where: {
           SalaoId: salaoID,
         },
-      ...(includeRelations
-            ? {
-                include: {
-                  Salao: true,
-                  Agendamentos: true,
-                },
-              }
-            : {}),
-        });
-      } catch (e) {
-        console.log(e);
-        return null;
-      }
-    };
-
+        ...(includeRelations
+          ? {
+            include: {
+              Salao: true,
+              Agendamentos: true,
+            },
+          }
+          : {}),
+        orderBy: {
+          Nome: "asc",
+        },
+      });
+    } catch (e) {
+      console.log(e);
+      return null;
+    }
+  };
 }
 
 export default CabeleireiroService;

@@ -29,11 +29,13 @@ class FuncionarioService {
         ? {
             include: {
               AtendimentoAuxiliar: true,
-              Holerite: true,
               Salao: true,
             },
           }
         : {}),
+              orderBy: {
+        Nome: "asc",
+      },
     });
   }
 
@@ -106,7 +108,6 @@ class FuncionarioService {
               include: {
                 Salao: true,
                 AtendimentoAuxiliar: true,
-                Holerite: true
               },
             }
           : {}),
@@ -129,7 +130,6 @@ class FuncionarioService {
           include: {
             Salao: true,
             AtendimentoAuxiliar: true,
-            Holerite: true
           }
         } : {})
       });
@@ -156,7 +156,6 @@ class FuncionarioService {
               include: {
                 Salao: true,
                 AtendimentoAuxiliar: true,
-                Holerite: true
               },
             }
           : {}),
