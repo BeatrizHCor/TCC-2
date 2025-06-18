@@ -2,38 +2,38 @@ import { Prisma } from "@prisma/client";
 import prisma from "../config/database";
 import { isValidString } from "../utils/ValidacaoValoresBusca";
 
-
 class FuncionarioService {
   static async getFuncionarios(
     skip: number | null,
     limit: number,
     nome: string | null = null,
     include = false,
-    salaoId: string
+    salaoId: string,
   ) {
     let where: Prisma.FuncionarioWhereInput = {};
     if (nome) {
       where.Nome = {
         contains: nome,
-        mode: 'insensitive',
+        mode: "insensitive",
       };
     }
     if (salaoId) {
-        where.SalaoId = salaoId;
+      where.SalaoId = salaoId;
     }
+    where.Status = "ATIVO";
     return await prisma.funcionario.findMany({
       ...(skip !== null ? { skip } : {}),
       ...(limit !== null ? { take: limit } : {}),
-      where: where,           
+      where: where,
       ...(include
         ? {
-            include: {
-              AtendimentoAuxiliar: true,
-              Salao: true,
-            },
-          }
+          include: {
+            AtendimentoAuxiliar: true,
+            Salao: true,
+          },
+        }
         : {}),
-              orderBy: {
+      orderBy: {
         Nome: "asc",
       },
     });
@@ -44,19 +44,26 @@ class FuncionarioService {
     limit = 10,
     nome: string | null = null,
     includeRelations = false,
-    salaoId: string
+    salaoId: string,
   ) {
     const skip = (page - 1) * limit;
     const where: Prisma.FuncionarioWhereInput = {};
     if (salaoId) {
       where.SalaoId = salaoId;
     }
-    if (nome !== null ){
-      where.Nome = { contains: nome, mode: 'insensitive' };
+    if (nome !== null) {
+      where.Nome = { contains: nome, mode: "insensitive" };
     }
+    where.Status = "ATIVO";
     const [total, funcionarios] = await Promise.all([
-      prisma.funcionario.count({where}),
-      FuncionarioService.getFuncionarios(skip, limit, nome, includeRelations, salaoId),
+      prisma.funcionario.count({ where }),
+      FuncionarioService.getFuncionarios(
+        skip,
+        limit,
+        nome,
+        includeRelations,
+        salaoId,
+      ),
     ]);
 
     return {
@@ -74,9 +81,8 @@ class FuncionarioService {
     Telefone: string,
     SalaoId: string,
     Auxiliar: boolean,
-    Salario: number
+    Salario: number,
   ) {
-
     try {
       const funcionario = await prisma.funcionario.create({
         data: {
@@ -86,14 +92,14 @@ class FuncionarioService {
           Telefone: Telefone,
           SalaoId: SalaoId,
           Auxiliar: Auxiliar,
-          Salario: Salario
+          Salario: Salario,
         },
       });
       console.log(funcionario);
       return funcionario;
     } catch (error) {
-      console.error('Erro ao criar funcionário:', error);
-      throw new Error('Erro ao criar funcionário');
+      console.error("Erro ao criar funcionário:", error);
+      throw new Error("Erro ao criar funcionário");
     }
   }
 
@@ -105,11 +111,11 @@ class FuncionarioService {
         },
         ...(include
           ? {
-              include: {
-                Salao: true,
-                AtendimentoAuxiliar: true,
-              },
-            }
+            include: {
+              Salao: true,
+              AtendimentoAuxiliar: true,
+            },
+          }
           : {}),
       });
     } catch (error) {
@@ -117,33 +123,38 @@ class FuncionarioService {
     }
   }
 
-  static async findByEmailandSalao(Email: string, salaoId: string, include = false) {
+  static async findByEmailandSalao(
+    Email: string,
+    salaoId: string,
+    include = false,
+  ) {
     try {
       return await prisma.funcionario.findUnique({
         where: {
           Email_SalaoId: {
             Email: Email,
-            SalaoId: salaoId
-          }
+            SalaoId: salaoId,
+          },
         },
-        ...(include ? {
-          include: {
-            Salao: true,
-            AtendimentoAuxiliar: true,
+        ...(include
+          ? {
+            include: {
+              Salao: true,
+              AtendimentoAuxiliar: true,
+            },
           }
-        } : {})
+          : {}),
       });
-    }
-    catch (error) {
-      console.error('Erro ao localizar funcionário:', error);
-      throw new Error('Erro ao localizar funcionário');
+    } catch (error) {
+      console.error("Erro ao localizar funcionário:", error);
+      throw new Error("Erro ao localizar funcionário");
     }
   }
 
   static async findByCpfandSalao(
     Cpf: string,
     salaoId: string,
-    include = false
+    include = false,
   ) {
     try {
       return await prisma.funcionario.findFirst({
@@ -153,11 +164,11 @@ class FuncionarioService {
         },
         ...(include
           ? {
-              include: {
-                Salao: true,
-                AtendimentoAuxiliar: true,
-              },
-            }
+            include: {
+              Salao: true,
+              AtendimentoAuxiliar: true,
+            },
+          }
           : {}),
       });
     } catch (error) {
@@ -166,17 +177,17 @@ class FuncionarioService {
   }
 
   static async update(
-        id: string,         
-        Nome: string,
-        CPF: string,
-        Email: string,
-        Telefone: string,
-        SalaoId: string,
-        Auxiliar: boolean,
-        Salario: number
+    id: string,
+    Nome: string,
+    CPF: string,
+    Email: string,
+    Telefone: string,
+    SalaoId: string,
+    Auxiliar: boolean,
+    Salario: number,
   ) {
     try {
-      const existingFuncionario = await this.findById(id)
+      const existingFuncionario = await this.findById(id);
       if (!existingFuncionario) {
         throw new Error("Funcionário não encontrado");
       }
@@ -191,7 +202,7 @@ class FuncionarioService {
           Telefone,
           SalaoId,
           Auxiliar,
-          Salario
+          Salario,
         },
       });
     } catch (error) {

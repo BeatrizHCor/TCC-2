@@ -9,20 +9,21 @@ class CabeleireiroService {
     salaoId: string | null = null,
     nome: string | null = null,
   ) => {
-    let whereCondition: Prisma.CabeleireiroWhereInput = {};
+    let where: Prisma.CabeleireiroWhereInput = {};
     if (nome && nome.trim().length > 0) {
-      whereCondition.Nome = {
+      where.Nome = {
         contains: nome,
         mode: "insensitive",
       };
-      if (salaoId) {
-        whereCondition.SalaoId = salaoId;
-      }
     }
+    if (salaoId) {
+      where.SalaoId = salaoId;
+    }
+    where.Status = "ATIVO";
     return await prisma.cabeleireiro.findMany({
       ...(skip !== null ? { skip } : {}),
       ...(limit !== null ? { take: limit } : {}),
-      where: whereCondition,
+      where: where,
       ...(include
         ? {
           include: {
@@ -54,6 +55,7 @@ class CabeleireiroService {
         mode: "insensitive",
       };
     }
+    where.Status = "ATIVO";
     const [total, cabeleireiros] = await Promise.all([
       await prisma.cabeleireiro.count({ where }),
       CabeleireiroService.getCabeleireiros(
@@ -163,6 +165,7 @@ class CabeleireiroService {
       return await prisma.cabeleireiro.findMany({
         where: {
           SalaoId: salaoID,
+          Status: "ATIVO",
         },
         ...(includeRelations
           ? {

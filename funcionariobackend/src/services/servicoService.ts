@@ -39,12 +39,11 @@ class ServicoService {
       query.skip = 0;
     }
 
-    if (skip !== null) {
+    if (limit !== null) {
       query.take = limit;
     } else {
       query.take = 10;
     }
-
     if (include) {
       query.include = {
         Salao: true,

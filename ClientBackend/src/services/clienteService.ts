@@ -38,6 +38,7 @@ class ClienteService {
         },
       });
     }
+    where.Status = "ATIVO";
     return await prisma.cliente.findMany({
       ...(skip !== null ? { skip } : {}),
       ...(limit !== null ? { take: limit } : {}),
@@ -86,6 +87,7 @@ class ClienteService {
         },
       });
     }
+    where.Status = "ATIVO";
     const [total, clientes] = await Promise.all([
       prisma.cliente.count({ where }),
       ClienteService

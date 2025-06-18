@@ -21,16 +21,6 @@ api.interceptors.request.use((config) => {
   return config;
 });
 
-api.interceptors.response.use(
-  (response) => {
-    console.log("Resposta da API:", response);
-    return response;
-  },
-  (error) => {
-    console.error("Erro na API:", error);
-    return Promise.reject(error);
-  }
-);
 
 interface ClientePageResponse {
   data: Cliente[];
@@ -71,10 +61,6 @@ export const ClienteService = {
 
     try {
       const response = await api.post(`/cadastrar/cliente`, dadosEnvio);
-
-      console.log("Resposta completa da API:", response);
-      console.log("Status da resposta:", response.status);
-      console.log("Dados da resposta:", response.data);
 
       if (response.data && response.data.token) {
         localStorage.setItem("usuario", JSON.stringify(response.data));
