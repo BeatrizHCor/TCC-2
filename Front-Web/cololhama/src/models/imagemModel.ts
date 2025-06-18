@@ -1,4 +1,5 @@
 import { HistoricoSimulacao } from "./historicoSimulacaoModel";
+import { ImagemTipo } from "./imagemTipo.enum";
 
 export interface Imagem {
     ID?: string;
@@ -7,5 +8,6 @@ export interface Imagem {
     HistoricoSimulacao: HistoricoSimulacao;
     Endereco: string;
     Descricao?: string;
+    Tipo: ImagemTipo
   }
   

@@ -47,50 +47,11 @@ class AgendamentoService {
             },
           }
         : {}),
+              orderBy: {
+        Data: "asc",
+      },
     });
   };
-
-  // static getAgendamentosPage = async (
-  //   page = 1,
-  //   limit = 10,
-  //   includeRelations: boolean,
-  //   salaoId: string | null = null,
-  //   cabeleireiroId: string,
-  //   dia: number,
-  //   mes: number,
-  //   ano: number
-  // ) => {
-  //   try {
-  //     const skip = (page - 1) * limit;
-
-  //     let where: Prisma.AgendamentosWhereInput = {};
-  //     const range = getRangeByDataInputWithTimezone(ano, mes, dia);
-  //     if (salaoId !== null) {
-  //       where.SalaoId = salaoId;
-  //     }
-  //     if (range !== null) {
-  //       where.Data = {
-  //         gte: range.dataInicial,
-  //         lte: range.dataFinal,
-  //       };
-  //       }
-  //       where.CabeleireiroID = cabeleireiroId;
-
-  //       return await prisma.agendamentos.findMany({
-  //       ...(skip !== null ? { skip } : {}),
-  //       ...(limit !== null ? { take: limit } : {}),
-  //       where: where,
-  //       ...(includeRelations
-  //           ? {
-  //               include: {
-  //               Cliente: true,
-  //               Cabeleireiro: true,
-  //               Atendimento: true,
-  //               },
-  //           }
-  //           : {}),
-  //       });
-  //   } }
 
   static getAgendamentosPage = async (
     page = 1,

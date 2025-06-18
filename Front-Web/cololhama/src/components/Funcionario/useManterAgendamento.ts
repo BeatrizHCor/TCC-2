@@ -239,7 +239,6 @@ export const useManterAgendamento = (
           default:
             throw new Error("Tipo de usuário inválido");
         }
-        console.log("Valor de agendamento.Data:", agendamento.Data);
         const dataFormatted = new Date(agendamento.Data)
           .toISOString()
           .slice(0, 16);

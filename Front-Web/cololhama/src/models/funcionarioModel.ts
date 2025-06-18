@@ -1,5 +1,4 @@
 import { AtendimentoAuxiliar } from "./atendimentoAuxiliarModel";
-import { Holerite } from "./holeriteModel";
 import { Salao } from "./salaoModel";
 
 export interface Funcionario {
@@ -13,6 +12,5 @@ export interface Funcionario {
     Auxiliar: boolean;
     Salario?: number;
     AtendimentoAuxiliar?: AtendimentoAuxiliar[];
-    Holerite?: Holerite[];
     DataCadastro?: Date;
   }

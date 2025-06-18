@@ -46,7 +46,8 @@ model Cliente {
   Agendamentos       Agendamentos[]
   HistoricoSimulacao HistoricoSimulacao[]
   DataCadastro       DateTime             @default(now())
-
+  Status        StatusCadastro       @default(ATIVO)
+  
   @@unique([Email, SalaoId])
   @@unique([CPF, SalaoId])
 }
@@ -64,6 +65,7 @@ model Funcionario {
   Salario             Float
   AtendimentoAuxiliar AtendimentoAuxiliar[]
   DataCadastro        DateTime             @default(now())
+  Status              StatusCadastro       @default(ATIVO)
 
   @@unique([Email, SalaoId])
   @@unique([CPF, SalaoId])
@@ -82,6 +84,7 @@ model Cabeleireiro {
   Portfolio     Portfolio?
   Agendamentos  Agendamentos[]
   DataCadastro  DateTime             @default(now())
+  Status        StatusCadastro       @default(ATIVO)
 
   @@unique([Email, SalaoId])
   @@unique([CPF, SalaoId])
@@ -245,4 +248,9 @@ enum userTypes {
   Cabeleireiro
   AdmSalao
   AdmSistema
+}
+
+enum StatusCadastro {
+  ATIVO
+  DESATIVADO
 }

@@ -7,29 +7,33 @@ class CabeleireiroService {
     limit: number | null = null,
     include = false,
     salaoId: string | null = null,
-    nome: string | null = null
+    nome: string | null = null,
   ) => {
-    let whereCondition: Prisma.CabeleireiroWhereInput = {};
+    let where: Prisma.CabeleireiroWhereInput = {};
     if (nome && nome.trim().length > 0) {
-      whereCondition.Nome = {
+      where.Nome = {
         contains: nome,
         mode: "insensitive",
       };
-      if (salaoId) {
-        whereCondition.SalaoId = salaoId;
-      }
     }
+    if (salaoId) {
+      where.SalaoId = salaoId;
+    }
+    where.Status = "ATIVO";
     return await prisma.cabeleireiro.findMany({
       ...(skip !== null ? { skip } : {}),
       ...(limit !== null ? { take: limit } : {}),
-      where: whereCondition,
+      where: where,
       ...(include
         ? {
-            include: {
-              Agendamentos: true,
-            },
-          }
+          include: {
+            Agendamentos: true,
+          },
+        }
         : {}),
+      orderBy: {
+        Nome: "asc",
+      },
     });
   };
 
@@ -38,7 +42,7 @@ class CabeleireiroService {
     limit = 10,
     includeRelations = false,
     salaoId: string | null = null,
-    nome: string | null = null
+    nome: string | null = null,
   ) => {
     const skip = (page - 1) * limit;
     const where: Prisma.CabeleireiroWhereInput = {};
@@ -51,6 +55,7 @@ class CabeleireiroService {
         mode: "insensitive",
       };
     }
+    where.Status = "ATIVO";
     const [total, cabeleireiros] = await Promise.all([
       await prisma.cabeleireiro.count({ where }),
       CabeleireiroService.getCabeleireiros(
@@ -58,7 +63,7 @@ class CabeleireiroService {
         limit,
         includeRelations,
         salaoId,
-        nome
+        nome,
       ),
     ]);
 
@@ -78,11 +83,11 @@ class CabeleireiroService {
         },
         ...(include
           ? {
-              include: {
-                Salao: true,
-                Agendamentos: true,
-              },
-            }
+            include: {
+              Salao: true,
+              Agendamentos: true,
+            },
+          }
           : {}),
       });
     } catch (e) {
@@ -97,7 +102,7 @@ class CabeleireiroService {
     Mei: string,
     Nome: string,
     Telefone: string,
-    SalaoId: string
+    SalaoId: string,
   ) => {
     try {
       return await prisma.cabeleireiro.create({
@@ -122,7 +127,7 @@ class CabeleireiroService {
     Nome: string,
     Telefone: string,
     SalaoId: string,
-    ID: string
+    ID: string,
   ) => {
     try {
       return await prisma.cabeleireiro.update({
@@ -160,22 +165,25 @@ class CabeleireiroService {
       return await prisma.cabeleireiro.findMany({
         where: {
           SalaoId: salaoID,
+          Status: "ATIVO",
         },
-      ...(includeRelations
-            ? {
-                include: {
-                  Salao: true,
-                  Agendamentos: true,
-                },
-              }
-            : {}),
-        });
-      } catch (e) {
-        console.log(e);
-        return null;
-      }
-    };
-
+        ...(includeRelations
+          ? {
+            include: {
+              Salao: true,
+              Agendamentos: true,
+            },
+          }
+          : {}),
+        orderBy: {
+          Nome: "asc",
+        },
+      });
+    } catch (e) {
+      console.log(e);
+      return null;
+    }
+  };
 }
 
 export default CabeleireiroService;

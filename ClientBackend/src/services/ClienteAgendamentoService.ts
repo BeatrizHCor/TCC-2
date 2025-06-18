@@ -47,6 +47,9 @@ class AgendamentoService {
                     },
                 }
                 : {}),
+            orderBy: {
+                Data: "asc",
+            },
         });
     };
 
@@ -275,7 +278,6 @@ class AgendamentoService {
             throw new Error("Erro ao buscar horários ocupados futuros");
         }
     }
-
 }
 
 export default AgendamentoService;

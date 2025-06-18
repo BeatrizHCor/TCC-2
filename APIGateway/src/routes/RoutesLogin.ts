@@ -25,7 +25,6 @@ RoutesLogin.post("/login", async (req: Request, res: Response) => {
   }
 });
 
-//authenticate puro, não faz nada além de testar os tokens. Não precisa ser usado no front e será removido(?)
 RoutesLogin.post("/authenticate", async (req: Request, res: Response) => {
   let response = await fetch(loginURL + "/authenticate", {
     method: "POST",
