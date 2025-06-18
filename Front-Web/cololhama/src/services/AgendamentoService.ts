@@ -28,9 +28,9 @@ class AgendamentoService {
     page: number = 1,
     limit: number = 10,
     salaoId: string,
-    ano?: number,
-    mes?: number,
-    dia?: number,
+    ano: number,
+    mes: number,
+    dia: number,
     includeRelations: boolean = false
   ): Promise<AgendamentoPaginadoResponse> {
     try {
@@ -56,9 +56,9 @@ class AgendamentoService {
     page: number = 1,
     limit: number = 10,
     salaoId: string,
-    ano?: number,
-    mes?: number,
-    dia?: number,
+    ano: number,
+    mes: number,
+    dia: number,
     includeRelations: boolean = false
   ): Promise<AgendamentoPaginadoResponse> {
     try {
@@ -85,9 +85,9 @@ class AgendamentoService {
     page: number = 1,
     limit: number = 10,
     salaoId: string,
-    ano?: number,
-    mes?: number,
-    dia?: number,
+    ano: number,
+    mes: number,
+    dia: number,
     includeRelations: boolean = false
   ): Promise<AgendamentoPaginadoResponse> {
     try {

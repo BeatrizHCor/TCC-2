@@ -232,7 +232,6 @@ const VisualizarAgendamento: React.FC = () => {
             </>
           )}
 
-          {/* Modal de detalhes */}
           <Dialog open={modalAberto} onClose={handleFecharModal} maxWidth="sm" fullWidth>
             {agendamentoSelecionado && (
               <>
@@ -254,10 +253,10 @@ const VisualizarAgendamento: React.FC = () => {
                   <Typography>{formatarDataHora(agendamentoSelecionado.Data)}</Typography>
 
                   <Typography fontWeight="bold" sx={{ mt: 2 }}>Cliente</Typography>
-                  <Typography>{agendamentoSelecionado.Cliente?.Nome || `ID: ${agendamentoSelecionado.ClienteID}`}</Typography>
+                  <Typography>{agendamentoSelecionado.Cliente?.Nome || "Nome não encontrado" }</Typography>
 
                   <Typography fontWeight="bold" sx={{ mt: 2 }}>Profissional</Typography>
-                  <Typography>{agendamentoSelecionado.Cabeleireiro?.Nome || `ID: ${agendamentoSelecionado.CabeleireiroID}`}</Typography>
+                  <Typography>{agendamentoSelecionado.Cabeleireiro?.Nome || "Nome não encontrado" }</Typography>
                 </DialogContent>
                 <DialogActions>
                   <Button onClick={handleFecharModal}>Fechar</Button>
