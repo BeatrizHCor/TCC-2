@@ -25,15 +25,12 @@ model Salao {
   Email              String
   Clientes           Cliente[]
   Funcionarios       Funcionario[]
-  Pagamentos         PagamentosAssinatura[]
   Cabeleireiros      Cabeleireiro[]
   Adm                AdmSalao?
   Atendimentos       Atendimento[]
   Portfolio          Portfolio[]
   Servico            Servico[]
   Agendamentos       Agendamentos[]
-  Holerite           Holerite[]
-  Gastos             Gastos[]
   HistoricoSimulacao HistoricoSimulacao[]
 }
 
@@ -66,7 +63,6 @@ model Funcionario {
   Auxiliar            Boolean
   Salario             Float
   AtendimentoAuxiliar AtendimentoAuxiliar[]
-  Holerite            Holerite[]
   DataCadastro        DateTime             @default(now())
 
   @@unique([Email, SalaoId])
@@ -85,7 +81,6 @@ model Cabeleireiro {
   SalaoId       String
   Portfolio     Portfolio?
   Agendamentos  Agendamentos[]
-  Holerite      Holerite[]
   DataCadastro  DateTime             @default(now())
 
   @@unique([Email, SalaoId])
@@ -116,20 +111,6 @@ model AdmSistema {
   Telefone String
 }
 
-model PagamentosAssinatura {
-  ID      String          @id @default(uuid())
-  Data    DateTime
-  Valor   Float
-  Salao   Salao           @relation(fields: [SalaoId], references: [ID])
-  SalaoId String
-  Status  StatusPagamento
-}
-
-enum StatusPagamento {
-  PAGO
-  PENDENTE
-  ATRASADO
-}
 
 model AtendimentoAuxiliar {
   Atendimento   Atendimento @relation(fields: [AtendimentoId], references: [ID], onDelete: Cascade)
@@ -207,17 +188,6 @@ enum StatusAgendamento {
   Cancelado
 }
 
-model Holerite {
-  ID             String        @id @default(uuid())
-  Data           DateTime
-  Valor          Float
-  FuncionarioID  String
-  Funcionario    Funcionario?  @relation(fields: [FuncionarioID], references: [ID])
-  Salao          Salao         @relation(fields: [SalaoId], references: [ID])
-  SalaoId        String
-  CabeleireiroID String
-  Cabeleireiro   Cabeleireiro? @relation(fields: [CabeleireiroID], references: [ID])
-}
 
 model ServicoAtendimento {
   ID            String      @id @default(uuid())
@@ -228,16 +198,6 @@ model ServicoAtendimento {
   Servico       Servico     @relation(fields: [ServicoId], references: [ID])
 }
 
-model Gastos {
-  ID String @id @default(uuid())
-
-  Salao     Salao    @relation(fields: [SalaoId], references: [ID])
-  SalaoId   String
-  Nome      String
-  Valor     Float
-  Descricao String
-  Data      DateTime
-}
 
 model HistoricoSimulacao {
   ID        String   @id @default(uuid())
@@ -249,6 +209,13 @@ model HistoricoSimulacao {
   Imagem    Imagem[]
 }
 
+enum ImagemTipo {
+  Analoga
+  Analoga2
+  Complementar
+  Portfolio
+}
+
 model Imagem {
   ID                   String              @id @default(uuid())
   PortfolioId          String
@@ -257,6 +224,7 @@ model Imagem {
   HistoricoSimulacao   HistoricoSimulacao? @relation(fields: [HistoricoSimulacaoId], references: [ID], onDelete: Cascade)
   Endereco             String
   Descricao            String
+  Tipo                 ImagemTipo          @default(Portfolio)
 }
 
 model AuthControl {
