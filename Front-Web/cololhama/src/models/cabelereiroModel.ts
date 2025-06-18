@@ -1,5 +1,4 @@
 import { Agendamentos } from "./agendamentoModel";
-import { Holerite } from "./holeriteModel";
 import { Portfolio } from "./portifolioModel";
 
 export interface Cabeleireiro {
@@ -12,7 +11,6 @@ export interface Cabeleireiro {
     SalaoId: string; 
     Portfolio?: Portfolio; 
     Agendamentos?: Agendamentos[];
-    Holerite?: Holerite[];
     DataCadastro?: Date;
   }
   
