@@ -99,7 +99,7 @@ export const FuncionariogetAgendamentoById = async (
 };
 export const FuncionarioDeleteAgendamento = async (id: string) => {
   let response = await fetch(FuncionarioURL + `/agendamento/delete/${id}`, {
-    method: "GET",
+    method: "DELETE",
   });
   if (response.status === 204) {
     return true;
@@ -198,12 +198,12 @@ export const CabeleireirogetAgendamentoById = async (
 };
 export const CabeleireiroDeleteAgendamento = async (id: string) => {
   let response = await fetch(CabeleireiroURL + `/agendamento/delete/${id}`, {
-    method: "GET",
+    method: "DELETE",
   });
   if (response.status === 204) {
     return true;
   }
-  return handleApiResponse<Agendamentos>(response, "buscar agendamento por ID");
+  return handleApiResponse<Agendamentos>(response, "deletar agendamento");
 };
 
 //-----Cliente
@@ -298,12 +298,12 @@ export const ClientegetAgendamentoById = async (
 
 export const ClienteDeleteAgendamento = async (id: string) => {
   let response = await fetch(ClienteURL + `/agendamento/delete/${id}`, {
-    method: "GET",
+    method: "DELETE",
   });
   if (response.status === 204) {
     return true;
   }
-  return handleApiResponse<Agendamentos>(response, "buscar agendamento por ID");
+  return handleApiResponse<Agendamentos>(response, "deletar agendamento");
 };
 
 export const getHorariosOcupadosFuturos = async (

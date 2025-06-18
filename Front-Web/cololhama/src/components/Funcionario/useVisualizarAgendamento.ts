@@ -60,7 +60,8 @@ export const useVisualizarAgendamentos = (
             salaoId,
             dataValida.ano,
             dataValida.mes + 1,
-            dataValida.dia
+            dataValida.dia,
+            true
           );
         } else if (userType === userTypes.Cliente) {
           response = await AgendamentoService.ClientegetAgendamentosPaginados(
@@ -69,7 +70,8 @@ export const useVisualizarAgendamentos = (
             salaoId,
             dataValida.ano,
             dataValida.mes + 1,
-            dataValida.dia
+            dataValida.dia,
+            true
           );
         }
 

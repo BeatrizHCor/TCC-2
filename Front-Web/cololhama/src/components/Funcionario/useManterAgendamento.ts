@@ -246,7 +246,6 @@ export const useManterAgendamento = (
         setData(dataFormatted);
         setStatus(agendamento.Status);
         setClienteId(agendamento.ClienteID);
-        console.log("teste: ", agendamento);
         setClienteNome(agendamento.Cliente?.Nome || "");
         setCabeleireiroId(agendamento.CabeleireiroID);
         setCabeleireiroNome(agendamento.Cabeleireiro?.Nome || "");
@@ -373,8 +372,8 @@ export const useManterAgendamento = (
               cabeleireiroId,
               salaoId,
               servicosIds
-            );
-            return;
+            );     
+            return navigate(-1);
           case userTypes.Cabeleireiro:
             await AgendamentoService.updateCabeleireiroAgendamento(
               agendamentoId,
@@ -384,8 +383,8 @@ export const useManterAgendamento = (
               cabeleireiroId,
               salaoId,
               servicosIds
-            );
-            return;
+            );            
+            return navigate(-1);
           case userTypes.Cliente:
             await AgendamentoService.updateClienteAgendamento(
               agendamentoId,
@@ -396,7 +395,7 @@ export const useManterAgendamento = (
               salaoId,
               servicosIds
             );
-            return;
+            return navigate(-1);
           default:
             throw new Error("Tipo de usuário inválido");
         }
@@ -412,7 +411,7 @@ export const useManterAgendamento = (
               salaoId,
               servicosIds
             );
-            return;
+            return navigate(-1);
           case userTypes.Cabeleireiro:
             await AgendamentoService.createCabeleireiroAgendamento(
               new Date(data).toISOString(),
@@ -421,7 +420,7 @@ export const useManterAgendamento = (
               salaoId,
               servicosIds
             );
-            return;
+            return navigate(-1);
           case userTypes.Cliente:
             await AgendamentoService.createClienteAgendamento(
               new Date(data).toISOString(),
@@ -430,12 +429,12 @@ export const useManterAgendamento = (
               salaoId,
               servicosIds
             );
-            return;
+            return navigate(-1);
           default:
             throw new Error("Tipo de usuário inválido");
         }
       }
-      navigate(-1);
+
     } catch (error: unknown) {
       console.error("Erro ao salvar agendamento:", error);
 

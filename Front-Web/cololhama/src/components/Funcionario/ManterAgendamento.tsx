@@ -263,7 +263,7 @@ const ManterAgendamento: React.FC = () => {
                         setData("");
                       }
                     }}
-                    disabled={!cabeleireiroId || loadingHorarios}
+                    disabled={!canSaveEdit || loadingHorarios || !cabeleireiroId}
                     shouldDisableTime={(timeValue, clockType) => {
                       if (clockType === "hours" && data) {
                         const selectedDate = new Date(data.split("T")[0]);
@@ -320,6 +320,7 @@ const ManterAgendamento: React.FC = () => {
                         ? "Cliente atual (você)"
                         : "Clique para selecionar um cliente"
                     }
+                    disabled={!canSaveEdit || loadingHorarios}
                     slotProps={{
                       input: { readOnly: true },
                     }}
@@ -349,6 +350,7 @@ const ManterAgendamento: React.FC = () => {
                         ? "Cabeleireiro atual (você)"
                         : "Clique para selecionar um cabeleireiro"
                     }
+                    disabled={!canSaveEdit || loadingHorarios}
                     slotProps={{
                       input: {
                         readOnly: true,
@@ -389,6 +391,7 @@ const ManterAgendamento: React.FC = () => {
               <Button
                 variant="outlined"
                 startIcon={<AddIcon />}
+                disabled={!canSaveEdit || loadingHorarios}
                 onClick={() => setOpenServicosModal(true)}
                 sx={{ mb: 2 }}
                 fullWidth
@@ -432,6 +435,7 @@ const ManterAgendamento: React.FC = () => {
                             <IconButton
                               size="small"
                               color="error"
+                              disabled={!canSaveEdit || loadingHorarios || !cabeleireiroId}
                               onClick={() =>
                                 handleRemoveServico(
                                   servicoAgendamento.ServicoId

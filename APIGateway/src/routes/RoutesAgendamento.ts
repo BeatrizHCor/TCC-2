@@ -118,11 +118,11 @@ RoutesAgendamento.get(
   async (req: Request, res: Response) => {
     const page = parseInt(req.query.page as string) || 0;
     const limit = parseInt(req.query.limit as string) || 10;
-    const includeRelations = req.query.includeRelations === "true";
     const salaoId = parseInt(req.query.salaoId as string) || 0;
     const dia = parseInt(req.query.dia as string) || 0;
     const mes = parseInt(req.query.mes as string) || 0;
     const ano = parseInt(req.query.ano as string) || 0;
+    const includeRelations = req.query.includeRelations === "true";
     try {
       const { userInfo, auth } = await getUserInfoAndAuth(req.headers);
       if (!userInfo) {
@@ -338,11 +338,11 @@ RoutesAgendamento.get(
   async (req: Request, res: Response) => {
     const page = parseInt(req.query.page as string) || 0;
     const limit = parseInt(req.query.limit as string) || 10;
-    const includeRelations = req.query.include === "true";
     const salaoId = parseInt(req.query.salaoId as string) || 0;
     const dia = parseInt(req.query.dia as string) || 0;
     const mes = parseInt(req.query.mes as string) || 0;
     const ano = parseInt(req.query.ano as string) || 0;
+    const includeRelations = req.query.includeRelations === "true";
 
     try {
       const { userInfo, auth } = await getUserInfoAndAuth(req.headers);
@@ -559,12 +559,11 @@ RoutesAgendamento.get(
   async (req: Request, res: Response) => {
     const page = parseInt(req.query.page as string) || 0;
     const limit = parseInt(req.query.limit as string) || 10;
-    const includeRelations = req.query.include === "true";
     const salaoId = parseInt(req.query.salaoId as string) || 0;
     const dia = parseInt(req.query.dia as string) || 0;
     const mes = parseInt(req.query.mes as string) || 0;
     const ano = parseInt(req.query.ano as string) || 0;
-
+    const includeRelations = req.query.includeRelations === "true";
     try {
       const { userInfo, auth } = await getUserInfoAndAuth(req.headers);
       if (!userInfo) {
