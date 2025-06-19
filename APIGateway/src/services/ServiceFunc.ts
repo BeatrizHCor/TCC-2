@@ -2,7 +2,7 @@ import "dotenv/config";
 import { Funcionario } from "../models/funcionarioModel";
 import { Servico } from "../models/servicoModel";
 import e, { response } from "express";
-import { handleApiResponse } from "../utils.ts/HandlerDeRespostaDoBackend";
+import { handleApiResponse } from "../utils/HandlerDeRespostaDoBackend";
 
 const FuncionarioURL = process.env.FUNC_URL || "http://localhost:3002";
 export const postFuncionario = async (
@@ -31,11 +31,10 @@ export const postFuncionario = async (
             },
         ),
     });
-    if (responseFuncionario.ok) {
-        return (await responseFuncionario.json()) as Funcionario;
-    } else {
-        throw new Error("Error in posting Funcionario");
-    }
+    return handleApiResponse<Funcionario>(
+        responseFuncionario,
+        "criar Funcionario",
+    );
 };
 
 export const getFuncionarioPage = async (
@@ -52,11 +51,10 @@ export const getFuncionarioPage = async (
             method: "GET",
         },
     );
-    if (responseFuncionarios.ok) {
-        return (await responseFuncionarios.json()) as Funcionario[];
-    } else {
-        throw new Error("Error in getting funcionario page");
-    }
+    return handleApiResponse<Funcionario[]>(
+        responseFuncionarios,
+        "buscar Funcionario paginado",
+    );
 };
 
 export const deleteFuncionario = async (id: string) => {
@@ -95,11 +93,10 @@ export const updateFuncionario = async (
             ),
         },
     );
-    if (responseFuncionario.ok) {
-        return (await responseFuncionario.json()) as Funcionario;
-    } else {
-        throw new Error("Error in updating Funcionario");
-    }
+    return handleApiResponse<Funcionario>(
+        responseFuncionario,
+        "update Funcionario",
+    );
 };
 export const getFuncionarioById = async (id: string) => {
     let responseFuncionario = await fetch(
@@ -108,11 +105,10 @@ export const getFuncionarioById = async (id: string) => {
             method: "GET",
         },
     );
-    if (responseFuncionario.ok) {
-        return (await responseFuncionario.json()) as Funcionario;
-    } else {
-        throw new Error("Error in getting Funcionario by ID");
-    }
+    return handleApiResponse<Funcionario>(
+        responseFuncionario,
+        "buscar Funcionario por ID",
+    );
 };
 
 // -------------SERVIÇOS----------------
@@ -171,13 +167,13 @@ export const deleteServico = async (id: string) => {
             method: "DELETE",
         },
     );
-    if (responseServico.status  === 204) {
+    if (responseServico.status === 204) {
         return true;
     }
     return handleApiResponse<Servico>(
         responseServico,
         "buscar servico por nome e salao",
-    );    
+    );
 };
 
 export const updateServico = async (

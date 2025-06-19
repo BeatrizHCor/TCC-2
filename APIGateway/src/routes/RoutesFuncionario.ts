@@ -13,9 +13,14 @@ import {
   updateFuncionario,
   updateServico,
 } from "../services/ServiceFunc";
-import { authenticate, postLogin, registerLogin } from "../services/Service";
+import {
+  authenticate,
+  cadastrarFuncionario,
+  postLogin,
+  registerLogin,
+} from "../services/Service";
 import { userTypes } from "../models/tipo-usuario.enum";
-import { getUserInfoAndAuth } from "../utils.ts/FazerAutenticacaoEGetUserInfo";
+import { getUserInfoAndAuth } from "../utils/FazerAutenticacaoEGetUserInfo";
 const RoutesFuncionario = Router();
 
 RoutesFuncionario.get(
@@ -74,79 +79,76 @@ RoutesFuncionario.get(
   },
 );
 
-RoutesFuncionario.post("/funcionario", async (req: Request, res: Response) => {
-  let {
-    CPF,
-    Nome,
-    Email,
-    Telefone,
-    SalaoId,
-    Auxiliar,
-    Salario,
-    Password,
-    userType,
-  } = req.body;
-  try {
-    const userInfo = JSON.parse(
-      Buffer.from(req.headers.authorization || "", "base64").toString(
-        "utf-8",
-      ) || "{}",
-    );
-    let userTypeAuth = userInfo.userType;
-    const auth = await authenticate(
-      userInfo.userID,
-      userInfo.token,
-      userInfo.userType,
-    );
-    if (
-      !auth ||
-      ![
-        userTypes.FUNCIONARIO,
-        userTypes.ADM_SALAO,
-        userTypes.ADM_SISTEMA,
-      ].includes(userTypeAuth)
-    ) {
-      console.log("Chamada não autorizada");
-      res.status(403).json({ message: "Unauthorized" });
-    } else {
-      let funcionario = await postFuncionario(
-        CPF,
-        Nome,
-        Email,
-        Telefone,
-        SalaoId,
-        Auxiliar,
-        Salario,
+RoutesFuncionario.post(
+  "/cadastrar/funcionario",
+  async (req: Request, res: Response) => {
+    let {
+      CPF,
+      Nome,
+      Email,
+      Telefone,
+      SalaoId,
+      Auxiliar,
+      Salario,
+      Password,
+      userType,
+    } = req.body;
+    try {
+      const userInfo = JSON.parse(
+        Buffer.from(req.headers.authorization || "", "base64").toString(
+          "utf-8",
+        ) || "{}",
       );
-      if (!funcionario) {
-        throw new Error("Funcionario not created");
-      }
-
-      let register = await registerLogin(
-        funcionario.ID!,
-        Email,
-        Password,
-        SalaoId,
-        userType,
+      let userTypeAuth = userInfo.userType;
+      const auth = await authenticate(
+        userInfo.userID,
+        userInfo.token,
+        userInfo.userType,
       );
-      if (!register) {
-        console.log("Register auth failed, deleting user");
-        let funcionarioDelete = await deleteFuncionario(funcionario.ID!);
-        if (funcionarioDelete) {
-          console.log("Funcionario deleted successfully");
+      if (
+        !auth ||
+        ![
+          userTypes.FUNCIONARIO,
+          userTypes.ADM_SALAO,
+          userTypes.ADM_SISTEMA,
+        ].includes(userTypeAuth)
+      ) {
+        console.log("Chamada não autorizada");
+        res.status(403).json({ message: "Unauthorized" });
+      } else {
+        if (
+          !CPF || !Nome || !Email || !Telefone || !SalaoId || !Password ||
+          !Salario || !userType
+        ) {
+          res.status(400).json({
+            message:
+              "Erro ao cadastrar funcionario, parametros ausentes ou invalidos",
+          });
         } else {
-          console.log("Failed to delete funcionario after register failure");
+          const result = await cadastrarFuncionario(
+            CPF,
+            Nome,
+            Email,
+            Telefone,
+            SalaoId,
+            Auxiliar,
+            Salario,
+            Password,
+            userType,
+          );
+          if (result) {
+            res.status(201).json(result);
+          } else {
+            res.status(500).json({ message: "Erro ao cadastrar funcionario" });
+          }
         }
-        throw new Error("Login registration failed");
       }
-      let token = await postLogin(Email, Password, SalaoId);
-      res.status(200).send(token);
+    } catch (e) {
+      console.log(e);
+      res.status(500).send("Error in creating Funcionario");
     }
-  } catch (e) {
-    console.log(e);
-    res.status(500).send("Error in creating Funcionario");
-  }
-});
+  },
+);
 
 RoutesFuncionario.delete(
   "/funcionario/delete/:id",
@@ -288,7 +290,13 @@ RoutesFuncionario.post("/servico", async (req: Request, res: Response) => {
     ) {
       res.status(403).json({ message: "Unauthorized" });
     } else {
-      let servico = await postServico(Nome, SalaoId, PrecoMin, PrecoMax, Descricao);
+      let servico = await postServico(
+        Nome,
+        SalaoId,
+        PrecoMin,
+        PrecoMax,
+        Descricao,
+      );
       res.status(201).send(servico);
     }
   } catch (e) {
@@ -330,7 +338,7 @@ RoutesFuncionario.put(
   "/servico/update/:id",
   async (req: Request, res: Response) => {
     const id = req.params.id;
-  const { Nome, SalaoId, PrecoMin, PrecoMax, Descricao } = req.body;
+    const { Nome, SalaoId, PrecoMin, PrecoMax, Descricao } = req.body;
 
     try {
       const { userInfo, auth } = await getUserInfoAndAuth(req.headers);
@@ -344,7 +352,14 @@ RoutesFuncionario.put(
       ) {
         res.status(403).json({ message: "Unauthorized" });
       } else {
-        let servicoUpdate = await updateServico(id, Nome, SalaoId, PrecoMin, PrecoMax, Descricao);
+        let servicoUpdate = await updateServico(
+          id,
+          Nome,
+          SalaoId,
+          PrecoMin,
+          PrecoMax,
+          Descricao,
+        );
         if (servicoUpdate) {
           res.status(200).send(servicoUpdate);
         }

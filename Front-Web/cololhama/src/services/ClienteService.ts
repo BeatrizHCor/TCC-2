@@ -10,11 +10,6 @@ const api = axios.create({
 });
 
 api.interceptors.request.use((config) => {
-  if (config.headers?.skipAuth) {
-    delete config.headers.skipAuth;
-    return config;
-  }
-
   const token = localStorage.getItem("usuario");
   config.headers = config.headers || {};
   config.headers.Authorization = btoa(token || "");
@@ -56,9 +51,6 @@ export const ClienteService = {
       Password: password,
       userType: userType,
     };
-
-    console.log("Dados sendo enviados para a API:", dadosEnvio);
-
     try {
       const response = await api.post(`/cadastrar/cliente`, dadosEnvio);
 
@@ -70,7 +62,6 @@ export const ClienteService = {
       return response.status === 200 || response.status === 201;
     } catch (error) {
       console.error("Erro detalhado ao cadastrar cliente:", error);
-
       if (axios.isAxiosError(error)) {
         console.error("Status do erro:", error.response?.status);
         console.error("Dados do erro:", error.response?.data);

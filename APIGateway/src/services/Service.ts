@@ -10,7 +10,7 @@ export const registerLogin = async (
   Email: string,
   Password: string,
   SalaoId: string,
-  userType: userTypes
+  userType: userTypes,
 ) => {
   let responseRegister = await fetch(loginURL + "/register", {
     method: "POST",
@@ -39,7 +39,7 @@ export const cadastrarCliente = async (
   Telefone: string,
   SalaoId: string,
   Password: string,
-  userType: userTypes
+  userType: userTypes,
 ) => {
   let responseRegister = await fetch(loginURL + "/cadastrar/cliente", {
     method: "POST",
@@ -61,14 +61,96 @@ export const cadastrarCliente = async (
     return await responseRegister.json();
   } else {
     console.log("Register failed", responseRegister.status);
+    return false;
   }
-  return responseRegister.ok;
+};
+
+export const cadastrarFuncionario = async (
+  CPF: string,
+  Nome: string,
+  Email: string,
+  Telefone: string,
+  SalaoId: string,
+  Auxiliar: boolean,
+  Salario: number,
+  Password: string,
+  userType: userTypes,
+) => {
+  let responseRegister = await fetch(loginURL + "/cadastrar/funcionario", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({
+      CPF,
+      Nome,
+      Email,
+      Telefone,
+      SalaoId,
+      Auxiliar,
+      Salario,
+      Password,
+      userType,
+    }),
+  });
+  if (responseRegister.ok) {
+    console.log(
+      "Register response for funcionario",
+      CPF,
+      ":",
+      responseRegister.ok,
+    );
+    return await responseRegister.json();
+  } else {
+    console.log("Register failed", responseRegister.status);
+    return false;
+  }
+};
+
+export const cadastrarCabeleireiro = async (
+  CPF: string,
+  Nome: string,
+  Email: string,
+  Telefone: string,
+  SalaoId: string,
+  Mei: string,
+  Password: string,
+  userType: userTypes,
+) => {
+  let responseRegister = await fetch(loginURL + "/cadastrar/cabeleireiro", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({
+      CPF,
+      Nome,
+      Email,
+      Telefone,
+      SalaoId,
+      Mei,
+      Password,
+      userType,
+    }),
+  });
+  if (responseRegister.ok) {
+    console.log(
+      "Register response for cabeleireiro",
+      CPF,
+      ":",
+      responseRegister.ok,
+    );
+    return await responseRegister.json();
+  } else {
+    console.log("Register failed", responseRegister.status);
+    return false;
+    }
 };
 
 export const postLogin = async (
   Email: string,
   password: string,
-  SalaoID: string
+  SalaoID: string,
 ) => {
   let responseLogin = await fetch(loginURL + "/login", {
     method: "POST",
@@ -91,7 +173,7 @@ export const postLogin = async (
 export const authenticate = async (
   userID: string,
   token: string,
-  userType: userTypes
+  userType: userTypes,
 ) => {
   let response = await fetch(loginURL + "/authenticate", {
     method: "POST",

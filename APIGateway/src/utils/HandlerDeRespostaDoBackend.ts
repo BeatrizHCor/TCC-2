@@ -8,7 +8,7 @@ export async function handleApiResponse<T>(
         case 201:
             return (await response.json()) as T;
         case 204:
-            console.error(`${operation} não encontrado (204 No Content)`);
+            console.error(`${operation} completado com sucesso (204 No Content)`);
             return false;
         case 400:
             console.error(

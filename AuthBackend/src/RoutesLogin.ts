@@ -10,6 +10,17 @@ import {
   getClienteByCPF,
   postCliente,
 } from "./Services/ServiceClient";
+import {
+  deleteFuncionario,
+  getFuncionarioByCpf,
+  postFuncionario,
+} from "./Services/ServiceFunc";
+import { createPortfolio, deletePortfolio } from "./Services/ServiceImag";
+import {
+  deleteCabeleireiro,
+  postCabeleireiro,
+} from "./Services/ServiceCabelereiro";
+import { StatusCadastro } from "@prisma/client";
 
 const RoutesLogin = Router();
 
@@ -115,4 +126,133 @@ RoutesLogin.post("/cadastrar/cliente", async (req: Request, res: Response) => {
     res.status(500).send("Error in creating customer");
   }
 });
+
+RoutesLogin.post(
+  "/cadastrar/funcionario",
+  async (req: Request, res: Response) => {
+    let {
+      CPF,
+      Nome,
+      Email,
+      Telefone,
+      SalaoId,
+      Auxiliar,
+      Salario,
+      Password,
+      userType,
+    } = req.body;
+    try {
+      let ChecarCPF = await getFuncionarioByCpf(CPF, SalaoId);
+      console.log("Resposta de checagem de cpf:", ChecarCPF);
+      if (ChecarCPF) {
+        res.status(409).json({ message: "CPF já cadastrado no salão" });
+        return;
+      }
+      let funcionario = await postFuncionario(
+        CPF,
+        Nome,
+        Email,
+        Telefone,
+        SalaoId,
+        Auxiliar,
+        Salario
+      );
+      if (!funcionario) {
+        throw new Error("Funcionario not created");
+      }
+      let register = await registerLogin(
+        funcionario.ID!,
+        Email,
+        Password,
+        SalaoId,
+        userType
+      );
+      if (!register) {
+        console.log("Register auth failed, deleting user");
+        let funcionarioDelete = await deleteFuncionario(funcionario.ID!);
+        if (funcionarioDelete) {
+          console.log("Funcionario deleted successfully");
+        } else {
+          console.log("Failed to delete funcionario after register failure");
+        }
+        throw new Error("Login registration failed");
+      }
+      let token = await verifyPasswordAndReturnToken(Email, Password, SalaoId);
+
+      res.status(200).send(token);
+    } catch (e) {
+      console.log(e);
+      res.status(500).send("Error in creating Funcionario");
+    }
+  }
+);
+
+RoutesLogin.post(
+  "/cadastrar/cabeleireiro",
+  async (req: Request, res: Response) => {
+    let { CPF, Nome, Email, Telefone, SalaoId, Password, userType, Mei } =
+      req.body;
+    try {
+      let cabeleireiro = await postCabeleireiro(
+        CPF,
+        Nome,
+        Email,
+        Telefone,
+        SalaoId,
+        Mei
+      );
+      if (!cabeleireiro) {
+        throw new Error("Cabeleireiro not created");
+      }
+      let portfolio = await createPortfolio(
+        cabeleireiro.ID!,
+        "Portfolio de " + Nome,
+        SalaoId
+      );
+      if (!portfolio) {
+        console.log("Portfolio not created");
+        let cabeleireiroDelete = await deleteCabeleireiro(cabeleireiro.ID!);
+        if (cabeleireiroDelete) {
+          console.log("Cabeleireiro deleted successfully");
+        } else {
+          console.log(
+            "Falha ao deletar cabeleireiro após falha na criação do portfolio"
+          );
+        }
+        throw new Error("Portfolio creation failed");
+      } else {
+        console.log("Cabeleireiro ID: ", cabeleireiro.ID);
+        let register = await registerLogin(
+          cabeleireiro.ID!,
+          Email,
+          String(Password),
+          SalaoId,
+          userType
+        );
+        if (!register) {
+          console.log("Register failed");
+          let cabeleireiroDelete = await deleteCabeleireiro(cabeleireiro.ID!);
+          let portfolioDelete = await deletePortfolio(portfolio.ID!);
+          if (cabeleireiroDelete && portfolioDelete) {
+            console.log("Cabeleireiro e Portfolio deletados com sucesso.");
+          } else if (!cabeleireiroDelete) {
+            console.log("Falha ao deletar cabeleireiro após falha no registro");
+          } else if (!portfolioDelete) {
+            console.log("Falha ao deletar portfolio após falha no registro");
+          }
+          throw new Error("Login registration failed");
+        }
+        let token = await verifyPasswordAndReturnToken(
+          Email,
+          Password,
+          SalaoId
+        );
+        res.status(200).send(token);
+      }
+    } catch (e) {
+      console.log(e);
+      res.status(500).send("Error in creating Cabeleireiro");
+    }
+  }
+);
 export default RoutesLogin;
