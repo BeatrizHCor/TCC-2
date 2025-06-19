@@ -3,14 +3,14 @@ import { get } from "http";
 
 const api = axios.create({
   baseURL: import.meta.env.VITE_IMAGEM_URL || "http://localhost:4000",
-  timeout: 100000,
+  timeout: 10000,
   headers: {
     "Content-Type": "application/json",
   },
 });
 const apiUpload = axios.create({
    baseURL: import.meta.env.VITE_IMAGEM_URL || "http://localhost:4000",
-   timeout: 100000,
+   timeout: 10000,
    headers: {
      'Content-Type': 'multipart/form-data',
    },
@@ -31,13 +31,15 @@ class PortfolioService {
   static async uploadImagemPortfolio(
     file: File,
     portfolioId: string,
-    descricao: string
+    descricao: string,
+    cabeleireiroId: string
   ) {
     try {
       const formData = new FormData();
       formData.append("imagem", file, file.name);
       formData.append("PortfolioId", portfolioId);
       formData.append("Descricao", descricao);
+      formData.append("Cabeleireiro", cabeleireiroId);
       console.log(
         "Dados do FormData:",
         formData.get("PortfolioId"),

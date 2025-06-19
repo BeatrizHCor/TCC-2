@@ -68,7 +68,8 @@ export const usePortfolio = (cabeleireiroId: string | undefined) => {
       const response = await PortfolioService.uploadImagemPortfolio(
         file,
         portfolioId!,
-        descricao
+        descricao,
+        cabeleireiroId
       );
 
       await fetchImagens();

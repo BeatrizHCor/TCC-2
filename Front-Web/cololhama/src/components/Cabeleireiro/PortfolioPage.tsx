@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useContext, useState } from "react";
 import {
   Box,
   Button,
@@ -17,20 +17,21 @@ import {
 } from "@mui/material";
 import { useParams } from "react-router-dom";
 import { usePortfolio } from "./usePortfolioPage";
+import { AuthContext } from "../../contexts/AuthContext";
 
 export default function PortfolioPage() {
   const { cabeleireiroId } = useParams<{ cabeleireiroId: string }>();
-  const { 
-    imagens, 
-    loading, 
-    error, 
-    uploadImagem, 
+  const {
+    imagens,
+    loading,
+    error,
+    uploadImagem,
     fetchImagens,
     portfolioId,
     nomeCabeleireiro,
     DescricaoPort
   } = usePortfolio(cabeleireiroId);
-  
+  const { userType, userId } = useContext(AuthContext);
   const [openDialog, setOpenDialog] = useState(false);
   const [descricao, setDescricao] = useState("");
   const [file, setFile] = useState<File | null>(null);
@@ -40,10 +41,10 @@ export default function PortfolioPage() {
 
   const handleUpload = async () => {
     if (!file || !cabeleireiroId) return;
-    
+
     setUploading(true);
     setUploadError(null);
-    
+
     try {
       await uploadImagem(file, descricao);
       setOpenDialog(false);
@@ -73,14 +74,16 @@ export default function PortfolioPage() {
         <Typography variant="h4" component="h1">
           Portfólio: {nomeCabeleireiro ? ` ${nomeCabeleireiro}` : ""}
         </Typography>
-        <Button 
-          variant="contained" 
-          color="primary" 
-          onClick={() => setOpenDialog(true)}
-          disabled={loading}
-        >
-          Adicionar Imagem
-        </Button>
+        {cabeleireiroId === userId ? (
+          <Button
+            variant="contained"
+            color="primary"
+            onClick={() => setOpenDialog(true)}
+            disabled={loading}
+          >
+            Adicionar Imagem
+          </Button>
+        ) : null}
       </Box>
       <Typography variant="h6" component="h3" color="text.secondary">
         Descrição: {DescricaoPort ? ` ${DescricaoPort}` : ""}
@@ -96,14 +99,14 @@ export default function PortfolioPage() {
           <CircularProgress />
         </Box>
       ) : imagens.length === 0 ? (
-        <Box 
-          display="flex" 
-          flexDirection="column" 
-          alignItems="center" 
+        <Box
+          display="flex"
+          flexDirection="column"
+          alignItems="center"
           justifyContent="center"
-          sx={{ 
-            bgcolor: 'background.paper', 
-            p: 4, 
+          sx={{
+            bgcolor: 'background.paper',
+            p: 4,
             borderRadius: 2,
             border: '1px dashed grey'
           }}
@@ -122,9 +125,9 @@ export default function PortfolioPage() {
               key={img.ID}
               sx={{
                 width: {
-                  xs: "90%", 
-                  sm: "50%", 
-                  md: "33.33%", 
+                  xs: "90%",
+                  sm: "50%",
+                  md: "33.33%",
                 },
                 boxSizing: "border-box",
                 padding: 1,
@@ -133,11 +136,11 @@ export default function PortfolioPage() {
               <Card sx={{ height: "100%" }}>
                 <CardMedia
                   component="img"
-                  image={`data:image/jpeg;base64,${img.fileContent}`} 
+                  image={`data:image/jpeg;base64,${img.fileContent}`}
                   alt={img.Descricao}
                   sx={{
                     height: 240,
-                    objectFit: "cover", 
+                    objectFit: "cover",
                   }}
                   onError={(e) => {
                     (e.target as HTMLImageElement).src =
@@ -153,8 +156,8 @@ export default function PortfolioPage() {
         </Box>
       )}
 
-      <Dialog 
-        open={openDialog} 
+      <Dialog
+        open={openDialog}
         onClose={() => !uploading && setOpenDialog(false)}
         fullWidth
         maxWidth="sm"
@@ -166,7 +169,7 @@ export default function PortfolioPage() {
               {uploadError}
             </Alert>
           )}
-          
+
           <TextField
             fullWidth
             label="Descrição da imagem"
@@ -176,7 +179,7 @@ export default function PortfolioPage() {
             disabled={uploading}
             required
           />
-          
+
           <Box mt={2}>
             <Typography variant="subtitle2" gutterBottom>
               Selecione uma imagem:
@@ -189,29 +192,29 @@ export default function PortfolioPage() {
               style={{ width: "100%" }}
             />
           </Box>
-          
+
           {file && (
             <Box mt={2} textAlign="center">
               <Typography variant="caption" display="block" gutterBottom>
                 Preview:
               </Typography>
-              <img 
-                src={URL.createObjectURL(file)} 
-                alt="Preview" 
-                style={{ maxWidth: "100%", maxHeight: "200px" }} 
+              <img
+                src={URL.createObjectURL(file)}
+                alt="Preview"
+                style={{ maxWidth: "100%", maxHeight: "200px" }}
               />
             </Box>
           )}
         </DialogContent>
-        
+
         <DialogActions>
-          <Button 
+          <Button
             onClick={() => setOpenDialog(false)}
             disabled={uploading}
           >
             Cancelar
           </Button>
-          <Button 
+          <Button
             onClick={handleUpload}
             disabled={!file || !descricao.trim() || uploading}
             variant="contained"

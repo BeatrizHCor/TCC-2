@@ -41,6 +41,9 @@ const NavBar: React.FC = () => {
     { route: "/listaClientes", label: "Clientes" },
     { route: "/funcionarios", label: "Funcionarios" },
   ];
+  const cabeleireiroRoutes = [
+    { route: `/portfolio/${userId}`, label: "Portfolio" },  
+  ];
 
   const handleLogout = () => {
     doLogout();
@@ -51,6 +54,7 @@ const NavBar: React.FC = () => {
     ...mainRoutes,
     ...(userType ? userRoutes : []),
     ...(userType && [userTypes.AdmSalao, userTypes.Funcionario, userTypes.AdmSistema].includes(userType) ? admRoutes : []),
+    ...(userType && [userTypes.Cabeleireiro].includes(userType) ? cabeleireiroRoutes : []),
   ];
 
   const mobileMenu = (

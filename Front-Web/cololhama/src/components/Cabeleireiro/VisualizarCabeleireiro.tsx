@@ -158,6 +158,7 @@ export const VisualizarCabeleireiro: React.FC = () => {
               >
                 {colunasVisiveis.map((coluna) => (
                   <TableCell
+                    align="center"
                     key={coluna.id}
                     sx={{
                       fontWeight: "bold",
@@ -186,13 +187,13 @@ export const VisualizarCabeleireiro: React.FC = () => {
                     hover
                     sx={{ "&:hover": { backgroundColor: "#fafafa" } }}
                   >
-                    <TableCell>{cabeleireiro.Nome || "—"}</TableCell>
+                    <TableCell align="center">{cabeleireiro.Nome || "—"}</TableCell>
 
                     {admUsers.includes(userType!) && (
                       <>
-                        <TableCell>{cabeleireiro.Email || "Indisponível"}</TableCell>
-                        <TableCell>{cabeleireiro.Telefone || "Indisponível"}</TableCell>
-                        <TableCell>
+                        <TableCell align="center">{cabeleireiro.Email || "Indisponível"}</TableCell>
+                        <TableCell align="center">{cabeleireiro.Telefone || "Indisponível"}</TableCell>
+                        <TableCell align="center">
                           {cabeleireiro.Mei === undefined
                             ? "Não informado"
                             : cabeleireiro.Mei || "Indisponível"}
@@ -200,7 +201,7 @@ export const VisualizarCabeleireiro: React.FC = () => {
                       </>
                     )}
 
-                    <TableCell>
+                    <TableCell align="center">
                       <Button
                         component={Link}
                         startIcon={<Image />}
@@ -213,7 +214,7 @@ export const VisualizarCabeleireiro: React.FC = () => {
                     </TableCell>
 
                     {canEdit && (
-                      <TableCell>
+                      <TableCell align="center">
                         <Button
                           startIcon={<EditIcon />}
                           variant="outlined"

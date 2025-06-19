@@ -156,8 +156,7 @@ class PortfolioService {
                 }
             });
         if (!portfolio) {
-            console.log('Portfolio não encontrado.');
-            return null;
+            return false;
         }
         const fotosComConteudo = (portfolio.Imagem || [])
         .filter((foto: any) => foto.HistoricoSimulacaoId === null)
