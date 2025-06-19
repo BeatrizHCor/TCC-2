@@ -6,6 +6,7 @@ const loginURL = process.env.AUTH_URL || "http://localhost:3000";
 
 RoutesLogin.post("/login", async (req: Request, res: Response) => {
   console.log("body:", req.body);
+  console.log(loginURL);
   const { Email, SalaoID, password } = req.body;
   let response = await fetch(loginURL + "/login", {
     method: "POST",

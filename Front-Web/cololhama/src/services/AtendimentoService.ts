@@ -3,7 +3,6 @@ import { Atendimento } from "../models/atendimentoModal";
 import { ServicoAtendimento } from "../models/servicoAtendimentoModel";
 import { AtendimentoAuxiliar } from "../models/atendimentoAuxiliarModel";
 
-
 const api = axios.create({
   baseURL: import.meta.env.VITE_GATEWAY_URL || "http://localhost:3002",
   headers: {
@@ -54,7 +53,7 @@ class AtendimentoService {
     salaoId: string
   ): Promise<AtendimentoPageResponse | boolean> {
     try {
-      const response = await api.get(`/atendimento/page`, {
+      const response = await api.get(`funcionario/atendimento/page`, {
         params: {
           page,
           limit,

@@ -24,11 +24,17 @@ RoutesCliente.post(
     let { CPF, Nome, Email, Telefone, SalaoId, Password, userType } = req.body;
     try {
       if (
-        !CPF || !Nome || !Email || !Telefone || !SalaoId || !Password ||
+        !CPF ||
+        !Nome ||
+        !Email ||
+        !Telefone ||
+        !SalaoId ||
+        !Password ||
         !userType
       ) {
         res.status(400).json({
-          message: "Erro ao cadastrar cliente, parametros ausentes ou invalidos",
+          message:
+            "Erro ao cadastrar cliente, parametros ausentes ou invalidos",
         });
       } else {
         const result = await cadastrarCliente(
@@ -38,7 +44,7 @@ RoutesCliente.post(
           Telefone,
           SalaoId,
           Password,
-          userType,
+          userType
         );
 
         if (result) {
@@ -51,7 +57,7 @@ RoutesCliente.post(
       console.log(erro);
       res.status(500).send("Error criando cliente");
     }
-  },
+  }
 );
 
 RoutesCliente.get("/cliente/checkcpf/:cpf/:salaoId", async (req, res) => {
@@ -299,26 +305,31 @@ RoutesCliente.get(
   async (req: Request, res: Response) => {
     const { salaoId } = req.params;
     const include = req.query.include === "true";
+    console.log(salaoId);
     try {
       const userInfo = JSON.parse(
         Buffer.from(req.headers.authorization || "", "base64").toString(
-          "utf-8",
-        ) || "{}",
+          "utf-8"
+        ) || "{}"
       );
       if (
-        !userInfo || !userInfo.userID || !userInfo.token || !userInfo.userType
+        !userInfo ||
+        !userInfo.userID ||
+        !userInfo.token ||
+        !userInfo.userType
       ) {
-         res.status(403).json({ message: "Não autorizado" });
+        res.status(403).json({ message: "Não autorizado" });
       }
       let userType = userInfo.userType;
       const auth = await authenticate(
         userInfo.userID,
         userInfo.token,
-        userInfo.userType,
+        userInfo.userType
       );
       if (
         auth &&
-        [ userTypes.CABELEIREIRO,
+        [
+          userTypes.CABELEIREIRO,
           userTypes.FUNCIONARIO,
           userTypes.ADM_SALAO,
           userTypes.ADM_SISTEMA,
@@ -342,7 +353,7 @@ RoutesCliente.get(
       console.error("Erro ao buscar clientes do salão:", error);
       res.status(500).json({ message: "Erro interno do servidor" });
     }
-  },
+  }
 );
 
 export default RoutesCliente;

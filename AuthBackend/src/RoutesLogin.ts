@@ -53,6 +53,7 @@ RoutesLogin.post("/register", (req: Request, res: Response) => {
 RoutesLogin.post("/login", async (req: Request, res: Response) => {
   let { Email, password, SalaoID } = req.body;
   console.log(req.body);
+  console.log(req.body);
   let token = await verifyPasswordAndReturnToken(Email, password, SalaoID);
   if (token) {
     res.status(200).send(token);
@@ -106,7 +107,7 @@ RoutesLogin.post("/cadastrar/cliente", async (req: Request, res: Response) => {
       Email,
       Password,
       SalaoId,
-      userType,
+      userType
     );
     if (!register) {
       console.log("Register auth failed");
@@ -154,7 +155,7 @@ RoutesLogin.post(
         Telefone,
         SalaoId,
         Auxiliar,
-        Salario,
+        Salario
       );
       if (!funcionario) {
         throw new Error("Funcionario not created");
@@ -164,7 +165,7 @@ RoutesLogin.post(
         Email,
         Password,
         SalaoId,
-        userType,
+        userType
       );
       if (!register) {
         console.log("Register auth failed, deleting user");
@@ -183,7 +184,7 @@ RoutesLogin.post(
       console.log(e);
       res.status(500).send("Error in creating Funcionario");
     }
-  },
+  }
 );
 
 RoutesLogin.post(
@@ -198,7 +199,7 @@ RoutesLogin.post(
         Email,
         Telefone,
         SalaoId,
-        Mei,
+        Mei
       );
       if (!cabeleireiro) {
         throw new Error("Cabeleireiro not created");
@@ -206,7 +207,7 @@ RoutesLogin.post(
       let portfolio = await createPortfolio(
         cabeleireiro.ID!,
         "Portfolio de " + Nome,
-        SalaoId,
+        SalaoId
       );
       if (!portfolio) {
         console.log("Portfolio not created");
@@ -215,7 +216,7 @@ RoutesLogin.post(
           console.log("Cabeleireiro deleted successfully");
         } else {
           console.log(
-            "Falha ao deletar cabeleireiro após falha na criação do portfolio",
+            "Falha ao deletar cabeleireiro após falha na criação do portfolio"
           );
         }
         throw new Error("Portfolio creation failed");
@@ -226,7 +227,7 @@ RoutesLogin.post(
           Email,
           String(Password),
           SalaoId,
-          userType,
+          userType
         );
         if (!register) {
           console.log("Register failed");
@@ -235,9 +236,7 @@ RoutesLogin.post(
           if (cabeleireiroDelete && portfolioDelete) {
             console.log("Cabeleireiro e Portfolio deletados com sucesso.");
           } else if (!cabeleireiroDelete) {
-            console.log(
-              "Falha ao deletar cabeleireiro após falha no registro",
-            );
+            console.log("Falha ao deletar cabeleireiro após falha no registro");
           } else if (!portfolioDelete) {
             console.log("Falha ao deletar portfolio após falha no registro");
           }
@@ -246,7 +245,7 @@ RoutesLogin.post(
         let token = await verifyPasswordAndReturnToken(
           Email,
           Password,
-          SalaoId,
+          SalaoId
         );
         res.status(200).send(token);
       }
@@ -254,6 +253,6 @@ RoutesLogin.post(
       console.log(e);
       res.status(500).send("Error in creating Cabeleireiro");
     }
-  },
+  }
 );
 export default RoutesLogin;

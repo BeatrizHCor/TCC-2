@@ -46,6 +46,7 @@ class AgendamentoController {
     try {
       const { Data, ClienteID, SalaoId, CabeleireiroID, servicosIds } =
         req.body;
+      console.log(req.body);
       const agendamento = await AgendamentoService.createAgendamento(
         new Date(Data),
         "Agendado",
