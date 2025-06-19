@@ -1,7 +1,7 @@
 export async function handleApiResponse<T>(
     response: Response,
     operation: string,
-): Promise<T | false> {
+): Promise<T | false > {
     switch (response.status) {
         case 200:
             return (await response.json()) as T;

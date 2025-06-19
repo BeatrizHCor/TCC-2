@@ -12,7 +12,6 @@ import PerfilCliente from "./components/Cliente/perfilCliente";
 import VisualizarClientesPage from "./pages/Funcionario/VisualizarClientePage";
 import VisualizarServicoPage from "./pages/Funcionario/VisualizarServicoPage";
 import VisualizarCabeleireiroPage from "./pages/Cabeleireiro/VisualizarCabeleireiroPage";
-import PortfolioCabeleireiro from "./components/Cabeleireiro/portfolioCabeleireiro";
 import VisualizarFuncionarioPage from "./pages/AdmSalao/VisualizarFuncionario";
 import ManterCabeleireiroPage from "./pages/Cabeleireiro/ManterCabelereiroPage";
 import PortfolioPage from "./components/Cabeleireiro/PortfolioPage";
@@ -47,7 +46,6 @@ const App: React.FC = () => {
             path="/portfolio/:cabeleireiroId"
             element={<PortfolioPage />}
           />
-          <Route path="/portfolio" element={<PortfolioCabeleireiro />} />
           <Route
             path="/cabeleireiros"
             element={<VisualizarCabeleireiroPage />}
