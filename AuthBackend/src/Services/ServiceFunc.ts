@@ -1,6 +1,8 @@
 import "dotenv/config";
 import { Servico , Funcionario} from "@prisma/client";
 import e, { response } from "express";
+import { handleApiResponse } from "../utils/HandlerDeRespostaDoBackend";
+
 
 const FuncionarioURL = process.env.FUNC_URL || "http://localhost:3002";
 export const postFuncionario = async (
@@ -49,11 +51,10 @@ export const getFuncionarioPage = async (
       method: "GET",
     }
   );
-  if (responseFuncionarios.ok) {
-    return (await responseFuncionarios.json()) as Funcionario[];
-  } else {
-    throw new Error("Error in getting funcionario page");
-  }
+  return handleApiResponse<Funcionario[]>(
+    responseFuncionarios,
+    "buscar Funcionario paginado",
+  );
 }
 
 export const deleteFuncionario = async (id: string) => {
@@ -93,11 +94,10 @@ export const updateFuncionario = async (
                     Salario           
             }),
     });
-    if (responseFuncionario.ok) {
-        return (await responseFuncionario.json()) as Funcionario;
-    } else {
-        throw new Error("Error in updating Funcionario");
-    }
+  return handleApiResponse<Funcionario[]>(
+    responseFuncionario,
+    "buscar Funcionario paginado",
+  );
 };
 export const getFuncionarioById = async (id: string) => {
     let responseFuncionario = await fetch(FuncionarioURL + `/funcionario/ID/${id}`, {
@@ -110,104 +110,12 @@ export const getFuncionarioById = async (id: string) => {
     }
 }
 
-
-// -------------SERVIÇOS----------------
-export const getServicoPage = async (
-    page: string,
-    limit: string,
-    salaoId: string,
-    nome: string,
-    precoMin: string,
-    precoMax: string,
-    includeRelations: boolean = false
-  ) => {
-    let responseServicos = await fetch(
-      FuncionarioURL +
-      `/servico/page?page=${page}&limit=${limit}&salaoId=${salaoId}&nome=${nome}&precoMin=${precoMin}&precoMax=${precoMax}&includeRelations=${includeRelations}`,
-      {
-      method: "GET",
-      }
-    );
-    if (responseServicos.ok) {
-      return (await responseServicos.json()) as Servico[];
-    } else {
-      throw new Error("Error in getting servico page");
-    }
-  }
-
-  export const postServico = async (
-    servicoData: Servico
-  ) => {
-    let responseServico = await fetch(FuncionarioURL + "/servico", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify(servicoData),
-      });
-    if (responseServico.ok) {
-        return (await responseServico.json()) as Servico;
-    } else {
-        throw new Error("Error in posting Servico");
-    }
-}
-
-export const deleteServico = async (id: string) => {
-    let responseServico = await fetch(FuncionarioURL + `/servico/delete/${id}`, {
-        method: "DELETE",
-    });
-    if (responseServico.ok) {
-        return (await responseServico.json()) as Servico;
-    } else {
-        throw new Error("Error in deleting Servico");
-    }
-}
-
-export const updateServico = async (id: string, servicoData: Servico) => {
-    let responseServico = await fetch(FuncionarioURL + `/servico/update/${id}`, { 
-        method: "PUT",
-        headers: {
-            "Content-Type": "application/json",
-        },
-        body: JSON.stringify(servicoData),
-    });
-    if (responseServico.ok) {  
-        return (await responseServico.json()) as Servico;
-    } else {
-        throw new Error("Error in updating Servico");
-    }
-}
-
-export const getServicoById = async (id: string) => {
-    let responseServico = await fetch(FuncionarioURL + `/servico/ID/${id}`, {
+export const getFuncionarioByCpf = async (cpf:string, salaoId: string) => {
+    let responseFuncionario = await fetch(FuncionarioURL + `/funcionario/cpf/${cpf}/${salaoId}`, {
         method: "GET",
     });
-    if (responseServico.ok) {
-        return (await responseServico.json()) as Servico;
-    } else {
-        throw new Error("Error in getting Servico by ID");
-    }
-}
-
-export const getServicosBySalao = async (salaoId: string) => {
-    let responseServicos = await fetch(FuncionarioURL + `/servico/salao/${salaoId}`, {
-        method: "GET",
-    });
-    if (responseServicos.ok) {
-        return (await responseServicos.json()) as Servico[];
-    } else {
-        throw new Error("Error in getting Servicos by Salão ID");
-    }
-}
-
-
-export const findServicoByNomeAndSalaoId = async (nome: string, salaoId: string) => {
-    let responseServico = await fetch(FuncionarioURL + `/servico/find/${nome}/${salaoId}`, {
-        method: "GET",
-    });
-    if (responseServico.ok) {
-        return (await responseServico.json()) as Servico[];
-    } else {
-        throw new Error("Error in finding Servico by Nome and Salão ID");
-    }
+  return handleApiResponse<Funcionario>(
+    responseFuncionario,
+    "buscar Funcionario por cpf",
+  );
 }

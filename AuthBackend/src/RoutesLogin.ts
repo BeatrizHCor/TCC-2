@@ -10,6 +10,7 @@ import {
   getClienteByCPF,
   postCliente,
 } from "./Services/ServiceClient";
+import { deleteFuncionario, getFuncionarioByCpf, postFuncionario } from "./Services/ServiceFunc";
 
 const RoutesLogin = Router();
 
@@ -114,4 +115,62 @@ RoutesLogin.post("/cadastrar/cliente", async (req: Request, res: Response) => {
     res.status(500).send("Error in creating customer");
   }
 });
+
+RoutesLogin.post("/cadastrar/funcionario", async (req: Request, res: Response) => {
+  let {
+    CPF,
+    Nome,
+    Email,
+    Telefone,
+    SalaoId,
+    Auxiliar,
+    Salario,
+    Password,
+    userType,
+  } = req.body;
+  try {
+        let ChecarCPF = await getFuncionarioByCpf(CPF, SalaoId);
+    console.log("Resposta de checagem de cpf:", ChecarCPF);
+    if (ChecarCPF) {
+      res.status(409).json({ message: "CPF já cadastrado no salão" });
+      return;
+    }
+    let funcionario = await postFuncionario(
+      CPF,
+      Nome,
+      Email,
+      Telefone,
+      SalaoId,
+      Auxiliar,
+      Salario,
+    );
+    if (!funcionario) {
+      throw new Error("Funcionario not created");
+    }
+    let register = await registerLogin(
+      funcionario.ID!,
+      Email,
+      Password,
+      SalaoId,
+      userType,
+    );
+    if (!register) {
+      console.log("Register auth failed, deleting user");
+      let funcionarioDelete = await deleteFuncionario(funcionario.ID!);
+      if (funcionarioDelete) {
+        console.log("Funcionario deleted successfully");
+      } else {
+        console.log("Failed to delete funcionario after register failure");
+      }
+      throw new Error("Login registration failed");
+    }
+    let token = await verifyPasswordAndReturnToken(Email, Password, SalaoId);
+
+    res.status(200).send(token);
+  } catch (e) {
+    console.log(e);
+    res.status(500).send("Error in creating Funcionario");
+  }
+});
+
 export default RoutesLogin;
