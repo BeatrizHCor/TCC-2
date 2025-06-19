@@ -1,8 +1,9 @@
 import { Request, Response, Router } from "express";
 import {
+    deleteImagemByIdNoPortfolio,
     getImagemById,
-    getPortfolioByCabeleireriroId,
-    getPortfolioImages
+    getPortfolioByCabeleireiroId,
+    getPortfolioImages,
 } from "../services/ServiceImag";
 import { handleApiResponse } from "../utils/HandlerDeRespostaDoBackend";
 import { Imagem } from "../models/imagemModel";
@@ -16,7 +17,7 @@ RoutesImagem.get(
     async (req: Request, res: Response) => {
         let { cabeleireiroId } = req.params;
         try {
-            let portfolio = await getPortfolioByCabeleireriroId(cabeleireiroId);
+            let portfolio = await getPortfolioByCabeleireiroId(cabeleireiroId);
             if (portfolio) {
                 res.status(200).send(portfolio);
             } else {
@@ -88,7 +89,7 @@ RoutesImagem.post(
                         userTypes.ADM_SALAO,
                         userTypes.ADM_SISTEMA,
                     ].includes(userInfo.userType) &&
-                    !userInfo.userID === req.body.Cabeleireiro
+                    userInfo.userID !== req.body.Cabeleireiro
                 ) {
                     res.status(403).json({ message: "Unauthorized" });
                 } else {
@@ -121,5 +122,44 @@ RoutesImagem.post(
         }
     },
 );
+RoutesImagem.delete(
+    "/imagem/:portfolioId/:imagemId",
+    async (req: Request, res: Response) => {
+        try {
+            const { portfolioId, imagemId } = req.params;
+            const { userInfo, auth } = await getUserInfoAndAuth(req.headers);
+            if (!portfolioId && !imagemId) {
+                res.status(409).json({ message: "Dados invalidos ou ausentes ao excluir imagem de portfolio" });
+                return;
+            } else {
+                if (
+                    !auth &&
+                    ![
+                        userTypes.CABELEIREIRO,
+                        userTypes.ADM_SALAO,
+                        userTypes.ADM_SISTEMA,
+                    ].includes(userInfo.userType) &&
+                    userInfo.userID !== req.body.Cabeleireiro
+                ) {
+                    res.status(403).json({ message: "Unauthorized" });
+                } else {
+                    const result = await deleteImagemByIdNoPortfolio(portfolioId, imagemId);
 
+                    if (result) {
+                        res.status(204).json({
+                            message: "sucesso ao excluir foto do portfolio",
+                        });;
+                    } else {
+                        res.status(500).json({
+                            message: "erro ao excluir foto do portfolio",
+                        });
+                    }
+                }
+            }
+        } catch (e) {
+            console.error(e);
+            res.status(500).send("Erro ao buscar imagem");
+        }
+    },
+);
 export default RoutesImagem;

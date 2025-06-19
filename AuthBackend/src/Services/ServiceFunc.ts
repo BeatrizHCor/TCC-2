@@ -63,8 +63,8 @@ export const deleteFuncionario = async (id: string) => {
             method: "DELETE",
         },
     );
-    if (responseFuncionario.ok) {
-        return (await responseFuncionario.json()) as Funcionario;
+    if (responseFuncionario.status === 204) {
+        return true;
     } else {
         throw new Error("Error in deleting Funcionario");
     }

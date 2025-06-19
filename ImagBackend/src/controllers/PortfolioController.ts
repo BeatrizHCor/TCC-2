@@ -52,7 +52,7 @@ export class PortfolioController {
         if (!cabeleireiroId) {
             res.status(400).json({ error: "CabeleireiroId é obrigatório." });
             return;
-        }console.log("controller recebido: ", cabeleireiroId)
+        }
         const portfolios = await PortfolioService.getPortfolioByCabeleireiroId(cabeleireiroId);
         if (portfolios){
         res.status(200).json(portfolios);

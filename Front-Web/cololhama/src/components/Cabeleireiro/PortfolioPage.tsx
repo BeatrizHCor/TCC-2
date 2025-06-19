@@ -26,6 +26,7 @@ export default function PortfolioPage() {
     loading,
     error,
     uploadImagem,
+    deleteImagem,
     fetchImagens,
     portfolioId,
     nomeCabeleireiro,
@@ -39,6 +40,30 @@ export default function PortfolioPage() {
   const [uploadError, setUploadError] = useState<string | null>(null);
   const [showSuccess, setShowSuccess] = useState(false);
 
+  const [deleteDialog, setDeleteDialog] = useState(false);
+  const [selectedImage, setSelectedImage] = useState<any>(null);
+  const [deleting, setDeleting] = useState(false);
+  const [deleteError, setDeleteError] = useState<string | null>(null);
+
+
+  const handleDeleteImage = async () => {
+    if (!selectedImage) return;
+
+    setDeleting(true);
+    setDeleteError(null);
+
+    try {
+      await deleteImagem(selectedImage.ID);
+      setDeleteDialog(false);
+      setSelectedImage(null);
+      setShowSuccess(true);
+    } catch (err) {
+      setDeleteError("Falha ao excluir a imagem. Tente novamente.");
+      console.error("Erro durante exclusão:", err);
+    } finally {
+      setDeleting(false);
+    }
+  };
   const handleUpload = async () => {
     if (!file || !cabeleireiroId) return;
 
@@ -133,7 +158,15 @@ export default function PortfolioPage() {
                 padding: 1,
               }}
             >
-              <Card sx={{ height: "100%" }}>
+              <Card
+                sx={{
+                  height: "100%",
+                  position: "relative",
+                  "&:hover .delete-overlay": {
+                    opacity: cabeleireiroId === userId ? 1 : 0
+                  }
+                }}
+              >
                 <CardMedia
                   component="img"
                   image={`data:image/jpeg;base64,${img.fileContent}`}
@@ -147,6 +180,38 @@ export default function PortfolioPage() {
                       "https://via.placeholder.com/400x300?text=Imagem+não+encontrada";
                   }}
                 />
+                {cabeleireiroId === userId && (
+                  <Box
+                    className="delete-overlay"
+                    sx={{
+                      position: "absolute",
+                      top: 0,
+                      left: 0,
+                      right: 0,
+                      bottom: 0,
+                      backgroundColor: "rgba(0, 0, 0, 0.5)",
+                      display: "flex",
+                      alignItems: "center",
+                      justifyContent: "center",
+                      opacity: 0,
+                      transition: "opacity 0.3s ease",
+                      cursor: "pointer"
+                    }}
+                    onClick={() => {
+                      setSelectedImage(img);
+                      setDeleteDialog(true);
+                    }}
+                  >
+                    <Button
+                      variant="contained"
+                      color="error"
+                      size="small"
+                      sx={{ minWidth: "auto", p: 1 }}
+                    >
+                      🗑️ Excluir
+                    </Button>
+                  </Box>
+                )}
                 <CardContent>
                   <Typography variant="body2">{img.Descricao}</Typography>
                 </CardContent>
@@ -221,6 +286,59 @@ export default function PortfolioPage() {
             color="primary"
           >
             {uploading ? <CircularProgress size={24} /> : "Salvar"}
+          </Button>
+        </DialogActions>
+      </Dialog>
+      <Dialog
+        open={deleteDialog}
+        onClose={() => !deleting && setDeleteDialog(false)}
+        maxWidth="sm"
+        fullWidth
+      >
+        <DialogTitle>Confirmar Exclusão</DialogTitle>
+        <DialogContent>
+          {deleteError && (
+            <Alert severity="error" sx={{ mb: 2 }}>
+              {deleteError}
+            </Alert>
+          )}
+
+          <Typography variant="body1" gutterBottom>
+            Tem certeza que deseja excluir esta imagem do seu portfólio?
+          </Typography>
+
+          {selectedImage && (
+            <Box mt={2} textAlign="center">
+              <img
+                src={`data:image/jpeg;base64,${selectedImage.fileContent}`}
+                alt={selectedImage.Descricao}
+                style={{ maxWidth: "100%", maxHeight: "200px", borderRadius: "4px" }}
+              />
+              <Typography variant="caption" display="block" mt={1}>
+                {selectedImage.Descricao}
+              </Typography>
+            </Box>
+          )}
+
+          <Typography variant="body2" color="text.secondary" mt={2}>
+            Esta ação não pode ser desfeita.
+          </Typography>
+        </DialogContent>
+
+        <DialogActions>
+          <Button
+            onClick={() => setDeleteDialog(false)}
+            disabled={deleting}
+          >
+            Cancelar
+          </Button>
+          <Button
+            onClick={handleDeleteImage}
+            disabled={deleting}
+            variant="contained"
+            color="error"
+          >
+            {deleting ? <CircularProgress size={24} /> : "Excluir"}
           </Button>
         </DialogActions>
       </Dialog>

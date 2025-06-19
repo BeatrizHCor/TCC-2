@@ -91,5 +91,16 @@ class PortfolioService {
       throw new Error("Erro ao buscar portfólio por cabeleireiro.");
     }
   }
+  static async deleteImagemPortfolio(portfolioId: string, imagemId: string) {
+      const response = await api.delete(`/imagem/${portfolioId}/${imagemId}`);
+      return response.data;    
+    } catch (error: { response: any; message: any; }) {
+      if (axios.isAxiosError(error)) {
+        console.error("Erro completo:", error.response || error.message);
+      } else {
+        console.error("Erro desconhecido:", error);
+      }
+      throw new Error("Erro ao excluir foto do portfolio.");
+  }
 }
 export default PortfolioService;

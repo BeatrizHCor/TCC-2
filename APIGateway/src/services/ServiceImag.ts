@@ -42,7 +42,7 @@ export const deletePortfolio = async (id: string) => {
     );
   }
 };
-export const getPortfolioByCabeleireriroId = async (cabeleireiroId: string) => {
+export const getPortfolioByCabeleireiroId = async (cabeleireiroId: string) => {
   let responsePortfolio = await fetch(
     VITE_IMAGEM_URL + `/portfolio/${cabeleireiroId}`,
     {
@@ -74,5 +74,18 @@ export const getImagemById = async (id: string) => {
   return handleApiResponse<Imagem>(
     responsePortfolio,
     "buscar imagem por ID",
+  );
+};
+
+export const deleteImagemByIdNoPortfolio = async (portfolioId: string, imagemId: string) => {
+  let responsePortfolio = await fetch(VITE_IMAGEM_URL + `/imagem/${portfolioId}/${imagemId}`, {
+    method: "DELETE",
+  });
+  if (responsePortfolio.status === 204){
+    return true;
+  }
+  return handleApiResponse<Imagem>(
+    responsePortfolio,
+    "deletar imagem do portfolio",
   );
 };

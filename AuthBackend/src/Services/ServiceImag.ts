@@ -28,12 +28,9 @@ export const deletePortfolio = async (id: string) => {
   let responsePortfolio = await fetch(VITE_IMAGEM_URL + "/portfolio/delete/" + id, {
     method: "DELETE",
   });
-  if (responsePortfolio.status === 204) {
-    return true;
-  } else {
-      return handleApiResponse<Portfolio>(
+    return handleApiResponse<Portfolio>(
     responsePortfolio,
     "deletar portfolio pelo id do cabelereiro",
   );
-  }
+  
 }
