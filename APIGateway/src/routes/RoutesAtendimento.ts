@@ -7,7 +7,7 @@ import {
 } from "../services/ServiceAtendimento";
 import { userTypes } from "../models/tipo-usuario.enum";
 import { authenticate } from "../services/Service";
-import { getUserInfoAndAuth } from "../utils.ts/FazerAutenticacaoEGetUserInfo";
+import { getUserInfoAndAuth } from "../utils/FazerAutenticacaoEGetUserInfo";
 
 const RoutesAtendimento = Router();
 
