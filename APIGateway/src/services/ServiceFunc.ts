@@ -2,7 +2,7 @@ import "dotenv/config";
 import { Funcionario } from "../models/funcionarioModel";
 import { Servico } from "../models/servicoModel";
 import e, { response } from "express";
-import { handleApiResponse } from "../utils.ts/HandlerDeRespostaDoBackend";
+import { handleApiResponse } from "../utils/HandlerDeRespostaDoBackend";
 
 const FuncionarioURL = process.env.FUNC_URL || "http://localhost:3002";
 export const postFuncionario = async (

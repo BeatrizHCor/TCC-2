@@ -94,7 +94,51 @@ export const cadastrarFuncionario = async (
     }),
   });
   if (responseRegister.ok) {
-    console.log("Register response for funcionario", CPF, ":", responseRegister.ok);
+    console.log(
+      "Register response for funcionario",
+      CPF,
+      ":",
+      responseRegister.ok,
+    );
+    return await responseRegister.json();
+  } else {
+    console.log("Register failed", responseRegister.status);
+  }
+  return responseRegister.ok;
+};
+export const cadastrarCabeleireiro = async (
+  CPF: string,
+  Nome: string,
+  Email: string,
+  Telefone: string,
+  SalaoId: string,
+  Mei: string,
+  Password: string,
+  userType: userTypes,
+) => {
+  let responseRegister = await fetch(loginURL + "/cadastrar/cabeleireiro", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({
+      CPF,
+      Nome,
+      Email,
+      Telefone,
+      SalaoId,
+      Mei,
+      Password,
+      userType,
+    }),
+  }); console.log("saida do gateway: ", Email)
+  if (responseRegister.ok) {
+    console.log(
+      "Register response for cabeleireiro",
+      CPF,
+      ":",
+      responseRegister.ok,
+    );
     return await responseRegister.json();
   } else {
     console.log("Register failed", responseRegister.status);

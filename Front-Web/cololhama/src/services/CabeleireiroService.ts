@@ -35,7 +35,7 @@ export const CabeleireiroService = {
     userType: string = "Cabeleireiro"
   ): Promise<Cabeleireiro> {
     try {
-      const response = await api.post("/cabeleireiro", {
+      const response = await api.post("/cadastrar/cabeleireiro", {
         CPF,
         Nome,
         Email,

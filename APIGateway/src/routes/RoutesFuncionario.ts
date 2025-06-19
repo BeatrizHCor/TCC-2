@@ -20,7 +20,7 @@ import {
   registerLogin,
 } from "../services/Service";
 import { userTypes } from "../models/tipo-usuario.enum";
-import { getUserInfoAndAuth } from "../utils.ts/FazerAutenticacaoEGetUserInfo";
+import { getUserInfoAndAuth } from "../utils/FazerAutenticacaoEGetUserInfo";
 const RoutesFuncionario = Router();
 
 RoutesFuncionario.get(

@@ -13,13 +13,28 @@ class CabeleireiroController {
         salaoId ? String(salaoId) : null,
         nome ? String(nome) : null
       );
-      res.json(cabeleireiros);
+      res.status(200).json(cabeleireiros);
     } catch (error) {
       console.log(error);
       res.status(204).json({ message: "Cabeleireiro não encontrado" });
     }
   };
-
+  static findAllNamesPaginated = async (req: Request, res: Response): Promise<void> => {
+    try {
+      const { page, limit, salaoId } = req.query;
+      const { nome = "" } = req.query;
+      const cabeleireiros = await CabeleireiroService.getCabeleireiroNomePage(
+        Number(page),
+        Number(limit),
+        salaoId ? String(salaoId) : null,
+        nome ? String(nome) : null
+      );
+      res.status(200).json(cabeleireiros);
+    } catch (error) {
+      console.log(error);
+      res.status(204).json({ message: "Cabeleireiro não encontrado" });
+    }
+  };
   static findById = async (req: Request, res: Response): Promise<void> => {
     try {
       const { id } = req.params;
@@ -54,7 +69,7 @@ class CabeleireiroController {
           .status(404)
           .json({ message: "Cabeleireiro não pode ser registrado" });
       } else {
-        res.json(cabeleireiro);
+        res.status(201).json(cabeleireiro);
       }
     } catch (e) {
       console.log(e);
@@ -80,7 +95,7 @@ class CabeleireiroController {
           .status(404)
           .json({ message: "Cabeleireiro não pode ser registrado" });
       } else {
-        res.json(cabeleireiro);
+        res.status(200).json(cabeleireiro);
       }
     } catch (e) {
       console.log(e);
@@ -119,7 +134,7 @@ class CabeleireiroController {
         if (!cabeleireiros || cabeleireiros.length === 0) {
           res.status(204).json({ message: "Nenhum cabeleireiro encontrado para este salão" });
         } else {
-          res.json(cabeleireiros); 
+          res.status(200).json(cabeleireiros); 
         }
       }
     } catch (e) {
