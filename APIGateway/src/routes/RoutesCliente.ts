@@ -28,7 +28,7 @@ RoutesCliente.post(
         !userType
       ) {
         res.status(400).json({
-          message: "Erro ao cadastrar cliente, arametros ausentes ou invalidos",
+          message: "Erro ao cadastrar cliente, parametros ausentes ou invalidos",
         });
       } else {
         const result = await cadastrarCliente(
@@ -53,40 +53,6 @@ RoutesCliente.post(
     }
   },
 );
-
-RoutesCliente.post("/cliente", async (req: Request, res: Response) => {
-  let { CPF, Nome, Email, Telefone, SalaoId, Password, userType } = req.body;
-  try {
-    let cliente = await postCliente(CPF, Nome, Email, Telefone, SalaoId);
-    if (!cliente) {
-      console.log("Cliente not created");
-      throw new Error("Cliente not created");
-    }
-    console.log("Cliente ID: ", cliente.ID);
-    let register = await registerLogin(
-      cliente.ID!,
-      Email,
-      Password,
-      SalaoId,
-      userType
-    );
-    if (!register) {
-      console.log("Register auth failed");
-      let clienteDelete = await deleteCliente(cliente.ID!);
-      if (clienteDelete) {
-        console.log("Cliente deleted successfully");
-      } else {
-        console.log("Failed to delete cliente after register failure");
-      }
-      throw new Error("Login registration failed");
-    }
-    let token = await postLogin(Email, Password, SalaoId);
-    res.status(200).send(token);
-  } catch (e) {
-    console.log(e);
-    res.status(500).send("Error in creating customer");
-  }
-});
 
 RoutesCliente.get("/cliente/checkcpf/:cpf/:salaoId", async (req, res) => {
   const { cpf, salaoId } = req.params;

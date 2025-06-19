@@ -19,7 +19,6 @@ class CabeleireiroService {
     if (salaoId) {
       where.SalaoId = salaoId;
     }
-    where.Status = "ATIVO";
     return await prisma.cabeleireiro.findMany({
       ...(skip !== null ? { skip } : {}),
       ...(limit !== null ? { take: limit } : {}),
@@ -62,6 +61,72 @@ class CabeleireiroService {
         skip,
         limit,
         includeRelations,
+        salaoId,
+        nome,
+      ),
+    ]);
+
+    return {
+      total: total,
+      page,
+      limit,
+      data: cabeleireiros,
+    };
+  };
+  static getCabeleireirosNomes = async (
+    skip: number | null = null,
+    limit: number | null = null,
+    salaoId: string | null = null,
+    nome: string | null = null,
+  ) => {
+    let where: Prisma.CabeleireiroWhereInput = {};
+    if (nome && nome.trim().length > 0) {
+      where.Nome = {
+        contains: nome,
+        mode: "insensitive",
+      };
+    }
+    if (salaoId) {
+      where.SalaoId = salaoId;
+    }
+    where.Status = "ATIVO";
+    return await prisma.cabeleireiro.findMany({
+      ...(skip !== null ? { skip } : {}),
+      ...(limit !== null ? { take: limit } : {}),
+      where: where,
+      select: {
+        ID: true,
+        Nome: true,
+      },
+      orderBy: {
+        Nome: "asc",
+      },
+    });
+  };
+
+  static getCabeleireiroNomePage = async (
+    page = 1,
+    limit = 10,
+    salaoId: string | null = null,
+    nome: string | null = null,
+  ) => {
+    const skip = (page - 1) * limit;
+    const where: Prisma.CabeleireiroWhereInput = {};
+    if (salaoId) {
+      where.SalaoId = salaoId;
+    }
+    if (nome && nome.trim().length > 0) {
+      where.Nome = {
+        contains: nome,
+        mode: "insensitive",
+      };
+    }
+    where.Status = "ATIVO";
+    const [total, cabeleireiros] = await Promise.all([
+      await prisma.cabeleireiro.count({ where }),
+      CabeleireiroService.getCabeleireirosNomes(
+        skip,
+        limit,
         salaoId,
         nome,
       ),

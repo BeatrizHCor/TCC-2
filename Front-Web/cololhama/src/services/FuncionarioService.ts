@@ -47,7 +47,6 @@ export const FuncionarioService = {
       if (response.status === 403) {
         return false;
       }
-      console.log("Funcionários recebidos:", response.data);
       return response.data;
     } catch (error) {
       console.error("Erro ao buscar funcionários:", error);
@@ -67,7 +66,7 @@ export const FuncionarioService = {
     userType: string = "Funcionario"
   ): Promise<Funcionario> {
     try {
-      const response = await api.post(`/funcionario`, {
+      const response = await api.post(`/cadastrar/funcionario`, {
         CPF,
         Nome,
         Email,

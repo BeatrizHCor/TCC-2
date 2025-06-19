@@ -19,7 +19,7 @@ import {
 } from "../services/ServiceAgendamento";
 import { authenticate } from "../services/Service";
 import { userTypes } from "../models/tipo-usuario.enum";
-import { getUserInfoAndAuth } from "../utils.ts/FazerAutenticacaoEGetUserInfo";
+import { getUserInfoAndAuth } from "../utils/FazerAutenticacaoEGetUserInfo";
 
 const RoutesAgendamento = Router();
 //-----Funcionario

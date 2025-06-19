@@ -1,5 +1,6 @@
 import "dotenv/config";
 import { Portfolio } from "@prisma/client";
+import { handleApiResponse } from "../utils/HandlerDeRespostaDoBackend";
 
 const VITE_IMAGEM_URL = process.env.VITE_IMAGEM_URL || "http://localhost:4000";
 
@@ -19,11 +20,10 @@ export const createPortfolio = async (
       SalaoId: SalaoId,
     }),
   });
-  if (responsePortfolio.ok) {
-    return (await responsePortfolio.json()) as Portfolio;
-  } else {
-    throw new Error("Error in creating Portfolio");
-  }
+  return handleApiResponse<Portfolio>(
+    responsePortfolio,
+    "criar Portfolio",
+  );
 };
 
 export const deletePortfolio = async (cabeleireiroId: string) => {

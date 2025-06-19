@@ -44,7 +44,6 @@ class ServicoService {
           includeRelations,
         },
       });
-      console.log("Serviços recebidos:", response.data);
       return response.data;
     } catch (error) {
       console.error("Erro ao buscar serviços:", error);

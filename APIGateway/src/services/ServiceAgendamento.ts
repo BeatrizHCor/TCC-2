@@ -1,6 +1,6 @@
 import { Agendamentos } from "../models/agendamentoModel";
 import "dotenv/config";
-import { handleApiResponse } from "../utils.ts/HandlerDeRespostaDoBackend";
+import { handleApiResponse } from "../utils/HandlerDeRespostaDoBackend";
 const FuncionarioURL = process.env.FUNC_URL || "http://localhost:3002";
 const CabeleireiroURL = process.env.CABELEREIRO_URL || "http://localhost:3005";
 const ClienteURL = process.env.CUSTOMER_URL || "http://localhost:3001";

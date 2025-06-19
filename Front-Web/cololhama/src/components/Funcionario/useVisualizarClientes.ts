@@ -31,7 +31,7 @@ export const useVisualizarClientes = (
           dataFilter,
           false
 
-        );console.log("Response from getClientePage:", response);
+        );
         if (typeof response === "boolean") {
           setForbidden(true);
         } else {
