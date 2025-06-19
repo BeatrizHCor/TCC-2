@@ -2,7 +2,10 @@ import { Request, Response } from "express";
 import CabeleireiroService from "../services/CabeleireiroService";
 
 class CabeleireiroController {
-  static findAllPaginated = async (req: Request, res: Response): Promise<void> => {
+  static findAllPaginated = async (
+    req: Request,
+    res: Response,
+  ): Promise<void> => {
     try {
       const { page, limit, includeRelations, salaoId } = req.query;
       const { nome = "" } = req.query;
@@ -11,7 +14,7 @@ class CabeleireiroController {
         Number(limit),
         includeRelations === "true",
         salaoId ? String(salaoId) : null,
-        nome ? String(nome) : null
+        nome ? String(nome) : null,
       );
       res.status(200).json(cabeleireiros);
     } catch (error) {
@@ -19,7 +22,10 @@ class CabeleireiroController {
       res.status(204).json({ message: "Cabeleireiro não encontrado" });
     }
   };
-  static findAllNamesPaginated = async (req: Request, res: Response): Promise<void> => {
+  static findAllNamesPaginated = async (
+    req: Request,
+    res: Response,
+  ): Promise<void> => {
     try {
       const { page, limit, salaoId } = req.query;
       const { nome = "" } = req.query;
@@ -27,7 +33,7 @@ class CabeleireiroController {
         Number(page),
         Number(limit),
         salaoId ? String(salaoId) : null,
-        nome ? String(nome) : null
+        nome ? String(nome) : null,
       );
       res.status(200).json(cabeleireiros);
     } catch (error) {
@@ -41,7 +47,7 @@ class CabeleireiroController {
       const includeRelations = req.query.include === "true";
       const cabeleireiro = await CabeleireiroService.findById(
         id,
-        includeRelations
+        includeRelations,
       );
       if (!cabeleireiro) {
         res.status(204).json({ message: "Cabeleireiro não encontrado" });
@@ -62,7 +68,7 @@ class CabeleireiroController {
         Mei,
         Nome,
         Telefone,
-        SalaoId
+        SalaoId,
       );
       if (!cabeleireiro || cabeleireiro === null) {
         res
@@ -88,7 +94,7 @@ class CabeleireiroController {
         Nome,
         Telefone,
         SalaoId,
-        ID
+        ID,
       );
       if (!cabeleireiro) {
         res
@@ -125,21 +131,25 @@ class CabeleireiroController {
       const { salaoId } = req.params;
       const includeRelations = req.query.includeRelations === "true";
       if (!salaoId) {
-         res.status(400).json({ message: "SalaoId do salão não informado" });
+        res.status(400).json({ message: "SalaoId do salão não informado" });
       } else {
         const cabeleireiros = await CabeleireiroService.getBySalao(
           salaoId,
-          includeRelations
+          includeRelations,
         );
         if (!cabeleireiros || cabeleireiros.length === 0) {
-          res.status(204).json({ message: "Nenhum cabeleireiro encontrado para este salão" });
+          res.status(204).json({
+            message: "Nenhum cabeleireiro encontrado para este salão",
+          });
         } else {
-          res.status(200).json(cabeleireiros); 
+          res.status(200).json(cabeleireiros);
         }
       }
     } catch (e) {
       console.log(e);
-      res.status(500).json({ message: "Erro ao buscar cabeleireiros do salão" });
+      res.status(500).json({
+        message: "Erro ao buscar cabeleireiros do salão",
+      });
     }
   };
 }

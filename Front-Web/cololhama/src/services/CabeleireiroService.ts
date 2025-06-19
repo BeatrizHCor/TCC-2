@@ -116,6 +116,28 @@ export const CabeleireiroService = {
       throw error;
     }
   },
+  async getCabeleireiroNomesPage(
+    page: number = 1,
+    limit: number = 10,
+    salaoId: string,
+    nome?: string
+  ): Promise<CabeleireiroPageResponse> {
+    try {
+      const response = await api.get(`/cabeleireiro/nomes/page`, {
+        params: {
+          page,
+          limit,
+          salaoId,
+          nome
+        },
+      });
+
+      return response.data;
+    } catch (error) {
+      console.error("Erro ao buscar página de nomes de cabeleireiros:", error);
+      throw error;
+    }
+  },
 
   async getCabeleireiroById(
     id: string,

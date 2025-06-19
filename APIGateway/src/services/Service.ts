@@ -61,8 +61,8 @@ export const cadastrarCliente = async (
     return await responseRegister.json();
   } else {
     console.log("Register failed", responseRegister.status);
+    return false;
   }
-  return responseRegister.ok;
 };
 
 export const cadastrarFuncionario = async (
@@ -103,9 +103,10 @@ export const cadastrarFuncionario = async (
     return await responseRegister.json();
   } else {
     console.log("Register failed", responseRegister.status);
+    return false;
   }
-  return responseRegister.ok;
 };
+
 export const cadastrarCabeleireiro = async (
   CPF: string,
   Nome: string,
@@ -131,7 +132,7 @@ export const cadastrarCabeleireiro = async (
       Password,
       userType,
     }),
-  }); console.log("saida do gateway: ", Email)
+  });
   if (responseRegister.ok) {
     console.log(
       "Register response for cabeleireiro",
@@ -142,8 +143,8 @@ export const cadastrarCabeleireiro = async (
     return await responseRegister.json();
   } else {
     console.log("Register failed", responseRegister.status);
-  }
-  return responseRegister.ok;
+    return false;
+    }
 };
 
 export const postLogin = async (

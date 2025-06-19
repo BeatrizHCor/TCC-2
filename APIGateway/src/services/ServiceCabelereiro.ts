@@ -42,6 +42,28 @@ export const getCabeleireiroPage = async (
   );
 };
 
+export const getCabeleireiroNomesPage = async (
+  page: number,
+  limit: number,
+  salaoId?: number,
+  nome?: string | null,
+) => {
+  console.log(CabeleireiroURL);
+  let responseCabeleireiros = await fetch(
+    CabeleireiroURL +
+      `/cabeleireiro/nomes/page?page=${page}&limit=${limit}` +
+      `${salaoId ? "&salaoID=" + String(salaoId) : ""}` +
+      `${nome ? "&nome=" + String(nome) : ""}`,
+    {
+      method: "GET",
+    },
+  );
+  return handleApiResponse<Cabeleireiro[]>(
+    responseCabeleireiros,
+    "buscar nomes dos Cabeleireiros paginados",
+  );
+};
+
 export const deleteCabeleireiro = async (id: string) => {
   let responseCabeleireiro = await fetch(
     CabeleireiroURL + `/cabeleireiro/delete/${id}`,

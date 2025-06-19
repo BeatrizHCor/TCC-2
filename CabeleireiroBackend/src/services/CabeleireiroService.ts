@@ -94,9 +94,9 @@ class CabeleireiroService {
       ...(skip !== null ? { skip } : {}),
       ...(limit !== null ? { take: limit } : {}),
       where: where,
-      select:{
+      select: {
         ID: true,
-        Nome: true,        
+        Nome: true,
       },
       orderBy: {
         Nome: "asc",

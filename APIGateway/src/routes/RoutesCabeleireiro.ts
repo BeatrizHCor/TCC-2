@@ -9,11 +9,13 @@ import {
   deleteCabeleireiro,
   getCabeleireiroById,
   getCabeleireiroBySalao,
+  getCabeleireiroNomesPage,
   getCabeleireiroPage,
   postCabeleireiro,
   updateCabeleireiro,
 } from "../services/ServiceCabelereiro";
 import { userTypes } from "../models/tipo-usuario.enum";
+import { getUserInfoAndAuth } from "../utils/FazerAutenticacaoEGetUserInfo";
 
 const RoutesCabeleireiro = Router();
 
@@ -23,30 +25,18 @@ RoutesCabeleireiro.post(
     let { CPF, Nome, Email, Telefone, SalaoId, Password, userType, Mei } =
       req.body;
     try {
-      const userInfo = JSON.parse(
-        Buffer.from(req.headers.authorization || "", "base64").toString(
-          "utf-8",
-        ) || "{}",
-      );
-      if (
-        !userInfo || !userInfo.userID || !userInfo.token || !userInfo.userType
-      ) {
-        console.log("Informações de autenticação ausente ou inválidas");
-        res.status(403).json({ message: "Unauthorized" });
+      const { userInfo, auth } = await getUserInfoAndAuth(req.headers);
+      if (!userInfo) {
+        res.status(403).json({ message: "Não autorizado" });
+        return;
       } else {
-        let userTypeAuth = userInfo.userType;
-        const auth = await authenticate(
-          userInfo.userID,
-          userInfo.token,
-          userInfo.userType,
-        );
         if (
           !auth ||
           ![
             userTypes.FUNCIONARIO,
             userTypes.ADM_SALAO,
             userTypes.ADM_SISTEMA,
-          ].includes(userTypeAuth)
+          ].includes(userInfo.userType)
         ) {
           res.status(403).json({ message: "Unauthorized" });
         } else {
@@ -95,10 +85,46 @@ RoutesCabeleireiro.get(
   async (req: Request, res: Response) => {
     let { page, limit, includeRelations, salaoId, nome } = req.query;
     try {
-      let cabeleireiros = await getCabeleireiroPage(
+      const { userInfo, auth } = await getUserInfoAndAuth(req.headers);
+      if (!userInfo) {
+        res.status(403).json({ message: "Não autorizado" });
+        return;
+      } else {
+        if (
+          !auth &&
+          ![
+            userTypes.FUNCIONARIO,
+            userTypes.ADM_SALAO,
+            userTypes.ADM_SISTEMA,
+          ].includes(userInfo.userType)
+        ) {
+          res.status(403).json({ message: "Unauthorized" });
+        } else {
+          let cabeleireiros = await getCabeleireiroPage(
+            Number(page),
+            Number(limit),
+            Boolean(includeRelations === "true"),
+            salaoId ? Number(salaoId) : undefined,
+            nome ? String(nome) : undefined,
+          );
+          res.status(200).send(cabeleireiros);
+        }
+      }
+    } catch (e) {
+      console.log(e);
+      res.status(500).send("Error querying Cabeleireiros");
+    }
+  },
+);
+
+RoutesCabeleireiro.get(
+  "/cabeleireiro/nomes/page",
+  async (req: Request, res: Response) => {
+    let { page, limit, salaoId, nome } = req.query;
+    try {
+      let cabeleireiros = await getCabeleireiroNomesPage(
         Number(page),
         Number(limit),
-        Boolean(includeRelations === "true"),
         salaoId ? Number(salaoId) : undefined,
         nome ? String(nome) : undefined,
       );
@@ -109,6 +135,7 @@ RoutesCabeleireiro.get(
     }
   },
 );
+
 RoutesCabeleireiro.get(
   "/cabeleireiro/salao/:salaoId",
   async (req: Request, res: Response) => {
