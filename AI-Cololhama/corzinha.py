@@ -65,44 +65,31 @@ class ProcessCor:
 
 def pos_processamento(mask, min_area=300, kernel_size=3):
     print("  → Pós-processando máscara com técnica híbrida...")
-
-    # Converter para escala de cinza, se necessário
     if len(mask.shape) == 3:
         mask_gray = cv2.cvtColor(mask.astype(np.uint8), cv2.COLOR_BGR2GRAY)
     else:
         mask_gray = mask.astype(np.uint8)
-
-    # Binarização simples
     _, binary_mask = cv2.threshold(mask_gray, 127, 255, cv2.THRESH_BINARY)
-
-    # Abertura morfológica para remover pontos soltos (ruído)
     kernel = cv2.getStructuringElement(cv2.MORPH_ELLIPSE, (kernel_size, kernel_size))
     opened_mask = cv2.morphologyEx(binary_mask, cv2.MORPH_OPEN, kernel)
 
-    # Remoção de componentes pequenos (filtros por área)
     num_labels, labels, stats, _ = cv2.connectedComponentsWithStats(opened_mask, connectivity=8)
     clean_mask = np.zeros_like(opened_mask)
 
-    for i in range(1, num_labels):  # pula o fundo (label 0)
+    for i in range(1, num_labels): 
         area = stats[i, cv2.CC_STAT_AREA]
         if area >= min_area:
             clean_mask[labels == i] = 255
 
-    # Fechamento para preencher buracos internos
     closing_kernel = cv2.getStructuringElement(cv2.MORPH_ELLIPSE, (kernel_size * 2, kernel_size * 2))
     filled_mask = cv2.morphologyEx(clean_mask, cv2.MORPH_CLOSE, closing_kernel)
 
-    # Contorno e preenchimento para garantir que não ficou falha interna
     contours, _ = cv2.findContours(filled_mask, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
     final_mask = filled_mask.copy()
     for contour in contours:
         cv2.fillPoly(final_mask, [contour], 255)
-
-    # Suavização das bordas
     final_mask = cv2.GaussianBlur(final_mask, (3, 3), 0)
     _, final_mask = cv2.threshold(final_mask, 127, 255, cv2.THRESH_BINARY)
-
-    # Retorna RGB se necessário
     if len(mask.shape) == 3:
         final_rgb = np.zeros_like(mask)
         final_rgb[final_mask == 255] = [255, 255, 255]
@@ -283,16 +270,6 @@ def aplicar_cor_cabelo_simples(imagem_original, mascara_cabelo, nova_cor_hex, in
 
 
 def aplicar_cor_cabelo(imagem_original, mascara_cabelo, nova_cor_hex, metodo="avancado", intensidade=0.8):
-    """
-    Função principal melhorada para aplicar cor no cabelo
-
-    Args:
-        imagem_original: Imagem BGR original
-        mascara_cabelo: Máscara binária do cabelo
-        nova_cor_hex: Nova cor em formato hex
-        metodo: "simples", "avancado" ou "clustering"
-        intensidade: Intensidade da cor (0.0 a 1.0)
-    """
 
     if metodo == "clustering":
         return aplicar_cor_cabelo_com_clustering(imagem_original, mascara_cabelo, nova_cor_hex, intensidade)
@@ -395,7 +372,6 @@ def load_model(model_path):
 
 
 def extrair_cor_media_cabelo(imagem_original, mascara_cabelo):
-    """Extrai a cor média do cabelo usando a máscara"""
     if len(imagem_original.shape) == 3 and imagem_original.shape[2] == 3:
         img_rgb = cv2.cvtColor(imagem_original, cv2.COLOR_BGR2RGB)
     else:
@@ -407,7 +383,7 @@ def extrair_cor_media_cabelo(imagem_original, mascara_cabelo):
     pixels_cabelo = img_rgb[mascara_cabelo == 255]
 
     if len(pixels_cabelo) == 0:
-        print("  ⚠️ Nenhum pixel de cabelo encontrado!")
+        print(" Nenhum pixel de cabelo encontrado!")
         return "#000000" 
 
     cor_media_rgb = np.mean(pixels_cabelo, axis=0)

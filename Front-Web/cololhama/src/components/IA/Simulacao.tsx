@@ -42,7 +42,7 @@ const Cololhama: React.FC = () => {
     if (file) {
       setSelectedFile(file);
       setError(null);
-      setResults(null); // limpar resultados ao trocar imagem
+      setResults(null);
       const reader = new FileReader();
       reader.onload = (e) => {
         setPreview(e.target?.result as string);
