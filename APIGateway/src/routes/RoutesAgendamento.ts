@@ -27,7 +27,7 @@ RoutesAgendamento.post(
   "/funcionario/agendamento",
   async (req: Request, res: Response): Promise<void> => {
     const { Data, ClienteID, SalaoId, CabeleireiroID } = req.body;
-    const { ServicoId } = req.body;
+    const { servicosIds } = req.body;
     try {
       const { userInfo, auth } = await getUserInfoAndAuth(req.headers);
       if (!userInfo) {
@@ -47,7 +47,7 @@ RoutesAgendamento.post(
             ClienteID,
             CabeleireiroID,
             SalaoId,
-            ServicoId
+            servicosIds
           );
 
           if (agendamento) {
