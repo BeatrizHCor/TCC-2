@@ -36,29 +36,29 @@ const ClienteURL = process.env.CUSTOMER_URL || "http://localhost:3001";
 //   }
 // };
 
-// export const getAgendamentosPage = async (
-//   page: number,
-//   limit: number,
-//   includeRelations: boolean = false,
-//   salaoId: number,
-//   dia: number,
-//   mes: number,
-//   ano: number
-// ) => {
-//   console.log(dia, mes, ano);
-//   let responseAgendamentos = await fetch(
-//     FuncionarioURL +
-//       `/agendamento/page?page=${page}&limit=${limit}&salaoId=${salaoId}&dia=${dia}&mes=${mes}&ano=${ano}&includeRelations=${includeRelations}`,
-//     {
-//       method: "GET",
-//     }
-//   );
-//   if (responseAgendamentos.ok) {
-//     return (await responseAgendamentos.json()) as Agendamentos[];
-//   } else {
-//     throw new Error("Error in fetching Agendamentos");
-//   }
-// };
+export const FuncionariogetAtendimentosPage = async (
+  page: number,
+  limit: number,
+  includeRelations: boolean = false,
+  salaoId: number,
+  dia: number,
+  mes: number,
+  ano: number
+) => {
+  console.log(dia, mes, ano);
+  let responseAgendamentos = await fetch(
+    FuncionarioURL +
+      `/atendimento/page?page=${page}&limit=${limit}&salaoId=${salaoId}&dia=${dia}&mes=${mes}&ano=${ano}&includeRelations=${includeRelations}`,
+    {
+      method: "GET",
+    }
+  );
+  if (responseAgendamentos.ok) {
+    return (await responseAgendamentos.json()) as Agendamentos[];
+  } else {
+    throw new Error("Error in fetching Agendamentos");
+  }
+};
 
 // export const FuncionariogetAgendamentoById = async (
 //   id: string,
