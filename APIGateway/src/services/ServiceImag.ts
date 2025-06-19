@@ -77,6 +77,17 @@ export const getImagemById = async (id: string) => {
   );
 };
 
+export const getPortfolioInfoById = async (id: string) => {
+  let responsePortfolio = await fetch(VITE_IMAGEM_URL + "/portfolio/info/" + id, {
+    method: "GET",
+  });
+
+  return handleApiResponse<Portfolio>(
+    responsePortfolio,
+    "buscar portfolio info por ID",
+  );
+};
+
 export const deleteImagemByIdNoPortfolio = async (portfolioId: string, imagemId: string) => {
   let responsePortfolio = await fetch(VITE_IMAGEM_URL + `/imagem/${portfolioId}/${imagemId}`, {
     method: "DELETE",

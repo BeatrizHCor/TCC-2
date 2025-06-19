@@ -4,6 +4,7 @@ import {
     getImagemById,
     getPortfolioByCabeleireiroId,
     getPortfolioImages,
+    getPortfolioInfoById,
 } from "../services/ServiceImag";
 import { handleApiResponse } from "../utils/HandlerDeRespostaDoBackend";
 import { Imagem } from "../models/imagemModel";
@@ -21,14 +22,11 @@ RoutesImagem.get(
             if (portfolio) {
                 res.status(200).send(portfolio);
             } else {
-                res.status(204).send({
-                    message:
-                        "Nenhum portfolio localizado para esse cabeleirerio",
-                });
+                res.status(204).send();
             }
         } catch (e) {
             console.log(e);
-            res.status(500).send("Error in creating portfolio");
+            res.status(500).json({ message: "Error em busacar portfolio" });
         }
     },
 );
@@ -42,9 +40,7 @@ RoutesImagem.get(
             if (portfolio) {
                 res.status(200).send(portfolio);
             } else {
-                res.status(204).send({
-                    message: "Nenhum portfolio localizado para esse ID",
-                });
+                res.status(204).send();
             }
         } catch (e) {
             console.error(e);
@@ -62,9 +58,7 @@ RoutesImagem.get(
             if (imagem) {
                 res.status(200).send(imagem);
             } else {
-                res.status(204).send({
-                    message: "Nenhuma imagem localizada para esse ID",
-                });
+                res.status(204).send();
             }
         } catch (e) {
             console.error(e);
@@ -72,13 +66,35 @@ RoutesImagem.get(
         }
     },
 );
-
+RoutesImagem.get(
+    "/portfolio/info/:id",
+    async (req: Request, res: Response) => {
+        const { id } = req.params;
+        try {
+            const imagem = await getPortfolioInfoById(id);
+            if (imagem) {
+                res.status(200).send(imagem);
+            } else {
+                res.status(204).send();
+            }
+        } catch (e) {
+            console.error(e);
+            res.status(500).send("Erro ao buscar imagem");
+        }
+    },
+);
 RoutesImagem.post(
     "/imagem/portfolio",
     async (req: Request, res: Response) => {
         try {
+           const { PortfolioId } = req.body;
             const { userInfo, auth } = await getUserInfoAndAuth(req.headers);
-            if (!userInfo) {
+            let portfolio = await getPortfolioInfoById(PortfolioId);
+            if (!portfolio) {
+                res.status(409).json({ message: "Dados invalidos ou ausentes ao excluir imagem de portfolio" });
+                return;
+            }
+            if (userInfo.userType === userTypes.CABELEIREIRO && userInfo.userID !== portfolio.CabeleireiroID) {
                 res.status(403).json({ message: "Não autorizado" });
                 return;
             } else {
@@ -88,8 +104,7 @@ RoutesImagem.post(
                         userTypes.CABELEIREIRO,
                         userTypes.ADM_SALAO,
                         userTypes.ADM_SISTEMA,
-                    ].includes(userInfo.userType) &&
-                    userInfo.userID !== req.body.Cabeleireiro
+                    ].includes(userInfo.userType)
                 ) {
                     res.status(403).json({ message: "Unauthorized" });
                 } else {
@@ -128,8 +143,13 @@ RoutesImagem.delete(
         try {
             const { portfolioId, imagemId } = req.params;
             const { userInfo, auth } = await getUserInfoAndAuth(req.headers);
-            if (!portfolioId && !imagemId) {
+            let portfolio = await getPortfolioInfoById(portfolioId);
+            if (!portfolioId || !imagemId || !portfolio) {
                 res.status(409).json({ message: "Dados invalidos ou ausentes ao excluir imagem de portfolio" });
+                return;
+            }
+            if (userInfo.userType === userTypes.CABELEIREIRO && userInfo.userID !== portfolio.CabeleireiroID) {
+                res.status(403).json({ message: "Não autorizado" });
                 return;
             } else {
                 if (
@@ -138,17 +158,14 @@ RoutesImagem.delete(
                         userTypes.CABELEIREIRO,
                         userTypes.ADM_SALAO,
                         userTypes.ADM_SISTEMA,
-                    ].includes(userInfo.userType) &&
-                    userInfo.userID !== req.body.Cabeleireiro
+                    ].includes(userInfo.userType)
                 ) {
                     res.status(403).json({ message: "Unauthorized" });
                 } else {
                     const result = await deleteImagemByIdNoPortfolio(portfolioId, imagemId);
 
                     if (result) {
-                        res.status(204).json({
-                            message: "sucesso ao excluir foto do portfolio",
-                        });;
+                        res.status(204).send();
                     } else {
                         res.status(500).json({
                             message: "erro ao excluir foto do portfolio",

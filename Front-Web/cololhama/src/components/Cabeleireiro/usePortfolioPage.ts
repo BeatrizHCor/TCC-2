@@ -70,7 +70,6 @@ export const usePortfolio = (cabeleireiroId: string | undefined) => {
         file,
         portfolioId!,
         descricao,
-        cabeleireiroId,
       );
 
       await fetchImagens();

@@ -1,7 +1,7 @@
 export async function handleApiResponse<T>(
     response: Response,
     operation: string,
-): Promise<T | false | T []> {
+): Promise<T | false > {
     switch (response.status) {
         case 200:
             return (await response.json()) as T;
@@ -9,8 +9,7 @@ export async function handleApiResponse<T>(
             return (await response.json()) as T;
         case 204:
             console.error(`${operation} completado com sucesso (204 No Content)`);
-            const vazio: T[] = [];
-            return vazio;
+            return false;
         case 400:
             console.error(
                 `Requisição inválida ao ${operation} (400): parametros inálidos ou ausentes`,
