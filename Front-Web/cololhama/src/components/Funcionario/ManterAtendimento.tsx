@@ -297,6 +297,28 @@ const ManterAtendimento: React.FC = () => {
                     sx={{ cursor: "pointer" }}
                   />
                 </Box>
+                <Box>
+                  <TextField
+                    fullWidth
+                    required
+                    label="Auxiliar"
+                    value={cabeleireiroNome}
+                    error={Boolean(validationErrors.cabeleireiroId)}
+                    helperText={validationErrors.cabeleireiroId}
+                    placeholder="Clique para selecionar um cabeleireiro"
+                    slotProps={{
+                      input: {
+                        readOnly: true,
+                        endAdornment: (
+                          <InputAdornment position="end">
+                            <PersonIcon />
+                          </InputAdornment>
+                        ),
+                      },
+                    }}
+                    sx={{ cursor: "pointer" }}
+                  />
+                </Box>
               </Box>
             </Box>
             <Box sx={{ flex: 1 }}>

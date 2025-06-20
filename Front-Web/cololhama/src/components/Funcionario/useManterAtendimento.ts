@@ -15,6 +15,7 @@ import { ServicoAtendimento } from "../../models/servicoAtendimentoModel";
 import { Cliente } from "../../models/clienteModel";
 import ClienteService from "../../services/ClienteService";
 import { Atendimento } from "../../models/atendimentoModal";
+import { Funcionario } from "../../models/funcionarioModel";
 
 interface ValidationErrors {
   data?: string;
@@ -65,7 +66,8 @@ export const useManterAtendimento = (
   const [atendimentoId, setAtendimentoId] = useState(stateCabId);
   const [servicosDisponiveis, setServicosDisponiveis] = useState<Servico[]>([]);
   const [clientesDisponiveis, setClientesDisponiveis] = useState<Cliente[]>([]);
-
+  const [auxiliaresDisponives, setAuxiliaresDisponiveis] =
+    useState<Funcionario[]>();
   const [cabeleireirosDisponiveis, setCabeleireirosDisponiveis] = useState<
     Cabeleireiro[]
   >([]);
@@ -87,19 +89,22 @@ export const useManterAtendimento = (
   >([]);
 
   useEffect(() => {
-    let v = servicosAgendamento.reduce(
-      (sum: number, s: ServicoAgendamento) => sum + s.PrecoMin,
-      0
-    );
     let serv = servicosAgendamento.map((a) => {
       return {
         PrecoItem: a.PrecoMin,
         ServicoId: a.ServicoId,
       } as ServicoAtendimento;
     });
-    setPrecoTotal(v);
     setServicoAtendimento(serv);
   }, []);
+
+  useEffect(() => {
+    let v = servicoAtendimento.reduce(
+      (sum: number, s: ServicoAtendimento) => sum + s.PrecoItem,
+      0
+    );
+    setPrecoTotal(v);
+  }, [servicoAtendimento]);
 
   useEffect(() => {
     const loadInitialData = async () => {
