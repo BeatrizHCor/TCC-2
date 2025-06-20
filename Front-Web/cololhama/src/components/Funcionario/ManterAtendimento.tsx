@@ -52,9 +52,7 @@ const ManterAtendimento: React.FC = () => {
   const { doLogout, userType } = useContext(AuthContext);
   const [openDeleteDialog, setOpenDeleteDialog] = useState(false);
   const [openServicosModal, setOpenServicosModal] = useState(false);
-  const [openCabeleireirosModal, setOpenCabeleireirosModal] = useState(false);
   const { state } = useLocation();
-  const [openClientesModal, setOpenClientesModal] = useState(false);
   const {
     data: stateData,
     status: stateStatus,
@@ -118,12 +116,6 @@ const ManterAtendimento: React.FC = () => {
   };
 
   const handleAddServico = (servico: Servico) => {};
-
-  const handleSelectCabeleireiro = (cabeleireiro: Cabeleireiro) => {
-    setCabeleireiroId(cabeleireiro.ID!);
-    setCabeleireiroNome(cabeleireiro.Nome);
-    setOpenCabeleireirosModal(false);
-  };
 
   const formatCurrency = (value: number) => {
     return new Intl.NumberFormat("pt-BR", {
@@ -264,10 +256,6 @@ const ManterAtendimento: React.FC = () => {
                     required
                     label="Cliente"
                     value={clienteNome}
-                    onClick={() => {
-                      if (userType !== "Cliente" && !isEditing)
-                        setOpenClientesModal(true);
-                    }}
                     error={Boolean(validationErrors.clienteId)}
                     helperText={validationErrors.clienteId}
                     placeholder={
@@ -293,7 +281,6 @@ const ManterAtendimento: React.FC = () => {
                     required
                     label="Cabeleireiro"
                     value={cabeleireiroNome}
-                    onClick={() => setOpenCabeleireirosModal(true)}
                     error={Boolean(validationErrors.cabeleireiroId)}
                     helperText={validationErrors.cabeleireiroId}
                     placeholder="Clique para selecionar um cabeleireiro"
@@ -502,81 +489,6 @@ const ManterAtendimento: React.FC = () => {
         </DialogContent>
         <DialogActions>
           <Button onClick={() => setOpenServicosModal(false)}>Fechar</Button>
-        </DialogActions>
-      </Dialog>
-
-      <Dialog
-        open={openCabeleireirosModal}
-        onClose={() => setOpenCabeleireirosModal(false)}
-        maxWidth="sm"
-        fullWidth
-      >
-        <DialogTitle>Selecionar Cabeleireiro</DialogTitle>
-        <DialogContent>
-          <List>
-            {cabeleireirosDisponiveis.map((cabeleireiro) => (
-              <ListItem key={cabeleireiro.ID} disablePadding>
-                <ListItemButton
-                  onClick={() => handleSelectCabeleireiro(cabeleireiro)}
-                >
-                  <ListItemText
-                    primary={cabeleireiro.Nome}
-                    secondary={
-                      <Box>
-                        <Typography variant="body2" color="text.secondary">
-                          {cabeleireiro.Email}
-                        </Typography>
-                      </Box>
-                    }
-                  />
-                </ListItemButton>
-              </ListItem>
-            ))}
-          </List>
-        </DialogContent>
-        <DialogActions>
-          <Button onClick={() => setOpenCabeleireirosModal(false)}>
-            Fechar
-          </Button>
-        </DialogActions>
-      </Dialog>
-      <Dialog
-        open={openClientesModal}
-        onClose={() => setOpenClientesModal(false)}
-        maxWidth="sm"
-        fullWidth
-      >
-        <DialogTitle>Selecionar Cliente</DialogTitle>
-        <DialogContent>
-          <List>
-            {clientesDisponiveis?.map((cliente) => (
-              <ListItem key={cliente.ID} disablePadding>
-                <ListItemButton
-                  onClick={() => {
-                    setClienteId(cliente.ID!);
-                    setClienteNome(cliente.Nome);
-                    setOpenClientesModal(false);
-                  }}
-                >
-                  <ListItemText
-                    primary={cliente.Nome}
-                    secondary={
-                      <Typography
-                        component="span"
-                        variant="body2"
-                        color="text.secondary"
-                      >
-                        {cliente.Email}
-                      </Typography>
-                    }
-                  />
-                </ListItemButton>
-              </ListItem>
-            ))}
-          </List>
-        </DialogContent>
-        <DialogActions>
-          <Button onClick={() => setOpenClientesModal(false)}>Fechar</Button>
         </DialogActions>
       </Dialog>
     </Box>

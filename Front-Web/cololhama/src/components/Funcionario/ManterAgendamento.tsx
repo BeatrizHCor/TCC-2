@@ -26,6 +26,7 @@ import {
   InputAdornment,
   Tooltip,
 } from "@mui/material";
+import { ptBR } from "date-fns/locale";
 import { useNavigate, useParams } from "react-router-dom";
 import { useManterAgendamento } from "./useManterAgendamento";
 import SaveIcon from "@mui/icons-material/Save";
@@ -253,7 +254,10 @@ const ManterAgendamento: React.FC = () => {
                   gap: { xs: 2, sm: 3 },
                 }}
               >
-                <LocalizationProvider dateAdapter={AdapterDateFns}>
+                <LocalizationProvider
+                  dateAdapter={AdapterDateFns}
+                  adapterLocale={ptBR}
+                >
                   <DateTimePicker
                     label="Data e Hora"
                     value={data ? new Date(data) : null}
