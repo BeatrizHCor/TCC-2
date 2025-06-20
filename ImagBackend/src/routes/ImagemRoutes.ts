@@ -1,6 +1,4 @@
 import express from "express";
-import multer from "multer";
-import path from "path";
 import { ImagemController } from "../controllers/ImagemController";
 import { upload } from "../middleware/multer";
 
@@ -10,4 +8,5 @@ router.post("/imagem/portfolio", upload.single("imagem"), ImagemController.uploa
 router.get("/imagem/ID/:id", ImagemController.getById);
 router.delete("/imagem/:portfolioId/:imagemId", ImagemController.deleteImagem);
 router.put("/imagem/:portfolioId/:imagemId", ImagemController.updateImagem);
+
 export default router;

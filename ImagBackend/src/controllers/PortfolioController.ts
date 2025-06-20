@@ -26,7 +26,21 @@ export class PortfolioController {
         res.status(404).json({ error: "Portfolio não encontrado." });
         return;
       }
-      res.json(portfolio);
+      res.status(200).json(portfolio);
+    } catch (error) {
+      console.error("Erro ao buscar portfolio por ID:", error);
+      res.status(500).json({ error: "Erro interno ao buscar portfolio." });
+    }
+  }
+    static async getPortfolioInfoById(req: Request, res: Response): Promise<void> {
+    try {
+      const { id } = req.params;
+      const portfolio = await PortfolioService.getPortfolioInfoById(id);
+      if (!portfolio) {
+        res.status(404).json({ error: "Portfolio não encontrado." });
+        return;
+      }
+      res.status(200).json(portfolio);
     } catch (error) {
       console.error("Erro ao buscar portfolio por ID:", error);
       res.status(500).json({ error: "Erro interno ao buscar portfolio." });
@@ -40,7 +54,7 @@ export class PortfolioController {
           Number(take) || 10,
           salaoId ? String(salaoId) : null
       );
-      res.json(portfolios);
+      res.status(200).json(portfolios);
       } catch (error) {
       console.error("Erro ao buscar portfolios:", error);
       res.status(500).json({ error: "Erro interno ao buscar portfolios." });
@@ -48,13 +62,17 @@ export class PortfolioController {
     }
   static async getPortfolioByCabeleireiro(req: Request, res: Response): Promise<void> {
     try {
-        const { CabeleireiroId } = req.params;
-        if (!CabeleireiroId) {
+        const { cabeleireiroId } = req.params;
+        if (!cabeleireiroId) {
             res.status(400).json({ error: "CabeleireiroId é obrigatório." });
             return;
         }
-        const portfolios = await PortfolioService.getPortfolioByCabeleireiroId(CabeleireiroId);
-        res.json(portfolios);
+        const portfolios = await PortfolioService.getPortfolioByCabeleireiroId(cabeleireiroId);
+        if (portfolios){
+        res.status(200).json(portfolios);
+        } else {
+          res.status(204).send()
+        }
     } catch (error) {
         console.error("Erro ao buscar portfolios por cabeleireiro:", error);
         res.status(500).json({ error: "Erro interno ao buscar portfolios." });

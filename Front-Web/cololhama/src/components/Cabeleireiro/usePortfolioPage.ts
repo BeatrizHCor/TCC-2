@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from "react";
+import { useCallback, useEffect, useState } from "react";
 import axios from "axios";
 import PortfolioService from "../../services/PortfolioService";
 
@@ -16,7 +16,7 @@ export const usePortfolio = (cabeleireiroId: string | undefined) => {
   const [error, setError] = useState<string | null>(null);
   const [portfolioId, setPortfolioId] = useState<string | null>(null);
   const [nomeCabeleireiro, setNomeCabeleireiro] = useState<string | null>(null);
-  const [DescricaoPort, setDescricaoPort] = useState<string | null>(null); 
+  const [DescricaoPort, setDescricaoPort] = useState<string | null>(null);
   const fetchImagens = useCallback(async () => {
     if (!cabeleireiroId) {
       setImagens([]);
@@ -26,8 +26,10 @@ export const usePortfolio = (cabeleireiroId: string | undefined) => {
     setError(null);
 
     try {
-      const response = await PortfolioService.getPortfolioByCabeleireiroId(cabeleireiroId);
-      console.log("Resposta do servidor:", response); 
+      const response = await PortfolioService.getPortfolioByCabeleireiroId(
+        cabeleireiroId,
+      );
+      console.log("Resposta do servidor:", response);
       let PortFotos = response.imagens || [];
       if (response) {
         setImagens(
@@ -37,12 +39,11 @@ export const usePortfolio = (cabeleireiroId: string | undefined) => {
             PortfolioId: img.PortfolioId || "",
             fileContent: img.fileContent || "",
             fileSize: img.fileSize || 0,
-          }))
+          })),
         );
         setPortfolioId(response.ID || null);
         setNomeCabeleireiro(response.Cabeleireiro || null);
         setDescricaoPort(response.Descricao || null);
-
       } else {
         setImagens([]);
         setPortfolioId(null);
@@ -68,7 +69,7 @@ export const usePortfolio = (cabeleireiroId: string | undefined) => {
       const response = await PortfolioService.uploadImagemPortfolio(
         file,
         portfolioId!,
-        descricao
+        descricao,
       );
 
       await fetchImagens();
@@ -81,11 +82,43 @@ export const usePortfolio = (cabeleireiroId: string | undefined) => {
           message: err.message,
         });
         setError(
-          `Erro ao fazer upload: ${err.response?.data?.message || err.message}`
+          `Erro ao fazer upload: ${err.response?.data?.message || err.message}`,
         );
       } else {
         console.error("Erro desconhecido:", err);
         setError("Erro desconhecido ao fazer upload");
+      }
+      throw err;
+    } finally {
+      setLoading(false);
+    }
+  };
+  const deleteImagem = async (imagemId: string) => {
+    if (!imagemId) {
+      throw new Error("ID da imagem não disponível");
+    }
+
+    setLoading(true);
+    setError(null);
+
+    try {
+      await PortfolioService.deleteImagemPortfolio(portfolioId!, imagemId);
+      await fetchImagens();
+    } catch (err) {
+      if (axios.isAxiosError(err)) {
+        console.error("Erro ao deletar:", {
+          status: err.response?.status,
+          data: err.response?.data,
+          message: err.message,
+        });
+        setError(
+          `Erro ao excluir imagem: ${
+            err.response?.data?.message || err.message
+          }`,
+        );
+      } else {
+        console.error("Erro desconhecido:", err);
+        setError("Erro desconhecido ao excluir imagem");
       }
       throw err;
     } finally {
@@ -103,8 +136,9 @@ export const usePortfolio = (cabeleireiroId: string | undefined) => {
     error,
     fetchImagens,
     uploadImagem,
+    deleteImagem,
     portfolioId,
     nomeCabeleireiro,
-    DescricaoPort
+    DescricaoPort,
   };
 };

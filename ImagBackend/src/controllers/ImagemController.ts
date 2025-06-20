@@ -34,7 +34,7 @@ export class ImagemController {
          res.status(404).json({ error: "Imagem não encontrada." });
       }
 
-      res.json(imagem);
+      res.status(200).json(imagem);
     } catch (error) {
       console.error("Erro ao buscar imagem por ID:", error);
       res.status(500).json({ error: "Erro interno ao buscar imagem." });
