@@ -335,12 +335,15 @@ const ManterAtendimento: React.FC = () => {
                               value={formatCurrency(
                                 servicoAtendimento.PrecoItem
                               )}
-                              onChange={(e) =>
-                                handlePrecoItem(
-                                  servicoAtendimento.ID,
-                                  +e.target.value
-                                )
-                              }
+                              onChange={(e) => {
+                                const raw = e.target.value.replace(
+                                  /[^\d]/g,
+                                  ""
+                                );
+                                const float = parseFloat(raw) / 100;
+                                console.log(e.target.value);
+                                handlePrecoItem(servicoAtendimento.ID, float);
+                              }}
                             />
                           </TableCell>
                           <TableCell align="center">
