@@ -94,8 +94,8 @@ class AtendimentoController {
         SalaoId,
         servicosAtendimento = [],
         auxiliares = [],
+        status,
       } = req.body;
-      console.log(req.params);
       const atendimento = await AtendimentoService.updateAtendimento(
         atendimentoId,
         Data,
@@ -105,6 +105,15 @@ class AtendimentoController {
         servicosAtendimento,
         auxiliares
       );
+      const agendamento = await AgendamentoService.findByAtendimentoId(
+        atendimentoId
+      );
+      if (agendamento) {
+        await AgendamentoService.updateAgendamentoStatus(
+          agendamento.ID,
+          status
+        );
+      }
       res.json(atendimento);
     } catch (error) {
       console.error(error);

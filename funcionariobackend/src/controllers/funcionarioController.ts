@@ -90,7 +90,6 @@ class FuncionarioController {
     try {
       const { salaoId } = req.params;
       const funcionario = await FuncionarioService.findAuxiliarbySalao(salaoId);
-      console.log(salaoId, funcionario);
       if (!funcionario) {
         res.status(204).json({ message: "Funcionários não encontrados" });
       } else {

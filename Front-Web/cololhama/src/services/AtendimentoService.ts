@@ -2,6 +2,7 @@ import axios from "axios";
 import { Atendimento } from "../models/atendimentoModal";
 import { ServicoAtendimento } from "../models/servicoAtendimentoModel";
 import { AtendimentoAuxiliar } from "../models/atendimentoAuxiliarModel";
+import { StatusAgendamento } from "../models/StatusAgendamento.enum";
 
 const api = axios.create({
   baseURL: import.meta.env.VITE_GATEWAY_URL || "http://localhost:3002",
@@ -94,7 +95,8 @@ class AtendimentoService {
     SalaoId: string,
     servicosAtendimento: ServicoAtendimento[] = [],
     auxiliares: AtendimentoAuxiliar[] = [],
-    AgendamentoID: string
+    AgendamentoID: string,
+    status: StatusAgendamento
   ) => {
     try {
       const response = await api.post(`/atendimento`, {
@@ -105,6 +107,7 @@ class AtendimentoService {
         servicosAtendimento,
         auxiliares,
         AgendamentoID,
+        status,
       });
       if (response.status === 201) {
         return response.data;
@@ -123,7 +126,8 @@ class AtendimentoService {
     SalaoId: string,
     servicosAtendimento: ServicoAtendimento[] = [],
     auxiliares: AtendimentoAuxiliar[] = [],
-    AgendamentoID: string
+    AgendamentoID: string,
+    status: StatusAgendamento
   ) => {
     try {
       const response = await api.put(`/atendimento/${AtendimentoId}`, {
@@ -134,6 +138,7 @@ class AtendimentoService {
         servicosAtendimento,
         auxiliares,
         AgendamentoID,
+        status,
       });
       if (response.status === 403) {
         return false;

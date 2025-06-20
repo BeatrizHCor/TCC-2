@@ -149,7 +149,9 @@ const ManterAtendimento: React.FC = () => {
 
   const handleSelectAuxiliar = (auxiliar: Funcionario) => {
     setAuxiliarNome(auxiliar.Nome);
-    setAuxiliar([{ AuxiliarID: auxiliar.ID!, AtendimentoId: atendimentoId }]);
+    setAuxiliar([
+      { AuxiliarID: auxiliar.ID || "", AtendimentoId: atendimentoId },
+    ]);
     setOpenAuxiliarModal(false);
   };
 

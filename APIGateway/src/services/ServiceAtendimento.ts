@@ -86,7 +86,8 @@ export const putAtendimentoFuncionario = async (
   SalaoId: string,
   servicosAtendimento: ServicoAtendimento[] = [],
   auxiliares: AtendimentoAuxiliar[] = [],
-  AgendamentoID: string
+  AgendamentoID: string,
+  status: ServicoAtendimento
 ) => {
   let response = await fetch(FuncionarioURL + `/atendimento/${AtendimentoId}`, {
     method: "Put",
@@ -101,6 +102,7 @@ export const putAtendimentoFuncionario = async (
       servicosAtendimento,
       auxiliares,
       AgendamentoID,
+      status,
     }),
   });
   if (response.ok) {

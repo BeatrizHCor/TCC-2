@@ -84,6 +84,7 @@ RoutesAtendimento.put(
       servicosAtendimento,
       auxiliares,
       AgendamentoID,
+      status,
     } = req.body;
     const { atendimentoId } = req.params;
     try {
@@ -124,7 +125,8 @@ RoutesAtendimento.put(
             SalaoId,
             servicosAtendimento,
             auxiliares,
-            AgendamentoID
+            AgendamentoID,
+            status
           );
           res.status(201).json(result);
         }

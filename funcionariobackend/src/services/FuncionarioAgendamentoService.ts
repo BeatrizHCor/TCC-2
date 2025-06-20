@@ -19,7 +19,6 @@ class AgendamentoService {
     ano: number = 0
   ) => {
     let whereCondition: Prisma.AgendamentosWhereInput = {};
-    console.log("Valores d,m,a: ", dia, mes, ano);
     const range = getRangeByDataInputWithTimezone(ano, mes, dia);
     if (salaoId !== null) {
       whereCondition.SalaoId = salaoId;
@@ -122,6 +121,21 @@ class AgendamentoService {
       throw new Error("Erro ao buscar agendamento");
     }
   };
+  static findByAtendimentoId = async (atendimentoId: string) => {
+    try {
+      return await prisma.agendamentos.findFirst({
+        where: {
+          AtendimentoID: atendimentoId,
+        },
+        include: {
+          ServicoAgendamento: true,
+        },
+      });
+    } catch (e) {
+      console.error(e);
+      throw new Error("Erro ao buscar agendamento");
+    }
+  };
 
   static createAgendamento = async (
     Data: Date,
@@ -209,6 +223,28 @@ class AgendamentoService {
             })),
           });
         }
+        return agendamento;
+      });
+    } catch (e) {
+      console.error(e);
+      throw new Error("Erro ao atualizar agendamento");
+    }
+  };
+
+  static updateAgendamentoStatus = async (
+    id: string,
+    Status: StatusAgendamento
+  ) => {
+    try {
+      return await prisma.$transaction(async (tx) => {
+        const agendamento = await tx.agendamentos.update({
+          where: { ID: id },
+          data: {
+            Status,
+          },
+        });
+
+        console.log("Agendamento encontrado e atualizado", agendamento);
         return agendamento;
       });
     } catch (e) {

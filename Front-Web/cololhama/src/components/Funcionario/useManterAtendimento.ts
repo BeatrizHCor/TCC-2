@@ -102,10 +102,11 @@ export const useManterAtendimento = (
   }, []);
 
   useEffect(() => {
-    setAuxiliarNome(
-      auxiliaresDisponives.find((a) => a.ID === auxiliar[0].AuxiliarID)?.Nome ||
-        ""
-    );
+    if (auxiliar.length > 0)
+      setAuxiliarNome(
+        auxiliaresDisponives.find((a) => a.ID === auxiliar[0].AuxiliarID)
+          ?.Nome || ""
+      );
   }, [auxiliaresDisponives]);
 
   useEffect(() => {
@@ -190,7 +191,7 @@ export const useManterAtendimento = (
       errors.cabeleireiroId = "Cabeleireiro é obrigatório";
     }
 
-    if (servicosAgendamento.length === 0) {
+    if (servicoAtendimento.length === 0) {
       errors.servicos = "Pelo menos um serviço deve ser selecionado";
     }
 
@@ -228,7 +229,8 @@ export const useManterAtendimento = (
           salaoId,
           servicoAtendimento,
           auxiliar,
-          agendamentoId!
+          agendamentoId!,
+          status
         );
       } else {
         await AtendimentoService.createAtendimento(
@@ -238,7 +240,8 @@ export const useManterAtendimento = (
           salaoId,
           servicoAtendimento,
           auxiliar,
-          agendamentoId!
+          agendamentoId!,
+          status
         );
       }
     } catch (error: unknown) {
