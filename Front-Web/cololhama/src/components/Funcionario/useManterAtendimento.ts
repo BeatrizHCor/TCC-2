@@ -43,7 +43,7 @@ export const useManterAtendimento = (
   const [data, setData] = useState(stateData);
   const [status, setStatus] = useState<StatusAgendamento>(stateStatus);
   const [clienteId, setClienteId] = useState(stateCliId);
-  const [cabeleireiroId, setCabeleireiroId] = useState("");
+  const [cabeleireiroId, setCabeleireiroId] = useState(stateCabId);
   const [cabeleireiroNome, setCabeleireiroNome] = useState(stateCabNome);
   const [atendimentoId, setAtendimentoId] = useState(stateCabId);
   const [servicosDisponiveis, setServicosDisponiveis] = useState<Servico[]>([]);
@@ -185,10 +185,9 @@ export const useManterAtendimento = (
     }
 
     try {
-      if (isEditing && agendamentoId) {
+      if (isEditing && atendimentoId) {
       } else {
-        await AtendimentoService.updateAtendimento(
-          atendimentoId,
+        await AtendimentoService.createAtendimento(
           new Date(data),
           precoTotal,
           false,
@@ -198,7 +197,7 @@ export const useManterAtendimento = (
           agendamentoId!
         );
       }
-      navigate(-1);
+      navigate("/atendimentos");
     } catch (error: unknown) {
       console.error("Erro ao salvar agendamento:", error);
 

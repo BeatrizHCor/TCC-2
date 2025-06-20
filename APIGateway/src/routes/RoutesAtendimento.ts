@@ -21,6 +21,7 @@ RoutesAtendimento.post("/atendimento", async (req: Request, res: Response) => {
     auxiliares,
     AgendamentoID,
   } = req.body;
+  console.log(req.body);
   try {
     const userInfo = JSON.parse(
       Buffer.from(req.headers.authorization || "", "base64").toString(
@@ -57,7 +58,7 @@ RoutesAtendimento.post("/atendimento", async (req: Request, res: Response) => {
     }
   } catch (e) {
     console.log(e);
-    res.status(500).send("Erro no ao criar agendamento");
+    res.status(500).send("Erro no ao criar atendimento");
   }
 });
 

@@ -47,6 +47,21 @@ import { DateTimePicker } from "@mui/x-date-pickers/DateTimePicker";
 import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
 import { AdapterDateFns } from "@mui/x-date-pickers/AdapterDateFns";
 
+function formatDateToLocalDateTimeString(date: Date) {
+  const pad = (n: number) => n.toString().padStart(2, "0");
+
+  return (
+    date.getFullYear() +
+    "-" +
+    pad(date.getMonth() + 1) +
+    "-" +
+    pad(date.getDate()) +
+    "T" +
+    pad(date.getHours()) +
+    ":" +
+    pad(date.getMinutes())
+  );
+}
 const ManterAgendamento: React.FC = () => {
   const navigate = useNavigate();
   const { agendamentoId: agendamentoId } = useParams();
@@ -244,8 +259,9 @@ const ManterAgendamento: React.FC = () => {
                     value={data ? new Date(data) : null}
                     onChange={(newValue) => {
                       if (newValue) {
-                        const isoString = newValue.toISOString().slice(0, 16);
-                        setData(isoString);
+                        const localDateTime =
+                          formatDateToLocalDateTimeString(newValue);
+                        setData(localDateTime);
                       } else {
                         setData("");
                       }

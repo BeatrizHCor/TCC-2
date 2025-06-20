@@ -42,6 +42,7 @@ class AtendimentoController {
 
   static async createAtendimento(req: Request, res: Response) {
     try {
+      console.log(req.body);
       const {
         Data,
         PrecoTotal,

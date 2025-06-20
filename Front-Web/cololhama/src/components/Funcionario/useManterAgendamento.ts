@@ -392,7 +392,7 @@ export const useManterAgendamento = (
       return navigate("/atendimento/editar/", {
         state: {
           data,
-          St,
+          status: St,
           servicosAgendamento,
           cabeleireiroId,
           cabeleireiroNome,

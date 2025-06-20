@@ -149,8 +149,11 @@ export const postAtendimento = async (
   auxiliares: AtendimentoAuxiliar[] = [],
   AgendamentoID: string
 ) => {
-  let response = await fetch(CabeleireiroURL + `/atendimento`, {
+  let response = await fetch(FuncionarioURL + `/atendimento`, {
     method: "Post",
+    headers: {
+      "Content-Type": "application/json",
+    },
     body: JSON.stringify({
       Data,
       PrecoTotal,
