@@ -90,7 +90,6 @@ const ManterAtendimento: React.FC = () => {
     handleSubmit,
     handleDelete,
     forbidden,
-    canSaveEdit,
     clienteNome,
     setClienteNome,
     clientesDisponiveis,
@@ -311,13 +310,6 @@ const ManterAtendimento: React.FC = () => {
                     sx={{ cursor: "pointer" }}
                   />
                 </Box>
-
-                {isEditing && !canSaveEdit && (
-                  <Alert severity="warning">
-                    Não é possível salvar alterações em agendamentos com menos
-                    de 3 dias da data atual.
-                  </Alert>
-                )}
               </Box>
             </Box>
             <Box sx={{ flex: 1 }}>
@@ -447,7 +439,7 @@ const ManterAtendimento: React.FC = () => {
                     <SaveIcon />
                   )
                 }
-                disabled={isLoading || (isEditing && !canSaveEdit)}
+                disabled={isLoading}
               >
                 {isEditing ? "Salvar Alterações" : "Criar Atendimento"}
               </Button>

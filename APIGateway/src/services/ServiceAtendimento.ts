@@ -140,7 +140,7 @@ export const getAtendimentobyAgendamentoId = async (agendamentoId: string) => {
   }
 };
 
-export const postAtendimento = async (
+export const postAtendimentoFuncionario = async (
   Data: Date,
   PrecoTotal: number,
   Auxiliar: boolean,
@@ -151,6 +151,38 @@ export const postAtendimento = async (
 ) => {
   let response = await fetch(FuncionarioURL + `/atendimento`, {
     method: "Post",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({
+      Data,
+      PrecoTotal,
+      Auxiliar,
+      SalaoId,
+      servicosAtendimento,
+      auxiliares,
+      AgendamentoID,
+    }),
+  });
+  if (response.ok) {
+    return (await response.json()) as Atendimento;
+  } else {
+    throw new Error("Erro ao buscar agendamento por ID");
+  }
+};
+
+export const putAtendimentoFuncionario = async (
+  AtendimentoId: string,
+  Data: Date,
+  PrecoTotal: number,
+  Auxiliar: boolean,
+  SalaoId: string,
+  servicosAtendimento: ServicoAtendimento[] = [],
+  auxiliares: AtendimentoAuxiliar[] = [],
+  AgendamentoID: string
+) => {
+  let response = await fetch(FuncionarioURL + `/atendimento/${AtendimentoId}`, {
+    method: "Put",
     headers: {
       "Content-Type": "application/json",
     },

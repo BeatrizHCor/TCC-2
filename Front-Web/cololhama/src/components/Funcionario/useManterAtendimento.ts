@@ -85,16 +85,7 @@ export const useManterAtendimento = (
   const [servicoAtendimento, setServicoAtendimento] = useState<
     ServicoAtendimento[]
   >([]);
-  const canSaveEdit = (): boolean => {
-    if (!isEditing || !data) return true;
 
-    const agendamentoDate = new Date(data);
-    const currentDate = new Date();
-    const threeDaysFromNow = new Date();
-    threeDaysFromNow.setDate(currentDate.getDate() + 3);
-
-    return agendamentoDate > threeDaysFromNow;
-  };
   useEffect(() => {
     let v = servicosAgendamento.reduce(
       (sum: number, s: ServicoAgendamento) => sum + s.PrecoMin,
@@ -132,6 +123,7 @@ export const useManterAtendimento = (
             setAuxiliares(
               atendimento.AtendimentoAuxiliar || ([] as AtendimentoAuxiliar[])
             );
+            setIsEditing(true);
           }
         }
         const servicos = await ServicoService.getServicosBySalao(salaoId);
@@ -199,10 +191,6 @@ export const useManterAtendimento = (
       return;
     }
 
-    if (isEditing && !canSaveEdit()) {
-      return;
-    }
-
     setIsLoading(true);
     const servicosIds: string[] = [];
     for (const servico of servicosAgendamento) {
@@ -213,6 +201,16 @@ export const useManterAtendimento = (
 
     try {
       if (isEditing && atendimentoId) {
+        await AtendimentoService.updateAtendimento(
+          atendimentoId,
+          new Date(data),
+          precoTotal,
+          false,
+          salaoId,
+          servicoAtendimento,
+          auxiliares,
+          agendamentoId!
+        );
       } else {
         await AtendimentoService.createAtendimento(
           new Date(data),
@@ -298,7 +296,7 @@ export const useManterAtendimento = (
     setPrecoTotal,
     servicoAtendimento,
     setServicoAtendimento,
-    canSaveEdit: canSaveEdit(),
+
     clienteNome,
     setClienteNome,
     clientesDisponiveis,

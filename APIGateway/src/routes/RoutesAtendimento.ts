@@ -3,7 +3,7 @@ import { Router, Request, Response } from "express";
 import {
   FuncionariogetAtendimentosPage,
   getAtendimentobyAgendamentoId,
-  postAtendimento,
+  postAtendimentoFuncionario,
 } from "../services/ServiceAtendimento";
 import { userTypes } from "../models/tipo-usuario.enum";
 import { authenticate } from "../services/Service";
@@ -45,22 +45,90 @@ RoutesAtendimento.post("/atendimento", async (req: Request, res: Response) => {
     ) {
       res.status(403).json({ message: "Unauthorized" });
     } else {
-      const result = await postAtendimento(
-        Data,
-        PrecoTotal,
-        Auxiliar,
-        SalaoId,
-        servicosAtendimento,
-        auxiliares,
-        AgendamentoID
-      );
-      res.status(201).json(result);
+      switch (userTypeAuth) {
+        case userTypes.FUNCIONARIO:
+        case userTypes.ADM_SALAO:
+        case userTypes.ADM_SISTEMA:
+          const result = await postAtendimentoFuncionario(
+            Data,
+            PrecoTotal,
+            Auxiliar,
+            SalaoId,
+            servicosAtendimento,
+            auxiliares,
+            AgendamentoID
+          );
+          res.status(201).json(result);
+        default:
+          res.status(403).json({ message: "Unauthorized" });
+      }
     }
   } catch (e) {
     console.log(e);
     res.status(500).send("Erro no ao criar atendimento");
   }
 });
+
+RoutesAtendimento.put(
+  "/atendimento/:atendimentoId",
+  async (req: Request, res: Response) => {
+    const {
+      Data,
+      PrecoTotal,
+      Auxiliar,
+      SalaoId,
+      servicosAtendimento,
+      auxiliares,
+      AgendamentoID,
+    } = req.body;
+    const { atendimentoId } = req.params;
+    try {
+      const userInfo = JSON.parse(
+        Buffer.from(req.headers.authorization || "", "base64").toString(
+          "utf-8"
+        ) || "{}"
+      );
+      let userTypeAuth = userInfo.userType;
+      const auth = await authenticate(
+        userInfo.userID,
+        userInfo.token,
+        userInfo.userType
+      );
+      if (
+        !auth ||
+        ![
+          userTypes.CABELEIREIRO,
+          userTypes.FUNCIONARIO,
+          userTypes.ADM_SALAO,
+          userTypes.ADM_SISTEMA,
+        ].includes(userTypeAuth)
+      ) {
+        res.status(403).json({ message: "Unauthorized" });
+      } else {
+        switch (userTypeAuth) {
+          case userTypes.FUNCIONARIO:
+          case userTypes.ADM_SALAO:
+          case userTypes.ADM_SISTEMA:
+            const result = await postAtendimentoFuncionario(
+              Data,
+              PrecoTotal,
+              Auxiliar,
+              SalaoId,
+              servicosAtendimento,
+              auxiliares,
+              AgendamentoID
+            );
+            res.status(201).json(result);
+          default:
+            res.status(403).json({ message: "Unauthorized" });
+        }
+      }
+    } catch (e) {
+      console.log(e);
+      res.status(500).send("Erro no ao criar atendimento");
+    }
+  }
+);
 
 RoutesAtendimento.get(
   `/atendimentobyagendamento/:agendamentoId`,
