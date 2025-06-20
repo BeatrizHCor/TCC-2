@@ -4,6 +4,7 @@ import {
   deleteServico,
   findServicoByNomeAndSalaoId,
   getFuncionarioById,
+  getAuxiliarBySalao,
   getFuncionarioPage,
   getServicoById,
   getServicoPage,
@@ -34,11 +35,14 @@ RoutesFuncionario.get(
     try {
       const userInfo = JSON.parse(
         Buffer.from(req.headers.authorization || "", "base64").toString(
-          "utf-8",
-        ) || "{}",
+          "utf-8"
+        ) || "{}"
       );
       if (
-        !userInfo || !userInfo.userID || !userInfo.token || !userInfo.userType
+        !userInfo ||
+        !userInfo.userID ||
+        !userInfo.token ||
+        !userInfo.userType
       ) {
         console.log("Informações de auntenticação ausentes ou inválidas");
         res.status(403).json({ message: "Unauthorized" });
@@ -48,7 +52,7 @@ RoutesFuncionario.get(
         const auth = await authenticate(
           userInfo.userID,
           userInfo.token,
-          userInfo.userType,
+          userInfo.userType
         );
         console.log("auth retorno :", auth);
         if (
@@ -67,7 +71,7 @@ RoutesFuncionario.get(
             limit,
             nome,
             includeRelations,
-            salaoId,
+            salaoId
           );
           res.json(funcionarios);
         }
@@ -76,7 +80,7 @@ RoutesFuncionario.get(
       console.error("Erro ao buscar funcionarios:", error);
       res.status(500).json({ message: "Erro interno do servidor" });
     }
-  },
+  }
 );
 
 RoutesFuncionario.post(
@@ -96,14 +100,14 @@ RoutesFuncionario.post(
     try {
       const userInfo = JSON.parse(
         Buffer.from(req.headers.authorization || "", "base64").toString(
-          "utf-8",
-        ) || "{}",
+          "utf-8"
+        ) || "{}"
       );
       let userTypeAuth = userInfo.userType;
       const auth = await authenticate(
         userInfo.userID,
         userInfo.token,
-        userInfo.userType,
+        userInfo.userType
       );
       if (
         !auth ||
@@ -117,8 +121,14 @@ RoutesFuncionario.post(
         res.status(403).json({ message: "Unauthorized" });
       } else {
         if (
-          !CPF || !Nome || !Email || !Telefone || !SalaoId || !Password ||
-          !Salario || !userType
+          !CPF ||
+          !Nome ||
+          !Email ||
+          !Telefone ||
+          !SalaoId ||
+          !Password ||
+          !Salario ||
+          !userType
         ) {
           res.status(400).json({
             message:
@@ -134,7 +144,7 @@ RoutesFuncionario.post(
             Auxiliar,
             Salario,
             Password,
-            userType,
+            userType
           );
           if (result) {
             res.status(201).json(result);
@@ -147,7 +157,7 @@ RoutesFuncionario.post(
       console.log(e);
       res.status(500).send("Error in creating Funcionario");
     }
-  },
+  }
 );
 
 RoutesFuncionario.delete(
@@ -157,14 +167,14 @@ RoutesFuncionario.delete(
     try {
       const userInfo = JSON.parse(
         Buffer.from(req.headers.authorization || "", "base64").toString(
-          "utf-8",
-        ) || "{}",
+          "utf-8"
+        ) || "{}"
       );
       let userTypeAuth = userInfo.userType;
       const auth = await authenticate(
         userInfo.userID,
         userInfo.token,
-        userInfo.userType,
+        userInfo.userType
       );
       if (
         !auth ||
@@ -187,7 +197,7 @@ RoutesFuncionario.delete(
       console.log(e);
       res.status(500).send("Error in deleting Funcionario");
     }
-  },
+  }
 );
 
 RoutesFuncionario.get(
@@ -205,7 +215,25 @@ RoutesFuncionario.get(
       console.log(e);
       res.status(500).send("Error in getting Funcionario");
     }
-  },
+  }
+);
+
+RoutesFuncionario.get(
+  "/auxiliar/:salaoId",
+  async (req: Request, res: Response) => {
+    const { salaoId } = req.params;
+    try {
+      let funcionario = await getAuxiliarBySalao(salaoId);
+      if (funcionario) {
+        res.status(200).send(funcionario);
+      } else {
+        res.status(204).send("Auxiliar not found");
+      }
+    } catch (e) {
+      console.log(e);
+      res.status(500).send("Error in getting Funcionario");
+    }
+  }
 );
 
 RoutesFuncionario.put(
@@ -234,7 +262,7 @@ RoutesFuncionario.put(
           Telefone,
           SalaoId,
           Auxiliar,
-          Salario,
+          Salario
         );
         if (funcionarioUpdate) {
           res.status(200).send(funcionarioUpdate);
@@ -246,7 +274,7 @@ RoutesFuncionario.put(
       console.log(e);
       res.status(500).send("Error in updating Funcionario");
     }
-  },
+  }
 );
 
 //--------SERVIÇO--------//
@@ -267,7 +295,7 @@ RoutesFuncionario.get("/servico/page", async (req: Request, res: Response) => {
       nome,
       precoMin,
       precoMax,
-      includeRelations,
+      includeRelations
     );
     res.json(funcionarios);
   } catch (error) {
@@ -295,7 +323,7 @@ RoutesFuncionario.post("/servico", async (req: Request, res: Response) => {
         SalaoId,
         PrecoMin,
         PrecoMax,
-        Descricao,
+        Descricao
       );
       res.status(201).send(servico);
     }
@@ -331,7 +359,7 @@ RoutesFuncionario.delete(
       console.log(e);
       res.status(500).send("Error in deleting Funcionario");
     }
-  },
+  }
 );
 
 RoutesFuncionario.put(
@@ -358,7 +386,7 @@ RoutesFuncionario.put(
           SalaoId,
           PrecoMin,
           PrecoMax,
-          Descricao,
+          Descricao
         );
         if (servicoUpdate) {
           res.status(200).send(servicoUpdate);
@@ -368,7 +396,7 @@ RoutesFuncionario.put(
       console.log(e);
       res.status(500).send("Error in updating Funcionario");
     }
-  },
+  }
 );
 
 RoutesFuncionario.get(
@@ -386,7 +414,7 @@ RoutesFuncionario.get(
       console.log(e);
       res.status(500).send("Error in getting Funcionario");
     }
-  },
+  }
 );
 
 RoutesFuncionario.get(
@@ -404,7 +432,7 @@ RoutesFuncionario.get(
       console.log(e);
       res.status(500).send("Error in getting Funcionario");
     }
-  },
+  }
 );
 
 RoutesFuncionario.get(
@@ -422,6 +450,6 @@ RoutesFuncionario.get(
       console.log(e);
       res.status(500).send("Error in finding Servicos");
     }
-  },
+  }
 );
 export default RoutesFuncionario;

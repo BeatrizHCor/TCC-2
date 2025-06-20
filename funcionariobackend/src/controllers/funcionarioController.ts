@@ -2,14 +2,13 @@ import { Request, Response } from "express";
 import FuncionarioService from "../services/funcinarioService";
 
 class FuncionarioController {
-
   static async getFuncionariosPage(req: Request, res: Response): Promise<void> {
     try {
       const { page, limit, includeRelations, salaoId } = req.query;
       const nome = req.query.nome ? String(req.query.nome) : null;
       const funcionarios = await FuncionarioService.getFuncionarioPage(
-        !isNaN(Number(page)) ? Number(page): 1,
-        !isNaN(Number(limit)) ? Number(limit): 10,
+        !isNaN(Number(page)) ? Number(page) : 1,
+        !isNaN(Number(limit)) ? Number(limit) : 10,
         nome ? String(nome) : null,
         includeRelations === "true",
         salaoId ? String(salaoId) : ""
@@ -17,7 +16,7 @@ class FuncionarioController {
       res.json(funcionarios);
     } catch (error) {
       console.log(error);
-      res.status(404).json({ message: 'Funcionário não encontrado' });
+      res.status(404).json({ message: "Funcionário não encontrado" });
     }
   }
 
@@ -26,9 +25,9 @@ class FuncionarioController {
       const { limit, nome, includeRelations, salaoId } = req.query;
       const funcionarios = await FuncionarioService.getFuncionarios(
         null,
-        !isNaN(Number(limit)) ? Number(limit): 10,
+        !isNaN(Number(limit)) ? Number(limit) : 10,
         nome ? String(nome) : null,
-        includeRelations === 'true',
+        includeRelations === "true",
         salaoId ? String(salaoId) : ""
       );
       res.json(funcionarios);
@@ -41,20 +40,26 @@ class FuncionarioController {
   static async create(req: Request, res: Response): Promise<void> {
     try {
       let { CPF, Nome, Email, Telefone, SalaoId, Auxiliar, Salario } = req.body;
-      const existingFuncionario = await FuncionarioService.findByEmailandSalao(Email, SalaoId);
-      if (existingFuncionario) {
-        res.status(409).send(`Cliente com o email ${Email} já cadastrado no salao`);    
-      } else {
-      const newFuncionario = await FuncionarioService.create(
-        CPF,
-        Nome,
+      const existingFuncionario = await FuncionarioService.findByEmailandSalao(
         Email,
-        Telefone,
-        SalaoId,
-        Auxiliar,
-        Salario
+        SalaoId
       );
-      res.status(201).json(newFuncionario);}
+      if (existingFuncionario) {
+        res
+          .status(409)
+          .send(`Cliente com o email ${Email} já cadastrado no salao`);
+      } else {
+        const newFuncionario = await FuncionarioService.create(
+          CPF,
+          Nome,
+          Email,
+          Telefone,
+          SalaoId,
+          Auxiliar,
+          Salario
+        );
+        res.status(201).json(newFuncionario);
+      }
     } catch (error) {
       console.log(error);
       res.status(500).send("something went wrong");
@@ -65,10 +70,29 @@ class FuncionarioController {
     try {
       const { id } = req.params;
       const includeRelations = req.query.include === "true";
-      const funcionario = await FuncionarioService.findById(id, includeRelations);
+      const funcionario = await FuncionarioService.findById(
+        id,
+        includeRelations
+      );
 
       if (!funcionario) {
-        res.status(204).json({ message: 'Funcionário não encontrado' });
+        res.status(204).json({ message: "Funcionário não encontrado" });
+      } else {
+        res.json(funcionario);
+      }
+    } catch (error) {
+      console.log(error);
+      res.status(500).send("something went wrong");
+    }
+  }
+
+  static async findAuxiliarBySalao(req: Request, res: Response): Promise<void> {
+    try {
+      const { salaoId } = req.params;
+      const funcionario = await FuncionarioService.findAuxiliarbySalao(salaoId);
+      console.log(salaoId, funcionario);
+      if (!funcionario) {
+        res.status(204).json({ message: "Funcionários não encontrados" });
       } else {
         res.json(funcionario);
       }
@@ -117,18 +141,12 @@ class FuncionarioController {
       res.status(500).send("something went wrong");
     }
   }
-  
+
   static async update(req: Request, res: Response): Promise<void> {
     try {
       const { id } = req.params;
-      const {        
-        Nome,
-        CPF,
-        Email,
-        Telefone,
-        SalaoId,
-        Auxiliar,
-        Salario} = req.body;
+      const { Nome, CPF, Email, Telefone, SalaoId, Auxiliar, Salario } =
+        req.body;
       const updatedFuncionario = await FuncionarioService.update(
         id,
         Nome,
@@ -146,31 +164,38 @@ class FuncionarioController {
     }
   }
 
-static async delete(req: Request, res: Response): Promise<void> {
-  try {
-    const { id } = req.params;
-    const existingFuncionario = await FuncionarioService.findById(id);
+  static async delete(req: Request, res: Response): Promise<void> {
+    try {
+      const { id } = req.params;
+      const existingFuncionario = await FuncionarioService.findById(id);
 
-    if (!existingFuncionario) {
-      res.status(404).json({ message: "Funcionário não encontrado." });
-    } else {
-      const funcionarioDeletado = await FuncionarioService.deleteById(id);
-
-      if (!funcionarioDeletado) {
-        throw new Error("Erro ao excluir funcionário.");
+      if (!existingFuncionario) {
+        res.status(404).json({ message: "Funcionário não encontrado." });
       } else {
-        res.status(200).json(funcionarioDeletado);
+        const funcionarioDeletado = await FuncionarioService.deleteById(id);
+
+        if (!funcionarioDeletado) {
+          throw new Error("Erro ao excluir funcionário.");
+        } else {
+          res.status(200).json(funcionarioDeletado);
+        }
+      }
+    } catch (error) {
+      console.log(error);
+      if (error instanceof Error && error.message.includes("constraint")) {
+        res.status(409).json({
+          message: "Não é possível excluir: funcionário está em uso.",
+        });
+      } else {
+        res.status(500).json({
+          message:
+            error instanceof Error
+              ? error.message
+              : "Erro ao excluir funcionário",
+        });
       }
     }
-  } catch (error) {
-    console.log(error);
-    if (error instanceof Error && error.message.includes("constraint")) {
-      res.status(409).json({ message: "Não é possível excluir: funcionário está em uso." });
-    } else {
-      res.status(500).json({ message: error instanceof Error ? error.message : "Erro ao excluir funcionário" });
-    }
   }
-}
 }
 
 export default FuncionarioController;

@@ -16,6 +16,7 @@ import { Cliente } from "../../models/clienteModel";
 import ClienteService from "../../services/ClienteService";
 import { Atendimento } from "../../models/atendimentoModal";
 import { Funcionario } from "../../models/funcionarioModel";
+import FuncionarioService from "../../services/FuncionarioService";
 
 interface ValidationErrors {
   data?: string;
@@ -66,8 +67,11 @@ export const useManterAtendimento = (
   const [atendimentoId, setAtendimentoId] = useState(stateCabId);
   const [servicosDisponiveis, setServicosDisponiveis] = useState<Servico[]>([]);
   const [clientesDisponiveis, setClientesDisponiveis] = useState<Cliente[]>([]);
-  const [auxiliaresDisponives, setAuxiliaresDisponiveis] =
-    useState<Funcionario[]>();
+  const [auxiliaresDisponives, setAuxiliaresDisponiveis] = useState<
+    Funcionario[]
+  >([]);
+  const [auxiliar, setAuxiliar] = useState<AtendimentoAuxiliar[]>([]);
+  const [auxiliarNome, setAuxiliarNome] = useState("");
   const [cabeleireirosDisponiveis, setCabeleireirosDisponiveis] = useState<
     Cabeleireiro[]
   >([]);
@@ -83,7 +87,6 @@ export const useManterAtendimento = (
   const [isEditing, setIsEditing] = useState(false);
   const [precoTotal, setPrecoTotal] = useState(0);
   const navigate = useNavigate();
-  const [auxiliares, setAuxiliares] = useState<AtendimentoAuxiliar[]>([]);
   const [servicoAtendimento, setServicoAtendimento] = useState<
     ServicoAtendimento[]
   >([]);
@@ -97,6 +100,13 @@ export const useManterAtendimento = (
     });
     setServicoAtendimento(serv);
   }, []);
+
+  useEffect(() => {
+    setAuxiliarNome(
+      auxiliaresDisponives.find((a) => a.ID === auxiliar[0].AuxiliarID)?.Nome ||
+        ""
+    );
+  }, [auxiliaresDisponives]);
 
   useEffect(() => {
     let v = servicoAtendimento.reduce(
@@ -125,10 +135,14 @@ export const useManterAtendimento = (
             setServicoAtendimento(atendimento.ServicoAtendimento);
             setCabeleireiroId(atendimento.Agendamentos[0].CabeleireiroID);
             setClienteId(atendimento.Agendamentos[0].ClienteID);
-            setAuxiliares(
+            setAuxiliar(
               atendimento.AtendimentoAuxiliar || ([] as AtendimentoAuxiliar[])
             );
             setIsEditing(true);
+          }
+          let Auxiliares = await FuncionarioService.getAuxiliarBySalao(salaoId);
+          if (Auxiliares) {
+            setAuxiliaresDisponiveis(Auxiliares as Funcionario[]);
           }
         }
         const servicos = await ServicoService.getServicosBySalao(salaoId);
@@ -210,20 +224,20 @@ export const useManterAtendimento = (
           atendimentoId,
           new Date(data),
           precoTotal,
-          false,
+          auxiliar.length > 0,
           salaoId,
           servicoAtendimento,
-          auxiliares,
+          auxiliar,
           agendamentoId!
         );
       } else {
         await AtendimentoService.createAtendimento(
           new Date(data),
           precoTotal,
-          false,
+          auxiliar.length > 0,
           salaoId,
           servicoAtendimento,
-          auxiliares,
+          auxiliar,
           agendamentoId!
         );
       }
@@ -286,10 +300,16 @@ export const useManterAtendimento = (
     setPrecoTotal,
     servicoAtendimento,
     setServicoAtendimento,
-
+    auxiliar,
+    setAuxiliar,
     clienteNome,
     setClienteNome,
+    auxiliarNome,
+    setAuxiliarNome,
     clientesDisponiveis,
+    atendimentoId,
+    auxiliaresDisponives,
+    setAuxiliaresDisponiveis,
   };
 };
 

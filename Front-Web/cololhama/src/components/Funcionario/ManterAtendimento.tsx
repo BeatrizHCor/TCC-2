@@ -46,12 +46,14 @@ import { ServicoAgendamento } from "../../models/servicoAgendamentoModel";
 import { Cabeleireiro } from "../../models/cabelereiroModel";
 import useManterAtendimento from "./useManterAtendimento";
 import { ServicoAtendimento } from "../../models/servicoAtendimentoModel";
+import { Funcionario } from "../../models/funcionarioModel";
 
 const ManterAtendimento: React.FC = () => {
   const navigate = useNavigate();
   const { doLogout, userType } = useContext(AuthContext);
   const [openDeleteDialog, setOpenDeleteDialog] = useState(false);
   const [openServicosModal, setOpenServicosModal] = useState(false);
+  const [openAuxiliarModal, setOpenAuxiliarModal] = useState(false);
   const { state } = useLocation();
   const {
     data: stateData,
@@ -91,6 +93,13 @@ const ManterAtendimento: React.FC = () => {
     clienteNome,
     setClienteNome,
     clientesDisponiveis,
+    auxiliarNome,
+    setAuxiliarNome,
+    auxiliar,
+    setAuxiliar,
+    atendimentoId,
+    auxiliaresDisponives,
+    setAuxiliaresDisponiveis,
   } = useManterAtendimento(
     userType!,
     stateServicos,
@@ -137,6 +146,12 @@ const ManterAtendimento: React.FC = () => {
       </Box>
     );
   }
+
+  const handleSelectAuxiliar = (auxiliar: Funcionario) => {
+    setAuxiliarNome(auxiliar.Nome);
+    setAuxiliar([{ AuxiliarID: auxiliar.ID!, AtendimentoId: atendimentoId }]);
+    setOpenAuxiliarModal(false);
+  };
 
   if (!salaoId) {
     return (
@@ -302,16 +317,29 @@ const ManterAtendimento: React.FC = () => {
                     fullWidth
                     required
                     label="Auxiliar"
-                    value={cabeleireiroNome}
+                    value={auxiliarNome}
                     error={Boolean(validationErrors.cabeleireiroId)}
                     helperText={validationErrors.cabeleireiroId}
+                    onClick={() => setOpenAuxiliarModal(true)}
                     placeholder="Clique para selecionar um cabeleireiro"
                     slotProps={{
                       input: {
                         readOnly: true,
                         endAdornment: (
                           <InputAdornment position="end">
-                            <PersonIcon />
+                            {auxiliarNome !== "" ? (
+                              <IconButton
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  setAuxiliarNome("");
+                                  setAuxiliar([]);
+                                }}
+                              >
+                                <RemoveIcon />
+                              </IconButton>
+                            ) : (
+                              <PersonIcon />
+                            )}
                           </InputAdornment>
                         ),
                       },
@@ -511,6 +539,39 @@ const ManterAtendimento: React.FC = () => {
         </DialogContent>
         <DialogActions>
           <Button onClick={() => setOpenServicosModal(false)}>Fechar</Button>
+        </DialogActions>
+      </Dialog>
+      <Dialog
+        open={openAuxiliarModal}
+        onClose={() => setOpenAuxiliarModal(false)}
+        maxWidth="sm"
+        fullWidth
+      >
+        <DialogTitle>Selecionar Auxiliar</DialogTitle>
+        <DialogContent>
+          <List>
+            {auxiliaresDisponives.map((auxiliar) => (
+              <ListItem key={auxiliar.ID} disablePadding>
+                <ListItemButton onClick={() => handleSelectAuxiliar(auxiliar)}>
+                  <ListItemText
+                    primary={auxiliar.Nome}
+                    secondary={
+                      <Typography
+                        component="span"
+                        variant="body2"
+                        color="text.secondary"
+                      >
+                        {auxiliar.Email}
+                      </Typography>
+                    }
+                  />
+                </ListItemButton>
+              </ListItem>
+            ))}
+          </List>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={() => setOpenAuxiliarModal(false)}>Fechar</Button>
         </DialogActions>
       </Dialog>
     </Box>
