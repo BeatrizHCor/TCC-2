@@ -116,8 +116,8 @@ RoutesAgendamento.put(
 RoutesAgendamento.get(
   "/funcionario/agendamento/page",
   async (req: Request, res: Response) => {
-    const page = parseInt(req.query.page as string) || 0;
-    const limit = parseInt(req.query.limit as string) || 10;
+    const page = req.query.page ? parseInt(req.query.page as string) : null;
+    const limit = req.query.limit ? parseInt(req.query.limit as string) : null;
     const salaoId = parseInt(req.query.salaoId as string) || 0;
     const dia = parseInt(req.query.dia as string) || 0;
     const mes = parseInt(req.query.mes as string) || 0;
@@ -336,8 +336,8 @@ RoutesAgendamento.put(
 RoutesAgendamento.get(
   "/cabeleireiro/agendamento/page",
   async (req: Request, res: Response) => {
-    const page = parseInt(req.query.page as string) || 0;
-    const limit = parseInt(req.query.limit as string) || 10;
+    const page = req.query.page ? parseInt(req.query.page as string) : null;
+    const limit = req.query.limit ? parseInt(req.query.limit as string) : null;
     const salaoId = parseInt(req.query.salaoId as string) || 0;
     const dia = parseInt(req.query.dia as string) || 0;
     const mes = parseInt(req.query.mes as string) || 0;
@@ -557,8 +557,8 @@ RoutesAgendamento.put(
 RoutesAgendamento.get(
   "/cliente/agendamento/page",
   async (req: Request, res: Response) => {
-    const page = parseInt(req.query.page as string) || 0;
-    const limit = parseInt(req.query.limit as string) || 10;
+    const page = req.query.page ? parseInt(req.query.page as string) : null;
+    const limit = req.query.limit ? parseInt(req.query.limit as string) : null;
     const salaoId = parseInt(req.query.salaoId as string) || 0;
     const dia = parseInt(req.query.dia as string) || 0;
     const mes = parseInt(req.query.mes as string) || 0;

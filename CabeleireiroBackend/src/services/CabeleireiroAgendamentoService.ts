@@ -54,17 +54,20 @@ class AgendamentoService {
   };
 
   static getAgendamentosPage = async (
-    page = 1,
-    limit = 10,
+    page: number | null,
+    limit: number | null,
     includeRelations: boolean,
     salaoId: string | null = null,
     cabeleireiroId: string,
     dia: number,
     mes: number,
-    ano: number
+    ano: number,
   ) => {
     try {
-      const skip = (page - 1) * limit;
+      let skip = null;
+      if (page !== null && limit !==null) {
+      skip = (page - 1) * limit;
+    }
 
       let where: Prisma.AgendamentosWhereInput = {};
       const range = getRangeByDataInputWithTimezone(ano, mes, dia);

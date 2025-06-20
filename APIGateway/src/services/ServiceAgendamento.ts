@@ -63,8 +63,8 @@ export const FuncionarioUpdateAgendamento = async (
 };
 
 export const FuncionariogetAgendamentosPage = async (
-  page: number,
-  limit: number,
+  page: number | null,
+  limit: number | null,
   includeRelations: boolean = false,
   salaoId: number,
   dia: number,
@@ -162,8 +162,8 @@ export const CabeleireiroUpdateAgendamento = async (
   }
 };
 export const CabeleireirogetAgendamentosPage = async (
-  page: number,
-  limit: number,
+  page: number | null,
+  limit: number | null,
   includeRelations: boolean = false,
   salaoId: number,
   CabeleireiroId: string,
@@ -262,8 +262,8 @@ export const ClienteUpdateAgendamento = async (
   }
 };
 export const ClientegetAgendamentosPage = async (
-  page: number,
-  limit: number,
+  page: number | null,
+  limit: number | null,
   includeRelations: boolean = false,
   salaoId: number,
   ClienteId: string,
