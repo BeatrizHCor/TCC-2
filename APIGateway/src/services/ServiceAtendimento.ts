@@ -128,7 +128,7 @@ export const CabeleireirogetAgendamentoById = async (
 };
 export const getAtendimentobyAgendamentoId = async (agendamentoId: string) => {
   let response = await fetch(
-    CabeleireiroURL + `/atendimentobyagendamento/${agendamentoId}`,
+    FuncionarioURL + `/atendimentobyagendamento/${agendamentoId}`,
     {
       method: "GET",
     }
@@ -149,8 +149,11 @@ export const postAtendimento = async (
   auxiliares: AtendimentoAuxiliar[] = [],
   AgendamentoID: string
 ) => {
-  let response = await fetch(CabeleireiroURL + `/atendimento`, {
+  let response = await fetch(FuncionarioURL + `/atendimento`, {
     method: "Post",
+    headers: {
+      "Content-Type": "application/json",
+    },
     body: JSON.stringify({
       Data,
       PrecoTotal,

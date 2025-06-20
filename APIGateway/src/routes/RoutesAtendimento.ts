@@ -21,6 +21,7 @@ RoutesAtendimento.post("/atendimento", async (req: Request, res: Response) => {
     auxiliares,
     AgendamentoID,
   } = req.body;
+  console.log(req.body);
   try {
     const userInfo = JSON.parse(
       Buffer.from(req.headers.authorization || "", "base64").toString(
@@ -57,7 +58,7 @@ RoutesAtendimento.post("/atendimento", async (req: Request, res: Response) => {
     }
   } catch (e) {
     console.log(e);
-    res.status(500).send("Erro no ao criar agendamento");
+    res.status(500).send("Erro no ao criar atendimento");
   }
 });
 
@@ -65,12 +66,13 @@ RoutesAtendimento.get(
   `/atendimentobyagendamento/:agendamentoId`,
   async (req: Request, res: Response) => {
     let { agendamentoId } = req.params;
+    console.log(agendamentoId);
     try {
       let atendimento = await getAtendimentobyAgendamentoId(agendamentoId);
       res.status(201).json(atendimento);
     } catch (e) {
       console.log(e);
-      res.status(500).send("Error querying Cabeleireiros");
+      res.status(500).send("Error querying Agendamento");
     }
   }
 );
