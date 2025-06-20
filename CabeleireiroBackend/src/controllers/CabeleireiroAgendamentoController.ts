@@ -20,8 +20,8 @@ class AgendamentoController {
         });
       } else {
         const agendamentos = await AgendamentoService.getAgendamentosPage(
-          Number(page),
-          Number(limit),
+          !isNaN(Number(page)) ? Number(page) : null,
+          !isNaN(Number(limit)) ? Number(limit) : null,
           includeRelations === "true",
           salaoId ? String(salaoId) : null,
           CabeleireiroId ? String(CabeleireiroId) : "",

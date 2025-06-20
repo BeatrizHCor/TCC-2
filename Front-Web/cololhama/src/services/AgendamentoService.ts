@@ -25,8 +25,8 @@ interface AgendamentoPaginadoResponse {
 
 class AgendamentoService {
   static async FuncionariogetAgendamentosPaginados(
-    page: number = 1,
-    limit: number = 10,
+    page: number | null,
+    limit: number | null,
     salaoId: string,
     ano: number,
     mes: number,
@@ -53,8 +53,8 @@ class AgendamentoService {
     }
   }
   static async CabeleireirogetAgendamentosPaginados(
-    page: number = 1,
-    limit: number = 10,
+    page: number | null,
+    limit: number | null,
     salaoId: string,
     ano: number,
     mes: number,
@@ -82,8 +82,8 @@ class AgendamentoService {
   }
 
   static async ClientegetAgendamentosPaginados(
-    page: number = 1,
-    limit: number = 10,
+    page: number | null,
+    limit: number | null,
     salaoId: string,
     ano: number,
     mes: number,

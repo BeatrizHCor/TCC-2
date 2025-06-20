@@ -356,7 +356,7 @@ export const useManterAgendamento = (
         servicosIds.push(servico.ServicoId);
       }
     }
-
+console.log("services: ", servicosIds)
     try {
       if (isEditing && agendamentoId) {
         switch (userType) {
