@@ -12,6 +12,8 @@ import { userTypes } from "../../models/tipo-usuario.enum";
 import AtendimentoService from "../../services/AtendimentoService";
 import { AtendimentoAuxiliar } from "../../models/atendimentoAuxiliarModel";
 import { ServicoAtendimento } from "../../models/servicoAtendimentoModel";
+import { Cliente } from "../../models/clienteModel";
+import ClienteService from "../../services/ClienteService";
 
 interface ValidationErrors {
   data?: string;
@@ -35,7 +37,8 @@ export const useManterAtendimento = (
   stateCabId: string,
   stateCabNome: string,
   stateCliId: string,
-  stateStatus: StatusAgendamento
+  stateStatus: StatusAgendamento,
+  stateCliNome: string
 ) => {
   const [data, setData] = useState(stateData);
   const [status, setStatus] = useState<StatusAgendamento>(stateStatus);
@@ -44,9 +47,12 @@ export const useManterAtendimento = (
   const [cabeleireiroNome, setCabeleireiroNome] = useState(stateCabNome);
   const [atendimentoId, setAtendimentoId] = useState(stateCabId);
   const [servicosDisponiveis, setServicosDisponiveis] = useState<Servico[]>([]);
+  const [clientesDisponiveis, setClientesDisponiveis] = useState<Cliente[]>([]);
+
   const [cabeleireirosDisponiveis, setCabeleireirosDisponiveis] = useState<
     Cabeleireiro[]
   >([]);
+  const [clienteNome, setClienteNome] = useState(stateCliNome);
   const [salaoId, setSalaoId] = useState<string | null>(
     import.meta.env.VITE_SALAO_ID
   );
@@ -73,23 +79,19 @@ export const useManterAtendimento = (
     return agendamentoDate > threeDaysFromNow;
   };
   useEffect(() => {
-    if (!isEditing) {
-      let v = servicosAgendamento.reduce(
-        (sum: number, s: ServicoAgendamento) => sum + s.PrecoMin,
-        0
-      );
-      let serv = servicosAgendamento.map((a) => {
-        return {
-          PrecoItem: a.PrecoMin,
-          ServicoId: a.ServicoId,
-        } as ServicoAtendimento;
-      });
-      setPrecoTotal(v);
-      setServicoAtendimento(serv);
-    } else {
-      return;
-    }
-  });
+    let v = servicosAgendamento.reduce(
+      (sum: number, s: ServicoAgendamento) => sum + s.PrecoMin,
+      0
+    );
+    let serv = servicosAgendamento.map((a) => {
+      return {
+        PrecoItem: a.PrecoMin,
+        ServicoId: a.ServicoId,
+      } as ServicoAtendimento;
+    });
+    setPrecoTotal(v);
+    setServicoAtendimento(serv);
+  }, []);
 
   useEffect(() => {
     const loadInitialData = async () => {
@@ -107,7 +109,8 @@ export const useManterAtendimento = (
         }
         const servicos = await ServicoService.getServicosBySalao(salaoId);
         setServicosDisponiveis(servicos);
-
+        const clientes = await ClienteService.getClientesBySalao(salaoId);
+        setClientesDisponiveis(clientes);
         const cabeleireiros = await CabeleireiroService.getCabeleireiroBySalao(
           salaoId,
           false
@@ -270,6 +273,9 @@ export const useManterAtendimento = (
     servicoAtendimento,
     setServicoAtendimento,
     canSaveEdit: canSaveEdit(),
+    clienteNome,
+    setClienteNome,
+    clientesDisponiveis,
   };
 };
 

@@ -199,22 +199,7 @@ const ManterAgendamento: React.FC = () => {
 
   const handleConfirmar = async (e: React.FormEvent) => {
     try {
-      setStatus(StatusAgendamento.Confirmado);
-      console.log("aqui", status);
       await cofirmarAtendimento(e);
-      navigate("/atendimento/editar/", {
-        state: {
-          data,
-          status,
-          servicosAgendamento,
-          cabeleireiroId,
-          cabeleireiroNome,
-          clienteId,
-          salaoId,
-          agendamentoId,
-          isEditing: false,
-        },
-      });
     } catch (e) {
       console.log(e);
     }

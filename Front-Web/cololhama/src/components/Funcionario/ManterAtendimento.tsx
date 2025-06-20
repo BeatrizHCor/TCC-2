@@ -54,6 +54,7 @@ const ManterAtendimento: React.FC = () => {
   const [openServicosModal, setOpenServicosModal] = useState(false);
   const [openCabeleireirosModal, setOpenCabeleireirosModal] = useState(false);
   const { state } = useLocation();
+  const [openClientesModal, setOpenClientesModal] = useState(false);
   const {
     data: stateData,
     status: stateStatus,
@@ -61,6 +62,7 @@ const ManterAtendimento: React.FC = () => {
     cabeleireiroId: stateCabId,
     cabeleireiroNome: stateCabNome,
     clienteId: stateCliId,
+    clienteNome: stateCliNome,
     agendamentoId,
   } = state;
   const {
@@ -89,6 +91,9 @@ const ManterAtendimento: React.FC = () => {
     handleDelete,
     forbidden,
     canSaveEdit,
+    clienteNome,
+    setClienteNome,
+    clientesDisponiveis,
   } = useManterAtendimento(
     userType!,
     stateServicos,
@@ -97,7 +102,8 @@ const ManterAtendimento: React.FC = () => {
     stateCabId,
     stateCabNome,
     stateCliId,
-    stateStatus
+    stateStatus,
+    stateCliNome
   );
   const handleOpenDeleteDialog = () => {
     setOpenDeleteDialog(true);
@@ -234,11 +240,18 @@ const ManterAtendimento: React.FC = () => {
                         setStatus(e.target.value as StatusAgendamento)
                       }
                     >
-                      {Object.values(StatusAgendamento).map((statusOption) => (
-                        <MenuItem key={statusOption} value={statusOption}>
-                          {statusOption}
-                        </MenuItem>
-                      ))}
+                      <MenuItem
+                        key={StatusAgendamento.Confirmado}
+                        value={StatusAgendamento.Confirmado}
+                      >
+                        {StatusAgendamento.Confirmado}
+                      </MenuItem>
+                      <MenuItem
+                        key={StatusAgendamento.Finalizado}
+                        value={StatusAgendamento.Finalizado}
+                      >
+                        {StatusAgendamento.Finalizado}
+                      </MenuItem>
                     </Select>
                   </FormControl>
                 </Box>
@@ -247,12 +260,28 @@ const ManterAtendimento: React.FC = () => {
                   <TextField
                     fullWidth
                     required
-                    label="ID do Cliente"
-                    value={clienteId}
-                    onChange={(e) => setClienteId(e.target.value)}
+                    label="Cliente"
+                    value={clienteNome}
+                    onClick={() => {
+                      if (userType !== "Cliente" && !isEditing)
+                        setOpenClientesModal(true);
+                    }}
                     error={Boolean(validationErrors.clienteId)}
                     helperText={validationErrors.clienteId}
-                    placeholder="ID do cliente"
+                    placeholder={
+                      userType === "Cliente"
+                        ? "Cliente atual (você)"
+                        : "Clique para selecionar um cliente"
+                    }
+                    slotProps={{
+                      input: { readOnly: true },
+                    }}
+                    sx={{
+                      cursor:
+                        userType === "Cliente" || isEditing
+                          ? "not-allowed"
+                          : "pointer",
+                    }}
                   />
                 </Box>
 
@@ -514,6 +543,45 @@ const ManterAtendimento: React.FC = () => {
           <Button onClick={() => setOpenCabeleireirosModal(false)}>
             Fechar
           </Button>
+        </DialogActions>
+      </Dialog>
+      <Dialog
+        open={openClientesModal}
+        onClose={() => setOpenClientesModal(false)}
+        maxWidth="sm"
+        fullWidth
+      >
+        <DialogTitle>Selecionar Cliente</DialogTitle>
+        <DialogContent>
+          <List>
+            {clientesDisponiveis?.map((cliente) => (
+              <ListItem key={cliente.ID} disablePadding>
+                <ListItemButton
+                  onClick={() => {
+                    setClienteId(cliente.ID!);
+                    setClienteNome(cliente.Nome);
+                    setOpenClientesModal(false);
+                  }}
+                >
+                  <ListItemText
+                    primary={cliente.Nome}
+                    secondary={
+                      <Typography
+                        component="span"
+                        variant="body2"
+                        color="text.secondary"
+                      >
+                        {cliente.Email}
+                      </Typography>
+                    }
+                  />
+                </ListItemButton>
+              </ListItem>
+            ))}
+          </List>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={() => setOpenClientesModal(false)}>Fechar</Button>
         </DialogActions>
       </Dialog>
     </Box>

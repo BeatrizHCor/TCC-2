@@ -335,9 +335,8 @@ export const useManterAgendamento = (
 
   const cofirmarAtendimento = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (isEditing || !canSaveEdit()) {
-      return;
-    }
+    setStatus(StatusAgendamento.Confirmado);
+    console.log();
     setIsLoading(true);
     const servicosIds: string[] = [];
     for (const servico of servicosAgendamento) {
@@ -345,13 +344,14 @@ export const useManterAgendamento = (
         servicosIds.push(servico.ServicoId);
       }
     }
+
     try {
       if (salaoId && agendamentoId) {
         switch (userType) {
           case userTypes.Funcionario:
           case userTypes.AdmSalao:
           case userTypes.AdmSistema:
-            return await AgendamentoService.updateFuncionarioAgendamento(
+            await AgendamentoService.updateFuncionarioAgendamento(
               agendamentoId,
               new Date(data).toISOString(),
               StatusAgendamento.Confirmado,
@@ -360,9 +360,9 @@ export const useManterAgendamento = (
               salaoId,
               servicosIds
             );
-
+            break;
           case userTypes.Cabeleireiro:
-            return await AgendamentoService.updateCabeleireiroAgendamento(
+            await AgendamentoService.updateCabeleireiroAgendamento(
               agendamentoId,
               new Date(data).toISOString(),
               status,
@@ -371,8 +371,10 @@ export const useManterAgendamento = (
               salaoId,
               servicosIds
             );
+            break;
+
           case userTypes.Cliente:
-            return await AgendamentoService.updateClienteAgendamento(
+            await AgendamentoService.updateClienteAgendamento(
               agendamentoId,
               new Date(data).toISOString(),
               status,
@@ -381,10 +383,26 @@ export const useManterAgendamento = (
               salaoId,
               servicosIds
             );
+            break;
           default:
             throw new Error("Tipo de usuário inválido");
         }
       }
+      let St = StatusAgendamento.Confirmado;
+      return navigate("/atendimento/editar/", {
+        state: {
+          data,
+          St,
+          servicosAgendamento,
+          cabeleireiroId,
+          cabeleireiroNome,
+          clienteNome,
+          clienteId,
+          salaoId,
+          agendamentoId,
+          isEditing: false,
+        },
+      });
     } catch (error: unknown) {
       console.error("Erro ao salvar agendamento:", error);
 
