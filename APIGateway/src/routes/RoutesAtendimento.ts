@@ -65,12 +65,13 @@ RoutesAtendimento.get(
   `/atendimentobyagendamento/:agendamentoId`,
   async (req: Request, res: Response) => {
     let { agendamentoId } = req.params;
+    console.log(agendamentoId);
     try {
       let atendimento = await getAtendimentobyAgendamentoId(agendamentoId);
       res.status(201).json(atendimento);
     } catch (e) {
       console.log(e);
-      res.status(500).send("Error querying Cabeleireiros");
+      res.status(500).send("Error querying Agendamento");
     }
   }
 );

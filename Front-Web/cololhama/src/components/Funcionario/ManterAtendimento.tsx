@@ -190,7 +190,7 @@ const ManterAtendimento: React.FC = () => {
           variant="h5"
           sx={{ mb: 3, fontSize: { xs: "1.2rem", sm: "2rem" } }}
         >
-          {isEditing ? "Editar Agendamento" : "Novo Agendamento"}
+          {isEditing ? "Editar Atendimento" : "Novo Atendimento"}
         </Typography>
 
         <form onSubmit={handleSubmit}>
@@ -308,8 +308,7 @@ const ManterAtendimento: React.FC = () => {
                   <TableHead>
                     <TableRow>
                       <TableCell>Serviço</TableCell>
-                      <TableCell align="right">Preço Min</TableCell>
-                      <TableCell align="right">Preço Max</TableCell>
+                      <TableCell align="right">Preço</TableCell>
                       <TableCell align="center">Ação</TableCell>
                     </TableRow>
                   </TableHead>
@@ -332,6 +331,7 @@ const ManterAtendimento: React.FC = () => {
                           <TableCell align="right">
                             <TextField
                               variant="outlined"
+                              size="small"
                               value={formatCurrency(
                                 servicoAtendimento.PrecoItem
                               )}

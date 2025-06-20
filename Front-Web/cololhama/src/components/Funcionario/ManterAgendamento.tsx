@@ -88,6 +88,7 @@ const ManterAgendamento: React.FC = () => {
     isHorarioOcupado,
     isTimeSlotOccupied,
     setCabeleireiroIdWithHorarios,
+    cofirmarAtendimento,
   } = useManterAgendamento(userType!, agendamentoId, userId);
 
   const handleOpenDeleteDialog = () => {
@@ -199,7 +200,8 @@ const ManterAgendamento: React.FC = () => {
   const handleConfirmar = async (e: React.FormEvent) => {
     try {
       setStatus(StatusAgendamento.Confirmado);
-      await handleSubmit(e);
+      console.log("aqui", status);
+      await cofirmarAtendimento(e);
       navigate("/atendimento/editar/", {
         state: {
           data,
@@ -263,7 +265,9 @@ const ManterAgendamento: React.FC = () => {
                         setData("");
                       }
                     }}
-                    disabled={!canSaveEdit || loadingHorarios || !cabeleireiroId}
+                    disabled={
+                      !canSaveEdit || loadingHorarios || !cabeleireiroId
+                    }
                     shouldDisableTime={(timeValue, clockType) => {
                       if (clockType === "hours" && data) {
                         const selectedDate = new Date(data.split("T")[0]);
@@ -435,7 +439,11 @@ const ManterAgendamento: React.FC = () => {
                             <IconButton
                               size="small"
                               color="error"
-                              disabled={!canSaveEdit || loadingHorarios || !cabeleireiroId}
+                              disabled={
+                                !canSaveEdit ||
+                                loadingHorarios ||
+                                !cabeleireiroId
+                              }
                               onClick={() =>
                                 handleRemoveServico(
                                   servicoAgendamento.ServicoId
@@ -519,7 +527,6 @@ const ManterAgendamento: React.FC = () => {
               {isEditing ? (
                 <Button
                   variant="contained"
-                  type="submit"
                   startIcon={
                     isLoading ? (
                       <CircularProgress size={20} color="inherit" />

@@ -128,7 +128,7 @@ export const CabeleireirogetAgendamentoById = async (
 };
 export const getAtendimentobyAgendamentoId = async (agendamentoId: string) => {
   let response = await fetch(
-    CabeleireiroURL + `/atendimentobyagendamento/${agendamentoId}`,
+    FuncionarioURL + `/atendimentobyagendamento/${agendamentoId}`,
     {
       method: "GET",
     }
