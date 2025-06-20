@@ -328,10 +328,20 @@ const ManterAtendimento: React.FC = () => {
                             {servicoAtendimento.Servico?.Nome ||
                               "Serviço não encontrado"}
                           </TableCell>
-                          <TableCell align="right">
+                          <TableCell align="right" sx={{ padding: 0 }}>
                             <TextField
                               variant="outlined"
                               size="small"
+                              fullWidth
+                              sx={{
+                                "& .MuiInputBase-root": {
+                                  padding: 0,
+                                  height: "100%",
+                                },
+                                "& input": {
+                                  padding: "8px",
+                                },
+                              }}
                               value={formatCurrency(
                                 servicoAtendimento.PrecoItem
                               )}
