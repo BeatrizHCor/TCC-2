@@ -222,7 +222,10 @@ const ManterAtendimento: React.FC = () => {
                     type="datetime-local"
                     label="Data e Hora"
                     value={data}
-                    onChange={(e) => setData(e.target.value)}
+                    onChange={(e) => {
+                      console.log(e.target.value);
+                      setData(e.target.value);
+                    }}
                     error={Boolean(validationErrors.data)}
                     helperText={validationErrors.data}
                     slotProps={{

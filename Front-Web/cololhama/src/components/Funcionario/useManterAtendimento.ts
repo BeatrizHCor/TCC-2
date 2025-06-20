@@ -14,6 +14,7 @@ import { AtendimentoAuxiliar } from "../../models/atendimentoAuxiliarModel";
 import { ServicoAtendimento } from "../../models/servicoAtendimentoModel";
 import { Cliente } from "../../models/clienteModel";
 import ClienteService from "../../services/ClienteService";
+import { Atendimento } from "../../models/atendimentoModal";
 
 interface ValidationErrors {
   data?: string;
@@ -28,6 +29,22 @@ const formatCurrency = (value: number) => {
     currency: "BRL",
   }).format(value);
 };
+
+function formatDateToLocalDateTimeString(date: Date) {
+  const pad = (n: number) => n.toString().padStart(2, "0");
+
+  return (
+    date.getFullYear() +
+    "-" +
+    pad(date.getMonth() + 1) +
+    "-" +
+    pad(date.getDate()) +
+    "T" +
+    pad(date.getHours()) +
+    ":" +
+    pad(date.getMinutes())
+  );
+}
 
 export const useManterAtendimento = (
   userType: userTypes,
@@ -99,13 +116,23 @@ export const useManterAtendimento = (
 
       setIsLoading(true);
       try {
-        let atendimentoId = "";
         if (agendamentoId) {
-          atendimentoId =
+          let atendimento: Atendimento =
             await AtendimentoService.getAtendimentobyAgendamentoId(
               agendamentoId
             );
-          setAtendimentoId(atendimentoId);
+          console.log(typeof atendimento.Data);
+          if (atendimento) {
+            let data = new Date(atendimento.Data as unknown as string);
+            setData(formatDateToLocalDateTimeString(data));
+            setAtendimentoId(atendimento.ID!);
+            setServicoAtendimento(atendimento.ServicoAtendimento);
+            setCabeleireiroId(atendimento.Agendamentos[0].CabeleireiroID);
+            setClienteId(atendimento.Agendamentos[0].ClienteID);
+            setAuxiliares(
+              atendimento.AtendimentoAuxiliar || ([] as AtendimentoAuxiliar[])
+            );
+          }
         }
         const servicos = await ServicoService.getServicosBySalao(salaoId);
         setServicosDisponiveis(servicos);

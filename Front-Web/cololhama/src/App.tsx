@@ -70,7 +70,11 @@ const App: React.FC = () => {
             element={<ManterAgendamentoPage />}
           />{" "}
           <Route path="/agendamento/novo" element={<ManterAgendamentoPage />} />
-          <Route path="/atendimento/editar/" element={<ManterAtendimento />} />
+          <Route
+            path="/atendimento/editar/:atendimentoId"
+            element={<ManterAtendimento />}
+          />{" "}
+          <Route path="/atendimento/novo" element={<ManterAtendimento />} />
           <Route path="/atendimentos" element={<VisualizarAtendimentoPage />} />
         </Routes>
       </ThemeProvider>

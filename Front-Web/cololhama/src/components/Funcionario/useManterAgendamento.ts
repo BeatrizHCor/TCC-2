@@ -19,6 +19,21 @@ interface ValidationErrors {
   cabeleireiroId?: string;
   servicos?: string;
 }
+function formatDateToLocalDateTimeString(date: Date) {
+  const pad = (n: number) => n.toString().padStart(2, "0");
+
+  return (
+    date.getFullYear() +
+    "-" +
+    pad(date.getMonth() + 1) +
+    "-" +
+    pad(date.getDate()) +
+    "T" +
+    pad(date.getHours()) +
+    ":" +
+    pad(date.getMinutes())
+  );
+}
 
 export const useManterAgendamento = (
   userType: userTypes,
@@ -239,9 +254,10 @@ export const useManterAgendamento = (
           default:
             throw new Error("Tipo de usuário inválido");
         }
-        const dataFormatted = new Date(agendamento.Data)
-          .toISOString()
-          .slice(0, 16);
+        const dataFormatted = formatDateToLocalDateTimeString(
+          new Date(agendamento.Data)
+        );
+
         setData(dataFormatted);
         setStatus(agendamento.Status);
         setClienteId(agendamento.ClienteID);
@@ -389,7 +405,7 @@ export const useManterAgendamento = (
         }
       }
       let St = StatusAgendamento.Confirmado;
-      return navigate("/atendimento/editar/", {
+      return navigate("/atendimento/novo", {
         state: {
           data,
           status: St,

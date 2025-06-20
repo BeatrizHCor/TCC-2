@@ -93,6 +93,7 @@ class AtendimentoService {
                 include: {
                   Cliente: true,
                   Cabeleireiro: true,
+                  ServicoAgendamento: true,
                 },
               },
               ServicoAtendimento: true,

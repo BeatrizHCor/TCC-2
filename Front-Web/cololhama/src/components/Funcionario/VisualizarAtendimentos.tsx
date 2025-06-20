@@ -415,8 +415,8 @@ export const VisualizarAtendimentos: React.FC = () => {
                     Cliente
                   </Typography>
                   <Typography variant="body1">
-                    {atendimentoSelecionado.Agendamentos?.Cliente?.Nome ||
-                      `ID: ${atendimentoSelecionado.Agendamentos?.ClienteID}`}
+                    {atendimentoSelecionado.Agendamentos[0].Cliente?.Nome ||
+                      `ID: ${atendimentoSelecionado.Agendamentos[0].ClienteID}`}
                   </Typography>
                 </Box>
                 <Box sx={{ xs: 12, sm: 6 }}>
@@ -424,8 +424,9 @@ export const VisualizarAtendimentos: React.FC = () => {
                     Profissional
                   </Typography>
                   <Typography variant="body1">
-                    {atendimentoSelecionado.Agendamentos?.Cabeleireiro?.Nome ||
-                      `ID: ${atendimentoSelecionado.Agendamentos?.CabeleireiroID}`}
+                    {atendimentoSelecionado.Agendamentos[0].Cabeleireiro
+                      ?.Nome ||
+                      `ID: ${atendimentoSelecionado.Agendamentos[0].CabeleireiroID}`}
                   </Typography>
                 </Box>
               </Box>
