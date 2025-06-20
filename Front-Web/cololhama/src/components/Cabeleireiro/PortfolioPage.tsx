@@ -176,8 +176,10 @@ export default function PortfolioPage() {
                     objectFit: "cover",
                   }}
                   onError={(e) => {
-                    (e.target as HTMLImageElement).src =
-                      "https://via.placeholder.com/400x300?text=Imagem+não+encontrada";
+                    const target = e.target as HTMLImageElement;
+                    if (!target.src.includes("imagem-nao-encontrada.png")) {
+                      target.src = "/imagem-nao-encontrada.png";
+                    }
                   }}
                 />
                 {cabeleireiroId === userId && (

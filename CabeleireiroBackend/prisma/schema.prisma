@@ -221,8 +221,8 @@ enum ImagemTipo {
 
 model Imagem {
   ID                   String              @id @default(uuid())
-  PortfolioId          String
-  Portfolio            Portfolio           @relation(fields: [PortfolioId], references: [ID], onDelete: Cascade)
+  PortfolioId          String?
+  Portfolio            Portfolio?           @relation(fields: [PortfolioId], references: [ID], onDelete: Cascade)
   HistoricoSimulacaoId String?
   HistoricoSimulacao   HistoricoSimulacao? @relation(fields: [HistoricoSimulacaoId], references: [ID], onDelete: Cascade)
   Endereco             String
