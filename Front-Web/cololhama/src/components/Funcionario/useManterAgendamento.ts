@@ -38,12 +38,13 @@ function formatDateToLocalDateTimeString(date: Date) {
 export const useManterAgendamento = (
   userType: userTypes,
   agendamentoId?: string,
-  userId?: string
+  userId?: string,
 ) => {
   const [data, setData] = useState("");
   const [status, setStatus] = useState<StatusAgendamento>(
-    StatusAgendamento.Agendado
+    StatusAgendamento.Agendado,
   );
+  const [horaOriginal, sethoraOriginal] = useState("");
   const [clienteId, setClienteId] = useState("");
   const [clienteNome, setClienteNome] = useState("");
   const [clientesDisponiveis, setClientesDisponiveis] = useState<Cliente[]>([]);
@@ -57,12 +58,12 @@ export const useManterAgendamento = (
     Cabeleireiro[]
   >([]);
   const [salaoId, setSalaoId] = useState<string | null>(
-    import.meta.env.VITE_SALAO_ID
+    import.meta.env.VITE_SALAO_ID,
   );
   const [forbidden, setForbidden] = useState<boolean>(false);
   const [isLoading, setIsLoading] = useState(false);
   const [validationErrors, setValidationErrors] = useState<ValidationErrors>(
-    {}
+    {},
   );
   const [isEditing, setIsEditing] = useState(false);
   const [horariosOcupados, setHorariosOcupados] = useState<string[]>([]);
@@ -90,7 +91,7 @@ export const useManterAgendamento = (
       const horarios = await AgendamentoService.getHorariosOcupadosFuturos(
         salaoId,
         cabeleireiroIdParam,
-        dataParaBusca
+        dataParaBusca,
       );
       if (horarios !== false) {
         setHorariosOcupados(horarios);
@@ -104,25 +105,38 @@ export const useManterAgendamento = (
       setLoadingHorarios(false);
     }
   };
+const isHorarioOcupado = (
+  dataHora: string, 
+  isEditing: boolean = false, 
+  horaOriginal?: string
+): boolean => {
+  if (!dataHora || horariosOcupados.length === 0) return false;
 
-  const isHorarioOcupado = (dataHora: string): boolean => {
-    if (!dataHora || horariosOcupados.length === 0) return false;
+  const dataHoraAgendamento = new Date(dataHora);
+  let horaOriginalDate: Date; 
 
-    const dataHoraAgendamento = new Date(dataHora);
+  if  (horaOriginal) {
+    horaOriginalDate = new Date(horaOriginal);
+  }
+  return horariosOcupados.some((horario) => {
+    const horarioOcupado = new Date(horario);
+    
+    if (isEditing && horaOriginal) {
+      if (horarioOcupado.getTime() === horaOriginalDate.getTime()) {
+        return false;
+      }
+    }
+    
+    const horarioOcupadoFim = new Date(
+      horarioOcupado.getTime() + 60 * 60 * 1000
+    );
 
-    return horariosOcupados.some((horario) => {
-      const horarioOcupado = new Date(horario);
-      const horarioOcupadoFim = new Date(
-        horarioOcupado.getTime() + 60 * 60 * 1000
-      );
-
-      return (
-        dataHoraAgendamento >= horarioOcupado &&
-        dataHoraAgendamento < horarioOcupadoFim
-      );
-    });
-  };
-
+    return (
+      dataHoraAgendamento >= horarioOcupado &&
+      dataHoraAgendamento < horarioOcupadoFim
+    );
+  });
+};
   const setCabeleireiroIdWithHorarios = (id: string) => {
     setCabeleireiroId(id);
     if (id) {
@@ -131,7 +145,7 @@ export const useManterAgendamento = (
         "cabeleireiroId",
         cabeleireiroId,
         "loadingHorarios",
-        loadingHorarios
+        loadingHorarios,
       );
     } else {
       setHorariosOcupados([]);
@@ -149,21 +163,32 @@ export const useManterAgendamento = (
     }
   };
 
-  const isTimeSlotOccupied = (date: Date, hour: number): boolean => {
-    if (!date || horariosOcupados.length === 0) return false;
+const isTimeSlotOccupied = (
+  date: Date, 
+  hour: number, 
+  servicosAgendamento: any[] = []
+): boolean => {
+  if (!date || horariosOcupados.length === 0) return false;
 
-    const testDate = new Date(date);
-    testDate.setHours(hour, 0, 0, 0);
+  const testDate = new Date(date);
+  testDate.setHours(hour, 0, 0, 0);
 
-    return horariosOcupados.some((horario) => {
-      const horarioOcupado = new Date(horario);
-      const horarioOcupadoFim = new Date(
-        horarioOcupado.getTime() + 60 * 60 * 1000
-      );
+  // 40 minutos por serviço
+  const duracaoTotalMinutos = servicosAgendamento.length > 0 
+    ? servicosAgendamento.length * 40 
+    : 40;
 
-      return testDate >= horarioOcupado && testDate < horarioOcupadoFim;
-    });
-  };
+  const duracaoTotalMilissegundos = duracaoTotalMinutos * 60 * 1000;
+
+  return horariosOcupados.some((horario) => {
+    const horarioOcupado = new Date(horario);
+    const horarioOcupadoFim = new Date(
+      horarioOcupado.getTime() + duracaoTotalMilissegundos
+    );
+
+    return testDate >= horarioOcupado && testDate < horarioOcupadoFim;
+  });
+};
   useEffect(() => {
     const loadInitialData = async () => {
       if (!salaoId) return;
@@ -180,8 +205,8 @@ export const useManterAgendamento = (
         ) {
           const clientes = await ClienteService.getClientesBySalao(salaoId);
           setClientesDisponiveis(clientes);
-          const cabeleireiros =
-            await CabeleireiroService.getCabeleireiroBySalao(salaoId, false);
+          const cabeleireiros = await CabeleireiroService
+            .getCabeleireiroBySalao(salaoId, false);
           setCabeleireirosDisponiveis(cabeleireiros);
         }
 
@@ -189,8 +214,8 @@ export const useManterAgendamento = (
           if (userType === userTypes.Cliente) {
             setClienteId(userId);
             const clienteLogado = await ClienteService.getClienteById(userId);
-            const cabeleireiros =
-              await CabeleireiroService.getCabeleireiroBySalao(salaoId, false);
+            const cabeleireiros = await CabeleireiroService
+              .getCabeleireiroBySalao(salaoId, false);
             setCabeleireirosDisponiveis(cabeleireiros);
             if (clienteLogado && clienteLogado.Nome) {
               setClienteNome(clienteLogado.Nome);
@@ -199,8 +224,8 @@ export const useManterAgendamento = (
             setCabeleireiroId(userId);
             const clientes = await ClienteService.getClientesBySalao(salaoId);
             setClientesDisponiveis(clientes);
-            const cabeleireiroLogado =
-              await CabeleireiroService.getCabeleireiroById(userId);
+            const cabeleireiroLogado = await CabeleireiroService
+              .getCabeleireiroById(userId);
             if (cabeleireiroLogado && cabeleireiroLogado.Nome) {
               setCabeleireiroNome(cabeleireiroLogado.Nome);
             }
@@ -232,33 +257,33 @@ export const useManterAgendamento = (
           case userTypes.Funcionario:
           case userTypes.AdmSalao:
           case userTypes.AdmSistema:
-            agendamento =
-              await AgendamentoService.getFuncionarioAgendamentoById(
+            agendamento = await AgendamentoService
+              .getFuncionarioAgendamentoById(
                 agendamentoId,
-                true
+                true,
               );
             break;
           case userTypes.Cabeleireiro:
-            agendamento =
-              await AgendamentoService.getCabeleireiroAgendamentoById(
+            agendamento = await AgendamentoService
+              .getCabeleireiroAgendamentoById(
                 agendamentoId,
-                true
+                true,
               );
             break;
           case userTypes.Cliente:
             agendamento = await AgendamentoService.getClienteAgendamentoById(
               agendamentoId,
-              true
+              true,
             );
             break;
           default:
             throw new Error("Tipo de usuário inválido");
         }
-        const dataFormatted = formatDateToLocalDateTimeString(
-          new Date(agendamento.Data)
+        const dataFormatada = formatDateToLocalDateTimeString(
+          new Date(agendamento.Data),
         );
-
-        setData(dataFormatted);
+        sethoraOriginal(dataFormatada);
+        setData(dataFormatada);
         setStatus(agendamento.Status);
         setClienteId(agendamento.ClienteID);
         setClienteNome(agendamento.Cliente?.Nome || "");
@@ -297,12 +322,12 @@ export const useManterAgendamento = (
     if (data && horariosOcupados.length > 0) {
       setValidationErrors((prev) => ({
         ...prev,
-        data: isHorarioOcupado(data)
+        data: isHorarioOcupado(data, isEditing, horaOriginal)
           ? "Este horário já está ocupado"
           : undefined,
       }));
     }
-  }, [horariosOcupados, data]);
+  }, [horariosOcupados, data, isEditing, horaOriginal, servicosAgendamento]);
 
   const validateForm = (): boolean => {
     const errors: ValidationErrors = {};
@@ -315,7 +340,7 @@ export const useManterAgendamento = (
 
       if (agendamentoDate <= currentDate) {
         errors.data = "A data do agendamento deve ser futura";
-      } else if (isHorarioOcupado(data)) {
+      } else if (isHorarioOcupado(data, isEditing, horaOriginal)) {
         errors.data = "Este horário está ocupado (considera período de 1 hora)";
       }
 
@@ -374,7 +399,7 @@ export const useManterAgendamento = (
               clienteId,
               cabeleireiroId,
               salaoId,
-              servicosIds
+              servicosIds,
             );
             break;
           case userTypes.Cabeleireiro:
@@ -385,7 +410,7 @@ export const useManterAgendamento = (
               clienteId,
               cabeleireiroId,
               salaoId,
-              servicosIds
+              servicosIds,
             );
             break;
 
@@ -397,7 +422,7 @@ export const useManterAgendamento = (
               clienteId,
               cabeleireiroId,
               salaoId,
-              servicosIds
+              servicosIds,
             );
             break;
           default:
@@ -456,7 +481,7 @@ export const useManterAgendamento = (
         servicosIds.push(servico.ServicoId);
       }
     }
-console.log("services: ", servicosIds)
+    console.log("services: ", servicosIds);
     try {
       if (isEditing && agendamentoId) {
         switch (userType) {
@@ -470,7 +495,7 @@ console.log("services: ", servicosIds)
               clienteId,
               cabeleireiroId,
               salaoId,
-              servicosIds
+              servicosIds,
             );
             return navigate(-1);
           case userTypes.Cabeleireiro:
@@ -481,7 +506,7 @@ console.log("services: ", servicosIds)
               clienteId,
               cabeleireiroId,
               salaoId,
-              servicosIds
+              servicosIds,
             );
             return navigate(-1);
           case userTypes.Cliente:
@@ -492,7 +517,7 @@ console.log("services: ", servicosIds)
               clienteId,
               cabeleireiroId,
               salaoId,
-              servicosIds
+              servicosIds,
             );
             return navigate(-1);
           default:
@@ -508,7 +533,7 @@ console.log("services: ", servicosIds)
               clienteId,
               cabeleireiroId,
               salaoId,
-              servicosIds
+              servicosIds,
             );
             return navigate(-1);
           case userTypes.Cabeleireiro:
@@ -517,7 +542,7 @@ console.log("services: ", servicosIds)
               clienteId,
               cabeleireiroId,
               salaoId,
-              servicosIds
+              servicosIds,
             );
             return navigate(-1);
           case userTypes.Cliente:
@@ -526,7 +551,7 @@ console.log("services: ", servicosIds)
               clienteId,
               cabeleireiroId,
               salaoId,
-              servicosIds
+              servicosIds,
             );
             return navigate(-1);
           default:
@@ -562,17 +587,17 @@ console.log("services: ", servicosIds)
         case userTypes.AdmSalao:
         case userTypes.AdmSistema:
           deleted = await AgendamentoService.deleteFuncionarioAgendamento(
-            agendamentoId
+            agendamentoId,
           );
           break;
         case userTypes.Cabeleireiro:
           deleted = await AgendamentoService.deleteCabeleireiroAgendamento(
-            agendamentoId
+            agendamentoId,
           );
           break;
         case userTypes.Cliente:
           deleted = await AgendamentoService.deleteClienteAgendamento(
-            agendamentoId
+            agendamentoId,
           );
           break;
         default:
@@ -599,6 +624,7 @@ console.log("services: ", servicosIds)
   return {
     data,
     setData: setDataWithHorarios,
+    horaOriginal,
     status,
     setStatus,
     clienteId,

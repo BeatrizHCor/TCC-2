@@ -117,131 +117,147 @@ export const VisualizarServicos: React.FC<VisualizarServicosProps> = ({
     ? colunas
     : colunas.filter((coluna) => coluna.clienteVisivel !== false);
 
-return (
-  <Box sx={{ width: "100%", px: { xs: 1, sm: 3 }, py: 2 }}>
-    <Typography
-      variant="h5"
-      sx={{ mb: 3, fontWeight: 600, color: theme.palette.primary.main }}
-    >
-      Serviços do Salão
-    </Typography>
+  return (
+    <Box sx={{ width: "100%", px: { xs: 1, sm: 3 }, py: 2 }}>
+      <Box
+        sx={{
+          display: 'flex',
+          flexWrap: 'wrap',
+          gap: 2,
+          justifyContent: { xs: 'center', md: 'space-between' },
+          alignItems: 'center',
+          mb: 2,
+        }}
+      >
+        <Typography
+          variant="h4"
+          sx={{
+            mb: { xs: 1, md: 0 },
+            fontWeight: 600,
+            color: theme.palette.primary.main,
+            textAlign: { xs: 'center', md: 'left' },
+          }}
+        >
+          Serviços do Salão
+        </Typography>
 
-    {/* Filtros - linha 1 */}
-<Box
-  sx={{
-    display: "flex",
-    flexWrap: "wrap",
-    gap: 2,
-    justifyContent: "center",
-    mb: 2,
-    width: "100%",
-    maxWidth: "800px",
-    mx: "auto",
-  }}
->
-  <TextField
-    variant="outlined"
-    label="Buscar por nome"
-    value={NomeFiltroInput}
-    onChange={handleNomeFilterInput}
-    size="medium"
-    sx={{ flex: "1 1 60%", minWidth: "280px" }}
-  />
-  <Button
-    variant="contained"
-    onClick={aplicarFiltroNome}
-    size="medium"
-    sx={{ height: 45, minWidth: 120 }}
-  >
-    Buscar
-  </Button>
-  {canEdit && (
-  <Button
-    component={Link}
-    to="/servico/editar/novo"
-    variant="contained"
-    size="medium"
-    sx={{
-      backgroundColor: "#f5f5f5", 
-      color: theme.palette.primary.main, 
-      border: `1.5px solid ${theme.palette.primary.main}`, // borda vinho do tema
-      height: 45,
-      minWidth: 140,
-      "&:hover": {
-        backgroundColor: "#e0e0e0",
-        borderColor: theme.palette.primary.main,
-      },
-      textTransform: "none",
-      fontWeight: 600,
-      boxShadow: "none",
-    }}
-  >
-    Novo Serviço
-  </Button>
-)}
+      </Box>
 
-</Box>
+      <Box
+        sx={{
+          display: "flex",
+          flexWrap: "wrap",
+          gap: 2,
+          justifyContent: "center",
+          mb: 2,
+          width: "100%",
+          maxWidth: "800px",
+          mx: "auto",
+        }}
+      >
+        <TextField
+          variant="outlined"
+          label="Buscar por nome"
+          value={NomeFiltroInput}
+          onChange={handleNomeFilterInput}
+          size="medium"
+          sx={{ flex: "1 1 60%", minWidth: "280px" }}
+        />
+        <Button
+          variant="contained"
+          onClick={aplicarFiltroNome}
+          size="medium"
+          sx={{ height: 45, minWidth: 120 }}
+        >
+          Buscar
+        </Button>
+        {canEdit && (
+          <Button
+            component={Link}
+            to="/servico/editar/novo"
+            variant="contained"
+            size="medium"
+            sx={{
+              backgroundColor: "#f5f5f5",
+              color: theme.palette.primary.main,
+              border: `1.5px solid ${theme.palette.primary.main}`, // borda vinho do tema
+              height: 45,
+              minWidth: 140,
+              "&:hover": {
+                backgroundColor: "#e0e0e0",
+                borderColor: theme.palette.primary.main,
+              },
+              textTransform: "none",
+              fontWeight: 600,
+              boxShadow: "none",
+            }}
+          >
+            Novo Serviço
+          </Button>
+        )}
 
-{/* Filtros - linha 2 */}
-<Box
-  sx={{
-    display: "flex",
-    justifyContent: "center",
-    gap: 3,
-    flexWrap: "wrap",
-    width: "100%",
-    maxWidth: "800px",
-    mx: "auto", 
-    mb: 3,
-  }}
->
-  <TextField
-    variant="outlined"
-    label="Preço mínimo"
-    type="text"
-    value={precoMinInput}
-    onChange={handlePrecoMinInputChange}
-    size="medium"
-    sx={{ flex: "1 1 35%", minWidth: "200px" }}
-    inputMode="numeric"
-    InputProps={{
-      startAdornment: <InputAdornment position="start">R$</InputAdornment>,
-      endAdornment: (
-        <InputAdornment position="end">
-          <IconButton size="small" onClick={aplicarFiltroPreco} sx={{ p: "4px" }}>
-            <CheckIcon fontSize="small" />
-          </IconButton>
-        </InputAdornment>
-      ),
-    }}
-  />
+      </Box>
 
-  <TextField
-    variant="outlined"
-    label="Preço máximo"
-    type="text"
-    value={precoMaxInput}
-    onChange={handlePrecoMaxInputChange}
-    size="medium"
-    sx={{ flex: "1 1 35%", minWidth: "200px" }}
-    inputMode="numeric"
-    InputProps={{
-      startAdornment: <InputAdornment position="start">R$</InputAdornment>,
-      endAdornment: (
-        <InputAdornment position="end">
-          <IconButton size="small" onClick={aplicarFiltroPrecoMax} sx={{ p: "4px" }}>
-            <CheckIcon fontSize="small" />
-          </IconButton>
-        </InputAdornment>
-      ),
-    }}
-  />
-</Box>
+      {/* Filtros - linha 2 */}
+      <Box
+        sx={{
+          display: "flex",
+          justifyContent: "center",
+          gap: 3,
+          flexWrap: "wrap",
+          width: "100%",
+          maxWidth: "800px",
+          mx: "auto",
+          mb: 3,
+        }}
+      >
+        <TextField
+          variant="outlined"
+          label="Preço mínimo"
+          type="text"
+          value={precoMinInput}
+          onChange={handlePrecoMinInputChange}
+          size="medium"
+          sx={{ flex: "1 1 35%", minWidth: "200px" }}
+          inputMode="numeric"
+          InputProps={{
+            startAdornment: <InputAdornment position="start">R$</InputAdornment>,
+            endAdornment: (
+              <InputAdornment position="end">
+                <IconButton size="small" onClick={aplicarFiltroPreco} sx={{ p: "4px" }}>
+                  <CheckIcon fontSize="small" />
+                </IconButton>
+              </InputAdornment>
+            ),
+          }}
+        />
+
+        <TextField
+          variant="outlined"
+          label="Preço máximo"
+          type="text"
+          value={precoMaxInput}
+          onChange={handlePrecoMaxInputChange}
+          size="medium"
+          sx={{ flex: "1 1 35%", minWidth: "200px" }}
+          inputMode="numeric"
+          InputProps={{
+            startAdornment: <InputAdornment position="start">R$</InputAdornment>,
+            endAdornment: (
+              <InputAdornment position="end">
+                <IconButton size="small" onClick={aplicarFiltroPrecoMax} sx={{ p: "4px" }}>
+                  <CheckIcon fontSize="small" />
+                </IconButton>
+              </InputAdornment>
+            ),
+          }}
+        />
+      </Box>
 
 
-    {/* Tabela estilizada */}
-    <Paper elevation={3} sx={{ borderRadius: 2, overflow: "hidden" }}>
-             <TableContainer sx={{ backgroundColor: "#f0f0f0" }}>
+      {/* Tabela estilizada */}
+      <Paper elevation={3} sx={{ borderRadius: 2, overflow: "hidden" }}>
+        <TableContainer sx={{ backgroundColor: "#f0f0f0" }}>
           <Table>
             <TableHead>
               <TableRow
@@ -254,7 +270,7 @@ return (
                       fontWeight: "bold",
                       textTransform: "uppercase",
                       fontSize: "0.875rem",
-                      color: "white", 
+                      color: "white",
                     }}
                   >
                     {coluna.label}
@@ -263,65 +279,65 @@ return (
               </TableRow>
             </TableHead>
 
-          <TableBody>
-            {servicos.length === 0 ? (
-              <TableRow>
-                <TableCell colSpan={colunasVisiveis.length} align="center">
-                  Nenhum serviço encontrado.
-                </TableCell>
-              </TableRow>
-            ) : (
-              servicos.map((servico: Servico, index) => (
-                <TableRow
-                  key={servico.ID ?? `row-${index}`}
-                  hover
-                  sx={{ "&:hover": { backgroundColor: "#fafafa" } }}
-                >
-                  <TableCell>{servico.Nome || "—"}</TableCell>
-                  <TableCell>{servico.Descricao || "—"}</TableCell>
-                  <TableCell>
-                    R${servico.PrecoMin?.toFixed(2) ?? "N/A"}
+            <TableBody>
+              {servicos.length === 0 ? (
+                <TableRow>
+                  <TableCell colSpan={colunasVisiveis.length} align="center">
+                    Nenhum serviço encontrado.
                   </TableCell>
-                  <TableCell>
-                    R${servico.PrecoMax?.toFixed(2) ?? "N/A"}
-                  </TableCell>
-                  {canEdit && (
-                    <TableCell>
-                      <Button
-                        variant="outlined"
-                        size="small"
-                        startIcon={<EditIcon />}
-                        onClick={() =>
-                          servico.ID && handleEditarServico(servico.ID)
-                        }
-                      >
-                        Editar
-                      </Button>
-                    </TableCell>
-                  )}
                 </TableRow>
-              ))
-            )}
-          </TableBody>
-        </Table>
-      </TableContainer>
+              ) : (
+                servicos.map((servico: Servico, index) => (
+                  <TableRow
+                    key={servico.ID ?? `row-${index}`}
+                    hover
+                    sx={{ "&:hover": { backgroundColor: "#fafafa" } }}
+                  >
+                    <TableCell>{servico.Nome || "—"}</TableCell>
+                    <TableCell>{servico.Descricao || "—"}</TableCell>
+                    <TableCell>
+                      R${servico.PrecoMin?.toFixed(2) ?? "N/A"}
+                    </TableCell>
+                    <TableCell>
+                      R${servico.PrecoMax?.toFixed(2) ?? "N/A"}
+                    </TableCell>
+                    {canEdit && (
+                      <TableCell>
+                        <Button
+                          variant="outlined"
+                          size="small"
+                          startIcon={<EditIcon />}
+                          onClick={() =>
+                            servico.ID && handleEditarServico(servico.ID)
+                          }
+                        >
+                          Editar
+                        </Button>
+                      </TableCell>
+                    )}
+                  </TableRow>
+                ))
+              )}
+            </TableBody>
+          </Table>
+        </TableContainer>
 
-      <TablePagination
-        rowsPerPageOptions={[5, 10, 25]}
-        component="div"
-        count={totalServicos}
-        rowsPerPage={rowsPerPage}
-        page={page}
-        onPageChange={handleChangePage}
-        onRowsPerPageChange={handleChangeRowsPerPage}
-        labelRowsPerPage="Itens por página:"
-        labelDisplayedRows={({ from, to, count }) =>
-          `${from}-${to} de ${count}`
-        }
-      />
-    </Paper>
-  </Box>
-);
+        <TablePagination
+          rowsPerPageOptions={[5, 10, 25]}
+          component="div"
+          count={totalServicos}
+          rowsPerPage={rowsPerPage}
+          page={page}
+          onPageChange={handleChangePage}
+          onRowsPerPageChange={handleChangeRowsPerPage}
+          labelRowsPerPage="Itens por página:"
+          labelDisplayedRows={({ from, to, count }) =>
+            `${from}-${to} de ${count}`
+          }
+        />
+      </Paper>
+    </Box>
+  );
 
 };
 
