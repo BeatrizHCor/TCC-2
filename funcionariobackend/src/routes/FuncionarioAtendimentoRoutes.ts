@@ -14,6 +14,9 @@ router.delete(
   "/atendimento/delete/:id",
   AtendimentoController.deleteAtendimento
 );
-router.put("/atendimento/update/:id", AtendimentoController.updateAtendimento);
+router.put(
+  "/atendimento/:atendimentoId",
+  AtendimentoController.updateAtendimento
+);
 
 export default router;

@@ -3,38 +3,11 @@ import "dotenv/config";
 import { ServicoAtendimento } from "../models/servicoAtendimentoModel";
 import { AtendimentoAuxiliar } from "../models/atendimentoAuxiliarModel";
 import { Atendimento } from "../models/atendimentoModal";
+import { handleApiResponse } from "../utils/HandlerDeRespostaDoBackend";
 
 const FuncionarioURL = process.env.FUNC_URL || "http://localhost:3002";
 const CabeleireiroURL = process.env.CABELEREIRO_URL || "http://localhost:3005";
 const ClienteURL = process.env.CUSTOMER_URL || "http://localhost:3001";
-
-// //-----Funcionario
-// export const postAtendimento = async (
-//   Data: Date,
-//   ClienteID: string,
-//   CabeleireiroID: string,
-//   SalaoId: string,
-//   servicosIds: string[]
-// ) => {
-//   let responseAgendamento = await fetch(FuncionarioURL + "/agendamento", {
-//     method: "POST",
-//     headers: {
-//       "Content-Type": "application/json",
-//     },
-//     body: JSON.stringify({
-//       Data,
-//       ClienteID,
-//       CabeleireiroID,
-//       SalaoId,
-//       servicosIds,
-//     }),
-//   });
-//   if (responseAgendamento.ok) {
-//     return (await responseAgendamento.json()) as Agendamentos;
-//   } else {
-//     throw new Error("Erro fazendo agendamento");
-//   }
-// };
 
 export const FuncionariogetAtendimentosPage = async (
   page: number,
@@ -60,72 +33,6 @@ export const FuncionariogetAtendimentosPage = async (
   }
 };
 
-// export const FuncionariogetAgendamentoById = async (
-//   id: string,
-//   includeRelations = false
-// ) => {
-//   let response = await fetch(
-//     FuncionarioURL +
-//       `/agendamento/ID/${id}?includeRelations=${includeRelations}`,
-//     {
-//       method: "GET",
-//     }
-//   );
-//   if (response.ok) {
-//     return (await response.json()) as Agendamentos;
-//   } else {
-//     throw new Error("Erro ao buscar agendamento por ID");
-//   }
-// };
-
-// export const updateAgendamento = async (
-//   id: string,
-//   Data: string,
-//   Status: string,
-//   ClienteID: string,
-//   CabeleireiroID: string,
-//   SalaoId: string,
-//   servicosIds: string[]
-// ) => {
-//   let response = await fetch(FuncionarioURL + `/agendamento/${id}`, {
-//     method: "PUT",
-//     headers: {
-//       "Content-Type": "application/json",
-//     },
-//     body: JSON.stringify({
-//       Data,
-//       Status,
-//       ClienteID,
-//       CabeleireiroID,
-//       SalaoId,
-//       servicosIds,
-//     }),
-//   });
-//   if (response.ok) {
-//     return (await response.json()) as Agendamentos;
-//   } else {
-//     throw new Error("Erro ao atualizar agendamento");
-//   }
-// };
-//-----Cabeleireiro
-
-export const CabeleireirogetAgendamentoById = async (
-  id: string,
-  includeRelations = false
-) => {
-  let response = await fetch(
-    CabeleireiroURL +
-      `/agendamento/ID/${id}?includeRelations=${includeRelations}`,
-    {
-      method: "GET",
-    }
-  );
-  if (response.ok) {
-    return (await response.json()) as Agendamentos;
-  } else {
-    throw new Error("Erro ao buscar agendamento por ID");
-  }
-};
 export const getAtendimentobyAgendamentoId = async (agendamentoId: string) => {
   let response = await fetch(
     FuncionarioURL + `/atendimentobyagendamento/${agendamentoId}`,
@@ -203,20 +110,13 @@ export const putAtendimentoFuncionario = async (
   }
 };
 
-//-----Cliente
-export const ClientegetAgendamentoById = async (
-  id: string,
-  includeRelations = false
-) => {
-  let response = await fetch(
-    ClienteURL + `/agendamento/ID/${id}?includeRelations=${includeRelations}`,
-    {
-      method: "GET",
-    }
-  );
-  if (response.ok) {
-    return (await response.json()) as Agendamentos;
-  } else {
-    throw new Error("Erro ao buscar agendamento por ID");
+export const FuncionarioDeleteAtendimento = async (id: string) => {
+  let response = await fetch(FuncionarioURL + `/atendimento/delete/${id}`, {
+    method: "DELETE",
+  });
+  if (response.status === 204) {
+    return true;
   }
+  return handleApiResponse<Agendamentos>(response, "deletar atendimento");
 };
+//-----Cabeleireiro

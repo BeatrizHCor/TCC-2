@@ -144,6 +144,18 @@ class AtendimentoService {
       return false;
     }
   };
+  static deleteAtendimento = async (atendimentoId: string) => {
+    try {
+      const response = await api.delete(`/atendimento/${atendimentoId}`);
+      if (response.status === 403) {
+        return false;
+      }
+      return response.data;
+    } catch (error) {
+      console.error("Erro ao criar atendimentos:", error);
+      return false;
+    }
+  };
 }
 
 export default AtendimentoService;

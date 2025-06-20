@@ -1,9 +1,11 @@
 import { Router, Request, Response } from "express";
 
 import {
+  FuncionarioDeleteAtendimento,
   FuncionariogetAtendimentosPage,
   getAtendimentobyAgendamentoId,
   postAtendimentoFuncionario,
+  putAtendimentoFuncionario,
 } from "../services/ServiceAtendimento";
 import { userTypes } from "../models/tipo-usuario.enum";
 import { authenticate } from "../services/Service";
@@ -21,7 +23,6 @@ RoutesAtendimento.post("/atendimento", async (req: Request, res: Response) => {
     auxiliares,
     AgendamentoID,
   } = req.body;
-  console.log(req.body);
   try {
     const userInfo = JSON.parse(
       Buffer.from(req.headers.authorization || "", "base64").toString(
@@ -45,26 +46,29 @@ RoutesAtendimento.post("/atendimento", async (req: Request, res: Response) => {
     ) {
       res.status(403).json({ message: "Unauthorized" });
     } else {
-      switch (userTypeAuth) {
-        case userTypes.FUNCIONARIO:
-        case userTypes.ADM_SALAO:
-        case userTypes.ADM_SISTEMA:
-          const result = await postAtendimentoFuncionario(
-            Data,
-            PrecoTotal,
-            Auxiliar,
-            SalaoId,
-            servicosAtendimento,
-            auxiliares,
-            AgendamentoID
-          );
-          res.status(201).json(result);
-        default:
-          res.status(403).json({ message: "Unauthorized" });
+      if (
+        [
+          userTypes.FUNCIONARIO,
+          userTypes.ADM_SALAO,
+          userTypes.ADM_SISTEMA,
+        ].includes(userTypeAuth)
+      ) {
+        const result = await postAtendimentoFuncionario(
+          Data,
+          PrecoTotal,
+          Auxiliar,
+          SalaoId,
+          servicosAtendimento,
+          auxiliares,
+          AgendamentoID
+        );
+        res.status(201).json(result);
       }
     }
   } catch (e) {
     console.log(e);
+    console.log("aqui terceiro");
+
     res.status(500).send("Erro no ao criar atendimento");
   }
 });
@@ -105,27 +109,31 @@ RoutesAtendimento.put(
       ) {
         res.status(403).json({ message: "Unauthorized" });
       } else {
-        switch (userTypeAuth) {
-          case userTypes.FUNCIONARIO:
-          case userTypes.ADM_SALAO:
-          case userTypes.ADM_SISTEMA:
-            const result = await postAtendimentoFuncionario(
-              Data,
-              PrecoTotal,
-              Auxiliar,
-              SalaoId,
-              servicosAtendimento,
-              auxiliares,
-              AgendamentoID
-            );
-            res.status(201).json(result);
-          default:
-            res.status(403).json({ message: "Unauthorized" });
+        if (
+          [
+            userTypes.FUNCIONARIO,
+            userTypes.ADM_SALAO,
+            userTypes.ADM_SISTEMA,
+          ].includes(userTypeAuth)
+        ) {
+          const result = await putAtendimentoFuncionario(
+            atendimentoId as string,
+            Data,
+            PrecoTotal,
+            Auxiliar,
+            SalaoId,
+            servicosAtendimento,
+            auxiliares,
+            AgendamentoID
+          );
+          res.status(201).json(result);
         }
       }
     } catch (e) {
       console.log(e);
-      res.status(500).send("Erro no ao criar atendimento");
+      console.log("aqui terceiro");
+
+      res.status(500).send("Erro no ao atualizar atendimento");
     }
   }
 );
@@ -157,6 +165,7 @@ RoutesAtendimento.get(
     const includeRelations = req.query.includeRelations === "true";
     try {
       const { userInfo, auth } = await getUserInfoAndAuth(req.headers);
+      console.log(userInfo);
       if (!userInfo) {
         res.status(403).json({ message: "Não autorizado" });
         return;
@@ -191,6 +200,42 @@ RoutesAtendimento.get(
       }
     } catch (erro) {
       console.error("Erro ao buscar agendamento:", erro);
+      res.status(500).json({ message: "Erro interno do servidor" });
+    }
+  }
+);
+
+RoutesAtendimento.delete(
+  "/atendimento/:atendimentoId",
+  async (req: Request, res: Response) => {
+    const { atendimentoId } = req.params;
+    try {
+      const { userInfo, auth } = await getUserInfoAndAuth(req.headers);
+      if (!userInfo) {
+        res.status(403).json({ message: "Não autorizado" });
+      } else {
+        if (
+          auth &&
+          [
+            userTypes.FUNCIONARIO,
+            userTypes.ADM_SALAO,
+            userTypes.ADM_SISTEMA,
+          ].includes(userInfo.userType)
+        ) {
+          const deleted = await FuncionarioDeleteAtendimento(atendimentoId);
+          if (deleted) {
+            res.status(204).send();
+          } else {
+            res.status(404).json({ message: "Agendamento não encontrado" });
+          }
+        } else {
+          res.status(403).json({
+            message: "Não autorizado a fazer esta chamada",
+          });
+        }
+      }
+    } catch (erro) {
+      console.error("Erro ao deletar agendamento:", erro);
       res.status(500).json({ message: "Erro interno do servidor" });
     }
   }

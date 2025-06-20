@@ -535,10 +535,7 @@ const ManterAgendamento: React.FC = () => {
                       <SaveIcon />
                     )
                   }
-                  disabled={
-                    status === StatusAgendamento.Finalizado ||
-                    status === StatusAgendamento.Confirmado
-                  }
+                  disabled={status === StatusAgendamento.Finalizado}
                   onClick={handleConfirmar}
                 >
                   Confirmar Atendimento

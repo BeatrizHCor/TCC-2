@@ -222,7 +222,6 @@ export const useManterAtendimento = (
           agendamentoId!
         );
       }
-      navigate("/atendimentos");
     } catch (error: unknown) {
       console.error("Erro ao salvar agendamento:", error);
 
@@ -233,30 +232,16 @@ export const useManterAtendimento = (
       } else {
         console.error("Erro desconhecido:", error);
       }
+    } finally {
+      navigate("/atendimentos");
     }
   };
 
   const handleDelete = async () => {
-    if (!isEditing || !agendamentoId) {
-      return;
-    }
-
     setIsLoading(true);
 
     try {
-      switch (userType) {
-        case userTypes.Funcionario:
-          await AgendamentoService.deleteFuncionarioAgendamento(agendamentoId);
-          break;
-        case userTypes.Cabeleireiro:
-          await AgendamentoService.deleteCabeleireiroAgendamento(agendamentoId);
-          break;
-        case userTypes.Cliente:
-          await AgendamentoService.deleteClienteAgendamento(agendamentoId);
-          break;
-        default:
-          throw new Error("Tipo de usuário não suportado para exclusão");
-      }
+      await AtendimentoService.deleteAtendimento(atendimentoId);
       navigate(-1);
     } catch (error: unknown) {
       console.error("Erro ao excluir agendamento:", error);

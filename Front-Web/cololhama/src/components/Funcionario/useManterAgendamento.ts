@@ -352,7 +352,18 @@ export const useManterAgendamento = (
   const cofirmarAtendimento = async (e: React.FormEvent) => {
     e.preventDefault();
     setStatus(StatusAgendamento.Confirmado);
-    console.log();
+    console.log({
+      data,
+      status: StatusAgendamento.Confirmado,
+      servicosAgendamento,
+      cabeleireiroId,
+      cabeleireiroNome,
+      clienteNome,
+      clienteId,
+      salaoId,
+      agendamentoId,
+      isEditing: false,
+    });
     setIsLoading(true);
     const servicosIds: string[] = [];
     for (const servico of servicosAgendamento) {
@@ -456,7 +467,7 @@ export const useManterAgendamento = (
         servicosIds.push(servico.ServicoId);
       }
     }
-console.log("services: ", servicosIds)
+    console.log("services: ", servicosIds);
     try {
       if (isEditing && agendamentoId) {
         switch (userType) {
