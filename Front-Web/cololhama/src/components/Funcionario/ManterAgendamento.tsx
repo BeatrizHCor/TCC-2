@@ -26,6 +26,7 @@ import {
   InputAdornment,
   Tooltip,
 } from "@mui/material";
+import { ptBR } from "date-fns/locale";
 import { useNavigate, useParams } from "react-router-dom";
 import { useManterAgendamento } from "./useManterAgendamento";
 import SaveIcon from "@mui/icons-material/Save";
@@ -47,6 +48,21 @@ import { DateTimePicker } from "@mui/x-date-pickers/DateTimePicker";
 import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
 import { AdapterDateFns } from "@mui/x-date-pickers/AdapterDateFns";
 
+function formatDateToLocalDateTimeString(date: Date) {
+  const pad = (n: number) => n.toString().padStart(2, "0");
+
+  return (
+    date.getFullYear() +
+    "-" +
+    pad(date.getMonth() + 1) +
+    "-" +
+    pad(date.getDate()) +
+    "T" +
+    pad(date.getHours()) +
+    ":" +
+    pad(date.getMinutes())
+  );
+}
 const ManterAgendamento: React.FC = () => {
   const navigate = useNavigate();
   const { agendamentoId: agendamentoId } = useParams();
@@ -88,6 +104,7 @@ const ManterAgendamento: React.FC = () => {
     isHorarioOcupado,
     isTimeSlotOccupied,
     setCabeleireiroIdWithHorarios,
+    cofirmarAtendimento,
   } = useManterAgendamento(userType!, agendamentoId, userId);
 
   const handleOpenDeleteDialog = () => {
@@ -198,21 +215,7 @@ const ManterAgendamento: React.FC = () => {
 
   const handleConfirmar = async (e: React.FormEvent) => {
     try {
-      setStatus(StatusAgendamento.Confirmado);
-      await handleSubmit(e);
-      navigate("/atendimento/editar/", {
-        state: {
-          data,
-          status,
-          servicosAgendamento,
-          cabeleireiroId,
-          cabeleireiroNome,
-          clienteId,
-          salaoId,
-          agendamentoId,
-          isEditing: false,
-        },
-      });
+      await cofirmarAtendimento(e);
     } catch (e) {
       console.log(e);
     }
@@ -251,19 +254,25 @@ const ManterAgendamento: React.FC = () => {
                   gap: { xs: 2, sm: 3 },
                 }}
               >
-                <LocalizationProvider dateAdapter={AdapterDateFns}>
+                <LocalizationProvider
+                  dateAdapter={AdapterDateFns}
+                  adapterLocale={ptBR}
+                >
                   <DateTimePicker
                     label="Data e Hora"
                     value={data ? new Date(data) : null}
                     onChange={(newValue) => {
                       if (newValue) {
-                        const isoString = newValue.toISOString().slice(0, 16);
-                        setData(isoString);
+                        const localDateTime =
+                          formatDateToLocalDateTimeString(newValue);
+                        setData(localDateTime);
                       } else {
                         setData("");
                       }
                     }}
-                    disabled={!canSaveEdit || loadingHorarios || !cabeleireiroId}
+                    disabled={
+                      !canSaveEdit || loadingHorarios || !cabeleireiroId
+                    }
                     shouldDisableTime={(timeValue, clockType) => {
                       if (clockType === "hours" && data) {
                         const selectedDate = new Date(data.split("T")[0]);
@@ -435,7 +444,11 @@ const ManterAgendamento: React.FC = () => {
                             <IconButton
                               size="small"
                               color="error"
-                              disabled={!canSaveEdit || loadingHorarios || !cabeleireiroId}
+                              disabled={
+                                !canSaveEdit ||
+                                loadingHorarios ||
+                                !cabeleireiroId
+                              }
                               onClick={() =>
                                 handleRemoveServico(
                                   servicoAgendamento.ServicoId
@@ -519,7 +532,6 @@ const ManterAgendamento: React.FC = () => {
               {isEditing ? (
                 <Button
                   variant="contained"
-                  type="submit"
                   startIcon={
                     isLoading ? (
                       <CircularProgress size={20} color="inherit" />
@@ -527,10 +539,7 @@ const ManterAgendamento: React.FC = () => {
                       <SaveIcon />
                     )
                   }
-                  disabled={
-                    status === StatusAgendamento.Finalizado ||
-                    status === StatusAgendamento.Confirmado
-                  }
+                  disabled={status === StatusAgendamento.Finalizado}
                   onClick={handleConfirmar}
                 >
                   Confirmar Atendimento

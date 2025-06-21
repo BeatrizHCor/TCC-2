@@ -29,12 +29,12 @@ import { userTypes } from "../../models/tipo-usuario.enum";
 const SalaoID = import.meta.env.VITE_SALAO_ID || "1";
 
 const colunas = [
-  { id: "nome", label: "Nome", clienteVisivel: true, cabeleireiroVisivel: true },
-  { id: "email", label: "Email", clienteVisivel: false, cabeleireiroVisivel: true },
-  { id: "telefone", label: "Telefone", clienteVisivel: false, cabeleireiroVisivel: true },
-  { id: "mei", label: "MEI", clienteVisivel: false, cabeleireiroVisivel: true },
-  { id: "portif", label: "Portfólio", clienteVisivel: true, cabeleireiroVisivel: true },
-  { id: "acoes", label: "Ações", clienteVisivel: false, cabeleireiroVisivel: false },
+  { id: "nome", label: "Nome" },
+  { id: "email", label: "Email", admVisivel: true },
+  { id: "telefone", label: "Telefone", admVisivel: true },
+  { id: "mei", label: "MEI", admVisivel: true },
+  { id: "portif", label: "Portfólio" },
+  { id: "acoes", label: "Ações", admVisivel: true },
 ];
 
 export const VisualizarCabeleireiro: React.FC = () => {
@@ -50,7 +50,7 @@ export const VisualizarCabeleireiro: React.FC = () => {
     handleEditarCabeleireiro,
     isLoading,
     error,
-  } = useVisualizarCabeleireiros(page + 1, rowsPerPage, SalaoID, termoBusca);
+  } = useVisualizarCabeleireiros(page + 1, rowsPerPage, SalaoID, userType!, termoBusca);
 
   const handleChangePage = (_: unknown, newPage: number) => {
     setPage(newPage);
@@ -73,12 +73,17 @@ export const VisualizarCabeleireiro: React.FC = () => {
     userType &&
     [userTypes.Funcionario, userTypes.AdmSalao, userTypes.AdmSistema].includes(userType);
 
-  const colunasVisiveis =
-    userType === userTypes.Cliente
-      ? colunas.filter((c) => c.clienteVisivel !== false)
-      : userType === userTypes.Cabeleireiro
-      ? colunas.filter((c) => c.cabeleireiroVisivel !== false)
-      : colunas;
+  const admUsers = [
+    userTypes.Funcionario,
+    userTypes.AdmSalao,
+    userTypes.AdmSistema,
+  ];
+
+  const colunasVisiveis = colunas.filter((coluna) => {
+    if (!coluna.admVisivel) return true;
+    return admUsers.includes(userType!);
+  });
+
 
   return (
     <Box sx={{ width: "100%", px: { xs: 1, sm: 3 }, py: 2 }}>
@@ -90,64 +95,62 @@ export const VisualizarCabeleireiro: React.FC = () => {
       </Typography>
 
       <Box
-  sx={{
-    display: "flex",
-    flexWrap: "wrap",
-    gap: 2,
-    justifyContent: "center",
-    alignItems: "center",
-    mb: 3,
-    maxWidth: 700,
-    mx: "auto",
-  }}
->
-  <TextField
-    variant="outlined"
-    label="Buscar por nome"
-    value={nomeFilterInput}
-    onChange={(e) => setNomeFilterInput(e.target.value)}
-    size="medium"
-    sx={{ flexGrow: 1, minWidth: 280 }}
-  />
-  <Button
-    variant="contained"
-    onClick={aplicarFiltroNome}
-    size="medium"
-    sx={{ height: 45, minWidth: 120 }}
-  >
-    Buscar
-  </Button>
+        sx={{
+          display: "flex",
+          flexWrap: "wrap",
+          gap: 2,
+          justifyContent: "center",
+          alignItems: "center",
+          mb: 3,
+          maxWidth: 700,
+          mx: "auto",
+        }}
+      >
+        <TextField
+          variant="outlined"
+          label="Buscar por nome"
+          value={nomeFilterInput}
+          onChange={(e) => setNomeFilterInput(e.target.value)}
+          size="medium"
+          sx={{ flexGrow: 1, minWidth: 280 }}
+        />
+        <Button
+          variant="contained"
+          onClick={aplicarFiltroNome}
+          size="medium"
+          sx={{ height: 45, minWidth: 120 }}
+        >
+          Buscar
+        </Button>
 
-  {canEdit && (
-    <Button
-      component={Link}
-      to="/cabeleireiro/novo"
-      variant="contained"
-      size="medium"
-      sx={{
-        backgroundColor: "#f5f5f5",
-        color: theme.palette.primary.main,
-        border: `1.5px solid ${theme.palette.primary.main}`,
-        height: 45,
-        minWidth: 140,
-        "&:hover": {
-          backgroundColor: "#e0e0e0",
-          borderColor: theme.palette.primary.main,
-        },
-        textTransform: "none",
-        fontWeight: 600,
-        boxShadow: "none",
-      }}
-    >
-      Novo Cabeleireiro
-    </Button>
-  )}
-</Box>
+        {canEdit && (
+          <Button
+            component={Link}
+            to="/cabeleireiro/novo"
+            variant="contained"
+            size="medium"
+            sx={{
+              backgroundColor: "#f5f5f5",
+              color: theme.palette.primary.main,
+              border: `1.5px solid ${theme.palette.primary.main}`,
+              height: 45,
+              minWidth: 140,
+              "&:hover": {
+                backgroundColor: "#e0e0e0",
+                borderColor: theme.palette.primary.main,
+              },
+              textTransform: "none",
+              fontWeight: 600,
+              boxShadow: "none",
+            }}
+          >
+            Novo Cabeleireiro
+          </Button>
+        )}
+      </Box>
 
-
-      {/* Tabela */}
       <Paper elevation={3} sx={{ borderRadius: 2, overflow: "hidden" }}>
-                <TableContainer sx={{ backgroundColor: "#f0f0f0" }}>
+        <TableContainer sx={{ backgroundColor: "#f0f0f0" }}>
           <Table>
             <TableHead>
               <TableRow
@@ -155,12 +158,13 @@ export const VisualizarCabeleireiro: React.FC = () => {
               >
                 {colunasVisiveis.map((coluna) => (
                   <TableCell
+                    align="center"
                     key={coluna.id}
                     sx={{
                       fontWeight: "bold",
                       textTransform: "uppercase",
                       fontSize: "0.875rem",
-                      color: "white", 
+                      color: "white",
                     }}
                   >
                     {coluna.label}
@@ -183,13 +187,13 @@ export const VisualizarCabeleireiro: React.FC = () => {
                     hover
                     sx={{ "&:hover": { backgroundColor: "#fafafa" } }}
                   >
-                    <TableCell>{cabeleireiro.Nome || "—"}</TableCell>
+                    <TableCell align="center">{cabeleireiro.Nome || "—"}</TableCell>
 
-                    {userType !== userTypes.Cliente && (
+                    {admUsers.includes(userType!) && (
                       <>
-                        <TableCell>{cabeleireiro.Email || "Indisponível"}</TableCell>
-                        <TableCell>{cabeleireiro.Telefone || "Indisponível"}</TableCell>
-                        <TableCell>
+                        <TableCell align="center">{cabeleireiro.Email || "Indisponível"}</TableCell>
+                        <TableCell align="center">{cabeleireiro.Telefone || "Indisponível"}</TableCell>
+                        <TableCell align="center">
                           {cabeleireiro.Mei === undefined
                             ? "Não informado"
                             : cabeleireiro.Mei || "Indisponível"}
@@ -197,7 +201,7 @@ export const VisualizarCabeleireiro: React.FC = () => {
                       </>
                     )}
 
-                    <TableCell>
+                    <TableCell align="center">
                       <Button
                         component={Link}
                         startIcon={<Image />}
@@ -210,7 +214,7 @@ export const VisualizarCabeleireiro: React.FC = () => {
                     </TableCell>
 
                     {canEdit && (
-                      <TableCell>
+                      <TableCell align="center">
                         <Button
                           startIcon={<EditIcon />}
                           variant="outlined"

@@ -9,9 +9,9 @@ export interface Atendimento {
   Data: Date;
   PrecoTotal: number;
   Auxiliar: boolean;
-  AtendimentoAuxiliar?: AtendimentoAuxiliar;
+  AtendimentoAuxiliar?: AtendimentoAuxiliar[];
   SalaoId: string;
   Salao?: Salao;
   ServicoAtendimento: ServicoAtendimento[];
-  Agendamentos: Agendamentos;
+  Agendamentos: Agendamentos[];
 }

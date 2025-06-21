@@ -1,6 +1,6 @@
 import "dotenv/config";
 import { Portfolio } from "@prisma/client";
-
+import { handleApiResponse } from "../utils/HandlerDeRespostaDoBackend";
 const VITE_IMAGEM_URL = process.env.VITE_IMAGEM_URL || "http://localhost:4000";
 
 export const createPortfolio = async (
@@ -19,20 +19,18 @@ export const createPortfolio = async (
       SalaoId: SalaoId,
     }),
   });
-  if (responsePortfolio.ok) {
-    return (await responsePortfolio.json()) as Portfolio;
-  } else {
-    throw new Error("Error in creating Portfolio");
-  }
+  return handleApiResponse<Portfolio>(
+    responsePortfolio,
+    "criar portfolio",
+  );
 };
-
-export const deletePortfolio = async (cabeleireiroId: string) => {
-  let responsePortfolio = await fetch(VITE_IMAGEM_URL + "/portfolio/delete/" + cabeleireiroId, {
+export const deletePortfolio = async (id: string) => {
+  let responsePortfolio = await fetch(VITE_IMAGEM_URL + "/portfolio/delete/" + id, {
     method: "DELETE",
   });
-  if (responsePortfolio.ok) {
-    return (await responsePortfolio.json()) as Portfolio;
-  } else {
-    throw new Error("Error in deleting Portfolio");
-  }
+    return handleApiResponse<Portfolio>(
+    responsePortfolio,
+    "deletar portfolio pelo id do cabelereiro",
+  );
+  
 }

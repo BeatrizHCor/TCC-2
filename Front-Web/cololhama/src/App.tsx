@@ -12,7 +12,6 @@ import PerfilCliente from "./components/Cliente/perfilCliente";
 import VisualizarClientesPage from "./pages/Funcionario/VisualizarClientePage";
 import VisualizarServicoPage from "./pages/Funcionario/VisualizarServicoPage";
 import VisualizarCabeleireiroPage from "./pages/Cabeleireiro/VisualizarCabeleireiroPage";
-import PortfolioCabeleireiro from "./components/Cabeleireiro/portfolioCabeleireiro";
 import VisualizarFuncionarioPage from "./pages/AdmSalao/VisualizarFuncionario";
 import ManterCabeleireiroPage from "./pages/Cabeleireiro/ManterCabelereiroPage";
 import PortfolioPage from "./components/Cabeleireiro/PortfolioPage";
@@ -48,7 +47,6 @@ const App: React.FC = () => {
             path="/portfolio/:cabeleireiroId"
             element={<PortfolioPage />}
           />
-          <Route path="/portfolio" element={<PortfolioCabeleireiro />} />
           <Route
             path="/cabeleireiros"
             element={<VisualizarCabeleireiroPage />}
@@ -73,7 +71,11 @@ const App: React.FC = () => {
             element={<ManterAgendamentoPage />}
           />{" "}
           <Route path="/agendamento/novo" element={<ManterAgendamentoPage />} />
-          <Route path="/atendimento/editar/" element={<ManterAtendimento />} />
+          <Route
+            path="/atendimento/editar/:atendimentoId"
+            element={<ManterAtendimento />}
+          />{" "}
+          <Route path="/atendimento/novo" element={<ManterAtendimento />} />
           <Route path="/atendimentos" element={<VisualizarAtendimentoPage />} />
 
           <Route path="/simulacao" element={<HairColorSimulator/>}/>

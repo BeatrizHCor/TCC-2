@@ -2,7 +2,7 @@ import axios from "axios";
 import { Atendimento } from "../models/atendimentoModal";
 import { ServicoAtendimento } from "../models/servicoAtendimentoModel";
 import { AtendimentoAuxiliar } from "../models/atendimentoAuxiliarModel";
-
+import { StatusAgendamento } from "../models/StatusAgendamento.enum";
 
 const api = axios.create({
   baseURL: import.meta.env.VITE_GATEWAY_URL || "http://localhost:3002",
@@ -54,7 +54,7 @@ class AtendimentoService {
     salaoId: string
   ): Promise<AtendimentoPageResponse | boolean> {
     try {
-      const response = await api.get(`/atendimento/page`, {
+      const response = await api.get(`funcionario/atendimento/page`, {
         params: {
           page,
           limit,
@@ -95,7 +95,8 @@ class AtendimentoService {
     SalaoId: string,
     servicosAtendimento: ServicoAtendimento[] = [],
     auxiliares: AtendimentoAuxiliar[] = [],
-    AgendamentoID: string
+    AgendamentoID: string,
+    status: StatusAgendamento
   ) => {
     try {
       const response = await api.post(`/atendimento`, {
@@ -106,6 +107,7 @@ class AtendimentoService {
         servicosAtendimento,
         auxiliares,
         AgendamentoID,
+        status,
       });
       if (response.status === 201) {
         return response.data;
@@ -124,7 +126,8 @@ class AtendimentoService {
     SalaoId: string,
     servicosAtendimento: ServicoAtendimento[] = [],
     auxiliares: AtendimentoAuxiliar[] = [],
-    AgendamentoID: string
+    AgendamentoID: string,
+    status: StatusAgendamento
   ) => {
     try {
       const response = await api.put(`/atendimento/${AtendimentoId}`, {
@@ -135,7 +138,20 @@ class AtendimentoService {
         servicosAtendimento,
         auxiliares,
         AgendamentoID,
+        status,
       });
+      if (response.status === 403) {
+        return false;
+      }
+      return response.data;
+    } catch (error) {
+      console.error("Erro ao criar atendimentos:", error);
+      return false;
+    }
+  };
+  static deleteAtendimento = async (atendimentoId: string) => {
+    try {
+      const response = await api.delete(`/atendimento/${atendimentoId}`);
       if (response.status === 403) {
         return false;
       }

@@ -1,6 +1,7 @@
 import { Cabeleireiro } from "../models/cabelereiroModel";
 import "dotenv/config";
 import { Portfolio } from "../models/portifolioModel";
+import { handleApiResponse } from "../utils/HandlerDeRespostaDoBackend";
 
 const CabeleireiroURL = process.env.CABELEREIRO_URL || "http://localhost:4002";
 
@@ -12,11 +13,10 @@ export const postCabeleireiro = async (cabeleireiro: Cabeleireiro) => {
     },
     body: JSON.stringify(cabeleireiro),
   });
-  if (responseCabeleireiro.ok) {
-    return (await responseCabeleireiro.json()) as Cabeleireiro;
-  } else {
-    throw new Error("Error in posting Cabeleireiro");
-  }
+  return handleApiResponse<Cabeleireiro>(
+    responseCabeleireiro,
+    "criar Cabeleireiro",
+  );
 };
 
 export const getCabeleireiroPage = async (
@@ -24,7 +24,7 @@ export const getCabeleireiroPage = async (
   limit: number,
   includeRelations: boolean = false,
   salaoId?: number,
-  nome?: string | null
+  nome?: string | null,
 ) => {
   console.log(CabeleireiroURL);
   let responseCabeleireiros = await fetch(
@@ -34,13 +34,34 @@ export const getCabeleireiroPage = async (
       `${nome ? "&nome=" + String(nome) : ""}`,
     {
       method: "GET",
-    }
+    },
   );
-  if (responseCabeleireiros.ok) {
-    return (await responseCabeleireiros.json()) as Cabeleireiro[];
-  } else {
-    throw new Error("Error in posting Cabeleireiro");
-  }
+  return handleApiResponse<Cabeleireiro[]>(
+    responseCabeleireiros,
+    "buscar Cabeleireiros paginados",
+  );
+};
+
+export const getCabeleireiroNomesPage = async (
+  page: number,
+  limit: number,
+  salaoId?: number,
+  nome?: string | null,
+) => {
+  console.log(CabeleireiroURL);
+  let responseCabeleireiros = await fetch(
+    CabeleireiroURL +
+      `/cabeleireiro/nomes/page?page=${page}&limit=${limit}` +
+      `${salaoId ? "&salaoID=" + String(salaoId) : ""}` +
+      `${nome ? "&nome=" + String(nome) : ""}`,
+    {
+      method: "GET",
+    },
+  );
+  return handleApiResponse<Cabeleireiro[]>(
+    responseCabeleireiros,
+    "buscar nomes dos Cabeleireiros paginados",
+  );
 };
 
 export const deleteCabeleireiro = async (id: string) => {
@@ -48,7 +69,7 @@ export const deleteCabeleireiro = async (id: string) => {
     CabeleireiroURL + `/cabeleireiro/delete/${id}`,
     {
       method: "DELETE",
-    }
+    },
   );
   if (responseCabeleireiro.ok) {
     return (await responseCabeleireiro.json()) as Cabeleireiro;
@@ -64,7 +85,7 @@ export const updateCabeleireiro = async (
   SalaoId: string,
   Mei: string | undefined,
   Nome: string,
-  ID: string | undefined
+  ID: string | undefined,
 ) => {
   let responseCabeleireiro = await fetch(CabeleireiroURL + "/cabeleireiro", {
     method: "PUT",
@@ -73,43 +94,42 @@ export const updateCabeleireiro = async (
     },
     body: JSON.stringify({ Email, CPF, Telefone, SalaoId, Mei, Nome, ID }),
   });
-  if (responseCabeleireiro.ok) {
-    return (await responseCabeleireiro.json()) as Cabeleireiro;
-  } else {
-    throw new Error("Error in updating Cabeleireiro");
-  }
+  return handleApiResponse<Cabeleireiro>(
+    responseCabeleireiro,
+    "update Cabeleireiro",
+  );
 };
 
 export const getCabeleireiroById = async (
   id: string,
-  includeRelations: boolean
+  includeRelations: boolean,
 ) => {
   let responseCabeleireiro = await fetch(
-    CabeleireiroURL + `/cabeleireiro/ID/${id}?includeRelations=${includeRelations}`,
+    CabeleireiroURL +
+      `/cabeleireiro/ID/${id}?includeRelations=${includeRelations}`,
     {
       method: "GET",
-    }
+    },
   );
-  if (responseCabeleireiro.ok) {
-    return (await responseCabeleireiro.json()) as Cabeleireiro;
-  } else {
-    throw new Error("Error in getting Cabeleireiro by ID");
-  }
+  return handleApiResponse<Cabeleireiro>(
+    responseCabeleireiro,
+    "buscar Cabeleireiro por Id",
+  );
 };
 
 export const getCabeleireiroBySalao = async (
   salaoId: string,
-  includeRelations: boolean
+  includeRelations: boolean,
 ) => {
   let responseCabeleireiro = await fetch(
-    CabeleireiroURL + `/cabeleireiro/salao/${salaoId}?includeRelations=${includeRelations}`,
+    CabeleireiroURL +
+      `/cabeleireiro/salao/${salaoId}?includeRelations=${includeRelations}`,
     {
       method: "GET",
-    }
+    },
   );
-  if (responseCabeleireiro.ok) {
-    return (await responseCabeleireiro.json()) as Cabeleireiro[];
-  } else {
-    throw new Error("Error in getting Cabeleireiro by Salao");
-  }
+  return handleApiResponse<Cabeleireiro[]>(
+    responseCabeleireiro,
+    "buscar Cabeleireiros por Salao",
+  );
 };

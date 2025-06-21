@@ -18,6 +18,7 @@ export const useVisualizarAgendamentos = (
   page: number = 1,
   limit: number = 10,
   salaoId: string,
+  modoCalendario: boolean,
   userType: userTypes,
   userId: string,
   dia?: number,
@@ -43,10 +44,19 @@ export const useVisualizarAgendamentos = (
 
       try {
         let response;
+        let PageEditado;
+        let LimitEditado;
+        if (modoCalendario){
+        PageEditado = null;
+        LimitEditado = null;
+        } else {
+        PageEditado = page;
+        LimitEditado = limit;
+        }
         if ([userTypes.AdmSistema, userTypes.AdmSalao, userTypes.Funcionario].includes(userType)) {
           response = await AgendamentoService.FuncionariogetAgendamentosPaginados(
-            page,
-            limit,
+            PageEditado,
+            LimitEditado,
             salaoId,
             dataValida.ano,
             dataValida.mes + 1,
@@ -55,8 +65,8 @@ export const useVisualizarAgendamentos = (
           );
         } else if (userType === userTypes.Cabeleireiro) {
           response = await AgendamentoService.CabeleireirogetAgendamentosPaginados(
-            page,
-            limit,
+            PageEditado,
+            LimitEditado,
             salaoId,
             dataValida.ano,
             dataValida.mes + 1,
@@ -65,8 +75,8 @@ export const useVisualizarAgendamentos = (
           );
         } else if (userType === userTypes.Cliente) {
           response = await AgendamentoService.ClientegetAgendamentosPaginados(
-            page,
-            limit,
+            PageEditado,
+            LimitEditado,
             salaoId,
             dataValida.ano,
             dataValida.mes + 1,
@@ -93,13 +103,13 @@ export const useVisualizarAgendamentos = (
 
     debounceRef.current = setTimeout(() => {
     buscarAgendamentos();
-    }, 500);
+    }, 1100);
 
     return () => {
       if (debounceRef.current) clearTimeout(debounceRef.current);
     };
 
-  }, [page, limit, salaoId, userType, userId, dia, mes, ano]);
+  }, [page, limit, salaoId, modoCalendario, userType, userId, dia, mes, ano]);
 
   return {
     agendamentos,

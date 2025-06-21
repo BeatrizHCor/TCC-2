@@ -1,6 +1,13 @@
-import { AtendimentoAuxiliar, Prisma, ServicoAtendimento } from "@prisma/client";
+import {
+  AtendimentoAuxiliar,
+  Prisma,
+  ServicoAtendimento,
+} from "@prisma/client";
 import prisma from "../config/database";
-import { getRangeByDataInputWithTimezone, getRangeByStringInputWithTimezone } from "../utils/CalculoPeriododeTempo";
+import {
+  getRangeByDataInputWithTimezone,
+  getRangeByStringInputWithTimezone,
+} from "../utils/CalculoPeriododeTempo";
 
 class AtendimentoService {
   static async getAtendimentos(
@@ -10,67 +17,67 @@ class AtendimentoService {
     salaoId: string | null = null,
     nomeCliente: string | null = null,
     nomeCabeleireiro: string | null = null,
-    data: string | null = null,
+    data: string | null = null
   ) {
     const where: Prisma.AtendimentoWhereInput = {};
 
     if (salaoId !== null) {
       where.SalaoId = salaoId;
     }
-    console.log("Valores d,m,a: ", data)
+    console.log("Valores d,m,a: ", data);
     const range = getRangeByStringInputWithTimezone(data);
     if (range !== null) {
-            where.Data = {
-            gte: range.dataInicial,
-            lte: range.dataFinal,
+      where.Data = {
+        gte: range.dataInicial,
+        lte: range.dataFinal,
       };
     }
     if (nomeCabeleireiro && nomeCliente) {
-    where.Agendamentos = {
+      where.Agendamentos = {
         some: {
-        AND: [
+          AND: [
             {
-            Cabeleireiro: {
+              Cabeleireiro: {
                 Nome: {
-                contains: nomeCabeleireiro,
-                mode: "insensitive",
+                  contains: nomeCabeleireiro,
+                  mode: "insensitive",
                 },
-            },
+              },
             },
             {
-            Cliente: {
+              Cliente: {
                 Nome: {
-                contains: nomeCliente,
-                mode: "insensitive",
+                  contains: nomeCliente,
+                  mode: "insensitive",
                 },
+              },
             },
-            },
-        ],
+          ],
         },
-    };
+      };
     } else if (nomeCabeleireiro) {
-    where.Agendamentos = {
+      where.Agendamentos = {
         some: {
-        Cabeleireiro: {
+          Cabeleireiro: {
             Nome: {
-            contains: nomeCabeleireiro,
-            mode: "insensitive",
+              contains: nomeCabeleireiro,
+              mode: "insensitive",
             },
+          },
         },
-        },
-    };
+      };
     } else if (nomeCliente) {
-    where.Agendamentos = {
+      where.Agendamentos = {
         some: {
-        Cliente: {
+          Cliente: {
             Nome: {
-            contains: nomeCliente,
-            mode: "insensitive",
+              contains: nomeCliente,
+              mode: "insensitive",
             },
+          },
         },
-        },
-    };
-}  
+      };
+    }
     return prisma.atendimento.findMany({
       ...(skip !== null ? { skip } : {}),
       ...(limit !== null ? { take: limit } : {}),
@@ -85,8 +92,9 @@ class AtendimentoService {
               Agendamentos: {
                 include: {
                   Cliente: true,
-                  Cabeleireiro: true
-                }
+                  Cabeleireiro: true,
+                  ServicoAgendamento: true,
+                },
               },
               ServicoAtendimento: true,
             },
@@ -102,7 +110,7 @@ class AtendimentoService {
     salaoId: string | null = null,
     nomeCliente: string | null = null,
     nomeCabeleireiro: string | null = null,
-    data: string | null = null,
+    data: string | null = null
   ) {
     const skip = (page - 1) * limit;
     const where: Prisma.AtendimentoWhereInput = {};
@@ -196,14 +204,53 @@ class AtendimentoService {
               Agendamentos: {
                 include: { Cliente: true },
               },
-              ServicoAtendimento: true,
+              ServicoAtendimento: {
+                include: {
+                  Servico: true,
+                },
+              },
             },
           }
         : {}),
     });
   }
 
-static createAtendimento = async (
+  static async findByAgendamento(agendamentoId: string) {
+    let agendamento = await prisma.agendamentos.findUnique({
+      where: {
+        ID: agendamentoId,
+      },
+      include: {
+        Atendimento: true,
+      },
+    });
+    if (agendamento?.AtendimentoID) {
+      return prisma.atendimento.findFirstOrThrow({
+        where: {
+          ID: agendamento?.AtendimentoID,
+        },
+
+        include: {
+          Salao: true,
+          AtendimentoAuxiliar: {
+            include: { Auxiliar: true },
+          },
+          Agendamentos: {
+            include: { Cliente: true },
+          },
+          ServicoAtendimento: {
+            include: {
+              Servico: true,
+            },
+          },
+        },
+      });
+    } else {
+      return null;
+    }
+  }
+
+  static createAtendimento = async (
     Data: Date,
     PrecoTotal: number,
     Auxiliar: boolean,
@@ -223,19 +270,19 @@ static createAtendimento = async (
         });
         if (servicosAtendimento.length > 0) {
           await tx.servicoAtendimento.createMany({
-            data: servicosAtendimento.map(servico => ({
+            data: servicosAtendimento.map((servico) => ({
               AtendimentoId: atendimento.ID,
               ServicoId: servico.ServicoId,
               PrecoItem: servico.PrecoItem,
-            }))
+            })),
           });
         }
         if (auxiliares.length > 0) {
           await tx.atendimentoAuxiliar.createMany({
-            data: auxiliares.map(aux => ({
+            data: auxiliares.map((aux) => ({
               AtendimentoId: atendimento.ID,
               AuxiliarID: aux.AuxiliarID,
-            }))
+            })),
           });
         }
 
@@ -269,28 +316,28 @@ static createAtendimento = async (
         });
 
         await tx.servicoAtendimento.deleteMany({
-          where: { AtendimentoId: id }
+          where: { AtendimentoId: id },
         });
 
         if (servicosAtendimento.length > 0) {
           await tx.servicoAtendimento.createMany({
-            data: servicosAtendimento.map(servico => ({
+            data: servicosAtendimento.map((servico) => ({
               AtendimentoId: id,
               ServicoId: servico.ServicoId,
               PrecoItem: servico.PrecoItem,
-            }))
+            })),
           });
         }
         await tx.atendimentoAuxiliar.deleteMany({
-          where: { AtendimentoId: id }
+          where: { AtendimentoId: id },
         });
 
         if (auxiliares.length > 0) {
           await tx.atendimentoAuxiliar.createMany({
-            data: auxiliares.map(aux => ({
+            data: auxiliares.map((aux) => ({
               AtendimentoId: id,
               AuxiliarID: aux.AuxiliarID,
-            }))
+            })),
           });
         }
 
@@ -301,22 +348,20 @@ static createAtendimento = async (
       throw new Error("Erro ao atualizar atendimento");
     }
   };
-    static async deleteAtendimento(id: string) {
-        try {
-            if (!id) {
-                throw new Error("ID do atendimento não informado");
-            }
-            const deleted = await prisma.atendimento.delete({
-                where: { ID: id },
-            });
-            return deleted;
-        } catch (error) {
-            console.error("Erro ao deletar atendimento:", error);
-            throw new Error("Não foi possível deletar o atendimento");
-        }
+  static async deleteAtendimento(id: string) {
+    try {
+      if (!id) {
+        throw new Error("ID do atendimento não informado");
+      }
+      const deleted = await prisma.atendimento.delete({
+        where: { ID: id },
+      });
+      return deleted;
+    } catch (error) {
+      console.error("Erro ao deletar atendimento:", error);
+      throw new Error("Não foi possível deletar o atendimento");
     }
-    
-
+  }
 }
 
 export default AtendimentoService;

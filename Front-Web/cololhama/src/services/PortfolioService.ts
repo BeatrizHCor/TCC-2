@@ -3,18 +3,18 @@ import { get } from "http";
 
 const api = axios.create({
   baseURL: import.meta.env.VITE_IMAGEM_URL || "http://localhost:4000",
-  timeout: 100000,
+  timeout: 10000,
   headers: {
     "Content-Type": "application/json",
   },
 });
 const apiUpload = axios.create({
-   baseURL: import.meta.env.VITE_IMAGEM_URL || "http://localhost:4000",
-   timeout: 100000,
-   headers: {
-     'Content-Type': 'multipart/form-data',
-   },
- });
+  baseURL: import.meta.env.VITE_IMAGEM_URL || "http://localhost:4000",
+  timeout: 10000,
+  headers: {
+    "Content-Type": "multipart/form-data",
+  },
+});
 const addAuthInterceptor = (axiosInstance: any) => {
   axiosInstance.interceptors.request.use((config: any) => {
     const token = localStorage.getItem("usuario");
@@ -31,7 +31,7 @@ class PortfolioService {
   static async uploadImagemPortfolio(
     file: File,
     portfolioId: string,
-    descricao: string
+    descricao: string,
   ) {
     try {
       const formData = new FormData();
@@ -42,7 +42,7 @@ class PortfolioService {
         "Dados do FormData:",
         formData.get("PortfolioId"),
         formData.get("Descricao"),
-        formData.get("imagem")
+        formData.get("imagem"),
       );
       const response = await apiUpload.post(`/imagem/portfolio`, formData);
 
@@ -87,6 +87,19 @@ class PortfolioService {
         console.error("Erro desconhecido:", error);
       }
       throw new Error("Erro ao buscar portfólio por cabeleireiro.");
+    }
+  }
+  static async deleteImagemPortfolio(portfolioId: string, imagemId: string) {
+    try {
+      const response = await api.delete(`/imagem/${portfolioId}/${imagemId}`);
+      return response.data;
+    } catch (error) {
+      if (axios.isAxiosError(error)) {
+        console.error("Erro completo:", error.response || error.message);
+      } else {
+        console.error("Erro desconhecido:", error);
+      }
+      throw new Error("Erro ao excluir foto do portfolio.");
     }
   }
 }

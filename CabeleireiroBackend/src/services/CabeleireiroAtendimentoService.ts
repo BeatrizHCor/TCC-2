@@ -92,6 +92,7 @@ class AtendimentoService {
               Agendamentos: {
                 include: {
                   Cliente: true,
+                  ServicoAgendamento: true,
                   Cabeleireiro: true,
                 },
               },

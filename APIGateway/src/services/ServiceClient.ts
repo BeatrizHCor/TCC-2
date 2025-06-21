@@ -1,7 +1,7 @@
 import "dotenv/config";
 import { Cliente } from "../models/clienteModel";
 import { response } from "express";
-import { handleApiResponse } from "../utils.ts/HandlerDeRespostaDoBackend";
+import { handleApiResponse } from "../utils/HandlerDeRespostaDoBackend";
 
 const CustomerURL = process.env.CUSTOMER_URL || "http://localhost:4001";
 

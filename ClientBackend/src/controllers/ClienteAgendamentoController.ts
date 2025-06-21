@@ -20,8 +20,8 @@ class AgendamentoController {
         });
       } else {
         const agendamentos = await AgendamentoService.getAgendamentosPage(
-          Number(page),
-          Number(limit),
+          !isNaN(Number(page)) ? Number(page) : null,
+          !isNaN(Number(limit)) ? Number(limit) : null,
           includeRelations === "true",
           salaoId ? String(salaoId) : null,
           ClienteId ? String(ClienteId) : "",
@@ -111,9 +111,9 @@ class AgendamentoController {
   static deleteAgendamento = async (req: Request, res: Response) => {
     try {
       const { id } = req.params;
-      console.log("controller do delete: ", id)
+      console.log("controller do delete: ", id);
       const agendamento = await AgendamentoService.deleteAgendamento(id);
-       console.log(agendamento)
+      console.log(agendamento);
       if (!agendamento) {
         res.status(404).json({ message: "Agendamento não encontrado" });
       } else {
@@ -125,7 +125,10 @@ class AgendamentoController {
     }
   };
 
-  static getHorariosOcupadosFuturos = async (req: Request, res: Response): Promise<void> => {
+  static getHorariosOcupadosFuturos = async (
+    req: Request,
+    res: Response,
+  ): Promise<void> => {
     try {
       const { salaoId, cabeleireiroId } = req.params;
       const { data } = req.query;

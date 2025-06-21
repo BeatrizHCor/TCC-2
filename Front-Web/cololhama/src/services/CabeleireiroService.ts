@@ -35,7 +35,7 @@ export const CabeleireiroService = {
     userType: string = "Cabeleireiro"
   ): Promise<Cabeleireiro> {
     try {
-      const response = await api.post("/cabeleireiro", {
+      const response = await api.post("/cadastrar/cabeleireiro", {
         CPF,
         Nome,
         Email,
@@ -113,6 +113,28 @@ export const CabeleireiroService = {
       return response.data;
     } catch (error) {
       console.error("Erro ao buscar página de cabeleireiros:", error);
+      throw error;
+    }
+  },
+  async getCabeleireiroNomesPage(
+    page: number = 1,
+    limit: number = 10,
+    salaoId: string,
+    nome?: string
+  ): Promise<CabeleireiroPageResponse> {
+    try {
+      const response = await api.get(`/cabeleireiro/nomes/page`, {
+        params: {
+          page,
+          limit,
+          salaoId,
+          nome
+        },
+      });
+
+      return response.data;
+    } catch (error) {
+      console.error("Erro ao buscar página de nomes de cabeleireiros:", error);
       throw error;
     }
   },

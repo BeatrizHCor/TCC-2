@@ -6,15 +6,15 @@ class AgendamentoController {
     try {
       const { page, limit, includeRelations, salaoId, dia, mes, ano } =
         req.query;
-      console.log(req.query);
+      console.log(req.query.p);
       const agendamentos = await AgendamentoService.getAgendamentosPage(
-        Number(page),
-        Number(limit),
+        !isNaN(Number(page)) ? Number(page) : null,
+        !isNaN(Number(limit)) ? Number(limit) : null,
         includeRelations === "true",
         salaoId ? String(salaoId) : null,
         dia !== undefined ? Number(dia) : 0,
         mes !== undefined ? Number(mes) : 0,
-        ano !== undefined ? Number(ano) : 0
+        ano !== undefined ? Number(ano) : 0,
       );
       res.status(200).json(agendamentos);
     } catch (error) {
@@ -30,7 +30,7 @@ class AgendamentoController {
       console.log(includeRelations, id);
       const cabeleireiro = await AgendamentoService.findById(
         id,
-        includeRelations
+        includeRelations,
       );
       if (!cabeleireiro) {
         res.status(204).json({ message: "Agendamentos não encontrado" });
@@ -46,13 +46,14 @@ class AgendamentoController {
     try {
       const { Data, ClienteID, SalaoId, CabeleireiroID, servicosIds } =
         req.body;
+      console.log(req.body);
       const agendamento = await AgendamentoService.createAgendamento(
         new Date(Data),
         "Agendado",
         ClienteID,
         SalaoId,
         CabeleireiroID,
-        servicosIds
+        servicosIds,
       );
       if (!agendamento || agendamento === null) {
         res
@@ -81,7 +82,7 @@ class AgendamentoController {
         ClienteID,
         SalaoId,
         CabeleireiroID,
-        servicosIds
+        servicosIds,
       );
       if (!agendamento) {
         res.status(404).json({ message: "Agendamento não encontrado" });

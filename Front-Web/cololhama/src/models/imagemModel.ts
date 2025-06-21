@@ -8,6 +8,6 @@ export interface Imagem {
     HistoricoSimulacao: HistoricoSimulacao;
     Endereco: string;
     Descricao?: string;
-    Tipo: ImagemTipo
+    Tipo: ImagemTipo;
   }
   

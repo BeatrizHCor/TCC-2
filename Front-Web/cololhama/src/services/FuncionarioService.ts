@@ -6,7 +6,7 @@ const api = axios.create({
   baseURL: import.meta.env.VITE_GATEWAY_URL || "http://localhost:5000",
   timeout: 100000,
   headers: {
-    "Content-Type": "application/json"
+    "Content-Type": "application/json",
   },
 });
 api.interceptors.request.use((config) => {
@@ -47,7 +47,6 @@ export const FuncionarioService = {
       if (response.status === 403) {
         return false;
       }
-      console.log("Funcionários recebidos:", response.data);
       return response.data;
     } catch (error) {
       console.error("Erro ao buscar funcionários:", error);
@@ -67,7 +66,7 @@ export const FuncionarioService = {
     userType: string = "Funcionario"
   ): Promise<Funcionario> {
     try {
-      const response = await api.post(`/funcionario`, {
+      const response = await api.post(`/cadastrar/funcionario`, {
         CPF,
         Nome,
         Email,
@@ -144,6 +143,19 @@ export const FuncionarioService = {
       return response.data;
     } catch (error) {
       console.error("Erro ao atualizar funcionário:", error);
+      throw error;
+    }
+  },
+
+  async getAuxiliarBySalao(salaoId: string): Promise<Funcionario[] | boolean> {
+    try {
+      const response = await api.get<Funcionario[]>(`/auxiliar/${salaoId}`);
+      if (response.status === 403) {
+        return false;
+      }
+      return response.data;
+    } catch (error) {
+      console.error("Erro ao buscar funcionário por ID:", error);
       throw error;
     }
   },

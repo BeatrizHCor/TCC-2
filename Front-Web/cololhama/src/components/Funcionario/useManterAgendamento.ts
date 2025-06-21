@@ -19,6 +19,21 @@ interface ValidationErrors {
   cabeleireiroId?: string;
   servicos?: string;
 }
+function formatDateToLocalDateTimeString(date: Date) {
+  const pad = (n: number) => n.toString().padStart(2, "0");
+
+  return (
+    date.getFullYear() +
+    "-" +
+    pad(date.getMonth() + 1) +
+    "-" +
+    pad(date.getDate()) +
+    "T" +
+    pad(date.getHours()) +
+    ":" +
+    pad(date.getMinutes())
+  );
+}
 
 export const useManterAgendamento = (
   userType: userTypes,
@@ -239,9 +254,10 @@ export const useManterAgendamento = (
           default:
             throw new Error("Tipo de usuário inválido");
         }
-        const dataFormatted = new Date(agendamento.Data)
-          .toISOString()
-          .slice(0, 16);
+        const dataFormatted = formatDateToLocalDateTimeString(
+          new Date(agendamento.Data)
+        );
+
         setData(dataFormatted);
         setStatus(agendamento.Status);
         setClienteId(agendamento.ClienteID);
@@ -333,6 +349,101 @@ export const useManterAgendamento = (
     return Object.keys(errors).length === 0;
   };
 
+  const cofirmarAtendimento = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setStatus(StatusAgendamento.Confirmado);
+    console.log({
+      data,
+      status: StatusAgendamento.Confirmado,
+      servicosAgendamento,
+      cabeleireiroId,
+      cabeleireiroNome,
+      clienteNome,
+      clienteId,
+      salaoId,
+      agendamentoId,
+      isEditing: false,
+    });
+    setIsLoading(true);
+    const servicosIds: string[] = [];
+    for (const servico of servicosAgendamento) {
+      if (servico.ServicoId) {
+        servicosIds.push(servico.ServicoId);
+      }
+    }
+
+    try {
+      if (salaoId && agendamentoId) {
+        switch (userType) {
+          case userTypes.Funcionario:
+          case userTypes.AdmSalao:
+          case userTypes.AdmSistema:
+            await AgendamentoService.updateFuncionarioAgendamento(
+              agendamentoId,
+              new Date(data).toISOString(),
+              StatusAgendamento.Confirmado,
+              clienteId,
+              cabeleireiroId,
+              salaoId,
+              servicosIds
+            );
+            break;
+          case userTypes.Cabeleireiro:
+            await AgendamentoService.updateCabeleireiroAgendamento(
+              agendamentoId,
+              new Date(data).toISOString(),
+              status,
+              clienteId,
+              cabeleireiroId,
+              salaoId,
+              servicosIds
+            );
+            break;
+
+          case userTypes.Cliente:
+            await AgendamentoService.updateClienteAgendamento(
+              agendamentoId,
+              new Date(data).toISOString(),
+              status,
+              clienteId,
+              cabeleireiroId,
+              salaoId,
+              servicosIds
+            );
+            break;
+          default:
+            throw new Error("Tipo de usuário inválido");
+        }
+      }
+      let St = StatusAgendamento.Confirmado;
+      return navigate("/atendimento/novo", {
+        state: {
+          data,
+          status: St,
+          servicosAgendamento,
+          cabeleireiroId,
+          cabeleireiroNome,
+          clienteNome,
+          clienteId,
+          salaoId,
+          agendamentoId,
+          isEditing: false,
+        },
+      });
+    } catch (error: unknown) {
+      console.error("Erro ao salvar agendamento:", error);
+
+      if (axios.isAxiosError(error)) {
+        if (error.response?.status === 403) {
+          setForbidden(true);
+        }
+      } else {
+        console.error("Erro desconhecido:", error);
+      }
+    } finally {
+      setIsLoading(false);
+    }
+  };
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
@@ -356,7 +467,7 @@ export const useManterAgendamento = (
         servicosIds.push(servico.ServicoId);
       }
     }
-
+    console.log("services: ", servicosIds);
     try {
       if (isEditing && agendamentoId) {
         switch (userType) {
@@ -371,7 +482,7 @@ export const useManterAgendamento = (
               cabeleireiroId,
               salaoId,
               servicosIds
-            );     
+            );
             return navigate(-1);
           case userTypes.Cabeleireiro:
             await AgendamentoService.updateCabeleireiroAgendamento(
@@ -382,7 +493,7 @@ export const useManterAgendamento = (
               cabeleireiroId,
               salaoId,
               servicosIds
-            );            
+            );
             return navigate(-1);
           case userTypes.Cliente:
             await AgendamentoService.updateClienteAgendamento(
@@ -433,7 +544,6 @@ export const useManterAgendamento = (
             throw new Error("Tipo de usuário inválido");
         }
       }
-
     } catch (error: unknown) {
       console.error("Erro ao salvar agendamento:", error);
 
@@ -528,6 +638,7 @@ export const useManterAgendamento = (
     isHorarioOcupado,
     isTimeSlotOccupied,
     setCabeleireiroIdWithHorarios,
+    cofirmarAtendimento,
   };
 };
 

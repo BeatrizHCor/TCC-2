@@ -24,11 +24,17 @@ RoutesCliente.post(
     let { CPF, Nome, Email, Telefone, SalaoId, Password, userType } = req.body;
     try {
       if (
-        !CPF || !Nome || !Email || !Telefone || !SalaoId || !Password ||
+        !CPF ||
+        !Nome ||
+        !Email ||
+        !Telefone ||
+        !SalaoId ||
+        !Password ||
         !userType
       ) {
         res.status(400).json({
-          message: "Erro ao cadastrar cliente, arametros ausentes ou invalidos",
+          message:
+            "Erro ao cadastrar cliente, parametros ausentes ou invalidos",
         });
       } else {
         const result = await cadastrarCliente(
@@ -38,7 +44,7 @@ RoutesCliente.post(
           Telefone,
           SalaoId,
           Password,
-          userType,
+          userType
         );
 
         if (result) {
@@ -51,42 +57,8 @@ RoutesCliente.post(
       console.log(erro);
       res.status(500).send("Error criando cliente");
     }
-  },
-);
-
-RoutesCliente.post("/cliente", async (req: Request, res: Response) => {
-  let { CPF, Nome, Email, Telefone, SalaoId, Password, userType } = req.body;
-  try {
-    let cliente = await postCliente(CPF, Nome, Email, Telefone, SalaoId);
-    if (!cliente) {
-      console.log("Cliente not created");
-      throw new Error("Cliente not created");
-    }
-    console.log("Cliente ID: ", cliente.ID);
-    let register = await registerLogin(
-      cliente.ID!,
-      Email,
-      Password,
-      SalaoId,
-      userType
-    );
-    if (!register) {
-      console.log("Register auth failed");
-      let clienteDelete = await deleteCliente(cliente.ID!);
-      if (clienteDelete) {
-        console.log("Cliente deleted successfully");
-      } else {
-        console.log("Failed to delete cliente after register failure");
-      }
-      throw new Error("Login registration failed");
-    }
-    let token = await postLogin(Email, Password, SalaoId);
-    res.status(200).send(token);
-  } catch (e) {
-    console.log(e);
-    res.status(500).send("Error in creating customer");
   }
-});
+);
 
 RoutesCliente.get("/cliente/checkcpf/:cpf/:salaoId", async (req, res) => {
   const { cpf, salaoId } = req.params;
@@ -333,26 +305,31 @@ RoutesCliente.get(
   async (req: Request, res: Response) => {
     const { salaoId } = req.params;
     const include = req.query.include === "true";
+    console.log(salaoId);
     try {
       const userInfo = JSON.parse(
         Buffer.from(req.headers.authorization || "", "base64").toString(
-          "utf-8",
-        ) || "{}",
+          "utf-8"
+        ) || "{}"
       );
       if (
-        !userInfo || !userInfo.userID || !userInfo.token || !userInfo.userType
+        !userInfo ||
+        !userInfo.userID ||
+        !userInfo.token ||
+        !userInfo.userType
       ) {
-         res.status(403).json({ message: "Não autorizado" });
+        res.status(403).json({ message: "Não autorizado" });
       }
       let userType = userInfo.userType;
       const auth = await authenticate(
         userInfo.userID,
         userInfo.token,
-        userInfo.userType,
+        userInfo.userType
       );
       if (
         auth &&
-        [ userTypes.CABELEIREIRO,
+        [
+          userTypes.CABELEIREIRO,
           userTypes.FUNCIONARIO,
           userTypes.ADM_SALAO,
           userTypes.ADM_SISTEMA,
@@ -376,7 +353,7 @@ RoutesCliente.get(
       console.error("Erro ao buscar clientes do salão:", error);
       res.status(500).json({ message: "Erro interno do servidor" });
     }
-  },
+  }
 );
 
 export default RoutesCliente;

@@ -34,6 +34,7 @@ export const useVisualizarAtendimentos = (
   userId: string
 ): UseVisualizarAtendimentosResult => {
   const [atendimentos, setAtendimentos] = useState<AtendimentoExibicao[]>([]);
+  const [átendimentosData, setAtendimentosData] = useState<Atendimento[]>([]);
   const [totalAtendimentos, setTotalAtendimentos] = useState<number>(0);
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
@@ -80,6 +81,7 @@ export const useVisualizarAtendimentos = (
           );
         }
         console.log(response);
+        setAtendimentosData(response.data);
         const listaAtendimentos: AtendimentoExibicao[] = (
           response.data || []
         ).map((item: any) => ({
@@ -93,7 +95,7 @@ export const useVisualizarAtendimentos = (
                 minute: "2-digit",
               })
             : "",
-          ValorTotal: item.ValorTotal ?? 0,
+          ValorTotal: item.PrecoTotal ?? 0,
           QuantidadeServicos: item.ServicoAtendimento?.length ?? 0,
         }));
         setAtendimentos(listaAtendimentos);
@@ -125,7 +127,20 @@ export const useVisualizarAtendimentos = (
   ]);
 
   const handleEditarAtendimento = (atendimentoId: string) => {
-    navigate(`/atendimento/editar/${atendimentoId}`);
+    let atendimento = átendimentosData.find((at) => at.ID === atendimentoId)!;
+    console.log(atendimento);
+    navigate(`/atendimento/editar/${atendimento.ID}`, {
+      state: {
+        data: atendimento.Data,
+        status: atendimento.Agendamentos[0].Status,
+        servicosAgendamento: atendimento.Agendamentos[0].ServicoAgendamento,
+        cabeleireiroId: atendimento.Agendamentos[0].CabeleireiroID,
+        cabeleireiroNome: atendimento.Agendamentos[0].Cabeleireiro?.Nome,
+        clienteId: atendimento.Agendamentos[0].ClienteID,
+        clienteNome: atendimento.Agendamentos[0].Cliente?.Nome,
+        agendamentoId: atendimento.Agendamentos[0].ID,
+      },
+    });
   };
 
   return {

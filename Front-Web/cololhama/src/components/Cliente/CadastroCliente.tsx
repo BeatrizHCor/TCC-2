@@ -53,7 +53,7 @@ export const ClienteCadastro: React.FC<ClienteCadastroProps> = () => {
     handleSubmit(e)
       .then((e) => {
         checkLocalStorage();
-        return navigate("/");
+        return;
       })
       .catch((er) => {
         return;
@@ -94,7 +94,6 @@ export const ClienteCadastro: React.FC<ClienteCadastroProps> = () => {
           />
         </Box>
 
-        {/* Formulário */}
         <Box flex={1} display="flex" justifyContent="center">
           <Paper
             elevation={3}

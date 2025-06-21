@@ -64,7 +64,7 @@ const VisualizarAgendamento: React.FC = () => {
     agendamentos,
     totalAgendamentos,
     isLoading,
-  } = useVisualizarAgendamentos(page + 1, rowsPerPage, SalaoId, userType!, userId, dia, mes, ano);
+  } = useVisualizarAgendamentos(page + 1, rowsPerPage, SalaoId, modoCalendario, userType!, userId, dia, mes, ano);
 
   const handleVerDetalhes = (ag: Agendamentos) => {
     setAgendamentoSelecionado(ag);
@@ -187,13 +187,14 @@ const VisualizarAgendamento: React.FC = () => {
                       }
                     >
                       <ListItemText
+                        disableTypography
                         primary={
                           <Typography fontWeight="bold" color="primary">
                             {ag.Cliente?.Nome || `Cliente ${ag.ClienteID}`}
                           </Typography>
                         }
                         secondary={
-                          <Box>
+                          <>
                             <Typography variant="body2">{formatarDataHora(ag.Data)}</Typography>
                             <Typography variant="body2">
                               Profissional: {ag.Cabeleireiro?.Nome || `ID: ${ag.CabeleireiroID}`}
@@ -208,7 +209,7 @@ const VisualizarAgendamento: React.FC = () => {
                                 fontWeight: 'bold',
                               }}
                             />
-                          </Box>
+                          </>
                         }
                       />
                     </ListItem>
@@ -253,10 +254,10 @@ const VisualizarAgendamento: React.FC = () => {
                   <Typography>{formatarDataHora(agendamentoSelecionado.Data)}</Typography>
 
                   <Typography fontWeight="bold" sx={{ mt: 2 }}>Cliente</Typography>
-                  <Typography>{agendamentoSelecionado.Cliente?.Nome || "Nome não encontrado" }</Typography>
+                  <Typography>{agendamentoSelecionado.Cliente?.Nome || "Nome não encontrado"}</Typography>
 
                   <Typography fontWeight="bold" sx={{ mt: 2 }}>Profissional</Typography>
-                  <Typography>{agendamentoSelecionado.Cabeleireiro?.Nome || "Nome não encontrado" }</Typography>
+                  <Typography>{agendamentoSelecionado.Cabeleireiro?.Nome || "Nome não encontrado"}</Typography>
                 </DialogContent>
                 <DialogActions>
                   <Button onClick={handleFecharModal}>Fechar</Button>

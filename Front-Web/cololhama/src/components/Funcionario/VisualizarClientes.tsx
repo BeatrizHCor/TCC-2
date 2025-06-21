@@ -16,7 +16,6 @@ import {
   InputLabel,
   Select,
   MenuItem,
-  SelectChangeEvent,
 } from "@mui/material";
 import { Cliente } from "../../models/clienteModel";
 import { useVisualizarClientes } from "./useVisualizarClientes";
@@ -114,7 +113,6 @@ export const VisualizarClientes: React.FC = () => {
         Clientes Cadastrados
       </Typography>
 
-      {/* Filtros */}
       <Box
         sx={{
           display: "flex",
@@ -211,86 +209,83 @@ export const VisualizarClientes: React.FC = () => {
         </Button>
       </Box>
 
-<Paper
-  elevation={1}
-  sx={{
-    borderRadius: 2,
-    overflow: "hidden",
-    backgroundColor: "#f5f5f5",
-  }}
->
-  <TableContainer>
-    <Table>
-      <TableHead>
-        <TableRow sx={{ backgroundColor: theme.palette.primary.main }}>
-          {colunas.map((coluna) => (
-            <TableCell
-              key={coluna.id}
-              sx={{
-                fontWeight: "bold",
-                textTransform: "uppercase",
-                fontSize: "0.875rem",
-                color: "#fff",
-              }}
-            >
-              {coluna.label}
-            </TableCell>
-          ))}
-        </TableRow>
-      </TableHead>
+      <Paper
+        elevation={1}
+        sx={{
+          borderRadius: 2,
+          overflow: "hidden",
+          backgroundColor: "#f5f5f5",
+        }}
+      >
+        <TableContainer>
+          <Table>
+            <TableHead>
+              <TableRow sx={{ backgroundColor: theme.palette.primary.main }}>
+                {colunas.map((coluna) => (
+                  <TableCell
+                    key={coluna.id}
+                    sx={{
+                      fontWeight: "bold",
+                      textTransform: "uppercase",
+                      fontSize: "0.875rem",
+                      color: "#fff",
+                    }}
+                  >
+                    {coluna.label}
+                  </TableCell>
+                ))}
+              </TableRow>
+            </TableHead>
 
-      <TableBody>
-        {clientes.length === 0 ? (
-          <TableRow>
-            <TableCell colSpan={colunas.length} align="center">
-              Nenhum cliente encontrado.
-            </TableCell>
-          </TableRow>
-        ) : (
-          clientes.map((cliente: Cliente) => (
-            <TableRow
-              key={cliente.ID}
-              hover
-              sx={{
-                "&:hover": { backgroundColor: "#f0f0f0" },
-              }}
-            >
-              <TableCell>{cliente.Nome || "—"}</TableCell>
-              <TableCell>{cliente.Email || "—"}</TableCell>
-              <TableCell>{cliente.Telefone || "—"}</TableCell>
-              <TableCell>
-                {cliente.DataCadastro
-                  ? new Date(cliente.DataCadastro).toLocaleDateString("pt-BR")
-                  : "—"}
-              </TableCell>
-            </TableRow>
-          ))
-        )}
-      </TableBody>
-    </Table>
-  </TableContainer>
+            <TableBody>
+              {clientes.length === 0 ? (
+                <TableRow>
+                  <TableCell colSpan={colunas.length} align="center">
+                    Nenhum cliente encontrado.
+                  </TableCell>
+                </TableRow>
+              ) : (
+                clientes.map((cliente: Cliente) => (
+                  <TableRow
+                    key={cliente.ID}
+                    hover
+                    sx={{
+                      "&:hover": { backgroundColor: "#f0f0f0" },
+                    }}
+                  >
+                    <TableCell>{cliente.Nome || "—"}</TableCell>
+                    <TableCell>{cliente.Email || "—"}</TableCell>
+                    <TableCell>{cliente.Telefone || "—"}</TableCell>
+                    <TableCell>
+                      {cliente.DataCadastro
+                        ? new Date(cliente.DataCadastro).toLocaleDateString("pt-BR")
+                        : "—"}
+                    </TableCell>
+                  </TableRow>
+                ))
+              )}
+            </TableBody>
+          </Table>
+        </TableContainer>
 
-  <TablePagination
-    rowsPerPageOptions={[5, 10, 25]}
-    component="div"
-    count={totalClientes}
-    rowsPerPage={rowsPerPage}
-    page={page}
-    onPageChange={(_, newPage) => setPage(newPage)}
-    onRowsPerPageChange={(e) => {
-      setRowsPerPage(parseInt(e.target.value, 10));
-      setPage(0);
-    }}
-    labelRowsPerPage="Itens por página:"
-    labelDisplayedRows={({ from, to, count }) =>
-      `${from}-${to} de ${count}`
-    }
-    sx={{ backgroundColor: "#fff", mt: 1.5 }}
-  />
-</Paper>
-
-
-
+        <TablePagination
+          rowsPerPageOptions={[5, 10, 25]}
+          component="div"
+          count={totalClientes}
+          rowsPerPage={rowsPerPage}
+          page={page}
+          onPageChange={(_, newPage) => setPage(newPage)}
+          onRowsPerPageChange={(e) => {
+            setRowsPerPage(parseInt(e.target.value, 10));
+            setPage(0);
+          }}
+          labelRowsPerPage="Itens por página:"
+          labelDisplayedRows={({ from, to, count }) =>
+            `${from}-${to} de ${count}`
+          }
+          sx={{ backgroundColor: "#fff", mt: 1.5 }}
+        />
+      </Paper>
     </Box>
   );
 };

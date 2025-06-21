@@ -5,6 +5,7 @@ import path from "path";
 import fs from "fs";
 import ImagemRoutes from "./routes/ImagemRoutes";
 import PortfolioRoutes from "./routes/PortfolioRoutes";
+import HistoricoSimulacaoRoutes from "./routes/HistoricoSimulacaoRoutes"
 
 dotenv.config();
 const uploadsDir = path.join(__dirname, "../uploads");
@@ -36,6 +37,7 @@ app.use("/uploads", express.static(path.join(__dirname, "uploads")));
 app.use(route);
 app.use(ImagemRoutes);
 app.use(PortfolioRoutes);
+app.use(HistoricoSimulacaoRoutes)
 app.use((req: Request, res: Response) => {
   res.status(404).json({ message: "Rota não encontrada" });
 });

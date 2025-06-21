@@ -46,13 +46,14 @@ import { ServicoAgendamento } from "../../models/servicoAgendamentoModel";
 import { Cabeleireiro } from "../../models/cabelereiroModel";
 import useManterAtendimento from "./useManterAtendimento";
 import { ServicoAtendimento } from "../../models/servicoAtendimentoModel";
+import { Funcionario } from "../../models/funcionarioModel";
 
 const ManterAtendimento: React.FC = () => {
   const navigate = useNavigate();
   const { doLogout, userType } = useContext(AuthContext);
   const [openDeleteDialog, setOpenDeleteDialog] = useState(false);
   const [openServicosModal, setOpenServicosModal] = useState(false);
-  const [openCabeleireirosModal, setOpenCabeleireirosModal] = useState(false);
+  const [openAuxiliarModal, setOpenAuxiliarModal] = useState(false);
   const { state } = useLocation();
   const {
     data: stateData,
@@ -61,6 +62,7 @@ const ManterAtendimento: React.FC = () => {
     cabeleireiroId: stateCabId,
     cabeleireiroNome: stateCabNome,
     clienteId: stateCliId,
+    clienteNome: stateCliNome,
     agendamentoId,
   } = state;
   const {
@@ -88,7 +90,16 @@ const ManterAtendimento: React.FC = () => {
     handleSubmit,
     handleDelete,
     forbidden,
-    canSaveEdit,
+    clienteNome,
+    setClienteNome,
+    clientesDisponiveis,
+    auxiliarNome,
+    setAuxiliarNome,
+    auxiliar,
+    setAuxiliar,
+    atendimentoId,
+    auxiliaresDisponives,
+    setAuxiliaresDisponiveis,
   } = useManterAtendimento(
     userType!,
     stateServicos,
@@ -97,7 +108,8 @@ const ManterAtendimento: React.FC = () => {
     stateCabId,
     stateCabNome,
     stateCliId,
-    stateStatus
+    stateStatus,
+    stateCliNome
   );
   const handleOpenDeleteDialog = () => {
     setOpenDeleteDialog(true);
@@ -113,12 +125,6 @@ const ManterAtendimento: React.FC = () => {
   };
 
   const handleAddServico = (servico: Servico) => {};
-
-  const handleSelectCabeleireiro = (cabeleireiro: Cabeleireiro) => {
-    setCabeleireiroId(cabeleireiro.ID!);
-    setCabeleireiroNome(cabeleireiro.Nome);
-    setOpenCabeleireirosModal(false);
-  };
 
   const formatCurrency = (value: number) => {
     return new Intl.NumberFormat("pt-BR", {
@@ -140,6 +146,14 @@ const ManterAtendimento: React.FC = () => {
       </Box>
     );
   }
+
+  const handleSelectAuxiliar = (auxiliar: Funcionario) => {
+    setAuxiliarNome(auxiliar.Nome);
+    setAuxiliar([
+      { AuxiliarID: auxiliar.ID || "", AtendimentoId: atendimentoId },
+    ]);
+    setOpenAuxiliarModal(false);
+  };
 
   if (!salaoId) {
     return (
@@ -190,7 +204,7 @@ const ManterAtendimento: React.FC = () => {
           variant="h5"
           sx={{ mb: 3, fontSize: { xs: "1.2rem", sm: "2rem" } }}
         >
-          {isEditing ? "Editar Agendamento" : "Novo Agendamento"}
+          {isEditing ? "Editar Atendimento" : "Novo Atendimento"}
         </Typography>
 
         <form onSubmit={handleSubmit}>
@@ -216,7 +230,10 @@ const ManterAtendimento: React.FC = () => {
                     type="datetime-local"
                     label="Data e Hora"
                     value={data}
-                    onChange={(e) => setData(e.target.value)}
+                    onChange={(e) => {
+                      console.log(e.target.value);
+                      setData(e.target.value);
+                    }}
                     error={Boolean(validationErrors.data)}
                     helperText={validationErrors.data}
                     slotProps={{
@@ -234,11 +251,18 @@ const ManterAtendimento: React.FC = () => {
                         setStatus(e.target.value as StatusAgendamento)
                       }
                     >
-                      {Object.values(StatusAgendamento).map((statusOption) => (
-                        <MenuItem key={statusOption} value={statusOption}>
-                          {statusOption}
-                        </MenuItem>
-                      ))}
+                      <MenuItem
+                        key={StatusAgendamento.Confirmado}
+                        value={StatusAgendamento.Confirmado}
+                      >
+                        {StatusAgendamento.Confirmado}
+                      </MenuItem>
+                      <MenuItem
+                        key={StatusAgendamento.Finalizado}
+                        value={StatusAgendamento.Finalizado}
+                      >
+                        {StatusAgendamento.Finalizado}
+                      </MenuItem>
                     </Select>
                   </FormControl>
                 </Box>
@@ -247,12 +271,24 @@ const ManterAtendimento: React.FC = () => {
                   <TextField
                     fullWidth
                     required
-                    label="ID do Cliente"
-                    value={clienteId}
-                    onChange={(e) => setClienteId(e.target.value)}
+                    label="Cliente"
+                    value={clienteNome}
                     error={Boolean(validationErrors.clienteId)}
                     helperText={validationErrors.clienteId}
-                    placeholder="ID do cliente"
+                    placeholder={
+                      userType === "Cliente"
+                        ? "Cliente atual (você)"
+                        : "Clique para selecionar um cliente"
+                    }
+                    slotProps={{
+                      input: { readOnly: true },
+                    }}
+                    sx={{
+                      cursor:
+                        userType === "Cliente" || isEditing
+                          ? "not-allowed"
+                          : "pointer",
+                    }}
                   />
                 </Box>
 
@@ -262,7 +298,6 @@ const ManterAtendimento: React.FC = () => {
                     required
                     label="Cabeleireiro"
                     value={cabeleireiroNome}
-                    onClick={() => setOpenCabeleireirosModal(true)}
                     error={Boolean(validationErrors.cabeleireiroId)}
                     helperText={validationErrors.cabeleireiroId}
                     placeholder="Clique para selecionar um cabeleireiro"
@@ -279,13 +314,41 @@ const ManterAtendimento: React.FC = () => {
                     sx={{ cursor: "pointer" }}
                   />
                 </Box>
-
-                {isEditing && !canSaveEdit && (
-                  <Alert severity="warning">
-                    Não é possível salvar alterações em agendamentos com menos
-                    de 3 dias da data atual.
-                  </Alert>
-                )}
+                <Box>
+                  <TextField
+                    fullWidth
+                    required
+                    label="Auxiliar"
+                    value={auxiliarNome}
+                    error={Boolean(validationErrors.cabeleireiroId)}
+                    helperText={validationErrors.cabeleireiroId}
+                    onClick={() => setOpenAuxiliarModal(true)}
+                    placeholder="Clique para selecionar um cabeleireiro"
+                    slotProps={{
+                      input: {
+                        readOnly: true,
+                        endAdornment: (
+                          <InputAdornment position="end">
+                            {auxiliarNome !== "" ? (
+                              <IconButton
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  setAuxiliarNome("");
+                                  setAuxiliar([]);
+                                }}
+                              >
+                                <RemoveIcon />
+                              </IconButton>
+                            ) : (
+                              <PersonIcon />
+                            )}
+                          </InputAdornment>
+                        ),
+                      },
+                    }}
+                    sx={{ cursor: "pointer" }}
+                  />
+                </Box>
               </Box>
             </Box>
             <Box sx={{ flex: 1 }}>
@@ -308,8 +371,7 @@ const ManterAtendimento: React.FC = () => {
                   <TableHead>
                     <TableRow>
                       <TableCell>Serviço</TableCell>
-                      <TableCell align="right">Preço Min</TableCell>
-                      <TableCell align="right">Preço Max</TableCell>
+                      <TableCell align="right">Preço</TableCell>
                       <TableCell align="center">Ação</TableCell>
                     </TableRow>
                   </TableHead>
@@ -329,18 +391,32 @@ const ManterAtendimento: React.FC = () => {
                             {servicoAtendimento.Servico?.Nome ||
                               "Serviço não encontrado"}
                           </TableCell>
-                          <TableCell align="right">
+                          <TableCell align="right" sx={{ padding: 0 }}>
                             <TextField
                               variant="outlined"
+                              size="small"
+                              fullWidth
+                              sx={{
+                                "& .MuiInputBase-root": {
+                                  padding: 0,
+                                  height: "100%",
+                                },
+                                "& input": {
+                                  padding: "8px",
+                                },
+                              }}
                               value={formatCurrency(
                                 servicoAtendimento.PrecoItem
                               )}
-                              onChange={(e) =>
-                                handlePrecoItem(
-                                  servicoAtendimento.ID,
-                                  +e.target.value
-                                )
-                              }
+                              onChange={(e) => {
+                                const raw = e.target.value.replace(
+                                  /[^\d]/g,
+                                  ""
+                                );
+                                const float = parseFloat(raw) / 100;
+                                console.log(e.target.value);
+                                handlePrecoItem(servicoAtendimento.ID, float);
+                              }}
                             />
                           </TableCell>
                           <TableCell align="center">
@@ -402,7 +478,7 @@ const ManterAtendimento: React.FC = () => {
                     <SaveIcon />
                   )
                 }
-                disabled={isLoading || (isEditing && !canSaveEdit)}
+                disabled={isLoading}
               >
                 {isEditing ? "Salvar Alterações" : "Criar Atendimento"}
               </Button>
@@ -467,29 +543,28 @@ const ManterAtendimento: React.FC = () => {
           <Button onClick={() => setOpenServicosModal(false)}>Fechar</Button>
         </DialogActions>
       </Dialog>
-
       <Dialog
-        open={openCabeleireirosModal}
-        onClose={() => setOpenCabeleireirosModal(false)}
+        open={openAuxiliarModal}
+        onClose={() => setOpenAuxiliarModal(false)}
         maxWidth="sm"
         fullWidth
       >
-        <DialogTitle>Selecionar Cabeleireiro</DialogTitle>
+        <DialogTitle>Selecionar Auxiliar</DialogTitle>
         <DialogContent>
           <List>
-            {cabeleireirosDisponiveis.map((cabeleireiro) => (
-              <ListItem key={cabeleireiro.ID} disablePadding>
-                <ListItemButton
-                  onClick={() => handleSelectCabeleireiro(cabeleireiro)}
-                >
+            {auxiliaresDisponives.map((auxiliar) => (
+              <ListItem key={auxiliar.ID} disablePadding>
+                <ListItemButton onClick={() => handleSelectAuxiliar(auxiliar)}>
                   <ListItemText
-                    primary={cabeleireiro.Nome}
+                    primary={auxiliar.Nome}
                     secondary={
-                      <Box>
-                        <Typography variant="body2" color="text.secondary">
-                          {cabeleireiro.Email}
-                        </Typography>
-                      </Box>
+                      <Typography
+                        component="span"
+                        variant="body2"
+                        color="text.secondary"
+                      >
+                        {auxiliar.Email}
+                      </Typography>
                     }
                   />
                 </ListItemButton>
@@ -498,9 +573,7 @@ const ManterAtendimento: React.FC = () => {
           </List>
         </DialogContent>
         <DialogActions>
-          <Button onClick={() => setOpenCabeleireirosModal(false)}>
-            Fechar
-          </Button>
+          <Button onClick={() => setOpenAuxiliarModal(false)}>Fechar</Button>
         </DialogActions>
       </Dialog>
     </Box>
