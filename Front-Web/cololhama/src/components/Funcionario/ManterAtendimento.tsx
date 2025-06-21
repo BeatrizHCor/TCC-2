@@ -46,15 +46,15 @@ import { ServicoAgendamento } from "../../models/servicoAgendamentoModel";
 import { Cabeleireiro } from "../../models/cabelereiroModel";
 import useManterAtendimento from "./useManterAtendimento";
 import { ServicoAtendimento } from "../../models/servicoAtendimentoModel";
+import { Funcionario } from "../../models/funcionarioModel";
 
 const ManterAtendimento: React.FC = () => {
   const navigate = useNavigate();
   const { doLogout, userType } = useContext(AuthContext);
   const [openDeleteDialog, setOpenDeleteDialog] = useState(false);
   const [openServicosModal, setOpenServicosModal] = useState(false);
-  const [openCabeleireirosModal, setOpenCabeleireirosModal] = useState(false);
+  const [openAuxiliarModal, setOpenAuxiliarModal] = useState(false);
   const { state } = useLocation();
-  const [openClientesModal, setOpenClientesModal] = useState(false);
   const {
     data: stateData,
     status: stateStatus,
@@ -90,10 +90,16 @@ const ManterAtendimento: React.FC = () => {
     handleSubmit,
     handleDelete,
     forbidden,
-    canSaveEdit,
     clienteNome,
     setClienteNome,
     clientesDisponiveis,
+    auxiliarNome,
+    setAuxiliarNome,
+    auxiliar,
+    setAuxiliar,
+    atendimentoId,
+    auxiliaresDisponives,
+    setAuxiliaresDisponiveis,
   } = useManterAtendimento(
     userType!,
     stateServicos,
@@ -120,12 +126,6 @@ const ManterAtendimento: React.FC = () => {
 
   const handleAddServico = (servico: Servico) => {};
 
-  const handleSelectCabeleireiro = (cabeleireiro: Cabeleireiro) => {
-    setCabeleireiroId(cabeleireiro.ID!);
-    setCabeleireiroNome(cabeleireiro.Nome);
-    setOpenCabeleireirosModal(false);
-  };
-
   const formatCurrency = (value: number) => {
     return new Intl.NumberFormat("pt-BR", {
       style: "currency",
@@ -146,6 +146,14 @@ const ManterAtendimento: React.FC = () => {
       </Box>
     );
   }
+
+  const handleSelectAuxiliar = (auxiliar: Funcionario) => {
+    setAuxiliarNome(auxiliar.Nome);
+    setAuxiliar([
+      { AuxiliarID: auxiliar.ID || "", AtendimentoId: atendimentoId },
+    ]);
+    setOpenAuxiliarModal(false);
+  };
 
   if (!salaoId) {
     return (
@@ -265,10 +273,6 @@ const ManterAtendimento: React.FC = () => {
                     required
                     label="Cliente"
                     value={clienteNome}
-                    onClick={() => {
-                      if (userType !== "Cliente" && !isEditing)
-                        setOpenClientesModal(true);
-                    }}
                     error={Boolean(validationErrors.clienteId)}
                     helperText={validationErrors.clienteId}
                     placeholder={
@@ -294,7 +298,6 @@ const ManterAtendimento: React.FC = () => {
                     required
                     label="Cabeleireiro"
                     value={cabeleireiroNome}
-                    onClick={() => setOpenCabeleireirosModal(true)}
                     error={Boolean(validationErrors.cabeleireiroId)}
                     helperText={validationErrors.cabeleireiroId}
                     placeholder="Clique para selecionar um cabeleireiro"
@@ -311,13 +314,41 @@ const ManterAtendimento: React.FC = () => {
                     sx={{ cursor: "pointer" }}
                   />
                 </Box>
-
-                {isEditing && !canSaveEdit && (
-                  <Alert severity="warning">
-                    Não é possível salvar alterações em agendamentos com menos
-                    de 3 dias da data atual.
-                  </Alert>
-                )}
+                <Box>
+                  <TextField
+                    fullWidth
+                    required
+                    label="Auxiliar"
+                    value={auxiliarNome}
+                    error={Boolean(validationErrors.cabeleireiroId)}
+                    helperText={validationErrors.cabeleireiroId}
+                    onClick={() => setOpenAuxiliarModal(true)}
+                    placeholder="Clique para selecionar um cabeleireiro"
+                    slotProps={{
+                      input: {
+                        readOnly: true,
+                        endAdornment: (
+                          <InputAdornment position="end">
+                            {auxiliarNome !== "" ? (
+                              <IconButton
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  setAuxiliarNome("");
+                                  setAuxiliar([]);
+                                }}
+                              >
+                                <RemoveIcon />
+                              </IconButton>
+                            ) : (
+                              <PersonIcon />
+                            )}
+                          </InputAdornment>
+                        ),
+                      },
+                    }}
+                    sx={{ cursor: "pointer" }}
+                  />
+                </Box>
               </Box>
             </Box>
             <Box sx={{ flex: 1 }}>
@@ -354,47 +385,50 @@ const ManterAtendimento: React.FC = () => {
                         </TableCell>
                       </TableRow>
                     ) : (
-                      servicoAtendimento.map((servicoAtendimento) => (
-                        <TableRow key={servicoAtendimento.ID}>
-                          <TableCell>
-                            {servicoAtendimento.Servico?.Nome ||
-                              "Serviço não encontrado"}
-                          </TableCell>
-                          <TableCell align="right" sx={{ padding: 0 }}>
-                            <TextField
-                              variant="outlined"
-                              size="small"
-                              fullWidth
-                              sx={{
-                                "& .MuiInputBase-root": {
-                                  padding: 0,
-                                  height: "100%",
-                                },
-                                "& input": {
-                                  padding: "8px",
-                                },
-                              }}
-                              value={formatCurrency(
-                                servicoAtendimento.PrecoItem
-                              )}
-                              onChange={(e) => {
-                                const raw = e.target.value.replace(
-                                  /[^\d]/g,
-                                  ""
-                                );
-                                const float = parseFloat(raw) / 100;
-                                console.log(e.target.value);
-                                handlePrecoItem(servicoAtendimento.ID, float);
-                              }}
-                            />
-                          </TableCell>
-                          <TableCell align="center">
-                            <IconButton size="small" color="error">
-                              <RemoveIcon />
-                            </IconButton>
-                          </TableCell>
-                        </TableRow>
-                      ))
+                      servicoAtendimento.map((servicoAtendimento) => {
+                        let servico = servicosDisponiveis.find(
+                          (s) => s.ID === servicoAtendimento.ServicoId
+                        );
+                        return (
+                          <TableRow key={servicoAtendimento.ID}>
+                            <TableCell>
+                              {servico?.Nome || "Serviço não encontrado"}
+                            </TableCell>
+                            <TableCell align="right" sx={{ padding: 0 }}>
+                              <TextField
+                                variant="outlined"
+                                size="small"
+                                fullWidth
+                                sx={{
+                                  "& .MuiInputBase-root": {
+                                    padding: 0,
+                                    height: "100%",
+                                  },
+                                  "& input": {
+                                    padding: "8px",
+                                  },
+                                }}
+                                value={formatCurrency(
+                                  servicoAtendimento.PrecoItem
+                                )}
+                                onChange={(e) => {
+                                  const raw = e.target.value.replace(
+                                    /[^\d]/g,
+                                    ""
+                                  );
+                                  const float = parseFloat(raw) / 100;
+                                  handlePrecoItem(servicoAtendimento.ID, float);
+                                }}
+                              />
+                            </TableCell>
+                            <TableCell align="center">
+                              <IconButton size="small" color="error">
+                                <RemoveIcon />
+                              </IconButton>
+                            </TableCell>
+                          </TableRow>
+                        );
+                      })
                     )}
                   </TableBody>
                 </Table>
@@ -447,7 +481,7 @@ const ManterAtendimento: React.FC = () => {
                     <SaveIcon />
                   )
                 }
-                disabled={isLoading || (isEditing && !canSaveEdit)}
+                disabled={isLoading}
               >
                 {isEditing ? "Salvar Alterações" : "Criar Atendimento"}
               </Button>
@@ -512,69 +546,27 @@ const ManterAtendimento: React.FC = () => {
           <Button onClick={() => setOpenServicosModal(false)}>Fechar</Button>
         </DialogActions>
       </Dialog>
-
       <Dialog
-        open={openCabeleireirosModal}
-        onClose={() => setOpenCabeleireirosModal(false)}
+        open={openAuxiliarModal}
+        onClose={() => setOpenAuxiliarModal(false)}
         maxWidth="sm"
         fullWidth
       >
-        <DialogTitle>Selecionar Cabeleireiro</DialogTitle>
+        <DialogTitle>Selecionar Auxiliar</DialogTitle>
         <DialogContent>
           <List>
-            {cabeleireirosDisponiveis.map((cabeleireiro) => (
-              <ListItem key={cabeleireiro.ID} disablePadding>
-                <ListItemButton
-                  onClick={() => handleSelectCabeleireiro(cabeleireiro)}
-                >
+            {auxiliaresDisponives.map((auxiliar) => (
+              <ListItem key={auxiliar.ID} disablePadding>
+                <ListItemButton onClick={() => handleSelectAuxiliar(auxiliar)}>
                   <ListItemText
-                    primary={cabeleireiro.Nome}
-                    secondary={
-                      <Box>
-                        <Typography variant="body2" color="text.secondary">
-                          {cabeleireiro.Email}
-                        </Typography>
-                      </Box>
-                    }
-                  />
-                </ListItemButton>
-              </ListItem>
-            ))}
-          </List>
-        </DialogContent>
-        <DialogActions>
-          <Button onClick={() => setOpenCabeleireirosModal(false)}>
-            Fechar
-          </Button>
-        </DialogActions>
-      </Dialog>
-      <Dialog
-        open={openClientesModal}
-        onClose={() => setOpenClientesModal(false)}
-        maxWidth="sm"
-        fullWidth
-      >
-        <DialogTitle>Selecionar Cliente</DialogTitle>
-        <DialogContent>
-          <List>
-            {clientesDisponiveis?.map((cliente) => (
-              <ListItem key={cliente.ID} disablePadding>
-                <ListItemButton
-                  onClick={() => {
-                    setClienteId(cliente.ID!);
-                    setClienteNome(cliente.Nome);
-                    setOpenClientesModal(false);
-                  }}
-                >
-                  <ListItemText
-                    primary={cliente.Nome}
+                    primary={auxiliar.Nome}
                     secondary={
                       <Typography
                         component="span"
                         variant="body2"
                         color="text.secondary"
                       >
-                        {cliente.Email}
+                        {auxiliar.Email}
                       </Typography>
                     }
                   />
@@ -584,7 +576,7 @@ const ManterAtendimento: React.FC = () => {
           </List>
         </DialogContent>
         <DialogActions>
-          <Button onClick={() => setOpenClientesModal(false)}>Fechar</Button>
+          <Button onClick={() => setOpenAuxiliarModal(false)}>Fechar</Button>
         </DialogActions>
       </Dialog>
     </Box>

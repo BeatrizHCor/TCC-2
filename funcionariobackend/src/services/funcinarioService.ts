@@ -8,7 +8,7 @@ class FuncionarioService {
     limit: number,
     nome: string | null = null,
     include = false,
-    salaoId: string,
+    salaoId: string
   ) {
     let where: Prisma.FuncionarioWhereInput = {};
     if (nome) {
@@ -27,11 +27,11 @@ class FuncionarioService {
       where: where,
       ...(include
         ? {
-          include: {
-            AtendimentoAuxiliar: true,
-            Salao: true,
-          },
-        }
+            include: {
+              AtendimentoAuxiliar: true,
+              Salao: true,
+            },
+          }
         : {}),
       orderBy: {
         Nome: "asc",
@@ -44,7 +44,7 @@ class FuncionarioService {
     limit = 10,
     nome: string | null = null,
     includeRelations = false,
-    salaoId: string,
+    salaoId: string
   ) {
     const skip = (page - 1) * limit;
     const where: Prisma.FuncionarioWhereInput = {};
@@ -62,7 +62,7 @@ class FuncionarioService {
         limit,
         nome,
         includeRelations,
-        salaoId,
+        salaoId
       ),
     ]);
 
@@ -81,7 +81,7 @@ class FuncionarioService {
     Telefone: string,
     SalaoId: string,
     Auxiliar: boolean,
-    Salario: number,
+    Salario: number
   ) {
     try {
       const funcionario = await prisma.funcionario.create({
@@ -111,12 +111,25 @@ class FuncionarioService {
         },
         ...(include
           ? {
-            include: {
-              Salao: true,
-              AtendimentoAuxiliar: true,
-            },
-          }
+              include: {
+                Salao: true,
+                AtendimentoAuxiliar: true,
+              },
+            }
           : {}),
+      });
+    } catch (error) {
+      return false;
+    }
+  }
+
+  static async findAuxiliarbySalao(salaoId: string) {
+    try {
+      return await prisma.funcionario.findMany({
+        where: {
+          SalaoId: salaoId,
+          Auxiliar: true,
+        },
       });
     } catch (error) {
       return false;
@@ -126,7 +139,7 @@ class FuncionarioService {
   static async findByEmailandSalao(
     Email: string,
     salaoId: string,
-    include = false,
+    include = false
   ) {
     try {
       return await prisma.funcionario.findUnique({
@@ -138,11 +151,11 @@ class FuncionarioService {
         },
         ...(include
           ? {
-            include: {
-              Salao: true,
-              AtendimentoAuxiliar: true,
-            },
-          }
+              include: {
+                Salao: true,
+                AtendimentoAuxiliar: true,
+              },
+            }
           : {}),
       });
     } catch (error) {
@@ -154,7 +167,7 @@ class FuncionarioService {
   static async findByCpfandSalao(
     Cpf: string,
     salaoId: string,
-    include = false,
+    include = false
   ) {
     try {
       return await prisma.funcionario.findFirst({
@@ -164,11 +177,11 @@ class FuncionarioService {
         },
         ...(include
           ? {
-            include: {
-              Salao: true,
-              AtendimentoAuxiliar: true,
-            },
-          }
+              include: {
+                Salao: true,
+                AtendimentoAuxiliar: true,
+              },
+            }
           : {}),
       });
     } catch (error) {
@@ -184,7 +197,7 @@ class FuncionarioService {
     Telefone: string,
     SalaoId: string,
     Auxiliar: boolean,
-    Salario: number,
+    Salario: number
   ) {
     try {
       const existingFuncionario = await this.findById(id);

@@ -14,15 +14,7 @@ class AtendimentoController {
         cabeleireiro = null,
         data = null,
       } = req.query;
-      console.log("Atendimentos controller query params:", {
-        page,
-        limit,
-        includeRelations,
-        SalaoId,
-        cliente,
-        cabeleireiro,
-        data,
-      });
+      console.log(req.query);
       const Atendimentos = await AtendimentoService.getAtendimentosPage(
         Number(page),
         Number(limit),
@@ -32,7 +24,6 @@ class AtendimentoController {
         cabeleireiro ? String(cabeleireiro) : null,
         data ? String(data) : null
       );
-      console.log("Atendimentos controller:", Atendimentos);
       res.json(Atendimentos);
     } catch (error) {
       console.error(error);
@@ -42,7 +33,6 @@ class AtendimentoController {
 
   static async createAtendimento(req: Request, res: Response) {
     try {
-      console.log(req.body);
       const {
         Data,
         PrecoTotal,
@@ -96,7 +86,7 @@ class AtendimentoController {
 
   static async updateAtendimento(req: Request, res: Response) {
     try {
-      const { id } = req.params;
+      const { atendimentoId } = req.params;
       const {
         Data,
         PrecoTotal,
@@ -104,9 +94,10 @@ class AtendimentoController {
         SalaoId,
         servicosAtendimento = [],
         auxiliares = [],
+        status,
       } = req.body;
       const atendimento = await AtendimentoService.updateAtendimento(
-        id,
+        atendimentoId,
         Data,
         PrecoTotal,
         Auxiliar,
@@ -114,6 +105,15 @@ class AtendimentoController {
         servicosAtendimento,
         auxiliares
       );
+      const agendamento = await AgendamentoService.findByAtendimentoId(
+        atendimentoId
+      );
+      if (agendamento) {
+        await AgendamentoService.updateAgendamentoStatus(
+          agendamento.ID,
+          status
+        );
+      }
       res.json(atendimento);
     } catch (error) {
       console.error(error);

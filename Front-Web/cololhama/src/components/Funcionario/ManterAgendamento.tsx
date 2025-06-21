@@ -26,6 +26,7 @@ import {
   InputAdornment,
   Tooltip,
 } from "@mui/material";
+import { ptBR } from "date-fns/locale";
 import { useNavigate, useParams } from "react-router-dom";
 import { useManterAgendamento } from "./useManterAgendamento";
 import SaveIcon from "@mui/icons-material/Save";
@@ -46,7 +47,7 @@ import { Cliente } from "../../models/clienteModel";
 import { DateTimePicker } from "@mui/x-date-pickers/DateTimePicker";
 import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
 import { AdapterDateFns } from "@mui/x-date-pickers/AdapterDateFns";
-import { ptBR } from 'date-fns/locale';
+
 
 function formatDateToLocalDateTimeString(date: Date) {
   const pad = (n: number) => n.toString().padStart(2, "0");
@@ -570,10 +571,7 @@ const getDataTimeHelperText = () => {
                       <SaveIcon />
                     )
                   }
-                  disabled={
-                    status === StatusAgendamento.Finalizado ||
-                    status === StatusAgendamento.Confirmado
-                  }
+                  disabled={status === StatusAgendamento.Finalizado}
                   onClick={handleConfirmar}
                 >
                   Confirmar Atendimento

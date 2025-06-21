@@ -16,15 +16,14 @@ class AtendimentoService {
     includeRelations = false,
     salaoId: string | null = null,
     nomeCliente: string | null = null,
-    nomeCabeleireiro: string | null = null,
+    userId: string,
     data: string | null = null
   ) {
     const where: Prisma.AtendimentoWhereInput = {};
-
+    console.log("nome Cliente", nomeCliente);
     if (salaoId !== null) {
       where.SalaoId = salaoId;
     }
-    console.log("Valores d,m,a: ", data);
     const range = getRangeByStringInputWithTimezone(data);
     if (range !== null) {
       where.Data = {
@@ -32,16 +31,13 @@ class AtendimentoService {
         lte: range.dataFinal,
       };
     }
-    if (nomeCabeleireiro && nomeCliente) {
+    if (nomeCliente) {
       where.Agendamentos = {
         some: {
           AND: [
             {
               Cabeleireiro: {
-                Nome: {
-                  contains: nomeCabeleireiro,
-                  mode: "insensitive",
-                },
+                ID: userId,
               },
             },
             {
@@ -55,26 +51,16 @@ class AtendimentoService {
           ],
         },
       };
-    } else if (nomeCabeleireiro) {
+    } else {
       where.Agendamentos = {
         some: {
-          Cabeleireiro: {
-            Nome: {
-              contains: nomeCabeleireiro,
-              mode: "insensitive",
+          AND: [
+            {
+              Cabeleireiro: {
+                ID: userId,
+              },
             },
-          },
-        },
-      };
-    } else if (nomeCliente) {
-      where.Agendamentos = {
-        some: {
-          Cliente: {
-            Nome: {
-              contains: nomeCliente,
-              mode: "insensitive",
-            },
-          },
+          ],
         },
       };
     }
@@ -109,7 +95,7 @@ class AtendimentoService {
     includeRelations = false,
     salaoId: string | null = null,
     nomeCliente: string | null = null,
-    nomeCabeleireiro: string | null = null,
+    userId: string,
     data: string | null = null
   ) {
     const skip = (page - 1) * limit;
@@ -124,16 +110,13 @@ class AtendimentoService {
         lte: range.dataFinal,
       };
     }
-    if (nomeCabeleireiro && nomeCliente) {
+    if (nomeCliente) {
       where.Agendamentos = {
         some: {
           AND: [
             {
               Cabeleireiro: {
-                Nome: {
-                  contains: nomeCabeleireiro,
-                  mode: "insensitive",
-                },
+                ID: userId,
               },
             },
             {
@@ -147,28 +130,6 @@ class AtendimentoService {
           ],
         },
       };
-    } else if (nomeCabeleireiro) {
-      where.Agendamentos = {
-        some: {
-          Cabeleireiro: {
-            Nome: {
-              contains: nomeCabeleireiro,
-              mode: "insensitive",
-            },
-          },
-        },
-      };
-    } else if (nomeCliente) {
-      where.Agendamentos = {
-        some: {
-          Cliente: {
-            Nome: {
-              contains: nomeCliente,
-              mode: "insensitive",
-            },
-          },
-        },
-      };
     }
     const [total, atendimentos] = await Promise.all([
       prisma.atendimento.count({ where }),
@@ -178,7 +139,7 @@ class AtendimentoService {
         includeRelations,
         salaoId,
         nomeCliente,
-        nomeCabeleireiro,
+        userId,
         data
       ),
     ]);
@@ -190,7 +151,6 @@ class AtendimentoService {
       data: atendimentos,
     };
   }
-
   static async findById(id: string, includeRelations = false) {
     return prisma.atendimento.findUnique({
       where: { ID: id },
@@ -204,11 +164,50 @@ class AtendimentoService {
               Agendamentos: {
                 include: { Cliente: true },
               },
-              ServicoAtendimento: true,
+              ServicoAtendimento: {
+                include: {
+                  Servico: true,
+                },
+              },
             },
           }
         : {}),
     });
+  }
+
+  static async findByAgendamento(agendamentoId: string) {
+    let agendamento = await prisma.agendamentos.findUnique({
+      where: {
+        ID: agendamentoId,
+      },
+      include: {
+        Atendimento: true,
+      },
+    });
+    if (agendamento?.AtendimentoID) {
+      return prisma.atendimento.findFirstOrThrow({
+        where: {
+          ID: agendamento?.AtendimentoID,
+        },
+
+        include: {
+          Salao: true,
+          AtendimentoAuxiliar: {
+            include: { Auxiliar: true },
+          },
+          Agendamentos: {
+            include: { Cliente: true },
+          },
+          ServicoAtendimento: {
+            include: {
+              Servico: true,
+            },
+          },
+        },
+      });
+    } else {
+      return null;
+    }
   }
 
   static createAtendimento = async (

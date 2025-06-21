@@ -27,7 +27,7 @@ class AgendamentoController {
           CabeleireiroId ? String(CabeleireiroId) : "",
           dia !== undefined ? Number(dia) : 0,
           mes !== undefined ? Number(mes) : 0,
-          ano !== undefined ? Number(ano) : 0,
+          ano !== undefined ? Number(ano) : 0
         );
         res.status(200).json(agendamentos);
       }
@@ -40,15 +40,13 @@ class AgendamentoController {
   static findById = async (req: Request, res: Response) => {
     try {
       const { id } = req.params;
-      const includeRelations = req.query.include === "true";
+      const includeRelations = req.query.includeRelations === "true";
       const cabeleireiro = await AgendamentoService.findById(
         id,
-        includeRelations,
+        includeRelations
       );
       if (!cabeleireiro) {
-        res
-          .status(204)
-          .json({ message: "Agendamentos não encontrado" });
+        res.status(204).json({ message: "Agendamentos não encontrado" });
       } else {
         res.json(cabeleireiro);
       }
@@ -66,7 +64,7 @@ class AgendamentoController {
         ClienteID,
         SalaoId,
         CabeleireiroID,
-        Servicos,
+        Servicos
       );
       if (!agendamento || agendamento === null) {
         res
@@ -77,16 +75,14 @@ class AgendamentoController {
       }
     } catch (e) {
       console.log(e);
-      res
-        .status(500)
-        .json({ message: "Não foi possivél criar o agendamento" });
+      res.status(500).json({ message: "Não foi possivél criar o agendamento" });
     }
   };
 
   static updateAgendamento = async (req: Request, res: Response) => {
     try {
       const { id } = req.params;
-      const { Data, Status, ClienteID, SalaoId, CabeleireiroID, Servicos } =
+      const { Data, Status, ClienteID, SalaoId, CabeleireiroID, servicoIds } =
         req.body;
       const agendamento = await AgendamentoService.updateAgendamento(
         id,
@@ -95,8 +91,9 @@ class AgendamentoController {
         ClienteID,
         SalaoId,
         CabeleireiroID,
-        Servicos,
+        servicoIds
       );
+      console.log(servicoIds);
       if (!agendamento) {
         res.status(404).json({ message: "Agendamento não encontrado" });
       } else {

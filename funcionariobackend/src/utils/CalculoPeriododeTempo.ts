@@ -4,19 +4,15 @@ export function getRangeByDataInputWithTimezone(
   ano: number,
   mes: number = 0,
   dia: number = 0,
-  timezone: string = 'America/Sao_Paulo'
+  timezone: string = "America/Sao_Paulo"
 ): { dataInicial: Date; dataFinal: Date } | null {
-
   if (ano <= 0 || Number.isNaN(ano)) {
-    console.log("Ano não fornecido ou inválido");
     return null;
   }
   if (dia > 0 && mes <= 0) {
-    console.log("Não é permitido informar dia sem informar mês.");
     return null;
   }
   if (mes < 0 || mes > 12) {
-    console.log("Mês inválido. Deve estar entre 1 e 12");
     return null;
   }
 
@@ -51,25 +47,25 @@ export function getRangeByDataInputWithTimezone(
 }
 
 export function getRangeByStringInputWithTimezone(
-  dataStr: string | null,
+  dataStr: string | null
 ): { dataInicial: Date; dataFinal: Date } | null {
   if (!dataStr) {
-    console.log("Data não fornecida");
     return null;
   }
 
- if (!dataStr.match(/^\d{4}(-\d{1,2}(-\d{1,2})?)?$/)) {
-   console.log("Formato de data inválido. Use YYYY, YYYY-MM, ou YYYY-MM-DD");
-   return null;
- }
-  const partes = dataStr.split('-').map(Number);
+  if (!dataStr.match(/^\d{4}(-\d{1,2}(-\d{1,2})?)?$/)) {
+    return null;
+  }
+  const partes = dataStr.split("-").map(Number);
 
   const ano = partes[0];
-  const mes = partes[1] || 0; 
-  const dia = partes[2] || 0; 
- 
+  const mes = partes[1] || 0;
+  const dia = partes[2] || 0;
+
   const datas = getRangeByDataInputWithTimezone(ano, mes, dia);
-  if(!datas) { return null }
+  if (!datas) {
+    return null;
+  }
   return {
     dataInicial: datas.dataInicial,
     dataFinal: datas.dataFinal,

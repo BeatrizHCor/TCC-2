@@ -95,7 +95,7 @@ export const useVisualizarAtendimentos = (
                 minute: "2-digit",
               })
             : "",
-          ValorTotal: item.ValorTotal ?? 0,
+          ValorTotal: item.PrecoTotal ?? 0,
           QuantidadeServicos: item.ServicoAtendimento?.length ?? 0,
         }));
         setAtendimentos(listaAtendimentos);

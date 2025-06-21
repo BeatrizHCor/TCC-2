@@ -15,6 +15,8 @@ import { ServicoAtendimento } from "../../models/servicoAtendimentoModel";
 import { Cliente } from "../../models/clienteModel";
 import ClienteService from "../../services/ClienteService";
 import { Atendimento } from "../../models/atendimentoModal";
+import { Funcionario } from "../../models/funcionarioModel";
+import FuncionarioService from "../../services/FuncionarioService";
 
 interface ValidationErrors {
   data?: string;
@@ -65,7 +67,11 @@ export const useManterAtendimento = (
   const [atendimentoId, setAtendimentoId] = useState(stateCabId);
   const [servicosDisponiveis, setServicosDisponiveis] = useState<Servico[]>([]);
   const [clientesDisponiveis, setClientesDisponiveis] = useState<Cliente[]>([]);
-
+  const [auxiliaresDisponives, setAuxiliaresDisponiveis] = useState<
+    Funcionario[]
+  >([]);
+  const [auxiliar, setAuxiliar] = useState<AtendimentoAuxiliar[]>([]);
+  const [auxiliarNome, setAuxiliarNome] = useState("");
   const [cabeleireirosDisponiveis, setCabeleireirosDisponiveis] = useState<
     Cabeleireiro[]
   >([]);
@@ -81,34 +87,38 @@ export const useManterAtendimento = (
   const [isEditing, setIsEditing] = useState(false);
   const [precoTotal, setPrecoTotal] = useState(0);
   const navigate = useNavigate();
-  const [auxiliares, setAuxiliares] = useState<AtendimentoAuxiliar[]>([]);
   const [servicoAtendimento, setServicoAtendimento] = useState<
     ServicoAtendimento[]
   >([]);
-  const canSaveEdit = (): boolean => {
-    if (!isEditing || !data) return true;
 
-    const agendamentoDate = new Date(data);
-    const currentDate = new Date();
-    const threeDaysFromNow = new Date();
-    threeDaysFromNow.setDate(currentDate.getDate() + 3);
-
-    return agendamentoDate > threeDaysFromNow;
-  };
   useEffect(() => {
-    let v = servicosAgendamento.reduce(
-      (sum: number, s: ServicoAgendamento) => sum + s.PrecoMin,
+    if (!servicoAtendimento) {
+      let serv = servicosAgendamento.map((a) => {
+        return {
+          PrecoItem: a.PrecoMin,
+          ServicoId: a.ServicoId,
+        } as ServicoAtendimento;
+      });
+      setServicoAtendimento(serv);
+    }
+    console.log(servicoAtendimento);
+  }, [servicosDisponiveis]);
+
+  useEffect(() => {
+    if (auxiliar.length > 0)
+      setAuxiliarNome(
+        auxiliaresDisponives.find((a) => a.ID === auxiliar[0].AuxiliarID)
+          ?.Nome || ""
+      );
+  }, [auxiliaresDisponives]);
+
+  useEffect(() => {
+    let v = servicoAtendimento.reduce(
+      (sum: number, s: ServicoAtendimento) => sum + s.PrecoItem,
       0
     );
-    let serv = servicosAgendamento.map((a) => {
-      return {
-        PrecoItem: a.PrecoMin,
-        ServicoId: a.ServicoId,
-      } as ServicoAtendimento;
-    });
     setPrecoTotal(v);
-    setServicoAtendimento(serv);
-  }, []);
+  }, [servicoAtendimento]);
 
   useEffect(() => {
     const loadInitialData = async () => {
@@ -121,7 +131,6 @@ export const useManterAtendimento = (
             await AtendimentoService.getAtendimentobyAgendamentoId(
               agendamentoId
             );
-          console.log(typeof atendimento.Data);
           if (atendimento) {
             let data = new Date(atendimento.Data as unknown as string);
             setData(formatDateToLocalDateTimeString(data));
@@ -129,9 +138,14 @@ export const useManterAtendimento = (
             setServicoAtendimento(atendimento.ServicoAtendimento);
             setCabeleireiroId(atendimento.Agendamentos[0].CabeleireiroID);
             setClienteId(atendimento.Agendamentos[0].ClienteID);
-            setAuxiliares(
+            setAuxiliar(
               atendimento.AtendimentoAuxiliar || ([] as AtendimentoAuxiliar[])
             );
+            setIsEditing(true);
+          }
+          let Auxiliares = await FuncionarioService.getAuxiliarBySalao(salaoId);
+          if (Auxiliares) {
+            setAuxiliaresDisponiveis(Auxiliares as Funcionario[]);
           }
         }
         const servicos = await ServicoService.getServicosBySalao(salaoId);
@@ -179,7 +193,7 @@ export const useManterAtendimento = (
       errors.cabeleireiroId = "Cabeleireiro é obrigatório";
     }
 
-    if (servicosAgendamento.length === 0) {
+    if (servicoAtendimento.length === 0) {
       errors.servicos = "Pelo menos um serviço deve ser selecionado";
     }
 
@@ -199,10 +213,6 @@ export const useManterAtendimento = (
       return;
     }
 
-    if (isEditing && !canSaveEdit()) {
-      return;
-    }
-
     setIsLoading(true);
     const servicosIds: string[] = [];
     for (const servico of servicosAgendamento) {
@@ -213,18 +223,29 @@ export const useManterAtendimento = (
 
     try {
       if (isEditing && atendimentoId) {
+        await AtendimentoService.updateAtendimento(
+          atendimentoId,
+          new Date(data),
+          precoTotal,
+          auxiliar.length > 0,
+          salaoId,
+          servicoAtendimento,
+          auxiliar,
+          agendamentoId!,
+          status
+        );
       } else {
         await AtendimentoService.createAtendimento(
           new Date(data),
           precoTotal,
-          false,
+          auxiliar.length > 0,
           salaoId,
           servicoAtendimento,
-          auxiliares,
-          agendamentoId!
+          auxiliar,
+          agendamentoId!,
+          status
         );
       }
-      navigate("/atendimentos");
     } catch (error: unknown) {
       console.error("Erro ao salvar agendamento:", error);
 
@@ -235,30 +256,16 @@ export const useManterAtendimento = (
       } else {
         console.error("Erro desconhecido:", error);
       }
+    } finally {
+      navigate("/atendimentos");
     }
   };
 
   const handleDelete = async () => {
-    if (!isEditing || !agendamentoId) {
-      return;
-    }
-
     setIsLoading(true);
 
     try {
-      switch (userType) {
-        case userTypes.Funcionario:
-          await AgendamentoService.deleteFuncionarioAgendamento(agendamentoId);
-          break;
-        case userTypes.Cabeleireiro:
-          await AgendamentoService.deleteCabeleireiroAgendamento(agendamentoId);
-          break;
-        case userTypes.Cliente:
-          await AgendamentoService.deleteClienteAgendamento(agendamentoId);
-          break;
-        default:
-          throw new Error("Tipo de usuário não suportado para exclusão");
-      }
+      await AtendimentoService.deleteAtendimento(atendimentoId);
       navigate(-1);
     } catch (error: unknown) {
       console.error("Erro ao excluir agendamento:", error);
@@ -298,10 +305,16 @@ export const useManterAtendimento = (
     setPrecoTotal,
     servicoAtendimento,
     setServicoAtendimento,
-    canSaveEdit: canSaveEdit(),
+    auxiliar,
+    setAuxiliar,
     clienteNome,
     setClienteNome,
+    auxiliarNome,
+    setAuxiliarNome,
     clientesDisponiveis,
+    atendimentoId,
+    auxiliaresDisponives,
+    setAuxiliaresDisponiveis,
   };
 };
 

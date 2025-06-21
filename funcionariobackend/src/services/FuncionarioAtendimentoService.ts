@@ -204,7 +204,11 @@ class AtendimentoService {
               Agendamentos: {
                 include: { Cliente: true },
               },
-              ServicoAtendimento: true,
+              ServicoAtendimento: {
+                include: {
+                  Servico: true,
+                },
+              },
             },
           }
         : {}),
@@ -212,26 +216,38 @@ class AtendimentoService {
   }
 
   static async findByAgendamento(agendamentoId: string) {
-    return prisma.atendimento.findFirst({
+    let agendamento = await prisma.agendamentos.findUnique({
       where: {
-        Agendamentos: {
-          every: {
-            ID: agendamentoId,
-          },
-        },
+        ID: agendamentoId,
       },
-
       include: {
-        Salao: true,
-        AtendimentoAuxiliar: {
-          include: { Auxiliar: true },
-        },
-        Agendamentos: {
-          include: { Cliente: true },
-        },
-        ServicoAtendimento: true,
+        Atendimento: true,
       },
     });
+    if (agendamento?.AtendimentoID) {
+      return prisma.atendimento.findFirstOrThrow({
+        where: {
+          ID: agendamento?.AtendimentoID,
+        },
+
+        include: {
+          Salao: true,
+          AtendimentoAuxiliar: {
+            include: { Auxiliar: true },
+          },
+          Agendamentos: {
+            include: { Cliente: true },
+          },
+          ServicoAtendimento: {
+            include: {
+              Servico: true,
+            },
+          },
+        },
+      });
+    } else {
+      return null;
+    }
   }
 
   static createAtendimento = async (

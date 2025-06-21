@@ -2,6 +2,7 @@ import axios from "axios";
 import { Atendimento } from "../models/atendimentoModal";
 import { ServicoAtendimento } from "../models/servicoAtendimentoModel";
 import { AtendimentoAuxiliar } from "../models/atendimentoAuxiliarModel";
+import { StatusAgendamento } from "../models/StatusAgendamento.enum";
 
 const api = axios.create({
   baseURL: import.meta.env.VITE_GATEWAY_URL || "http://localhost:3002",
@@ -24,15 +25,34 @@ interface AtendimentoPageResponse {
   limit: number;
 }
 class AtendimentoService {
-  static getAtendimentosPageCabeleireiro(
+  static async getAtendimentosPageCabeleireiro(
     page: number,
     limit: number,
     clienteFilter: string,
     dataFilter: string,
     userId: string,
     salaoId: string
-  ): any {
-    throw new Error("Method not implemented.");
+  ): Promise<AtendimentoPageResponse | boolean> {
+    try {
+      const response = await api.get(`cabeleireiro/atendimento/page`, {
+        params: {
+          page,
+          limit,
+          includeRelations: true,
+          SalaoId: salaoId,
+          cliente: clienteFilter,
+          userId,
+          data: dataFilter,
+        },
+      });
+      if (response.status === 200) {
+        return response.data;
+      }
+      return false;
+    } catch (error) {
+      console.error("Erro ao buscar atendimentos:", error);
+      return false;
+    }
   }
   static getAtendimentosPageCliente(
     page: number,
@@ -60,7 +80,7 @@ class AtendimentoService {
           includeRelations: true,
           SalaoId: salaoId,
           cliente: clienteFilter,
-          cabelereiro: cabelereiroFilter,
+          cabeleireiro: cabelereiroFilter,
           data: dataFilter,
         },
       });
@@ -94,7 +114,8 @@ class AtendimentoService {
     SalaoId: string,
     servicosAtendimento: ServicoAtendimento[] = [],
     auxiliares: AtendimentoAuxiliar[] = [],
-    AgendamentoID: string
+    AgendamentoID: string,
+    status: StatusAgendamento
   ) => {
     try {
       const response = await api.post(`/atendimento`, {
@@ -105,6 +126,7 @@ class AtendimentoService {
         servicosAtendimento,
         auxiliares,
         AgendamentoID,
+        status,
       });
       if (response.status === 201) {
         return response.data;
@@ -123,7 +145,8 @@ class AtendimentoService {
     SalaoId: string,
     servicosAtendimento: ServicoAtendimento[] = [],
     auxiliares: AtendimentoAuxiliar[] = [],
-    AgendamentoID: string
+    AgendamentoID: string,
+    status: StatusAgendamento
   ) => {
     try {
       const response = await api.put(`/atendimento/${AtendimentoId}`, {
@@ -134,7 +157,20 @@ class AtendimentoService {
         servicosAtendimento,
         auxiliares,
         AgendamentoID,
+        status,
       });
+      if (response.status === 403) {
+        return false;
+      }
+      return response.data;
+    } catch (error) {
+      console.error("Erro ao criar atendimentos:", error);
+      return false;
+    }
+  };
+  static deleteAtendimento = async (atendimentoId: string) => {
+    try {
+      const response = await api.delete(`/atendimento/${atendimentoId}`);
       if (response.status === 403) {
         return false;
       }
