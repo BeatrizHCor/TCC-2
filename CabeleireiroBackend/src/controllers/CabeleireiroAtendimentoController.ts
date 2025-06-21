@@ -11,25 +11,17 @@ class AtendimentoController {
         includeRelations,
         SalaoId = null,
         cliente = null,
-        cabeleireiro = null,
+        userId,
         data = null,
       } = req.query;
-      console.log("Atendimentos controller query params:", {
-        page,
-        limit,
-        includeRelations,
-        SalaoId,
-        cliente,
-        cabeleireiro,
-        data,
-      });
+
       const Atendimentos = await AtendimentoService.getAtendimentosPage(
         Number(page),
         Number(limit),
         includeRelations === "true",
         SalaoId ? String(SalaoId) : null,
         cliente ? String(cliente) : null,
-        cabeleireiro ? String(cabeleireiro) : null,
+        String(userId),
         data ? String(data) : null
       );
       console.log("Atendimentos controller:", Atendimentos);

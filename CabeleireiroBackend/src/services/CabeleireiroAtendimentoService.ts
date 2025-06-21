@@ -16,7 +16,7 @@ class AtendimentoService {
     includeRelations = false,
     salaoId: string | null = null,
     nomeCliente: string | null = null,
-    nomeCabeleireiro: string | null = null,
+    userId: string,
     data: string | null = null
   ) {
     const where: Prisma.AtendimentoWhereInput = {};
@@ -32,16 +32,13 @@ class AtendimentoService {
         lte: range.dataFinal,
       };
     }
-    if (nomeCabeleireiro && nomeCliente) {
+    if (nomeCliente) {
       where.Agendamentos = {
         some: {
           AND: [
             {
               Cabeleireiro: {
-                Nome: {
-                  contains: nomeCabeleireiro,
-                  mode: "insensitive",
-                },
+                ID: userId,
               },
             },
             {
@@ -53,28 +50,6 @@ class AtendimentoService {
               },
             },
           ],
-        },
-      };
-    } else if (nomeCabeleireiro) {
-      where.Agendamentos = {
-        some: {
-          Cabeleireiro: {
-            Nome: {
-              contains: nomeCabeleireiro,
-              mode: "insensitive",
-            },
-          },
-        },
-      };
-    } else if (nomeCliente) {
-      where.Agendamentos = {
-        some: {
-          Cliente: {
-            Nome: {
-              contains: nomeCliente,
-              mode: "insensitive",
-            },
-          },
         },
       };
     }
@@ -109,7 +84,7 @@ class AtendimentoService {
     includeRelations = false,
     salaoId: string | null = null,
     nomeCliente: string | null = null,
-    nomeCabeleireiro: string | null = null,
+    userId: string,
     data: string | null = null
   ) {
     const skip = (page - 1) * limit;
@@ -124,16 +99,13 @@ class AtendimentoService {
         lte: range.dataFinal,
       };
     }
-    if (nomeCabeleireiro && nomeCliente) {
+    if (nomeCliente) {
       where.Agendamentos = {
         some: {
           AND: [
             {
               Cabeleireiro: {
-                Nome: {
-                  contains: nomeCabeleireiro,
-                  mode: "insensitive",
-                },
+                ID: userId,
               },
             },
             {
@@ -147,28 +119,6 @@ class AtendimentoService {
           ],
         },
       };
-    } else if (nomeCabeleireiro) {
-      where.Agendamentos = {
-        some: {
-          Cabeleireiro: {
-            Nome: {
-              contains: nomeCabeleireiro,
-              mode: "insensitive",
-            },
-          },
-        },
-      };
-    } else if (nomeCliente) {
-      where.Agendamentos = {
-        some: {
-          Cliente: {
-            Nome: {
-              contains: nomeCliente,
-              mode: "insensitive",
-            },
-          },
-        },
-      };
     }
     const [total, atendimentos] = await Promise.all([
       prisma.atendimento.count({ where }),
@@ -178,7 +128,7 @@ class AtendimentoService {
         includeRelations,
         salaoId,
         nomeCliente,
-        nomeCabeleireiro,
+        userId,
         data
       ),
     ]);

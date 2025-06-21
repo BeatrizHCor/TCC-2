@@ -14,14 +14,21 @@ export const FuncionariogetAtendimentosPage = async (
   limit: number,
   includeRelations: boolean = false,
   salaoId: number,
-  dia: number,
-  mes: number,
-  ano: number
+  data: string,
+  cliente: string | null,
+  cabeleireiro: string | null
 ) => {
-  console.log(dia, mes, ano);
+  console.log(
+    FuncionarioURL +
+      `/atendimento/page?page=${page}&limit=${limit}&salaoId=${salaoId}&data=${data}&includeRelations=${includeRelations}${
+        cliente ? `&cliente=${cliente}` : ""
+      }${cabeleireiro ? `&cliente=${cabeleireiro}` : ""}`
+  );
   let responseAgendamentos = await fetch(
     FuncionarioURL +
-      `/atendimento/page?page=${page}&limit=${limit}&salaoId=${salaoId}&dia=${dia}&mes=${mes}&ano=${ano}&includeRelations=${includeRelations}`,
+      `/atendimento/page?page=${page}&limit=${limit}&salaoId=${salaoId}&data=${data}&includeRelations=${includeRelations}${
+        cliente ? `&cliente=${cliente}` : ""
+      }${cabeleireiro ? `&cabeleireiro=${cabeleireiro}` : ""}`,
     {
       method: "GET",
     }
@@ -122,3 +129,26 @@ export const FuncionarioDeleteAtendimento = async (id: string) => {
   return handleApiResponse<Agendamentos>(response, "deletar atendimento");
 };
 //-----Cabeleireiro
+export const CabeleireirogetAtendimentosPage = async (
+  page: number,
+  limit: number,
+  includeRelations: boolean = false,
+  salaoId: number,
+  dia: number,
+  mes: number,
+  ano: number
+) => {
+  console.log(dia, mes, ano);
+  let responseAgendamentos = await fetch(
+    FuncionarioURL +
+      `/atendimento/page?page=${page}&limit=${limit}&salaoId=${salaoId}&dia=${dia}&mes=${mes}&ano=${ano}&includeRelations=${includeRelations}`,
+    {
+      method: "GET",
+    }
+  );
+  if (responseAgendamentos.ok) {
+    return (await responseAgendamentos.json()) as Agendamentos[];
+  } else {
+    throw new Error("Error in fetching Agendamentos");
+  }
+};

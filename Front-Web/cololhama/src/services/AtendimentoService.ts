@@ -25,15 +25,34 @@ interface AtendimentoPageResponse {
   limit: number;
 }
 class AtendimentoService {
-  static getAtendimentosPageCabeleireiro(
+  static async getAtendimentosPageCabeleireiro(
     page: number,
     limit: number,
     clienteFilter: string,
     dataFilter: string,
     userId: string,
     salaoId: string
-  ): any {
-    throw new Error("Method not implemented.");
+  ): Promise<AtendimentoPageResponse | boolean> {
+    try {
+      const response = await api.get(`funcionario/atendimento/page`, {
+        params: {
+          page,
+          limit,
+          includeRelations: true,
+          SalaoId: salaoId,
+          cliente: clienteFilter,
+          userId,
+          data: dataFilter,
+        },
+      });
+      if (response.status === 200) {
+        return response.data;
+      }
+      return false;
+    } catch (error) {
+      console.error("Erro ao buscar atendimentos:", error);
+      return false;
+    }
   }
   static getAtendimentosPageCliente(
     page: number,
@@ -61,7 +80,7 @@ class AtendimentoService {
           includeRelations: true,
           SalaoId: salaoId,
           cliente: clienteFilter,
-          cabelereiro: cabelereiroFilter,
+          cabeleireiro: cabelereiroFilter,
           data: dataFilter,
         },
       });
