@@ -158,13 +158,13 @@ RoutesAtendimento.put(
             AgendamentoID,
             status
           );
+          res.status(201).json(result);
         } else {
           res.status(403).json("Unauthorized");
         }
       }
     } catch (e) {
       console.log(e);
-      console.log("aqui terceiro");
 
       res.status(500).send("Erro no ao atualizar atendimento");
     }
