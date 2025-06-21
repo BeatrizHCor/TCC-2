@@ -163,7 +163,7 @@ RoutesAtendimento.get(
     const page = parseInt(req.query.page as string) || 0;
     const limit = parseInt(req.query.limit as string) || 10;
     const salaoId = parseInt(req.query.salaoId as string) || 0;
-    const data = req.query.data || "0000-00-00";
+    const data = (req.query.data as string) || "0000-00-00";
     const includeRelations = req.query.includeRelations === "true";
     const cliente = req.query.cliente || null;
     const cabeleireiro = req.query.cabeleireiro || null;
@@ -216,10 +216,10 @@ RoutesAtendimento.get(
     const page = parseInt(req.query.page as string) || 0;
     const limit = parseInt(req.query.limit as string) || 10;
     const salaoId = parseInt(req.query.salaoId as string) || 0;
-    const dia = parseInt(req.query.dia as string) || 0;
-    const mes = parseInt(req.query.mes as string) || 0;
-    const ano = parseInt(req.query.ano as string) || 0;
+    const data = (req.query.data as string) || "0000-00-00";
     const includeRelations = req.query.includeRelations === "true";
+    const userId = req.query.userId as string;
+    console.log(req.query);
     try {
       const { userInfo, auth } = await getUserInfoAndAuth(req.headers);
       console.log(userInfo);
@@ -227,22 +227,14 @@ RoutesAtendimento.get(
         res.status(403).json({ message: "Não autorizado" });
         return;
       } else {
-        if (
-          auth &&
-          [
-            userTypes.FUNCIONARIO,
-            userTypes.ADM_SALAO,
-            userTypes.ADM_SISTEMA,
-          ].includes(userInfo.userType)
-        ) {
+        if (auth && [userTypes.CABELEIREIRO].includes(userInfo.userType)) {
           const agendamentos = await CabeleireirogetAtendimentosPage(
             page,
             limit,
             includeRelations,
             salaoId,
-            dia,
-            mes,
-            ano
+            data,
+            userId
           );
           if (agendamentos) {
             res.status(200).json(agendamentos);

@@ -34,7 +34,7 @@ class AtendimentoService {
     salaoId: string
   ): Promise<AtendimentoPageResponse | boolean> {
     try {
-      const response = await api.get(`funcionario/atendimento/page`, {
+      const response = await api.get(`cabeleireiro/atendimento/page`, {
         params: {
           page,
           limit,

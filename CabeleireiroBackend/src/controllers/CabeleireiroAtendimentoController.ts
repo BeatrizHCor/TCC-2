@@ -14,7 +14,7 @@ class AtendimentoController {
         userId,
         data = null,
       } = req.query;
-
+      console.log(req.query);
       const Atendimentos = await AtendimentoService.getAtendimentosPage(
         Number(page),
         Number(limit),

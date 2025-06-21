@@ -20,11 +20,10 @@ class AtendimentoService {
     data: string | null = null
   ) {
     const where: Prisma.AtendimentoWhereInput = {};
-
+    console.log("nome Cliente", nomeCliente);
     if (salaoId !== null) {
       where.SalaoId = salaoId;
     }
-    console.log("Valores d,m,a: ", data);
     const range = getRangeByStringInputWithTimezone(data);
     if (range !== null) {
       where.Data = {
@@ -47,6 +46,18 @@ class AtendimentoService {
                   contains: nomeCliente,
                   mode: "insensitive",
                 },
+              },
+            },
+          ],
+        },
+      };
+    } else {
+      where.Agendamentos = {
+        some: {
+          AND: [
+            {
+              Cabeleireiro: {
+                ID: userId,
               },
             },
           ],

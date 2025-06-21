@@ -134,20 +134,19 @@ export const CabeleireirogetAtendimentosPage = async (
   limit: number,
   includeRelations: boolean = false,
   salaoId: number,
-  dia: number,
-  mes: number,
-  ano: number
+  data: string,
+  userId: string
 ) => {
-  console.log(dia, mes, ano);
-  let responseAgendamentos = await fetch(
-    FuncionarioURL +
-      `/atendimento/page?page=${page}&limit=${limit}&salaoId=${salaoId}&dia=${dia}&mes=${mes}&ano=${ano}&includeRelations=${includeRelations}`,
+  let responseAtendimentos = await fetch(
+    CabeleireiroURL +
+      `/atendimento/page?page=${page}&limit=${limit}&userId=${userId}&salaoId=${salaoId}&data${data}&includeRelations=${includeRelations}`,
     {
       method: "GET",
     }
   );
-  if (responseAgendamentos.ok) {
-    return (await responseAgendamentos.json()) as Agendamentos[];
+  console.log(responseAtendimentos);
+  if (responseAtendimentos.ok) {
+    return (await responseAtendimentos.json()) as Agendamentos[];
   } else {
     throw new Error("Error in fetching Agendamentos");
   }
