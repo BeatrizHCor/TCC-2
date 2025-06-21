@@ -15,10 +15,9 @@ import {
   IconButton,
   Chip,
   Paper,
-  Divider,
   Stack,
-  AppBar,
-  Toolbar,
+  MobileStepper,
+  useTheme,
 } from '@mui/material';
 import {
   Download,
@@ -30,6 +29,8 @@ import {
   CloudUpload,
   RotateCcw,
   ZoomIn,
+  ChevronLeft,
+  ChevronRight,
 } from 'lucide-react';
 import { IAService, ResultsType } from '../../services/IAService';
 import { useSimulacao } from './useSimulacao';
@@ -300,47 +301,337 @@ const ColorPalette: React.FC<{ results: ResultsType }> = ({ results }) => (
   </Paper>
 );
 
-const SimulationResults: React.FC<{
+const CarouselResults: React.FC<{
   results: ResultsType;
   onImageClick: (image: string) => void;
 }> = ({ results, onImageClick }) => {
   const images = [
-    { title: 'Imagem Original', src: results.images.original, isOriginal: true },
-    { title: 'Cor Análoga 1', src: results.images.analoga_1 },
-    { title: 'Cor Análoga 2', src: results.images.analoga_2 },
-    { title: 'Cor Complementar', src: results.images.complementar },
+    { title: 'Imagem Original', src: results.images.original, isOriginal: true, description: 'Imagem original enviada por você.' },
+    { title: 'Cor Análoga 1', src: results.images.analoga_1, description: 'Primeira sugestão de cor análoga (semelhante na roda de cores).' },
+    { title: 'Cor Análoga 2', src: results.images.analoga_2, description: 'Segunda sugestão de cor análoga (semelhante na roda de cores).' },
+    { title: 'Cor Complementar', src: results.images.complementar, description: 'Cor oposta na roda de cores, oferecendo contraste visual.' },
   ];
 
+  const [activeStep, setActiveStep] = useState(0);
+  const [touchStart, setTouchStart] = useState<number | null>(null);
+  const [touchEnd, setTouchEnd] = useState<number | null>(null);
+
+  const minSwipeDistance = 50;
+
+  const onTouchStart = (e: React.TouchEvent) => {
+    setTouchEnd(null);
+    setTouchStart(e.targetTouches[0].clientX);
+  };
+
+  const onTouchMove = (e: React.TouchEvent) => {
+    setTouchEnd(e.targetTouches[0].clientX);
+  };
+
+  const onTouchEnd = () => {
+    if (!touchStart || !touchEnd) return;
+    
+    const distance = touchStart - touchEnd;
+    const isLeftSwipe = distance > minSwipeDistance;
+    const isRightSwipe = distance < -minSwipeDistance;
+
+    if (isLeftSwipe && activeStep < images.length - 1) {
+      handleNext();
+    }
+    if (isRightSwipe && activeStep > 0) {
+      handleBack();
+    }
+  };
+
+  const handleNext = () => {
+    setActiveStep((prev) => Math.min(prev + 1, images.length - 1));
+  };
+
+  const handleBack = () => {
+    setActiveStep((prev) => Math.max(prev - 1, 0));
+  };
+
+  const handleDotClick = (index: number) => {
+    setActiveStep(index);
+  };
+
   return (
-    <Paper elevation={2} sx={{ p: 4, mb: 4, borderRadius: 3 }}>
-      <Box sx={{ mb: 3 }}>
-        <Typography 
-          variant="h5" 
-          gutterBottom 
-          fontWeight={600}
-          color={theme.palette.primary.main}
-          sx={{ display: 'flex', alignItems: 'center', gap: 1 }}
+    <Paper elevation={2} sx={{ p: 4, mb: 4, borderRadius: 3, overflow: 'hidden' }}>
+      <Typography 
+        variant="h5" 
+        gutterBottom 
+        fontWeight={600}
+        color={theme.palette.primary.main}
+        sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 4 }}
+      >
+        <Camera size={24} />
+        Resultados da Simulação
+      </Typography>
+
+      <Box sx={{ position: 'relative', width: '100%', maxWidth: 500, mx: 'auto' }}>
+        
+        <Box 
+          sx={{ 
+            position: 'relative',
+            borderRadius: 3,
+            overflow: 'hidden',
+            backgroundColor: '#000',
+            aspectRatio: '4/5', 
+            mb: 3,
+          }}
+          onTouchStart={onTouchStart}
+          onTouchMove={onTouchMove}
+          onTouchEnd={onTouchEnd}
         >
-          <Camera size={24} />
-          Resultados da Simulação
-        </Typography>
-        <Typography variant="body2" color="text.secondary">
-          Compare o resultado original com as diferentes simulações de cor
-        </Typography>
+          <Box
+            sx={{
+              display: 'flex',
+              width: `${images.length * 100}%`,
+              height: '100%',
+              transform: `translateX(-${(activeStep * 100) / images.length}%)`,
+              transition: 'transform 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94)',
+            }}
+          >
+            {images.map((image, index) => (
+              <Box
+                key={index}
+                sx={{
+                  width: `${100 / images.length}%`,
+                  height: '100%',
+                  position: 'relative',
+                  flexShrink: 0,
+                }}
+              >
+                <img
+                  src={image.src}
+                  alt={image.title}
+                  onClick={() => onImageClick(image.src)}
+                  style={{
+                    width: '100%',
+                    height: '100%',
+                    objectFit: 'cover',
+                    cursor: 'pointer',
+                    display: 'block',
+                  }}
+                />
+                
+                {image.isOriginal && (
+                  <Chip
+                    label="Original"
+                    size="small"
+                    color="primary"
+                    sx={{
+                      position: 'absolute',
+                      top: 12,
+                      left: 12,
+                      fontWeight: 600,
+                      fontSize: '0.75rem',
+                      backgroundColor: 'rgba(255,255,255,0.95)',
+                      color: theme.palette.primary.main,
+                    }}
+                  />
+                )}
+
+                <IconButton
+                  sx={{
+                    position: 'absolute',
+                    top: 12,
+                    right: 12,
+                    backgroundColor: 'rgba(0,0,0,0.5)',
+                    color: 'white',
+                    backdropFilter: 'blur(10px)',
+                    '&:hover': {
+                      backgroundColor: 'rgba(0,0,0,0.7)',
+                    },
+                    width: 36,
+                    height: 36,
+                  }}
+                  size="small"
+                  onClick={() => onImageClick(image.src)}
+                >
+                  <ZoomIn size={16} />
+                </IconButton>
+              </Box>
+            ))}
+          </Box>
+
+          {activeStep > 0 && (
+            <IconButton
+              onClick={handleBack}
+              sx={{
+                position: 'absolute',
+                left: 12,
+                top: '50%',
+                transform: 'translateY(-50%)',
+                backgroundColor: 'rgba(0,0,0,0.5)',
+                color: 'white',
+                backdropFilter: 'blur(10px)',
+                '&:hover': {
+                  backgroundColor: 'rgba(0,0,0,0.7)',
+                },
+                width: 40,
+                height: 40,
+                zIndex: 2,
+              }}
+            >
+              <ChevronLeft size={20} />
+            </IconButton>
+          )}
+
+          {activeStep < images.length - 1 && (
+            <IconButton
+              onClick={handleNext}
+              sx={{
+                position: 'absolute',
+                right: 12,
+                top: '50%',
+                transform: 'translateY(-50%)',
+                backgroundColor: 'rgba(0,0,0,0.5)',
+                color: 'white',
+                backdropFilter: 'blur(10px)',
+                '&:hover': {
+                  backgroundColor: 'rgba(0,0,0,0.7)',
+                },
+                width: 40,
+                height: 40,
+                zIndex: 2,
+              }}
+            >
+              <ChevronRight size={20} />
+            </IconButton>
+          )}
+
+          <Box
+            sx={{
+              position: 'absolute',
+              bottom: 16,
+              left: '50%',
+              transform: 'translateX(-50%)',
+              display: 'flex',
+              gap: 1,
+              zIndex: 2,
+            }}
+          >
+            {images.map((_, index) => (
+              <Box
+                key={index}
+                onClick={() => handleDotClick(index)}
+                sx={{
+                  width: 8,
+                  height: 8,
+                  borderRadius: '50%',
+                  backgroundColor: index === activeStep 
+                    ? 'rgba(255,255,255,0.9)' 
+                    : 'rgba(255,255,255,0.4)',
+                  cursor: 'pointer',
+                  transition: 'all 0.3s ease',
+                  '&:hover': {
+                    backgroundColor: 'rgba(255,255,255,0.7)',
+                    transform: 'scale(1.2)',
+                  },
+                }}
+              />
+            ))}
+          </Box>
+        </Box>
+
+        <Box sx={{ textAlign: 'center', mb: 3 }}>
+          <Typography variant="h6" fontWeight={600} gutterBottom>
+            {images[activeStep].title}
+          </Typography>
+          <Typography 
+            variant="body2" 
+            color="text.secondary" 
+            sx={{ mb: 2, lineHeight: 1.5 }}
+          >
+            {images[activeStep].description}
+          </Typography>
+          
+          <Typography 
+            variant="caption" 
+            color="text.secondary"
+            sx={{ 
+              fontWeight: 500,
+              backgroundColor: 'rgba(0,0,0,0.05)',
+              px: 2,
+              py: 0.5,
+              borderRadius: 2,
+              display: 'inline-block',
+            }}
+          >
+            {activeStep + 1} de {images.length}
+          </Typography>
+        </Box>
+
+        <Button
+          fullWidth
+          variant="contained"
+          onClick={() => IAService.downloadImage(
+            images[activeStep].src, 
+            `${images[activeStep].title.toLowerCase().replace(/\s+/g, '_')}.jpg`
+          )}
+          startIcon={<Download size={18} />}
+          sx={{ 
+            borderRadius: 3,
+            py: 1.5,
+            fontWeight: 600,
+            textTransform: 'none',
+            fontSize: '1rem',
+            boxShadow: theme.shadows[2],
+            '&:hover': {
+              boxShadow: theme.shadows[4],
+              transform: 'translateY(-1px)',
+            },
+            transition: 'all 0.3s ease',
+          }}
+        >
+          Baixar {images[activeStep].title}
+        </Button>
+
+        <Box 
+          sx={{ 
+            display: 'flex', 
+            gap: 1, 
+            justifyContent: 'center',
+            mt: 3,
+            overflowX: 'auto',
+            pb: 1,
+          }}
+        >
+          {images.map((image, index) => (
+            <Box
+              key={index}
+              onClick={() => handleDotClick(index)}
+              sx={{
+                width: 60,
+                height: 60,
+                borderRadius: 2,
+                overflow: 'hidden',
+                cursor: 'pointer',
+                border: index === activeStep 
+                  ? `3px solid ${theme.palette.primary.main}` 
+                  : '3px solid transparent',
+                transition: 'all 0.3s ease',
+                flexShrink: 0,
+                '&:hover': {
+                  transform: 'scale(1.05)',
+                  opacity: 0.8,
+                },
+                opacity: index === activeStep ? 1 : 0.6,
+              }}
+            >
+              <img
+                src={image.src}
+                alt={`Thumbnail ${image.title}`}
+                style={{
+                  width: '100%',
+                  height: '100%',
+                  objectFit: 'cover',
+                }}
+              />
+            </Box>
+          ))}
+        </Box>
       </Box>
-      <Grid container spacing={3}>
-        {images.map((img, index) => (
-          <Grid item xs={12} sm={6} md={3} key={index}>
-            <ImageResult
-              src={img.src}
-              title={img.title}
-              isOriginal={img.isOriginal}
-              onDownload={() => IAService.downloadImage(img.src, `${img.title.toLowerCase().replace(/\s+/g, '_')}.jpg`)}
-              onClickImage={() => onImageClick(img.src)}
-            />
-          </Grid>
-        ))}
-      </Grid>
     </Paper>
   );
 };
@@ -438,100 +729,94 @@ const HairColorSimulator: React.FC = () => {
   } = useSimulacao();
 
   return (
-    <>
-    <Box sx={{ 
-        maxWidth: 1400, 
-        mx: 'auto', 
-        p: { xs: 2, sm: 3, md: 4 },
-        minHeight: 'calc(100vh - 64px)',
-        backgroundColor: '#fafafa',
-      }}>
-        <Paper elevation={1} sx={{ p: 4, mb: 4, borderRadius: 3, textAlign: 'center' }}>
-          <Typography 
-            variant="h3" 
-            component="h1" 
-            fontWeight={700} 
-            gutterBottom
-            color={theme.palette.primary.main}
-            sx={{ 
-              display: 'flex', 
-              alignItems: 'center', 
-              justifyContent: 'center',
-              gap: 2,
-              mb: 2,
-            }}
-          >
-            <Palette size={40} />
-            Simulador de Cor de Cabelo
+    <Box sx={{
+      maxWidth: 1400,
+      mx: 'auto',
+      p: { xs: 2, sm: 3, md: 4 },
+      minHeight: 'calc(100vh - 64px)',
+      backgroundColor: '#fafafa',
+    }}>
+      <Paper elevation={0} sx={{ p: 4, mb: 4, borderRadius: 3, textAlign: 'center' }}>
+        <Typography
+          variant="h3"
+          component="h1"
+          fontWeight={700}
+          gutterBottom
+          color={theme.palette.primary.main}
+          sx={{
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            gap: 2,
+            mb: 2,
+          }}
+        >
+          <Palette size={40} />
+          Simulador de Cor de Cabelo
+        </Typography>
+        <Typography variant="h6" color="text.secondary" sx={{ maxWidth: 600, mx: 'auto' }}>
+          Descubra como ficaria com diferentes cores de cabelo usando inteligência artificial
+        </Typography>
+      </Paper>
+
+      <input
+        type="file"
+        accept="image/*"
+        ref={fileInputRef}
+        style={{ display: 'none' }}
+        onChange={handleFileSelect}
+      />
+
+      <FileUploadArea
+        onFileSelect={openFileDialog}
+        preview={results ? null : preview}
+        onChangeFile={changeFile}
+        onProcessImage={processImage}
+        loading={loading}
+        hasResults={!!results}
+      />
+
+      {error && (
+        <Alert
+          severity="error"
+          sx={{
+            mb: 4,
+            borderRadius: 2,
+            '& .MuiAlert-icon': {
+              alignItems: 'center',
+            },
+          }}
+          icon={<AlertCircle size={20} />}
+        >
+          <Typography variant="body1" fontWeight={500}>
+            {error}
           </Typography>
-          <Typography variant="h6" color="text.secondary" sx={{ maxWidth: 600, mx: 'auto' }}>
-            Descubra como ficaria com diferentes cores de cabelo usando inteligência artificial
-          </Typography>
-        </Paper>
+        </Alert>
+      )}
 
-        <input
-          type="file"
-          accept="image/*"
-          ref={fileInputRef}
-          style={{ display: 'none' }}
-          onChange={handleFileSelect}
-        />
+      {results && (
+        <Box sx={{ animation: 'fadeIn 0.5s ease-in' }}>
+          <ColorPalette results={results} />
+          <CarouselResults results={results} onImageClick={handleImageClick} />
+        </Box>
+      )}
 
-        <FileUploadArea
-          onFileSelect={openFileDialog}
-          preview={results ? null : preview}
-          onChangeFile={changeFile}
-          onProcessImage={processImage}
-          loading={loading}
-          hasResults={!!results}
-        />
+      <ImageModal open={modalOpen} image={modalImage} onClose={closeModal} />
 
-        {error && (
-          <Alert 
-            severity="error" 
-            sx={{ 
-              mb: 4,
-              borderRadius: 2,
-              '& .MuiAlert-icon': {
-                alignItems: 'center',
-              }
-            }}
-            icon={<AlertCircle size={20} />}
-          >
-            <Typography variant="body1" fontWeight={500}>
-              {error}
-            </Typography>
-          </Alert>
-        )}
-
-        {results && (
-          <Box sx={{ animation: 'fadeIn 0.5s ease-in' }}>
-            <ColorPalette results={results} />
-            <SimulationResults results={results} onImageClick={handleImageClick} />
-          </Box>
-        )}
-
-        <ImageModal
-          open={modalOpen}
-          image={modalImage}
-          onClose={closeModal}
-        />
-        
-        <style>{` 
-          @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(20px); }
-            to { opacity: 1; transform: translateY(0); }
-          }
-          .animate-spin {
-            animation: spin 1s linear infinite;
-          }
-          @keyframes spin {
-            from { transform: rotate(0deg); }
-            to { transform: rotate(360deg); }
-          }
-        `}</style>
-      </Box>
-    </>
+      <style>{`
+        @keyframes fadeIn {
+          from { opacity: 0; transform: translateY(20px); }
+          to { opacity: 1; transform: translateY(0); }
+        }
+        .animate-spin {
+          animation: spin 1s linear infinite;
+        }
+        @keyframes spin {
+          from { transform: rotate(0deg); }
+          to { transform: rotate(360deg); }
+        }
+      `}</style>
+    </Box>
   );
 };
 
