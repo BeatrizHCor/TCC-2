@@ -714,7 +714,7 @@ RoutesAgendamento.get(
             cabeleireiroId,
             String(data)
           );
-          if (horarios !== false) {
+          if (horarios) {
             res.status(200).json(horarios);
           } else {
             throw new Error("Erro ao buscar horários ocupados futuros");

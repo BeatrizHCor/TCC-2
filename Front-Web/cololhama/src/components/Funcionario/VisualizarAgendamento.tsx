@@ -114,14 +114,39 @@ const VisualizarAgendamento: React.FC = () => {
     <ThemeProvider theme={theme}>
       <LocalizationProvider dateAdapter={AdapterDateFns} adapterLocale={ptBR}>
         <Box sx={{ p: 3, maxWidth: 1200, mx: 'auto' }}>
-          <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
-            <Typography variant="h4" color="primary">Agendamentos</Typography>
-            <Button variant="contained" color="primary" onClick={() => navigate('/agendamento/novo')}>
+          <Box
+            sx={{
+              display: 'flex',
+              flexWrap: 'wrap',
+              gap: 2,
+              justifyContent: { xs: 'center', md: 'space-between' },
+              alignItems: 'center',
+              mb: 2,
+              textAlign: { xs: 'center', md: 'left' },
+            }}
+          >
+            <Typography variant="h4" color="primary">
+              Agendamentos
+            </Typography>
+            <Button
+              variant="contained"
+              color="primary"
+              onClick={() => navigate('/agendamento/novo')}
+            >
               Novo Agendamento
             </Button>
           </Box>
-
-          <Box sx={{ display: 'flex', justifyContent: 'space-between', flexWrap: 'wrap', gap: 2, mb: 2 }}>
+          <Box
+            sx={{
+              display: 'flex',
+              justifyContent: { xs: 'center', md: 'space-between' },
+              alignItems: 'center',
+              flexWrap: 'wrap',
+              gap: 2,
+              mb: 2,
+              textAlign: { xs: 'center', md: 'left' },
+            }}
+          >
             <DatePicker
               label="Filtrar por data"
               value={dataFilter}
@@ -131,12 +156,14 @@ const VisualizarAgendamento: React.FC = () => {
               }}
               slotProps={{ textField: { size: 'small' } }}
             />
+
             <FormControlLabel
-              control={<Switch checked={modoCalendario} onChange={() => setModoCalendario(!modoCalendario)} />}
+              control={
+                <Switch checked={modoCalendario} onChange={() => setModoCalendario(!modoCalendario)} />
+              }
               label={modoCalendario ? 'Modo Calendário' : 'Modo Lista'}
             />
           </Box>
-
           {isLoading ? (
             <Box sx={{ display: 'flex', justifyContent: 'center', py: 5 }}>
               <CircularProgress color="primary" />

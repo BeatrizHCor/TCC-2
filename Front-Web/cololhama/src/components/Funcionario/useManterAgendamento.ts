@@ -38,12 +38,13 @@ function formatDateToLocalDateTimeString(date: Date) {
 export const useManterAgendamento = (
   userType: userTypes,
   agendamentoId?: string,
-  userId?: string
+  userId?: string,
 ) => {
   const [data, setData] = useState("");
   const [status, setStatus] = useState<StatusAgendamento>(
-    StatusAgendamento.Agendado
+    StatusAgendamento.Agendado,
   );
+  const [horaOriginal, sethoraOriginal] = useState("");
   const [clienteId, setClienteId] = useState("");
   const [clienteNome, setClienteNome] = useState("");
   const [clientesDisponiveis, setClientesDisponiveis] = useState<Cliente[]>([]);
@@ -57,15 +58,17 @@ export const useManterAgendamento = (
     Cabeleireiro[]
   >([]);
   const [salaoId, setSalaoId] = useState<string | null>(
-    import.meta.env.VITE_SALAO_ID
+    import.meta.env.VITE_SALAO_ID,
   );
   const [forbidden, setForbidden] = useState<boolean>(false);
   const [isLoading, setIsLoading] = useState(false);
   const [validationErrors, setValidationErrors] = useState<ValidationErrors>(
-    {}
+    {},
   );
   const [isEditing, setIsEditing] = useState(false);
-  const [horariosOcupados, setHorariosOcupados] = useState<string[]>([]);
+  const [horariosOcupados, setHorariosOcupados] = useState<[string, number][]>(
+    [],
+  );
   const [loadingHorarios, setLoadingHorarios] = useState(false);
 
   const navigate = useNavigate();
@@ -90,7 +93,7 @@ export const useManterAgendamento = (
       const horarios = await AgendamentoService.getHorariosOcupadosFuturos(
         salaoId,
         cabeleireiroIdParam,
-        dataParaBusca
+        dataParaBusca,
       );
       if (horarios !== false) {
         setHorariosOcupados(horarios);
@@ -104,25 +107,60 @@ export const useManterAgendamento = (
       setLoadingHorarios(false);
     }
   };
-
-  const isHorarioOcupado = (dataHora: string): boolean => {
+  const isHorarioOcupado = (
+    dataHora: string,
+    isEditing: boolean = false,
+    horaOriginal?: string,
+  ): boolean => {
     if (!dataHora || horariosOcupados.length === 0) return false;
 
     const dataHoraAgendamento = new Date(dataHora);
+    const duracaoAtualMinutos = servicosAgendamento.length * 40; // 40 min por serviço
+    const duracaoAtualMilissegundos = duracaoAtualMinutos * 60 * 1000;
+    const fimAgendamentoAtual = new Date(
+      dataHoraAgendamento.getTime() + duracaoAtualMilissegundos,
+    );
 
-    return horariosOcupados.some((horario) => {
+    let horaOriginalDate: Date | null = null;
+    let duracaoOriginalMilissegundos = 0;
+
+    if (horaOriginal) {
+      horaOriginalDate = new Date(horaOriginal);
+      duracaoOriginalMilissegundos = servicosAgendamento.length * 40 * 60 *
+        1000;
+    }
+
+    return horariosOcupados.some(([horario, numeroServicos]) => {
       const horarioOcupado = new Date(horario);
+      const duracaoOcupadaMinutos = numeroServicos * 40;
+      const duracaoOcupadaMilissegundos = duracaoOcupadaMinutos * 60 * 1000;
       const horarioOcupadoFim = new Date(
-        horarioOcupado.getTime() + 60 * 60 * 1000
+        horarioOcupado.getTime() + duracaoOcupadaMilissegundos,
       );
 
+      if (isEditing && horaOriginal && horaOriginalDate) {
+        const fimHorarioOriginal = new Date(
+          horaOriginalDate.getTime() + duracaoOriginalMilissegundos,
+        );
+
+        if (horarioOcupado.getTime() === horaOriginalDate.getTime()) {
+          return false;
+        }
+
+        const sobrepoeComOriginal = horaOriginalDate < horarioOcupadoFim &&
+          fimHorarioOriginal > horarioOcupado;
+
+        if (sobrepoeComOriginal) {
+          return false;
+        }
+      }
+
       return (
-        dataHoraAgendamento >= horarioOcupado &&
-        dataHoraAgendamento < horarioOcupadoFim
+        dataHoraAgendamento < horarioOcupadoFim &&
+        fimAgendamentoAtual > horarioOcupado
       );
     });
   };
-
   const setCabeleireiroIdWithHorarios = (id: string) => {
     setCabeleireiroId(id);
     if (id) {
@@ -131,7 +169,7 @@ export const useManterAgendamento = (
         "cabeleireiroId",
         cabeleireiroId,
         "loadingHorarios",
-        loadingHorarios
+        loadingHorarios,
       );
     } else {
       setHorariosOcupados([]);
@@ -149,19 +187,35 @@ export const useManterAgendamento = (
     }
   };
 
-  const isTimeSlotOccupied = (date: Date, hour: number): boolean => {
+  const isTimeSlotOccupied = (
+    date: Date,
+    hour: number,
+    servicosAgendamentoParam: any[] = [],
+  ): boolean => {
     if (!date || horariosOcupados.length === 0) return false;
 
     const testDate = new Date(date);
     testDate.setHours(hour, 0, 0, 0);
 
-    return horariosOcupados.some((horario) => {
+    const servicosParaCalcular = servicosAgendamentoParam.length > 0
+      ? servicosAgendamentoParam
+      : servicosAgendamento;
+
+    const duracaoTotalMinutos = Math.max(1, servicosParaCalcular.length) * 40;
+    const duracaoTotalMilissegundos = duracaoTotalMinutos * 60 * 1000;
+    const fimTestDate = new Date(
+      testDate.getTime() + duracaoTotalMilissegundos,
+    );
+
+    return horariosOcupados.some(([horario, numeroServicos]) => {
       const horarioOcupado = new Date(horario);
+      const duracaoOcupadaMinutos = numeroServicos * 40;
+      const duracaoOcupadaMilissegundos = duracaoOcupadaMinutos * 60 * 1000;
       const horarioOcupadoFim = new Date(
-        horarioOcupado.getTime() + 60 * 60 * 1000
+        horarioOcupado.getTime() + duracaoOcupadaMilissegundos,
       );
 
-      return testDate >= horarioOcupado && testDate < horarioOcupadoFim;
+      return testDate < horarioOcupadoFim && fimTestDate > horarioOcupado;
     });
   };
   useEffect(() => {
@@ -180,8 +234,8 @@ export const useManterAgendamento = (
         ) {
           const clientes = await ClienteService.getClientesBySalao(salaoId);
           setClientesDisponiveis(clientes);
-          const cabeleireiros =
-            await CabeleireiroService.getCabeleireiroBySalao(salaoId, false);
+          const cabeleireiros = await CabeleireiroService
+            .getCabeleireiroBySalao(salaoId, false);
           setCabeleireirosDisponiveis(cabeleireiros);
         }
 
@@ -189,8 +243,8 @@ export const useManterAgendamento = (
           if (userType === userTypes.Cliente) {
             setClienteId(userId);
             const clienteLogado = await ClienteService.getClienteById(userId);
-            const cabeleireiros =
-              await CabeleireiroService.getCabeleireiroBySalao(salaoId, false);
+            const cabeleireiros = await CabeleireiroService
+              .getCabeleireiroBySalao(salaoId, false);
             setCabeleireirosDisponiveis(cabeleireiros);
             if (clienteLogado && clienteLogado.Nome) {
               setClienteNome(clienteLogado.Nome);
@@ -199,8 +253,8 @@ export const useManterAgendamento = (
             setCabeleireiroId(userId);
             const clientes = await ClienteService.getClientesBySalao(salaoId);
             setClientesDisponiveis(clientes);
-            const cabeleireiroLogado =
-              await CabeleireiroService.getCabeleireiroById(userId);
+            const cabeleireiroLogado = await CabeleireiroService
+              .getCabeleireiroById(userId);
             if (cabeleireiroLogado && cabeleireiroLogado.Nome) {
               setCabeleireiroNome(cabeleireiroLogado.Nome);
             }
@@ -232,33 +286,33 @@ export const useManterAgendamento = (
           case userTypes.Funcionario:
           case userTypes.AdmSalao:
           case userTypes.AdmSistema:
-            agendamento =
-              await AgendamentoService.getFuncionarioAgendamentoById(
+            agendamento = await AgendamentoService
+              .getFuncionarioAgendamentoById(
                 agendamentoId,
-                true
+                true,
               );
             break;
           case userTypes.Cabeleireiro:
-            agendamento =
-              await AgendamentoService.getCabeleireiroAgendamentoById(
+            agendamento = await AgendamentoService
+              .getCabeleireiroAgendamentoById(
                 agendamentoId,
-                true
+                true,
               );
             break;
           case userTypes.Cliente:
             agendamento = await AgendamentoService.getClienteAgendamentoById(
               agendamentoId,
-              true
+              true,
             );
             break;
           default:
             throw new Error("Tipo de usuário inválido");
         }
-        const dataFormatted = formatDateToLocalDateTimeString(
-          new Date(agendamento.Data)
+        const dataFormatada = formatDateToLocalDateTimeString(
+          new Date(agendamento.Data),
         );
-
-        setData(dataFormatted);
+        sethoraOriginal(dataFormatada);
+        setData(dataFormatada);
         setStatus(agendamento.Status);
         setClienteId(agendamento.ClienteID);
         setClienteNome(agendamento.Cliente?.Nome || "");
@@ -295,14 +349,15 @@ export const useManterAgendamento = (
 
   useEffect(() => {
     if (data && horariosOcupados.length > 0) {
+      const isOcupado = isHorarioOcupado(data, isEditing, horaOriginal);
       setValidationErrors((prev) => ({
         ...prev,
-        data: isHorarioOcupado(data)
-          ? "Este horário já está ocupado"
+        data: isOcupado
+          ? "Este horário conflita com outro agendamento"
           : undefined,
       }));
     }
-  }, [horariosOcupados, data]);
+  }, [servicosAgendamento, horariosOcupados, data, isEditing, horaOriginal]);
 
   const validateForm = (): boolean => {
     const errors: ValidationErrors = {};
@@ -315,7 +370,7 @@ export const useManterAgendamento = (
 
       if (agendamentoDate <= currentDate) {
         errors.data = "A data do agendamento deve ser futura";
-      } else if (isHorarioOcupado(data)) {
+      } else if (isHorarioOcupado(data, isEditing, horaOriginal)) {
         errors.data = "Este horário está ocupado (considera período de 1 hora)";
       }
 
@@ -385,7 +440,7 @@ export const useManterAgendamento = (
               clienteId,
               cabeleireiroId,
               salaoId,
-              servicosIds
+              servicosIds,
             );
             break;
           case userTypes.Cabeleireiro:
@@ -396,7 +451,7 @@ export const useManterAgendamento = (
               clienteId,
               cabeleireiroId,
               salaoId,
-              servicosIds
+              servicosIds,
             );
             break;
 
@@ -408,7 +463,7 @@ export const useManterAgendamento = (
               clienteId,
               cabeleireiroId,
               salaoId,
-              servicosIds
+              servicosIds,
             );
             break;
           default:
@@ -481,7 +536,7 @@ export const useManterAgendamento = (
               clienteId,
               cabeleireiroId,
               salaoId,
-              servicosIds
+              servicosIds,
             );
             return navigate(-1);
           case userTypes.Cabeleireiro:
@@ -492,7 +547,7 @@ export const useManterAgendamento = (
               clienteId,
               cabeleireiroId,
               salaoId,
-              servicosIds
+              servicosIds,
             );
             return navigate(-1);
           case userTypes.Cliente:
@@ -503,7 +558,7 @@ export const useManterAgendamento = (
               clienteId,
               cabeleireiroId,
               salaoId,
-              servicosIds
+              servicosIds,
             );
             return navigate(-1);
           default:
@@ -519,7 +574,7 @@ export const useManterAgendamento = (
               clienteId,
               cabeleireiroId,
               salaoId,
-              servicosIds
+              servicosIds,
             );
             return navigate(-1);
           case userTypes.Cabeleireiro:
@@ -528,7 +583,7 @@ export const useManterAgendamento = (
               clienteId,
               cabeleireiroId,
               salaoId,
-              servicosIds
+              servicosIds,
             );
             return navigate(-1);
           case userTypes.Cliente:
@@ -537,7 +592,7 @@ export const useManterAgendamento = (
               clienteId,
               cabeleireiroId,
               salaoId,
-              servicosIds
+              servicosIds,
             );
             return navigate(-1);
           default:
@@ -573,17 +628,17 @@ export const useManterAgendamento = (
         case userTypes.AdmSalao:
         case userTypes.AdmSistema:
           deleted = await AgendamentoService.deleteFuncionarioAgendamento(
-            agendamentoId
+            agendamentoId,
           );
           break;
         case userTypes.Cabeleireiro:
           deleted = await AgendamentoService.deleteCabeleireiroAgendamento(
-            agendamentoId
+            agendamentoId,
           );
           break;
         case userTypes.Cliente:
           deleted = await AgendamentoService.deleteClienteAgendamento(
-            agendamentoId
+            agendamentoId,
           );
           break;
         default:
@@ -610,6 +665,7 @@ export const useManterAgendamento = (
   return {
     data,
     setData: setDataWithHorarios,
+    horaOriginal,
     status,
     setStatus,
     clienteId,
@@ -639,6 +695,7 @@ export const useManterAgendamento = (
     isTimeSlotOccupied,
     setCabeleireiroIdWithHorarios,
     cofirmarAtendimento,
+    setValidationErrors,
   };
 };
 

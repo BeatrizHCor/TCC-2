@@ -106,12 +106,28 @@ export const VisualizarClientes: React.FC = () => {
 
   return (
     <Box sx={{ width: "100%", px: { xs: 1, sm: 3 }, py: 2 }}>
-      <Typography
-        variant="h5"
-        sx={{ mb: 3, fontWeight: 600, color: theme.palette.primary.main }}
+      <Box
+        sx={{
+          display: 'flex',
+          flexWrap: 'wrap',
+          gap: 2,
+          justifyContent: { xs: 'center', md: 'space-between' },
+          alignItems: 'center',
+          mb: 2,
+        }}
       >
-        Clientes Cadastrados
-      </Typography>
+        <Typography
+          variant="h4"
+          sx={{
+            mb: { xs: 1, md: 0 },
+            fontWeight: 600,
+            color: theme.palette.primary.main,
+            textAlign: { xs: 'center', md: 'left' },
+          }}
+        >
+          Clientes Cadastrados
+        </Typography>
+      </Box>
 
       <Box
         sx={{

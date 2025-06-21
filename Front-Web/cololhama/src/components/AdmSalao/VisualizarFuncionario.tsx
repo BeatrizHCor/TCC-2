@@ -79,13 +79,30 @@ export const VisualizarFuncionarios: React.FC = () => {
   if (isLoading) return <Box>Carregando...</Box>;
   if (error) return <Box>Erro ao carregar funcionários: {error}</Box>;
 
- return (
+  return (
     <Box sx={{ width: "100%", p: { xs: 2, sm: 4 } }}>
-      <Typography variant="h4" sx={{ mb: 3, fontWeight: 600 }}>
-        Funcionários
-      </Typography>
-
-      {/* Container centralizado da linha de busca */}
+       <Box
+        sx={{
+          display: 'flex',
+          flexWrap: 'wrap',
+          gap: 2,
+          justifyContent: { xs: 'center', md: 'space-between' },
+          alignItems: 'center',
+          mb: 2,
+        }}
+        >
+        <Typography
+          variant="h4"
+          sx={{
+            mb: { xs: 1, md: 0 },
+            fontWeight: 600,
+            color: theme.palette.primary.main,
+            textAlign: { xs: 'center', md: 'left' },
+          }}
+          >
+          Funcionários          
+        </Typography>
+      </Box>
       <Box
         sx={{
           width: "100%",
