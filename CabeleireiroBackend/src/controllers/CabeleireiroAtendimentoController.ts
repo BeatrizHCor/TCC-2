@@ -87,7 +87,7 @@ class AtendimentoController {
 
   static async updateAtendimento(req: Request, res: Response) {
     try {
-      const { id } = req.params;
+      const { atendimentoId } = req.params;
       const {
         Data,
         PrecoTotal,
@@ -95,9 +95,10 @@ class AtendimentoController {
         SalaoId,
         servicosAtendimento = [],
         auxiliares = [],
+        status,
       } = req.body;
       const atendimento = await AtendimentoService.updateAtendimento(
-        id,
+        atendimentoId,
         Data,
         PrecoTotal,
         Auxiliar,
@@ -105,6 +106,15 @@ class AtendimentoController {
         servicosAtendimento,
         auxiliares
       );
+      const agendamento = await AgendamentoService.findByAtendimentoId(
+        atendimentoId
+      );
+      if (agendamento) {
+        await AgendamentoService.updateAgendamentoStatus(
+          agendamento.ID,
+          status
+        );
+      }
       res.json(atendimento);
     } catch (error) {
       console.error(error);
@@ -117,6 +127,19 @@ class AtendimentoController {
       const { id } = req.params;
       const deleted = await AtendimentoService.deleteAtendimento(id);
       res.json(deleted);
+    } catch (error) {
+      console.error(error);
+      res.status(500).json({ message: "Erro ao deletar atendimento" });
+    }
+  }
+
+  static async findByAgendamento(req: Request, res: Response) {
+    try {
+      const { agendamentoId } = req.params;
+      const atendimento = await AtendimentoService.findByAgendamento(
+        agendamentoId
+      );
+      res.json(atendimento);
     } catch (error) {
       console.error(error);
       res.status(500).json({ message: "Erro ao deletar atendimento" });

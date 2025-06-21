@@ -151,7 +151,6 @@ class AtendimentoService {
       data: atendimentos,
     };
   }
-
   static async findById(id: string, includeRelations = false) {
     return prisma.atendimento.findUnique({
       where: { ID: id },
@@ -165,11 +164,50 @@ class AtendimentoService {
               Agendamentos: {
                 include: { Cliente: true },
               },
-              ServicoAtendimento: true,
+              ServicoAtendimento: {
+                include: {
+                  Servico: true,
+                },
+              },
             },
           }
         : {}),
     });
+  }
+
+  static async findByAgendamento(agendamentoId: string) {
+    let agendamento = await prisma.agendamentos.findUnique({
+      where: {
+        ID: agendamentoId,
+      },
+      include: {
+        Atendimento: true,
+      },
+    });
+    if (agendamento?.AtendimentoID) {
+      return prisma.atendimento.findFirstOrThrow({
+        where: {
+          ID: agendamento?.AtendimentoID,
+        },
+
+        include: {
+          Salao: true,
+          AtendimentoAuxiliar: {
+            include: { Auxiliar: true },
+          },
+          Agendamentos: {
+            include: { Cliente: true },
+          },
+          ServicoAtendimento: {
+            include: {
+              Servico: true,
+            },
+          },
+        },
+      });
+    } else {
+      return null;
+    }
   }
 
   static createAtendimento = async (
