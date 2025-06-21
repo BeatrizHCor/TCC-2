@@ -195,6 +195,16 @@ export const FuncionarioDeleteAtendimento = async (id: string) => {
   }
   return handleApiResponse<Agendamentos>(response, "deletar atendimento");
 };
+
+export const CabeleireiroDeleteAtendimento = async (id: string) => {
+  let response = await fetch(CabeleireiroURL + `/atendimento/delete/${id}`, {
+    method: "DELETE",
+  });
+  if (response.status === 204) {
+    return true;
+  }
+  return handleApiResponse<Agendamentos>(response, "deletar atendimento");
+};
 //-----Cabeleireiro
 export const CabeleireirogetAtendimentosPage = async (
   page: number,

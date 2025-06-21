@@ -9,6 +9,7 @@ import {
   FuncionariogetAtendimentosPage,
   putAtendimentoFuncionario,
   postAtendimentoCabeleireiro,
+  CabeleireiroDeleteAtendimento,
 } from "../services/ServiceAtendimento";
 import { userTypes } from "../models/tipo-usuario.enum";
 import { authenticate } from "../services/Service";
@@ -301,6 +302,16 @@ RoutesAtendimento.delete(
           ].includes(userInfo.userType)
         ) {
           const deleted = await FuncionarioDeleteAtendimento(atendimentoId);
+          if (deleted) {
+            res.status(204).send();
+          } else {
+            res.status(404).json({ message: "Agendamento não encontrado" });
+          }
+        } else if (
+          auth &&
+          [userTypes.CABELEIREIRO].includes(userInfo.userType)
+        ) {
+          const deleted = await CabeleireiroDeleteAtendimento(atendimentoId);
           if (deleted) {
             res.status(204).send();
           } else {
