@@ -18,15 +18,15 @@ import {
   InputLabel,
   Dialog,
   DialogTitle,
-  Chip,
   DialogContent,
   DialogActions,
+  IconButton,
 } from "@mui/material";
+import VisibilityIcon from "@mui/icons-material/Visibility";
 import EditIcon from "@mui/icons-material/Edit";
 import { useVisualizarAtendimentos } from "./useVisualizarAtendimento";
-import "../../styles/styles.global.css";
 import theme from "../../styles/theme";
-import { Link, useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import { AuthContext } from "../../contexts/AuthContext";
 import { userTypes } from "../../models/tipo-usuario.enum";
 import { Atendimento } from "../../models/atendimentoModal";
@@ -41,10 +41,19 @@ interface AtendimentoExibicao {
   QuantidadeServicos: number;
 }
 
-const SalaoID = import.meta.env.VITE_SALAO_ID || "1";
+const salaoId = import.meta.env.VITE_SALAO_ID || "1";
+
+const meses = Array.from({ length: 12 }, (_, i) => ({
+  valor: (i + 1).toString(),
+  nome: new Date(0, i)
+    .toLocaleString("pt-BR", { month: "long" })
+    .replace(/^\w/, (c) => c.toUpperCase()),
+}));
 
 export const VisualizarAtendimentos: React.FC = () => {
-  const { userType, userId } = useContext(AuthContext);
+  const { userType, userId, doLogout } = useContext(AuthContext);
+  const navigate = useNavigate();
+  
   const [page, setPage] = useState(0);
   const [rowsPerPage, setRowsPerPage] = useState(10);
   const [clienteFilter, setClienteFilter] = useState("");
@@ -54,24 +63,24 @@ export const VisualizarAtendimentos: React.FC = () => {
   const [atendimentoSelecionado, setAtendimentoSelecionado] = useState<
     Atendimento | undefined
   >();
+  
   const [clienteFiltroInput, setClienteFilterInput] = useState("");
   const [cabelereiroFiltroInput, setCabelereiroFilterInput] = useState("");
   const [anoFilter, setAnoFilter] = useState("");
   const [mesFilter, setMesFilter] = useState("");
   const [diaFilter, setDiaFilter] = useState("");
+
   const isCliente = userType === userTypes.Cliente;
   const isCabeleireiro = userType === userTypes.Cabeleireiro;
-  const navigate = useNavigate();
 
   const colunas = [
     ...(isCliente ? [] : [{ id: "nomeCliente", label: "Cliente" }]),
-    ...(isCabeleireiro
-      ? []
-      : [{ id: "nomeCabeleireiro", label: "Cabeleireiro" }]),
+    ...(isCabeleireiro ? [] : [{ id: "nomeCabeleireiro", label: "Cabeleireiro" }]),
     { id: "data", label: "Data" },
     { id: "hora", label: "Hora" },
     { id: "valorTotal", label: "Valor Total" },
     { id: "quantidadeServicos", label: "Qtd. Serviços" },
+    { id: "acoes", label: "Ações" },
   ];
 
   const {
@@ -87,61 +96,47 @@ export const VisualizarAtendimentos: React.FC = () => {
     clienteFilter,
     cabelereiroFilter,
     dataFilter,
-    SalaoID,
+    salaoId,
     userType!,
     userId
   );
 
-  const handleChangePage = (_: unknown, newPage: number) => {
-    setPage(newPage);
+  useEffect(() => {
+    if (forbidden) doLogout();
+  }, [forbidden]);
+
+  const limparFiltrosData = () => {
+    setAnoFilter("");
+    setMesFilter("");
+    setDiaFilter("");
+    setDataFilter("");
   };
 
-  const handleFecharModal = () => {
-    setAtendimentoSelecionado(undefined);
-    setModalAberto(false);
-  };
-  const formatarDataHora = (data: Date): string => {
-    return new Date(data).toLocaleString("pt-BR", {
-      day: "2-digit",
-      month: "2-digit",
-      year: "numeric",
-      hour: "2-digit",
-      minute: "2-digit",
-    });
-  };
-  const handleChangeRowsPerPage = (
-    event: React.ChangeEvent<HTMLInputElement>
-  ) => {
-    setRowsPerPage(parseInt(event.target.value, 10));
-    setPage(0);
+  const gerarAnos = () => {
+    const anoAtual = new Date().getFullYear();
+    return Array.from({ length: 8 }, (_, i) => (anoAtual - 5 + i).toString());
   };
 
-  const handleClienteFilterInput = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setClienteFilterInput(e.target.value);
-  };
+  const gerarDias = () => Array.from({ length: 31 }, (_, i) => (i + 1).toString());
 
-  const handleCabelereiroFilterInput = (
-    e: React.ChangeEvent<HTMLInputElement>
-  ) => {
-    setCabelereiroFilterInput(e.target.value);
-  };
   const construirFiltroData = () => {
     let filtroData = "";
     if (anoFilter) {
       filtroData = anoFilter;
       if (mesFilter) {
-        filtroData += `-${String(mesFilter).padStart(2, "0")}`;
+        filtroData += `-${mesFilter.padStart(2, "0")}`;
         if (diaFilter) {
-          filtroData += `-${String(diaFilter).padStart(2, "0")}`;
+          filtroData += `-${diaFilter.padStart(2, "0")}`;
         }
       }
     }
     return filtroData;
   };
-  const aplicarFiltros = () => {
+
+  const aplicarFiltro = () => {
+    setDataFilter(construirFiltroData());
     setClienteFilter(clienteFiltroInput);
     setCabelereiroFilter(cabelereiroFiltroInput);
-    setDataFilter(construirFiltroData());
     setPage(0);
   };
 
@@ -157,239 +152,247 @@ export const VisualizarAtendimentos: React.FC = () => {
     setPage(0);
   };
 
-  const gerarAnos = () => {
-    const anoAtual = new Date().getFullYear();
-    const anos = [];
-    for (let i = anoAtual - 5; i <= anoAtual + 2; i++) {
-      anos.push(i);
-    }
-    return anos;
+  const handleVisualizarDetalhes = (atendimento: AtendimentoExibicao) => {
+    setAtendimentoSelecionado(atendimento as any);
+    setModalAberto(true);
   };
 
-  const meses = [
-    { valor: 1, nome: "Janeiro" },
-    { valor: 2, nome: "Fevereiro" },
-    { valor: 3, nome: "Março" },
-    { valor: 4, nome: "Abril" },
-    { valor: 5, nome: "Maio" },
-    { valor: 6, nome: "Junho" },
-    { valor: 7, nome: "Julho" },
-    { valor: 8, nome: "Agosto" },
-    { valor: 9, nome: "Setembro" },
-    { valor: 10, nome: "Outubro" },
-    { valor: 11, nome: "Novembro" },
-    { valor: 12, nome: "Dezembro" },
-  ];
-
-  const gerarDias = () => {
-    const dias = [];
-    for (let i = 1; i <= 31; i++) {
-      dias.push(i);
-    }
-    return dias;
+  const handleFecharModal = () => {
+    setAtendimentoSelecionado(undefined);
+    setModalAberto(false);
   };
 
-  if (forbidden) {
-    return (
-      <Box sx={{ width: "100%", p: 2, textAlign: "center" }}>
-        <Typography variant="h6" color="error">
-          Acesso negado. Você não tem permissão para visualizar esta página.
-        </Typography>
-      </Box>
-    );
-  }
+  const formatarDataHora = (data: Date): string => {
+    return new Date(data).toLocaleString("pt-BR", {
+      day: "2-digit",
+      month: "2-digit",
+      year: "numeric",
+      hour: "2-digit",
+      minute: "2-digit",
+    });
+  };
 
   if (isLoading) return <Box>Carregando...</Box>;
   if (error) return <Box>Erro ao carregar atendimentos: {error}</Box>;
 
   return (
-    <Box sx={{ width: "100%", p: 2 }}>
-      <Typography variant="h5" sx={{ mb: 3 }}>
-        Atendimentos
+    <Box sx={{ width: "100%", px: { xs: 1, sm: 3 }, py: 2 }}>
+      <Typography
+        variant="h5"
+        sx={{ mb: 3, fontWeight: 600, color: theme.palette.primary.main }}
+      >
+        Atendimentos Cadastrados
       </Typography>
 
-      <Paper sx={{ p: 2, mb: 2 }}>
-        <Typography variant="h6" sx={{ mb: 2 }}>
-          Filtros
-        </Typography>
-        <Box
-          sx={{
-            display: "flex",
-            flexDirection: { xs: "column", sm: "row" },
-            gap: 2,
-            flexWrap: "wrap",
-            alignItems: { xs: "stretch", sm: "center" },
-            width: "100%",
-          }}
-        >
-          {!isCliente && (
-            <TextField
-              variant="outlined"
-              label="Cliente"
-              value={clienteFiltroInput}
-              onChange={handleClienteFilterInput}
-              fullWidth
-              size="small"
-              sx={{ minWidth: { xs: "100%", sm: 180 } }}
-            />
-          )}
-          {!isCabeleireiro && (
-            <TextField
-              variant="outlined"
-              label="Cabeleireiro"
-              value={cabelereiroFiltroInput}
-              onChange={handleCabelereiroFilterInput}
-              fullWidth
-              size="small"
-              sx={{ minWidth: { xs: "100%", sm: 180 } }}
-            />
-          )}
-          <Box
-            sx={{
-              display: "flex",
-              flexDirection: { xs: "column", sm: "row" },
-              gap: 2,
-              flex: 1,
-              minWidth: { xs: "100%", sm: "auto" },
-            }}
-          >
-            <FormControl
-              fullWidth
-              size="small"
-              sx={{ minWidth: { xs: "30%", sm: 120 } }}
-            >
-              <InputLabel>Ano</InputLabel>
-              <Select
-                value={anoFilter}
-                label="Ano"
-                onChange={(e) => setAnoFilter(e.target.value)}
-              >
-                <MenuItem value="">Todos</MenuItem>
-                {gerarAnos().map((ano) => (
-                  <MenuItem key={ano} value={ano}>
-                    {ano}
-                  </MenuItem>
-                ))}
-              </Select>
-            </FormControl>
-            <FormControl
-              fullWidth
-              size="small"
-              sx={{ minWidth: { xs: "30%", sm: 120 } }}
-            >
-              <InputLabel>Mês</InputLabel>
-              <Select
-                value={mesFilter}
-                label="Mês"
-                onChange={(e) => setMesFilter(e.target.value)}
-                disabled={!anoFilter}
-              >
-                <MenuItem value="">Todos</MenuItem>
-                {meses.map((mes) => (
-                  <MenuItem key={mes.valor} value={mes.valor}>
-                    {mes.nome}
-                  </MenuItem>
-                ))}
-              </Select>
-            </FormControl>
-            <FormControl
-              fullWidth
-              size="small"
-              sx={{ minWidth: { xs: "30%", sm: 100 } }}
-            >
-              <InputLabel>Dia</InputLabel>
-              <Select
-                value={diaFilter}
-                label="Dia"
-                onChange={(e) => setDiaFilter(e.target.value)}
-                disabled={!mesFilter}
-              >
-                <MenuItem value="">Todos</MenuItem>
-                {gerarDias().map((dia) => (
-                  <MenuItem key={dia} value={dia}>
-                    {dia}
-                  </MenuItem>
-                ))}
-              </Select>
-            </FormControl>
-          </Box>
-          <Box
-            sx={{
-              display: "flex",
-              gap: 2,
-              width: { xs: "100%", sm: "auto" },
-              mt: { xs: 2, sm: 0 },
-            }}
-          >
-            <Button
-              variant="contained"
-              onClick={aplicarFiltros}
-              fullWidth={true}
-            >
-              Buscar
-            </Button>
-            <Button variant="outlined" onClick={limparFiltros} fullWidth={true}>
-              Limpar Filtros
-            </Button>
-          </Box>
-        </Box>
-      </Paper>
+      <Box
+        sx={{
+          display: "flex",
+          flexWrap: "wrap",
+          gap: 2,
+          justifyContent: "center",
+          mb: 2,
+          width: "100%",
+          maxWidth: "1200px",
+          mx: "auto",
+        }}
+      >
+        {!isCliente && (
+          <TextField
+            variant="outlined"
+            label="Buscar Cliente"
+            value={clienteFiltroInput}
+            onChange={(e) => setClienteFilterInput(e.target.value)}
+            size="small"
+            sx={{ flexGrow: 1, minWidth: 200, maxWidth: 280 }}
+          />
+        )}
 
-      <Paper sx={{ width: "100%", mb: 2 }}>
-        <TableContainer sx={{ overflowX: "auto" }}>
+        {!isCabeleireiro && (
+          <TextField
+            variant="outlined"
+            label="Buscar Cabeleireiro"
+            value={cabelereiroFiltroInput}
+            onChange={(e) => setCabelereiroFilterInput(e.target.value)}
+            size="small"
+            sx={{ flexGrow: 1, minWidth: 200, maxWidth: 280 }}
+          />
+        )}
+
+        <FormControl size="small" sx={{ minWidth: 100 }}>
+          <InputLabel>Ano</InputLabel>
+          <Select 
+            value={anoFilter} 
+            label="Ano" 
+            onChange={(e) => setAnoFilter(e.target.value)}
+          >
+            <MenuItem value="">Todos</MenuItem>
+            {gerarAnos().map((ano) => (
+              <MenuItem key={ano} value={ano}>
+                {ano}
+              </MenuItem>
+            ))}
+          </Select>
+        </FormControl>
+
+        <FormControl size="small" sx={{ minWidth: 100 }}>
+          <InputLabel>Mês</InputLabel>
+          <Select
+            value={mesFilter}
+            label="Mês"
+            onChange={(e) => setMesFilter(e.target.value)}
+            disabled={!anoFilter}
+          >
+            <MenuItem value="">Todos</MenuItem>
+            {meses.map((mes) => (
+              <MenuItem key={mes.valor} value={mes.valor}>
+                {mes.nome}
+              </MenuItem>
+            ))}
+          </Select>
+        </FormControl>
+
+        <FormControl size="small" sx={{ minWidth: 100 }}>
+          <InputLabel>Dia</InputLabel>
+          <Select
+            value={diaFilter}
+            label="Dia"
+            onChange={(e) => setDiaFilter(e.target.value)}
+            disabled={!mesFilter}
+          >
+            <MenuItem value="">Todos</MenuItem>
+            {gerarDias().map((dia) => (
+              <MenuItem key={dia} value={dia}>
+                {dia}
+              </MenuItem>
+            ))}
+          </Select>
+        </FormControl>
+
+        <Button
+          variant="contained"
+          onClick={aplicarFiltro}
+          size="medium"
+          sx={{ minWidth: 110, height: 40 }}
+        >
+          Buscar
+        </Button>
+
+        <Button
+          variant="outlined"
+          onClick={limparFiltros}
+          size="medium"
+          sx={{ minWidth: 110, height: 40 }}
+        >
+          Limpar
+        </Button>
+      </Box>
+
+      <Paper
+        elevation={1}
+        sx={{
+          borderRadius: 2,
+          overflow: "hidden",
+          backgroundColor: "#f5f5f5",
+        }}
+      >
+        <TableContainer>
           <Table>
             <TableHead>
-              <TableRow>
+              <TableRow sx={{ backgroundColor: theme.palette.primary.main }}>
                 {colunas.map((coluna) => (
-                  <TableCell key={coluna.id}>{coluna.label}</TableCell>
+                  <TableCell
+                    key={coluna.id}
+                    sx={{
+                      fontWeight: "bold",
+                      textTransform: "uppercase",
+                      fontSize: "0.875rem",
+                      color: "#fff",
+                    }}
+                  >
+                    {coluna.label}
+                  </TableCell>
                 ))}
               </TableRow>
             </TableHead>
+
             <TableBody>
-              {atendimentos.map((atendimento: AtendimentoExibicao) => (
-                <TableRow
-                  key={atendimento.ID}
-                  hover
-                  sx={{ cursor: "pointer" }}
-                  onClick={() =>
-                    atendimento.ID && handleEditarAtendimento(atendimento.ID)
-                  }
-                >
-                  {!isCliente && (
-                    <TableCell>{atendimento.NomeCliente}</TableCell>
-                  )}
-                  {!isCabeleireiro && (
-                    <TableCell>{atendimento.NomeCabeleireiro}</TableCell>
-                  )}
-                  <TableCell>
-                    {atendimento.Data
-                      ? new Date(atendimento.Data).toLocaleDateString("pt-BR")
-                      : "N/A"}
+              {atendimentos.length === 0 ? (
+                <TableRow>
+                  <TableCell colSpan={colunas.length} align="center">
+                    Nenhum atendimento encontrado.
                   </TableCell>
-                  <TableCell>{atendimento.Hora}</TableCell>
-                  <TableCell>
-                    R$ {atendimento.ValorTotal?.toFixed(2) || "0,00"}
-                  </TableCell>
-                  <TableCell>{atendimento.QuantidadeServicos}</TableCell>
                 </TableRow>
-              ))}
+              ) : (
+                atendimentos.map((atendimento: AtendimentoExibicao) => (
+                  <TableRow
+                    key={atendimento.ID}
+                    hover
+                    sx={{
+                      "&:hover": { backgroundColor: "#f0f0f0" },
+                    }}
+                  >
+                    {!isCliente && (
+                      <TableCell>{atendimento.NomeCliente || "—"}</TableCell>
+                    )}
+                    {!isCabeleireiro && (
+                      <TableCell>{atendimento.NomeCabeleireiro || "—"}</TableCell>
+                    )}
+                    <TableCell>
+                      {atendimento.Data
+                        ? new Date(atendimento.Data).toLocaleDateString("pt-BR")
+                        : "—"}
+                    </TableCell>
+                    <TableCell>{atendimento.Hora || "—"}</TableCell>
+                    <TableCell>
+                      R$ {atendimento.ValorTotal?.toFixed(2) || "0,00"}
+                    </TableCell>
+                    <TableCell>{atendimento.QuantidadeServicos || 0}</TableCell>
+                    <TableCell>
+                      <Box sx={{ display: "flex", gap: 1 }}>
+                        <IconButton
+                          size="small"
+                          color="primary"
+                          onClick={() => handleVisualizarDetalhes(atendimento)}
+                          title="Visualizar detalhes"
+                        >
+                          <VisibilityIcon fontSize="small" />
+                        </IconButton>
+                        <IconButton
+                          size="small"
+                          color="secondary"
+                          onClick={() => atendimento.ID && handleEditarAtendimento(atendimento.ID)}
+                          title="Editar atendimento"
+                        >
+                          <EditIcon fontSize="small" />
+                        </IconButton>
+                      </Box>
+                    </TableCell>
+                  </TableRow>
+                ))
+              )}
             </TableBody>
           </Table>
         </TableContainer>
+
         <TablePagination
           rowsPerPageOptions={[5, 10, 25]}
           component="div"
           count={totalAtendimentos}
           rowsPerPage={rowsPerPage}
           page={page}
-          onPageChange={handleChangePage}
-          onRowsPerPageChange={handleChangeRowsPerPage}
+          onPageChange={(_, newPage) => setPage(newPage)}
+          onRowsPerPageChange={(e) => {
+            setRowsPerPage(parseInt(e.target.value, 10));
+            setPage(0);
+          }}
           labelRowsPerPage="Itens por página:"
           labelDisplayedRows={({ from, to, count }) =>
             `${from}-${to} de ${count}`
           }
+          sx={{ backgroundColor: "#fff", mt: 1.5 }}
         />
       </Paper>
+
       <Dialog
         open={modalAberto}
         onClose={handleFecharModal}
@@ -398,51 +401,83 @@ export const VisualizarAtendimentos: React.FC = () => {
       >
         {atendimentoSelecionado && (
           <>
-            <DialogTitle>Detalhes do Atendimento</DialogTitle>
-            <DialogContent dividers>
-              <Box sx={{ mt: 2 }}>
-                <Box sx={{ xs: 12 }}>
-                  <Typography variant="subtitle1" fontWeight="bold">
+            <DialogTitle
+              sx={{
+                backgroundColor: theme.palette.primary.main,
+                color: "#fff",
+                fontWeight: 600,
+              }}
+            >
+              Detalhes do Atendimento
+            </DialogTitle>
+            <DialogContent dividers sx={{ p: 3 }}>
+              <Box sx={{ display: "flex", flexDirection: "column", gap: 2 }}>
+                <Box>
+                  <Typography variant="subtitle1" fontWeight="bold" color="primary">
                     Data e Hora
                   </Typography>
                   <Typography variant="body1">
-                    {formatarDataHora(atendimentoSelecionado.Data)}
+                    {atendimentoSelecionado.Data 
+                      ? formatarDataHora(atendimentoSelecionado.Data)
+                      : "Data não disponível"
+                    }
                   </Typography>
                 </Box>
 
-                <Box sx={{ xs: 12 }}>
-                  <Typography variant="subtitle1" fontWeight="bold">
-                    Cliente
+                {!isCliente && (
+                  <Box>
+                    <Typography variant="subtitle1" fontWeight="bold" color="primary">
+                      Cliente
+                    </Typography>
+                    <Typography variant="body1">
+                      {(atendimentoSelecionado as any).NomeCliente || "Cliente não identificado"}
+                    </Typography>
+                  </Box>
+                )}
+
+                {!isCabeleireiro && (
+                  <Box>
+                    <Typography variant="subtitle1" fontWeight="bold" color="primary">
+                      Profissional
+                    </Typography>
+                    <Typography variant="body1">
+                      {(atendimentoSelecionado as any).NomeCabeleireiro || "Profissional não identificado"}
+                    </Typography>
+                  </Box>
+                )}
+
+                <Box>
+                  <Typography variant="subtitle1" fontWeight="bold" color="primary">
+                    Valor Total
                   </Typography>
                   <Typography variant="body1">
-                    {atendimentoSelecionado.Agendamentos[0].Cliente?.Nome ||
-                      `ID: ${atendimentoSelecionado.Agendamentos[0].ClienteID}`}
+                    R$ {((atendimentoSelecionado as any).ValorTotal || 0).toFixed(2)}
                   </Typography>
                 </Box>
-                <Box sx={{ xs: 12, sm: 6 }}>
-                  <Typography variant="subtitle1" fontWeight="bold">
-                    Profissional
+
+                <Box>
+                  <Typography variant="subtitle1" fontWeight="bold" color="primary">
+                    Quantidade de Serviços
                   </Typography>
                   <Typography variant="body1">
-                    {atendimentoSelecionado.Agendamentos[0].Cabeleireiro
-                      ?.Nome ||
-                      `ID: ${atendimentoSelecionado.Agendamentos[0].CabeleireiroID}`}
+                    {(atendimentoSelecionado as any).QuantidadeServicos || 0} serviço(s)
                   </Typography>
                 </Box>
               </Box>
             </DialogContent>
-            <DialogActions>
+            <DialogActions sx={{ p: 2, gap: 1 }}>
               <Button onClick={handleFecharModal} color="primary">
                 Fechar
               </Button>
               <Button
                 variant="contained"
                 color="primary"
-                onClick={() =>
-                  navigate(`/atendimento/editar/${atendimentoSelecionado.ID}`)
-                }
+                onClick={() => {
+                  navigate(`/atendimento/editar/${atendimentoSelecionado.ID}`);
+                  handleFecharModal();
+                }}
               >
-                Ir para página do atendimento
+                Editar Atendimento
               </Button>
             </DialogActions>
           </>
