@@ -48,6 +48,7 @@ import { DateTimePicker } from "@mui/x-date-pickers/DateTimePicker";
 import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
 import { AdapterDateFns } from "@mui/x-date-pickers/AdapterDateFns";
 
+
 function formatDateToLocalDateTimeString(date: Date) {
   const pad = (n: number) => n.toString().padStart(2, "0");
 
@@ -76,6 +77,7 @@ const ManterAgendamento: React.FC = () => {
   const {
     data,
     setData,
+    horaOriginal,
     status,
     setStatus,
     clienteId,
@@ -105,6 +107,7 @@ const ManterAgendamento: React.FC = () => {
     isTimeSlotOccupied,
     setCabeleireiroIdWithHorarios,
     cofirmarAtendimento,
+    setValidationErrors
   } = useManterAgendamento(userType!, agendamentoId, userId);
 
   const handleOpenDeleteDialog = () => {
@@ -129,14 +132,44 @@ const ManterAgendamento: React.FC = () => {
       AgendamentoId: agendamentoId ? agendamentoId : "",
     };
 
-    setServicosAgendamento([...servicosAgendamento, novoServicoAgendamento]);
+    const novosServicos = [...servicosAgendamento, novoServicoAgendamento];
+    setServicosAgendamento(novosServicos);
     setOpenServicosModal(false);
+
+    if (data && horariosOcupados.length > 0) {
+      const isOcupadoComNovosServicos = isTimeSlotOccupied(
+        new Date(data),
+        new Date(data).getHours(),
+        novosServicos
+      );
+
+      if (isOcupadoComNovosServicos) {
+
+        setData("");
+      }
+    }
   };
 
   const handleRemoveServico = (servicoId: string) => {
-    setServicosAgendamento(
-      servicosAgendamento.filter((s) => s.ServicoId !== servicoId)
-    );
+    const novosServicos = servicosAgendamento.filter((s) => s.ServicoId !== servicoId);
+    setServicosAgendamento(novosServicos);
+
+
+    if (data && horariosOcupados.length > 0) {
+      const isOcupadoComNovosServicos = isTimeSlotOccupied(
+        new Date(data),
+        new Date(data).getHours(),
+        novosServicos
+      );
+
+
+      if (!isOcupadoComNovosServicos && validationErrors.data) {
+        setValidationErrors((prev) => ({
+          ...prev,
+          data: undefined,
+        }));
+      }
+    }
   };
 
   const handleSelectCabeleireiro = (cabeleireiro: Cabeleireiro) => {
@@ -159,13 +192,15 @@ const ManterAgendamento: React.FC = () => {
     if (loadingHorarios) {
       return "Verificando disponibilidade...";
     }
-    if (data && isHorarioOcupado(data)) {
-      return "Este horário está ocupado (considera 1h de duração do serviço)";
+    if (data && isHorarioOcupado(data, isEditing, horaOriginal)) {
+      const duracaoMinutos = servicosAgendamento.length * 40;
+      return `Este horário conflita com outro agendamento (duração: ${duracaoMinutos}min)`;
     }
     if (validationErrors.data) {
       return validationErrors.data;
     }
-    return "Selecione data e horário para o agendamento";
+    const duracaoEstimada = Math.max(1, servicosAgendamento.length) * 40;
+    return `Selecione data e horário (duração estimada: ${duracaoEstimada}min)`;
   };
 
   const getDataTimeHelperColor = () => {
@@ -263,41 +298,37 @@ const ManterAgendamento: React.FC = () => {
                     value={data ? new Date(data) : null}
                     onChange={(newValue) => {
                       if (newValue) {
-                        const localDateTime =
-                          formatDateToLocalDateTimeString(newValue);
+                        const localDateTime = formatDateToLocalDateTimeString(newValue);
                         setData(localDateTime);
                       } else {
                         setData("");
                       }
                     }}
                     disabled={
-                      !canSaveEdit || loadingHorarios || !cabeleireiroId
+                      !canSaveEdit || loadingHorarios || !cabeleireiroId || status === StatusAgendamento.Finalizado
                     }
                     shouldDisableTime={(timeValue, clockType) => {
                       if (clockType === "hours" && data) {
                         const selectedDate = new Date(data.split("T")[0]);
-                        const hour = Math.max(
-                          0,
-                          Math.min(23, Number(timeValue))
-                        );
-                        return isTimeSlotOccupied(selectedDate, hour);
+                        const hour = Math.max(0, Math.min(23, Number(timeValue)));
+                        return isTimeSlotOccupied(selectedDate, hour, servicosAgendamento);
                       }
                       return false;
                     }}
                     minDateTime={new Date()}
+                    format="dd/MM/yyyy HH:mm"
                     slotProps={{
                       textField: {
                         fullWidth: true,
                         required: true,
                         error:
                           Boolean(validationErrors.data) ||
-                          Boolean(data && isHorarioOcupado(data)),
+                          Boolean(data && isHorarioOcupado(data, isEditing, horaOriginal)),
                         helperText: getDataTimeHelperText(),
                       },
                     }}
                   />
                 </LocalizationProvider>
-
                 {isEditing && (
                   <Box>
                     <TextField
@@ -329,7 +360,7 @@ const ManterAgendamento: React.FC = () => {
                         ? "Cliente atual (você)"
                         : "Clique para selecionar um cliente"
                     }
-                    disabled={!canSaveEdit || loadingHorarios}
+                    disabled={!canSaveEdit || loadingHorarios || status === StatusAgendamento.Finalizado}
                     slotProps={{
                       input: { readOnly: true },
                     }}
@@ -359,7 +390,7 @@ const ManterAgendamento: React.FC = () => {
                         ? "Cabeleireiro atual (você)"
                         : "Clique para selecionar um cabeleireiro"
                     }
-                    disabled={!canSaveEdit || loadingHorarios}
+                    disabled={!canSaveEdit || loadingHorarios || status === StatusAgendamento.Finalizado}
                     slotProps={{
                       input: {
                         readOnly: true,
@@ -400,7 +431,7 @@ const ManterAgendamento: React.FC = () => {
               <Button
                 variant="outlined"
                 startIcon={<AddIcon />}
-                disabled={!canSaveEdit || loadingHorarios}
+                disabled={!canSaveEdit || loadingHorarios || status === StatusAgendamento.Finalizado}
                 onClick={() => setOpenServicosModal(true)}
                 sx={{ mb: 2 }}
                 fullWidth
@@ -447,7 +478,8 @@ const ManterAgendamento: React.FC = () => {
                               disabled={
                                 !canSaveEdit ||
                                 loadingHorarios ||
-                                !cabeleireiroId
+                                !cabeleireiroId ||
+                                status === StatusAgendamento.Finalizado
                               }
                               onClick={() =>
                                 handleRemoveServico(
@@ -470,18 +502,15 @@ const ManterAgendamento: React.FC = () => {
                   <Typography variant="subtitle2">
                     Total estimado:{" "}
                     {formatCurrency(
-                      servicosAgendamento.reduce(
-                        (sum, s) => sum + s.PrecoMin,
-                        0
-                      )
+                      servicosAgendamento.reduce((sum, s) => sum + s.PrecoMin, 0)
                     )}{" "}
                     -{" "}
                     {formatCurrency(
-                      servicosAgendamento.reduce(
-                        (sum, s) => sum + s.PrecoMax,
-                        0
-                      )
+                      servicosAgendamento.reduce((sum, s) => sum + s.PrecoMax, 0)
                     )}
+                  </Typography>
+                  <Typography variant="caption" color="text.secondary">
+                    Tempo estimado: {servicosAgendamento.length * 40} minutos
                   </Typography>
                 </Box>
               )}
@@ -525,7 +554,7 @@ const ManterAgendamento: React.FC = () => {
                     <SaveIcon />
                   )
                 }
-                disabled={isLoading || (isEditing && !canSaveEdit)}
+                disabled={isLoading || (isEditing && !canSaveEdit) || status === StatusAgendamento.Finalizado || !canSaveEdit}
               >
                 {isEditing ? "Salvar Alterações" : "Criar Agendamento"}
               </Button>

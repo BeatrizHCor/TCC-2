@@ -330,12 +330,12 @@ class AgendamentoService {
     salaoId: string,
     cabeleireiroId: string,
     data: string
-  ): Promise<string[] | false> {
+  ): Promise<[string, number][] | false> {
     try {
       const response = await api.get(
         `/agendamento/horarios/${salaoId}/${cabeleireiroId}`,
         { params: { data } }
-      );
+      );console.log("resposta: ", response)
       if (response.status === 200) {
         console.error("buscar horários ocupados futuros: ", response.data);
         return response.data;
