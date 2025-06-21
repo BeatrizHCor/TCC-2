@@ -5,11 +5,18 @@ const router = express.Router();
 
 router.get("/atendimento/page", AtendimentoController.getAtendimentosPage);
 router.get("/atendimento/ID/:id", AtendimentoController.findById);
+router.get(
+  "/atendimentobyagendamento/:agendamentoId",
+  AtendimentoController.findByAgendamento
+);
 router.post("/atendimento", AtendimentoController.createAtendimento);
-router.put("/atendimento", AtendimentoController.updateAtendimento);
 router.delete(
   "/atendimento/delete/:id",
   AtendimentoController.deleteAtendimento
+);
+router.put(
+  "/atendimento/:atendimentoId",
+  AtendimentoController.updateAtendimento
 );
 
 export default router;

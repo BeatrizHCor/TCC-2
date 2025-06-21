@@ -15,12 +15,11 @@ class AtendimentoService {
     limit: number,
     includeRelations = false,
     salaoId: string | null = null,
-    nomeCliente: string | null = null,
+    cabeleireiro: string | null = null,
     userId: string,
     data: string | null = null
   ) {
     const where: Prisma.AtendimentoWhereInput = {};
-    console.log("nome Cliente", nomeCliente);
     if (salaoId !== null) {
       where.SalaoId = salaoId;
     }
@@ -31,19 +30,19 @@ class AtendimentoService {
         lte: range.dataFinal,
       };
     }
-    if (nomeCliente) {
+    if (cabeleireiro) {
       where.Agendamentos = {
         some: {
           AND: [
             {
-              Cabeleireiro: {
+              Cliente: {
                 ID: userId,
               },
             },
             {
-              Cliente: {
+              Cabeleireiro: {
                 Nome: {
-                  contains: nomeCliente,
+                  contains: cabeleireiro,
                   mode: "insensitive",
                 },
               },
@@ -94,7 +93,7 @@ class AtendimentoService {
     limit = 10,
     includeRelations = false,
     salaoId: string | null = null,
-    nomeCliente: string | null = null,
+    cabeleireiro: string | null = null,
     userId: string,
     data: string | null = null
   ) {
@@ -110,19 +109,19 @@ class AtendimentoService {
         lte: range.dataFinal,
       };
     }
-    if (nomeCliente) {
+    if (cabeleireiro) {
       where.Agendamentos = {
         some: {
           AND: [
             {
-              Cabeleireiro: {
+              Cliente: {
                 ID: userId,
               },
             },
             {
-              Cliente: {
+              Cabeleireiro: {
                 Nome: {
-                  contains: nomeCliente,
+                  contains: cabeleireiro,
                   mode: "insensitive",
                 },
               },
@@ -138,7 +137,7 @@ class AtendimentoService {
         limit,
         includeRelations,
         salaoId,
-        nomeCliente,
+        cabeleireiro,
         userId,
         data
       ),

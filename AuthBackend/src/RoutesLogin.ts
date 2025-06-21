@@ -192,6 +192,7 @@ RoutesLogin.post(
   async (req: Request, res: Response) => {
     let { CPF, Nome, Email, Telefone, SalaoId, Password, userType, Mei } =
       req.body;
+    console.log(req.body);
     try {
       let cabeleireiro = await postCabeleireiro(
         CPF,

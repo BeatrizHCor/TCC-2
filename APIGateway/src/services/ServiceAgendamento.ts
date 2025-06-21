@@ -152,7 +152,7 @@ export const CabeleireiroUpdateAgendamento = async (
       ClienteID,
       CabeleireiroID,
       SalaoId,
-      servicosIds,
+      servicoIds: servicosIds,
     }),
   });
   if (response.ok) {
@@ -320,5 +320,5 @@ export const getHorariosOcupadosFuturos = async (
       "Content-Type": "application/json",
     },
   });
-  return handleApiResponse<Date[]>(response, "busacar horários ocupados");
+  return handleApiResponse<[Date, number][]>(response, "busacar horários ocupados");
 };

@@ -47,7 +47,7 @@ class AgendamentoService {
             },
           }
         : {}),
-              orderBy: {
+      orderBy: {
         Data: "asc",
       },
     });
@@ -61,13 +61,13 @@ class AgendamentoService {
     cabeleireiroId: string,
     dia: number,
     mes: number,
-    ano: number,
+    ano: number
   ) => {
     try {
       let skip = null;
-      if (page !== null && limit !==null) {
-      skip = (page - 1) * limit;
-    }
+      if (page !== null && limit !== null) {
+        skip = (page - 1) * limit;
+      }
 
       let where: Prisma.AgendamentosWhereInput = {};
       const range = getRangeByDataInputWithTimezone(ano, mes, dia);
@@ -109,6 +109,44 @@ class AgendamentoService {
     }
   };
 
+  static findByAtendimentoId = async (atendimentoId: string) => {
+    try {
+      return await prisma.agendamentos.findFirst({
+        where: {
+          AtendimentoID: atendimentoId,
+        },
+        include: {
+          ServicoAgendamento: true,
+        },
+      });
+    } catch (e) {
+      console.error(e);
+      throw new Error("Erro ao buscar agendamento");
+    }
+  };
+
+  static updateAgendamentoStatus = async (
+    id: string,
+    Status: StatusAgendamento
+  ) => {
+    try {
+      return await prisma.$transaction(async (tx) => {
+        const agendamento = await tx.agendamentos.update({
+          where: { ID: id },
+          data: {
+            Status,
+          },
+        });
+
+        console.log("Agendamento encontrado e atualizado", agendamento);
+        return agendamento;
+      });
+    } catch (e) {
+      console.error(e);
+      throw new Error("Erro ao atualizar agendamento");
+    }
+  };
+
   static findById = async (ID: string, include = false) => {
     try {
       return await prisma.agendamentos.findUnique({
@@ -121,6 +159,7 @@ class AgendamentoService {
                 Cliente: true,
                 Cabeleireiro: true,
                 Atendimento: true,
+                ServicoAgendamento: true,
               },
             }
           : {}),
@@ -182,7 +221,7 @@ class AgendamentoService {
     ClienteID: string,
     SalaoId: string,
     CabeleireiroID: string,
-    Servicos: Servico[] = []
+    Servicos: string[] = []
   ) => {
     try {
       return await prisma.$transaction(async (tx) => {
@@ -203,8 +242,15 @@ class AgendamentoService {
           where: { AgendamentosId: id },
         });
         if (Servicos.length > 0) {
+          let services = await tx.servico.findMany({
+            where: {
+              ID: { in: Servicos },
+            },
+          });
+          console.log(Servicos);
+          console.log(services);
           await tx.servicoAgendamento.createMany({
-            data: Servicos.map((servico) => ({
+            data: services.map((servico) => ({
               AgendamentosId: id,
               ServicoId: servico.ID,
               Nome: servico.Nome,

@@ -98,4 +98,4 @@ export const deleteAuth = async (userID: string) => {
   } else {
     return false;
   }
-}
+};

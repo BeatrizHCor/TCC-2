@@ -385,47 +385,50 @@ const ManterAtendimento: React.FC = () => {
                         </TableCell>
                       </TableRow>
                     ) : (
-                      servicoAtendimento.map((servicoAtendimento) => (
-                        <TableRow key={servicoAtendimento.ID}>
-                          <TableCell>
-                            {servicoAtendimento.Servico?.Nome ||
-                              "Serviço não encontrado"}
-                          </TableCell>
-                          <TableCell align="right" sx={{ padding: 0 }}>
-                            <TextField
-                              variant="outlined"
-                              size="small"
-                              fullWidth
-                              sx={{
-                                "& .MuiInputBase-root": {
-                                  padding: 0,
-                                  height: "100%",
-                                },
-                                "& input": {
-                                  padding: "8px",
-                                },
-                              }}
-                              value={formatCurrency(
-                                servicoAtendimento.PrecoItem
-                              )}
-                              onChange={(e) => {
-                                const raw = e.target.value.replace(
-                                  /[^\d]/g,
-                                  ""
-                                );
-                                const float = parseFloat(raw) / 100;
-                                console.log(e.target.value);
-                                handlePrecoItem(servicoAtendimento.ID, float);
-                              }}
-                            />
-                          </TableCell>
-                          <TableCell align="center">
-                            <IconButton size="small" color="error">
-                              <RemoveIcon />
-                            </IconButton>
-                          </TableCell>
-                        </TableRow>
-                      ))
+                      servicoAtendimento.map((servicoAtendimento) => {
+                        let servico = servicosDisponiveis.find(
+                          (s) => s.ID === servicoAtendimento.ServicoId
+                        );
+                        return (
+                          <TableRow key={servicoAtendimento.ID}>
+                            <TableCell>
+                              {servico?.Nome || "Serviço não encontrado"}
+                            </TableCell>
+                            <TableCell align="right" sx={{ padding: 0 }}>
+                              <TextField
+                                variant="outlined"
+                                size="small"
+                                fullWidth
+                                sx={{
+                                  "& .MuiInputBase-root": {
+                                    padding: 0,
+                                    height: "100%",
+                                  },
+                                  "& input": {
+                                    padding: "8px",
+                                  },
+                                }}
+                                value={formatCurrency(
+                                  servicoAtendimento.PrecoItem
+                                )}
+                                onChange={(e) => {
+                                  const raw = e.target.value.replace(
+                                    /[^\d]/g,
+                                    ""
+                                  );
+                                  const float = parseFloat(raw) / 100;
+                                  handlePrecoItem(servicoAtendimento.ID, float);
+                                }}
+                              />
+                            </TableCell>
+                            <TableCell align="center">
+                              <IconButton size="small" color="error">
+                                <RemoveIcon />
+                              </IconButton>
+                            </TableCell>
+                          </TableRow>
+                        );
+                      })
                     )}
                   </TableBody>
                 </Table>

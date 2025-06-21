@@ -53,7 +53,7 @@ const meses = Array.from({ length: 12 }, (_, i) => ({
 export const VisualizarAtendimentos: React.FC = () => {
   const { userType, userId, doLogout } = useContext(AuthContext);
   const navigate = useNavigate();
-  
+
   const [page, setPage] = useState(0);
   const [rowsPerPage, setRowsPerPage] = useState(10);
   const [clienteFilter, setClienteFilter] = useState("");
@@ -63,7 +63,7 @@ export const VisualizarAtendimentos: React.FC = () => {
   const [atendimentoSelecionado, setAtendimentoSelecionado] = useState<
     Atendimento | undefined
   >();
-  
+
   const [clienteFiltroInput, setClienteFilterInput] = useState("");
   const [cabelereiroFiltroInput, setCabelereiroFilterInput] = useState("");
   const [anoFilter, setAnoFilter] = useState("");
@@ -75,7 +75,9 @@ export const VisualizarAtendimentos: React.FC = () => {
 
   const colunas = [
     ...(isCliente ? [] : [{ id: "nomeCliente", label: "Cliente" }]),
-    ...(isCabeleireiro ? [] : [{ id: "nomeCabeleireiro", label: "Cabeleireiro" }]),
+    ...(isCabeleireiro
+      ? []
+      : [{ id: "nomeCabeleireiro", label: "Cabeleireiro" }]),
     { id: "data", label: "Data" },
     { id: "hora", label: "Hora" },
     { id: "valorTotal", label: "Valor Total" },
@@ -117,7 +119,8 @@ export const VisualizarAtendimentos: React.FC = () => {
     return Array.from({ length: 8 }, (_, i) => (anoAtual - 5 + i).toString());
   };
 
-  const gerarDias = () => Array.from({ length: 31 }, (_, i) => (i + 1).toString());
+  const gerarDias = () =>
+    Array.from({ length: 31 }, (_, i) => (i + 1).toString());
 
   const construirFiltroData = () => {
     let filtroData = "";
@@ -220,9 +223,9 @@ export const VisualizarAtendimentos: React.FC = () => {
 
         <FormControl size="small" sx={{ minWidth: 100 }}>
           <InputLabel>Ano</InputLabel>
-          <Select 
-            value={anoFilter} 
-            label="Ano" 
+          <Select
+            value={anoFilter}
+            label="Ano"
             onChange={(e) => setAnoFilter(e.target.value)}
           >
             <MenuItem value="">Todos</MenuItem>
@@ -335,7 +338,9 @@ export const VisualizarAtendimentos: React.FC = () => {
                       <TableCell>{atendimento.NomeCliente || "—"}</TableCell>
                     )}
                     {!isCabeleireiro && (
-                      <TableCell>{atendimento.NomeCabeleireiro || "—"}</TableCell>
+                      <TableCell>
+                        {atendimento.NomeCabeleireiro || "—"}
+                      </TableCell>
                     )}
                     <TableCell>
                       {atendimento.Data
@@ -357,14 +362,19 @@ export const VisualizarAtendimentos: React.FC = () => {
                         >
                           <VisibilityIcon fontSize="small" />
                         </IconButton>
-                        <IconButton
-                          size="small"
-                          color="secondary"
-                          onClick={() => atendimento.ID && handleEditarAtendimento(atendimento.ID)}
-                          title="Editar atendimento"
-                        >
-                          <EditIcon fontSize="small" />
-                        </IconButton>
+                        {!isCliente && (
+                          <IconButton
+                            size="small"
+                            color="secondary"
+                            onClick={() =>
+                              atendimento.ID &&
+                              handleEditarAtendimento(atendimento.ID)
+                            }
+                            title="Editar atendimento"
+                          >
+                            <EditIcon fontSize="small" />
+                          </IconButton>
+                        )}
                       </Box>
                     </TableCell>
                   </TableRow>
@@ -413,54 +423,79 @@ export const VisualizarAtendimentos: React.FC = () => {
             <DialogContent dividers sx={{ p: 3 }}>
               <Box sx={{ display: "flex", flexDirection: "column", gap: 2 }}>
                 <Box>
-                  <Typography variant="subtitle1" fontWeight="bold" color="primary">
+                  <Typography
+                    variant="subtitle1"
+                    fontWeight="bold"
+                    color="primary"
+                  >
                     Data e Hora
                   </Typography>
                   <Typography variant="body1">
-                    {atendimentoSelecionado.Data 
+                    {atendimentoSelecionado.Data
                       ? formatarDataHora(atendimentoSelecionado.Data)
-                      : "Data não disponível"
-                    }
+                      : "Data não disponível"}
                   </Typography>
                 </Box>
 
                 {!isCliente && (
                   <Box>
-                    <Typography variant="subtitle1" fontWeight="bold" color="primary">
+                    <Typography
+                      variant="subtitle1"
+                      fontWeight="bold"
+                      color="primary"
+                    >
                       Cliente
                     </Typography>
                     <Typography variant="body1">
-                      {(atendimentoSelecionado as any).NomeCliente || "Cliente não identificado"}
+                      {(atendimentoSelecionado as any).NomeCliente ||
+                        "Cliente não identificado"}
                     </Typography>
                   </Box>
                 )}
 
                 {!isCabeleireiro && (
                   <Box>
-                    <Typography variant="subtitle1" fontWeight="bold" color="primary">
+                    <Typography
+                      variant="subtitle1"
+                      fontWeight="bold"
+                      color="primary"
+                    >
                       Profissional
                     </Typography>
                     <Typography variant="body1">
-                      {(atendimentoSelecionado as any).NomeCabeleireiro || "Profissional não identificado"}
+                      {(atendimentoSelecionado as any).NomeCabeleireiro ||
+                        "Profissional não identificado"}
                     </Typography>
                   </Box>
                 )}
 
                 <Box>
-                  <Typography variant="subtitle1" fontWeight="bold" color="primary">
+                  <Typography
+                    variant="subtitle1"
+                    fontWeight="bold"
+                    color="primary"
+                  >
                     Valor Total
                   </Typography>
                   <Typography variant="body1">
-                    R$ {((atendimentoSelecionado as any).ValorTotal || 0).toFixed(2)}
+                    R${" "}
+                    {((atendimentoSelecionado as any).ValorTotal || 0).toFixed(
+                      2
+                    )}
                   </Typography>
                 </Box>
 
                 <Box>
-                  <Typography variant="subtitle1" fontWeight="bold" color="primary">
+                  <Typography
+                    variant="subtitle1"
+                    fontWeight="bold"
+                    color="primary"
+                  >
                     Quantidade de Serviços
                   </Typography>
                   <Typography variant="body1">
-                    {(atendimentoSelecionado as any).QuantidadeServicos || 0} serviço(s)
+                    {(atendimentoSelecionado as any).QuantidadeServicos || 0}{" "}
+                    serviço(s)
                   </Typography>
                 </Box>
               </Box>
@@ -468,16 +503,6 @@ export const VisualizarAtendimentos: React.FC = () => {
             <DialogActions sx={{ p: 2, gap: 1 }}>
               <Button onClick={handleFecharModal} color="primary">
                 Fechar
-              </Button>
-              <Button
-                variant="contained"
-                color="primary"
-                onClick={() => {
-                  navigate(`/atendimento/editar/${atendimentoSelecionado.ID}`);
-                  handleFecharModal();
-                }}
-              >
-                Editar Atendimento
               </Button>
             </DialogActions>
           </>

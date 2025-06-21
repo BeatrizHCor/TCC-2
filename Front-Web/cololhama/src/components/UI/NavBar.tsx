@@ -23,7 +23,7 @@ const NavBar: React.FC = () => {
   const { userId, userType, checkLocalStorage, doLogout } = useContext(AuthContext);
   const [drawerOpen, setDrawerOpen] = useState(false);
   const navigate = useNavigate();
-  
+
   useEffect(() => {
     checkLocalStorage();
   }, [userType]);
@@ -42,7 +42,7 @@ const NavBar: React.FC = () => {
     { route: "/funcionarios", label: "Funcionarios" },
   ];
   const cabeleireiroRoutes = [
-    { route: `/portfolio/${userId}`, label: "Portfolio" },  
+    { route: `/portfolio/${userId}`, label: "Portfolio" },
   ];
 
   const handleLogout = () => {
@@ -158,6 +158,7 @@ const NavBar: React.FC = () => {
         <Box sx={{ display: { xs: "none", md: "flex" }, gap: 2, alignItems: "center" }}>
           {!userId ? (
             <>
+              {/* Botões Login e Cadastre-se */}
               <Button
                 component={Link}
                 to="/login"
@@ -177,6 +178,7 @@ const NavBar: React.FC = () => {
               >
                 Login
               </Button>
+
               <Box sx={{ position: "relative", overflow: "hidden" }}>
                 <Button
                   color="inherit"
@@ -208,25 +210,27 @@ const NavBar: React.FC = () => {
             </>
           ) : (
             <>
-              <Button
-                component={Link}
-                to="/perfil"
-                sx={{
-                  backgroundColor: theme.palette.primary.main,
-                  color: theme.palette.customColors?.lightGray,
-                  borderRadius: "5px",
-                  padding: "5px 15px",
-                  fontWeight: "bold",
-                  textTransform: "none",
-                  border: `2px solid ${theme.palette.customColors?.goldenBorder}`,
-                  transition: "0.3s ease-in-out",
-                  "&:hover": {
-                    backgroundColor: theme.palette.customColors?.softPink,
-                  },
-                }}
-              >
-                Meu Perfil
-              </Button>
+              {userType === "Cliente" && (
+                <Button
+                  component={Link}
+                  to="/perfil"
+                  sx={{
+                    backgroundColor: theme.palette.primary.main,
+                    color: theme.palette.customColors?.lightGray,
+                    borderRadius: "5px",
+                    padding: "5px 15px",
+                    fontWeight: "bold",
+                    textTransform: "none",
+                    border: `2px solid ${theme.palette.customColors?.goldenBorder}`,
+                    transition: "0.3s ease-in-out",
+                    "&:hover": {
+                      backgroundColor: theme.palette.customColors?.softPink,
+                    },
+                  }}
+                >
+                  Meu Perfil
+                </Button>
+              )}
               <Box sx={{ position: "relative", overflow: "hidden" }}>
                 <Button
                   color="inherit"
