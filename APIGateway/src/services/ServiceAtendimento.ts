@@ -139,7 +139,7 @@ export const CabeleireirogetAtendimentosPage = async (
 ) => {
   let responseAtendimentos = await fetch(
     CabeleireiroURL +
-      `/atendimento/page?page=${page}&limit=${limit}&userId=${userId}&salaoId=${salaoId}&data${data}&includeRelations=${includeRelations}`,
+      `/atendimento/page?page=${page}&limit=${limit}&userId=${userId}&salaoId=${salaoId}&data=${data}&includeRelations=${includeRelations}`,
     {
       method: "GET",
     }
