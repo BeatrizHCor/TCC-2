@@ -59,7 +59,7 @@ def processar_imagem_unica(imagem_array: np.ndarray, intensidade: float = 0.8) -
         traceback.print_exc()
         raise HTTPException(status_code=500, detail=f"Erro no processamento: {str(e)}")
 
-@app.post("/process-hair-color")
+@app.post("/processamento-cor-cabelo")
 async def processar_cor_cabelo(file: UploadFile = File(...)):
     if not file.content_type.startswith("image/"):
         raise HTTPException(status_code=400, detail="Arquivo deve ser uma imagem")
@@ -82,7 +82,7 @@ async def processar_cor_cabelo(file: UploadFile = File(...)):
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
-@app.post("/process-hair-color-custom")
+@app.post("/procesamento-cor-cabelo-custom")
 async def processar_cor_cabelo_custom(
     file: UploadFile = File(...),
     intensidade: float = 0.8,

@@ -9,6 +9,7 @@ import RoutesFuncionario from "./routes/RoutesFuncionario";
 import RoutesCabeleireiro from "./routes/RoutesCabeleireiro";
 import RoutesAgendamento from "./routes/RoutesAgendamento";
 import RoutesAtendimento from "./routes/RoutesAtendimento";
+import RoutesIA from "./routes/RoutesIA";
 
 const app = express();
 const port = process.env.PORT;
@@ -29,4 +30,5 @@ app.use(RoutesLogin);
 app.use(RoutesCliente);
 app.use(RoutesFuncionario);
 app.use(RoutesAgendamento);
+app.use(RoutesIA);
 app.listen(port, () => console.log(`server running on port ${port}`));
