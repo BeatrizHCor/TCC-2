@@ -221,7 +221,6 @@ export const CabeleireirogetAtendimentosPage = async (
       method: "GET",
     }
   );
-  console.log(responseAtendimentos);
   if (responseAtendimentos.ok) {
     return (await responseAtendimentos.json()) as Agendamentos[];
   } else {

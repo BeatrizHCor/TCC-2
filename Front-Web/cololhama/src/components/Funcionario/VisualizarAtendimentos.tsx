@@ -362,17 +362,19 @@ export const VisualizarAtendimentos: React.FC = () => {
                         >
                           <VisibilityIcon fontSize="small" />
                         </IconButton>
-                        <IconButton
-                          size="small"
-                          color="secondary"
-                          onClick={() =>
-                            atendimento.ID &&
-                            handleEditarAtendimento(atendimento.ID)
-                          }
-                          title="Editar atendimento"
-                        >
-                          <EditIcon fontSize="small" />
-                        </IconButton>
+                        {!isCliente && (
+                          <IconButton
+                            size="small"
+                            color="secondary"
+                            onClick={() =>
+                              atendimento.ID &&
+                              handleEditarAtendimento(atendimento.ID)
+                            }
+                            title="Editar atendimento"
+                          >
+                            <EditIcon fontSize="small" />
+                          </IconButton>
+                        )}
                       </Box>
                     </TableCell>
                   </TableRow>
