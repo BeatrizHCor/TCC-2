@@ -66,7 +66,7 @@ export const useManterAgendamento = (
     {},
   );
   const [isEditing, setIsEditing] = useState(false);
-  const [horariosOcupados, setHorariosOcupados] = useState<string[]>([]);
+  const [horariosOcupados, setHorariosOcupados] = useState<[string, number][]>([]);
   const [loadingHorarios, setLoadingHorarios] = useState(false);
 
   const navigate = useNavigate();
@@ -113,27 +113,49 @@ const isHorarioOcupado = (
   if (!dataHora || horariosOcupados.length === 0) return false;
 
   const dataHoraAgendamento = new Date(dataHora);
-  let horaOriginalDate: Date; 
+  const duracaoAtualMinutos = servicosAgendamento.length * 40; // 40 min por serviço
+  const duracaoAtualMilissegundos = duracaoAtualMinutos * 60 * 1000;
+  const fimAgendamentoAtual = new Date(dataHoraAgendamento.getTime() + duracaoAtualMilissegundos);
+  
+  let horaOriginalDate: Date | null = null;
+  let duracaoOriginalMilissegundos = 0;
 
-  if  (horaOriginal) {
+  if (horaOriginal) {
     horaOriginalDate = new Date(horaOriginal);
+    // Para edição, precisamos saber a duração original (assumindo mesmo número de serviços)
+    duracaoOriginalMilissegundos = servicosAgendamento.length * 40 * 60 * 1000;
   }
-  return horariosOcupados.some((horario) => {
+
+  return horariosOcupados.some(([horario, numeroServicos]) => {
     const horarioOcupado = new Date(horario);
+    const duracaoOcupadaMinutos = numeroServicos * 40;
+    const duracaoOcupadaMilissegundos = duracaoOcupadaMinutos * 60 * 1000;
+    const horarioOcupadoFim = new Date(horarioOcupado.getTime() + duracaoOcupadaMilissegundos);
     
-    if (isEditing && horaOriginal) {
+    // Se estamos editando, ignorar o horário original
+    if (isEditing && horaOriginal && horaOriginalDate) {
+      const fimHorarioOriginal = new Date(horaOriginalDate.getTime() + duracaoOriginalMilissegundos);
+      
+      // Se o horário ocupado é exatamente o horário original que estamos editando
       if (horarioOcupado.getTime() === horaOriginalDate.getTime()) {
         return false;
       }
+      
+      // Verificar se há sobreposição entre horário original e ocupado
+      const sobrepoeComOriginal = (
+        horaOriginalDate < horarioOcupadoFim && 
+        fimHorarioOriginal > horarioOcupado
+      );
+      
+      if (sobrepoeComOriginal) {
+        return false; // Ignorar sobreposições com o horário original
+      }
     }
     
-    const horarioOcupadoFim = new Date(
-      horarioOcupado.getTime() + 60 * 60 * 1000
-    );
-
+    // Verificar sobreposição: novo agendamento com horário ocupado
     return (
-      dataHoraAgendamento >= horarioOcupado &&
-      dataHoraAgendamento < horarioOcupadoFim
+      dataHoraAgendamento < horarioOcupadoFim && 
+      fimAgendamentoAtual > horarioOcupado
     );
   });
 };
@@ -166,27 +188,30 @@ const isHorarioOcupado = (
 const isTimeSlotOccupied = (
   date: Date, 
   hour: number, 
-  servicosAgendamento: any[] = []
+  servicosAgendamentoParam: any[] = []
 ): boolean => {
   if (!date || horariosOcupados.length === 0) return false;
 
   const testDate = new Date(date);
   testDate.setHours(hour, 0, 0, 0);
 
-  // 40 minutos por serviço
-  const duracaoTotalMinutos = servicosAgendamento.length > 0 
-    ? servicosAgendamento.length * 40 
-    : 40;
-
+  // Usar os serviços passados como parâmetro ou os atuais
+  const servicosParaCalcular = servicosAgendamentoParam.length > 0 
+    ? servicosAgendamentoParam 
+    : servicosAgendamento;
+    
+  const duracaoTotalMinutos = Math.max(1, servicosParaCalcular.length) * 40;
   const duracaoTotalMilissegundos = duracaoTotalMinutos * 60 * 1000;
+  const fimTestDate = new Date(testDate.getTime() + duracaoTotalMilissegundos);
 
-  return horariosOcupados.some((horario) => {
+  return horariosOcupados.some(([horario, numeroServicos]) => {
     const horarioOcupado = new Date(horario);
-    const horarioOcupadoFim = new Date(
-      horarioOcupado.getTime() + duracaoTotalMilissegundos
-    );
+    const duracaoOcupadaMinutos = numeroServicos * 40;
+    const duracaoOcupadaMilissegundos = duracaoOcupadaMinutos * 60 * 1000;
+    const horarioOcupadoFim = new Date(horarioOcupado.getTime() + duracaoOcupadaMilissegundos);
 
-    return testDate >= horarioOcupado && testDate < horarioOcupadoFim;
+    // Verificar sobreposição
+    return testDate < horarioOcupadoFim && fimTestDate > horarioOcupado;
   });
 };
   useEffect(() => {
@@ -318,16 +343,15 @@ const isTimeSlotOccupied = (
     }
   }, [agendamentoId, navigate]);
 
-  useEffect(() => {
-    if (data && horariosOcupados.length > 0) {
-      setValidationErrors((prev) => ({
-        ...prev,
-        data: isHorarioOcupado(data, isEditing, horaOriginal)
-          ? "Este horário já está ocupado"
-          : undefined,
-      }));
-    }
-  }, [horariosOcupados, data, isEditing, horaOriginal, servicosAgendamento]);
+useEffect(() => {
+  if (data && horariosOcupados.length > 0) {
+    const isOcupado = isHorarioOcupado(data, isEditing, horaOriginal);
+    setValidationErrors((prev) => ({
+      ...prev,
+      data: isOcupado ? "Este horário conflita com outro agendamento" : undefined,
+    }));
+  }
+}, [servicosAgendamento, horariosOcupados, data, isEditing, horaOriginal]);
 
   const validateForm = (): boolean => {
     const errors: ValidationErrors = {};
@@ -654,6 +678,7 @@ const isTimeSlotOccupied = (
     isTimeSlotOccupied,
     setCabeleireiroIdWithHorarios,
     cofirmarAtendimento,
+    setValidationErrors
   };
 };
 

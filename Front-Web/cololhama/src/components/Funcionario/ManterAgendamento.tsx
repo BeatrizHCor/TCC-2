@@ -106,6 +106,7 @@ const ManterAgendamento: React.FC = () => {
     isTimeSlotOccupied,
     setCabeleireiroIdWithHorarios,
     cofirmarAtendimento,
+    setValidationErrors
   } = useManterAgendamento(userType!, agendamentoId, userId);
 
   const handleOpenDeleteDialog = () => {
@@ -121,24 +122,56 @@ const ManterAgendamento: React.FC = () => {
     handleCloseDeleteDialog();
   };
 
-  const handleAddServico = (servico: Servico) => {
-    const novoServicoAgendamento: ServicoAgendamento = {
-      Nome: servico.Nome,
-      PrecoMin: servico.PrecoMin,
-      PrecoMax: servico.PrecoMax,
-      ServicoId: servico.ID ? servico.ID : "",
-      AgendamentoId: agendamentoId ? agendamentoId : "",
-    };
-
-    setServicosAgendamento([...servicosAgendamento, novoServicoAgendamento]);
-    setOpenServicosModal(false);
+const handleAddServico = (servico: Servico) => {
+  const novoServicoAgendamento: ServicoAgendamento = {
+    Nome: servico.Nome,
+    PrecoMin: servico.PrecoMin,
+    PrecoMax: servico.PrecoMax,
+    ServicoId: servico.ID ? servico.ID : "",
+    AgendamentoId: agendamentoId ? agendamentoId : "",
   };
 
-  const handleRemoveServico = (servicoId: string) => {
-    setServicosAgendamento(
-      servicosAgendamento.filter((s) => s.ServicoId !== servicoId)
+  const novosServicos = [...servicosAgendamento, novoServicoAgendamento];
+  setServicosAgendamento(novosServicos);
+  setOpenServicosModal(false);
+  
+  // Revalidar horário se já existe data selecionada
+  if (data && horariosOcupados.length > 0) {
+    // Usar uma versão temporária da função para verificar com os novos serviços
+    const isOcupadoComNovosServicos = isTimeSlotOccupied(
+      new Date(data), 
+      new Date(data).getHours(), 
+      novosServicos
     );
-  };
+    
+    if (isOcupadoComNovosServicos) {
+      // Limpar a data se ela ficar inválida com o novo serviço
+      setData("");
+    }
+  }
+};
+
+const handleRemoveServico = (servicoId: string) => {
+  const novosServicos = servicosAgendamento.filter((s) => s.ServicoId !== servicoId);
+  setServicosAgendamento(novosServicos);
+  
+  // Revalidar horário se já existe data selecionada
+  if (data && horariosOcupados.length > 0) {
+    const isOcupadoComNovosServicos = isTimeSlotOccupied(
+      new Date(data), 
+      new Date(data).getHours(), 
+      novosServicos
+    );
+    
+    // Se com menos serviços o horário fica livre, remover erro de validação
+    if (!isOcupadoComNovosServicos && validationErrors.data) {
+      setValidationErrors((prev) => ({
+        ...prev,
+        data: undefined,
+      }));
+    }
+  }
+};
 
   const handleSelectCabeleireiro = (cabeleireiro: Cabeleireiro) => {
     setCabeleireiroIdWithHorarios(cabeleireiro.ID!);
@@ -153,21 +186,23 @@ const ManterAgendamento: React.FC = () => {
     }).format(value);
   };
 
-  const getDataTimeHelperText = () => {
-    if (!cabeleireiroId) {
-      return "Selecione um cabeleireiro primeiro";
-    }
-    if (loadingHorarios) {
-      return "Verificando disponibilidade...";
-    }
-    if (data && isHorarioOcupado(data, isEditing, horaOriginal)) {
-      return "Este horário está ocupado (considera 1h de duração do serviço)";
-    }
-    if (validationErrors.data) {
-      return validationErrors.data;
-    }
-    return "Selecione data e horário para o agendamento";
-  };
+const getDataTimeHelperText = () => {
+  if (!cabeleireiroId) {
+    return "Selecione um cabeleireiro primeiro";
+  }
+  if (loadingHorarios) {
+    return "Verificando disponibilidade...";
+  }
+  if (data && isHorarioOcupado(data, isEditing, horaOriginal)) {
+    const duracaoMinutos = servicosAgendamento.length * 40;
+    return `Este horário conflita com outro agendamento (duração: ${duracaoMinutos}min)`;
+  }
+  if (validationErrors.data) {
+    return validationErrors.data;
+  }
+  const duracaoEstimada = Math.max(1, servicosAgendamento.length) * 40;
+  return `Selecione data e horário (duração estimada: ${duracaoEstimada}min)`;
+};
 
   const getDataTimeHelperColor = () => {
     if (!cabeleireiroId || loadingHorarios) {
@@ -259,45 +294,42 @@ const ManterAgendamento: React.FC = () => {
                   dateAdapter={AdapterDateFns}
                   adapterLocale={ptBR}
                 >
-                  <DateTimePicker
-                    label="Data e Hora"
-                    value={data ? new Date(data) : null}
-                    onChange={(newValue) => {
-                      if (newValue) {
-                        const localDateTime =
-                          formatDateToLocalDateTimeString(newValue);
-                        setData(localDateTime);
-                      } else {
-                        setData("");
-                      }
-                    }}
-                    disabled={
-                      !canSaveEdit || loadingHorarios || !cabeleireiroId || status === StatusAgendamento.Finalizado
-                    }
-                    shouldDisableTime={(timeValue, clockType) => {
-                      if (clockType === "hours" && data) {
-                        const selectedDate = new Date(data.split("T")[0]);
-                        const hour = Math.max(
-                          0,
-                          Math.min(23, Number(timeValue))
-                        );
-                        return isTimeSlotOccupied(selectedDate, hour, servicosAgendamento);
-                      }
-                      return false;
-                    }}
-                    minDateTime={new Date()}
-                    format="dd/MM/yyyy HH:mm"
-                    slotProps={{
-                      textField: {
-                        fullWidth: true,
-                        required: true,
-                        error:
-                          Boolean(validationErrors.data) ||
-                          Boolean(data && isHorarioOcupado(data, isEditing, horaOriginal)),
-                        helperText: getDataTimeHelperText(),
-                      },
-                    }}
-                  />
+                 <DateTimePicker
+  label="Data e Hora"
+  value={data ? new Date(data) : null}
+  onChange={(newValue) => {
+    if (newValue) {
+      const localDateTime = formatDateToLocalDateTimeString(newValue);
+      setData(localDateTime);
+    } else {
+      setData("");
+    }
+  }}
+  disabled={
+    !canSaveEdit || loadingHorarios || !cabeleireiroId || status === StatusAgendamento.Finalizado
+  }
+  shouldDisableTime={(timeValue, clockType) => {
+    if (clockType === "hours" && data) {
+      const selectedDate = new Date(data.split("T")[0]);
+      const hour = Math.max(0, Math.min(23, Number(timeValue)));
+      // Passar os serviços atuais para a verificação
+      return isTimeSlotOccupied(selectedDate, hour, servicosAgendamento);
+    }
+    return false;
+  }}
+  minDateTime={new Date()}
+  format="dd/MM/yyyy HH:mm"
+  slotProps={{
+    textField: {
+      fullWidth: true,
+      required: true,
+      error:
+        Boolean(validationErrors.data) ||
+        Boolean(data && isHorarioOcupado(data, isEditing, horaOriginal)),
+      helperText: getDataTimeHelperText(),
+    },
+  }}
+/>
                 </LocalizationProvider>
                 {isEditing && (
                   <Box>
@@ -467,26 +499,23 @@ const ManterAgendamento: React.FC = () => {
                 </Table>
               </TableContainer>
 
-              {servicosAgendamento.length > 0 && (
-                <Box sx={{ mt: 2 }}>
-                  <Typography variant="subtitle2">
-                    Total estimado:{" "}
-                    {formatCurrency(
-                      servicosAgendamento.reduce(
-                        (sum, s) => sum + s.PrecoMin,
-                        0
-                      )
-                    )}{" "}
-                    -{" "}
-                    {formatCurrency(
-                      servicosAgendamento.reduce(
-                        (sum, s) => sum + s.PrecoMax,
-                        0
-                      )
-                    )}
-                  </Typography>
-                </Box>
-              )}
+{servicosAgendamento.length > 0 && (
+  <Box sx={{ mt: 2 }}>
+    <Typography variant="subtitle2">
+      Total estimado:{" "}
+      {formatCurrency(
+        servicosAgendamento.reduce((sum, s) => sum + s.PrecoMin, 0)
+      )}{" "}
+      -{" "}
+      {formatCurrency(
+        servicosAgendamento.reduce((sum, s) => sum + s.PrecoMax, 0)
+      )}
+    </Typography>
+    <Typography variant="caption" color="text.secondary">
+      Tempo estimado: {servicosAgendamento.length * 40} minutos
+    </Typography>
+  </Box>
+)}
             </Box>
           </Box>
 
