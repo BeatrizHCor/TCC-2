@@ -81,25 +81,27 @@ export const useVisualizarAtendimentos = (
           );
         }
         console.log(response);
-        setAtendimentosData(response.data);
-        const listaAtendimentos: AtendimentoExibicao[] = (
-          response.data || []
-        ).map((item: any) => ({
-          ID: item.ID ?? "",
-          NomeCliente: item.Agendamentos[0]?.Cliente.Nome ?? "",
-          NomeCabeleireiro: item.Agendamentos[0]?.Cabeleireiro.Nome ?? "",
-          Data: item.Data ?? "",
-          Hora: item.Data
-            ? new Date(item.Data).toLocaleTimeString([], {
-                hour: "2-digit",
-                minute: "2-digit",
-              })
-            : "",
-          ValorTotal: item.PrecoTotal ?? 0,
-          QuantidadeServicos: item.ServicoAtendimento?.length ?? 0,
-        }));
-        setAtendimentos(listaAtendimentos);
-        setTotalAtendimentos(response.total);
+        if (response && typeof response !== "boolean") {
+          setAtendimentosData(response.data);
+          const listaAtendimentos: AtendimentoExibicao[] = (
+            response.data || []
+          ).map((item: any) => ({
+            ID: item.ID ?? "",
+            NomeCliente: item.Agendamentos[0]?.Cliente.Nome ?? "",
+            NomeCabeleireiro: item.Agendamentos[0]?.Cabeleireiro.Nome ?? "",
+            Data: item.Data ?? "",
+            Hora: item.Data
+              ? new Date(item.Data).toLocaleTimeString([], {
+                  hour: "2-digit",
+                  minute: "2-digit",
+                })
+              : "",
+            ValorTotal: item.PrecoTotal ?? 0,
+            QuantidadeServicos: item.ServicoAtendimento?.length ?? 0,
+          }));
+          setAtendimentos(listaAtendimentos);
+          setTotalAtendimentos(response.total);
+        }
       } catch (err: any) {
         if (err?.response?.status === 403) {
           setForbidden(true);

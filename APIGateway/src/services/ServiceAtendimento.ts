@@ -40,6 +40,31 @@ export const FuncionariogetAtendimentosPage = async (
   }
 };
 
+export const ClientegetAtendimentosPage = async (
+  page: number,
+  limit: number,
+  includeRelations: boolean = false,
+  salaoId: number,
+  data: string,
+  userId: string,
+  cabeleireiro: string | null
+) => {
+  let responseAgendamentos = await fetch(
+    ClienteURL +
+      `/atendimento/page?page=${page}&limit=${limit}&userId=${userId}&salaoId=${salaoId}&data=${data}&includeRelations=${includeRelations}${
+        cabeleireiro ? `&cabeleireiro=${cabeleireiro}` : ""
+      }`,
+    {
+      method: "GET",
+    }
+  );
+  if (responseAgendamentos.ok) {
+    return (await responseAgendamentos.json()) as Agendamentos[];
+  } else {
+    throw new Error("Error in fetching Agendamentos");
+  }
+};
+
 export const getAtendimentobyAgendamentoId = async (agendamentoId: string) => {
   let response = await fetch(
     FuncionarioURL + `/atendimentobyagendamento/${agendamentoId}`,
@@ -212,11 +237,14 @@ export const CabeleireirogetAtendimentosPage = async (
   includeRelations: boolean = false,
   salaoId: number,
   data: string,
-  userId: string
+  userId: string,
+  cliente: string | null
 ) => {
   let responseAtendimentos = await fetch(
     CabeleireiroURL +
-      `/atendimento/page?page=${page}&limit=${limit}&userId=${userId}&salaoId=${salaoId}&data=${data}&includeRelations=${includeRelations}`,
+      `/atendimento/page?page=${page}&limit=${limit}&userId=${userId}&salaoId=${salaoId}&data=${data}&includeRelations=${includeRelations}${
+        cliente ? `&cliente=${cliente}` : ""
+      }`,
     {
       method: "GET",
     }

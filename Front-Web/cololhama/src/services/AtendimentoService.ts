@@ -54,15 +54,34 @@ class AtendimentoService {
       return false;
     }
   }
-  static getAtendimentosPageCliente(
+  static async getAtendimentosPageCliente(
     page: number,
     limit: number,
     cabelereiroFilter: string,
     dataFilter: string,
     userId: string,
     salaoId: string
-  ): any {
-    throw new Error("Method not implemented.");
+  ): Promise<AtendimentoPageResponse | boolean> {
+    try {
+      const response = await api.get(`cliente/atendimento/page`, {
+        params: {
+          page,
+          limit,
+          includeRelations: true,
+          SalaoId: salaoId,
+          cabeleireiro: cabelereiroFilter,
+          userId,
+          data: dataFilter,
+        },
+      });
+      if (response.status === 200) {
+        return response.data;
+      }
+      return false;
+    } catch (error) {
+      console.error("Erro ao buscar atendimentos:", error);
+      return false;
+    }
   }
   static async getAtendimentosPageFuncionario(
     page: number,
