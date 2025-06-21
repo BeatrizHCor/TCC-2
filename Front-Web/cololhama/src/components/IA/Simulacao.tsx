@@ -7,23 +7,22 @@ import {
   Card,
   CardContent,
   CardMedia,
-  CircularProgress,
   Alert,
   Dialog,
 } from '@mui/material';
-import { Upload, Download, Palette, Camera, AlertCircle, Loader2 } from 'lucide-react';
+import { Download, Palette, Camera, AlertCircle, Loader2 } from 'lucide-react';
 
 interface ResultsType {
-  original_color: string;
-  colors: {
-    analogous: string[];
-    complementary: string;
+  cor_original: string;
+  cores: {
+    analogas: string[];
+    complementar: string;
   };
   images: {
     original: string;
-    analogous_1: string;
-    analogous_2: string;
-    complementary: string;
+    analoga_1: string;
+    analoga_2: string;
+    complementar: string;
   };
 }
 
@@ -71,7 +70,10 @@ const Cololhama: React.FC = () => {
 
       if (!response.ok) throw new Error(`Erro ${response.status}: ${response.statusText}`);
 
+
       const data = await response.json();
+      console.log('API data:', data);
+
       setResults(data);
     } catch (err: any) {
       setError(`Erro ao processar imagem: ${err.message}`);
@@ -206,10 +208,18 @@ const Cololhama: React.FC = () => {
           <Card sx={{ p: 4, mb: 4 }}>
             <Typography variant="h6" mb={2}>Paleta de Cores Detectada</Typography>
             <Grid container spacing={2}>
-              <Grid item xs={12} md={3}><ColorCard color={results.original_color} label="Cor Original" /></Grid>
-              <Grid item xs={12} md={3}><ColorCard color={results.colors.analogous[0]} label="Análoga 1" /></Grid>
-              <Grid item xs={12} md={3}><ColorCard color={results.colors.analogous[1]} label="Análoga 2" /></Grid>
-              <Grid item xs={12} md={3}><ColorCard color={results.colors.complementary} label="Complementar" /></Grid>
+              <Grid item xs={12} md={3}>
+                <ColorCard color={results.cor_original} label="Cor Original" />
+              </Grid>
+              <Grid item xs={12} md={3}>
+                <ColorCard color={results.cores.analogas?.[0] ?? ''} label="Análoga 1" />
+              </Grid>
+              <Grid item xs={12} md={3}>
+                <ColorCard color={results.cores.analogas?.[1] ?? ''} label="Análoga 2" />
+              </Grid>
+              <Grid item xs={12} md={3}>
+                <ColorCard color={results.cores.complementar ?? ''} label="Complementar" />
+              </Grid>
             </Grid>
           </Card>
 
@@ -218,9 +228,9 @@ const Cololhama: React.FC = () => {
             <Grid container spacing={2}>
               {[
                 { title: 'Original', src: results.images.original },
-                { title: 'Análoga 1', src: results.images.analogous_1 },
-                { title: 'Análoga 2', src: results.images.analogous_2 },
-                { title: 'Complementar', src: results.images.complementary },
+                { title: 'Análoga 1', src: results.images.analoga_1 },
+                { title: 'Análoga 2', src: results.images.analoga_2 },
+                { title: 'Complementar', src: results.images.complementar },
               ].map((img, index) => (
                 <Grid item xs={12} sm={6} md={3} key={index}>
                   <ImageResult
@@ -234,18 +244,6 @@ const Cololhama: React.FC = () => {
                   />
                 </Grid>
               ))}
-            </Grid>
-          </Card>
-
-          <Card sx={{ p: 4 }}>
-            <Typography variant="h6" mb={2}>Informações Técnicas</Typography>
-            <Grid container spacing={2}>
-              <Grid item xs={12} md={6}>
-                <Typography variant="body2"><strong>Cor Original:</strong> {results.original_color}</Typography>
-              </Grid>
-              <Grid item xs={12} md={6}>
-                <Typography variant="body2"><strong>Processamento:</strong> IA + Análise de Cores</Typography>
-              </Grid>
             </Grid>
           </Card>
         </>

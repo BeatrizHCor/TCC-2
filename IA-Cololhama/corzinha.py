@@ -365,17 +365,17 @@ class LhamaAPI:
         )
         
         print("  → Extraindo cor original do cabelo...")
-        original_color = self.colorizer.extrai_media_cabelo(image, clean_mascara_cabelo)
-        print(f"  → Cor original detectada: {original_color}")
+        cor_original = self.colorizer.extrai_media_cabelo(image, clean_mascara_cabelo)
+        print(f"  → Cor original detectada: {cor_original}")
         
         print("  → Gerando paleta de cores...")
-        cores_analogas = self.colorizer.color_processor.get_cores_analogas(original_color)
-        cor_complementar = self.colorizer.color_processor.get_cor_complementar(original_color)
+        cores_analogas = self.colorizer.color_processor.get_cores_analogas(cor_original)
+        cor_complementar = self.colorizer.color_processor.get_cor_complementar(cor_original)
         
         results = {
             'imagem_original': image,
             'mascara_cabelo': clean_mascara_cabelo,
-            'original_color': original_color,
+            'cor_original': cor_original,
             'cores_analogas': cores_analogas,
             'cor_complementar': cor_complementar
         }

@@ -3,22 +3,16 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 import cv2
 import numpy as np
-
-from PIL import Image
-import torch.nn.functional as F
-import torchvision.transforms as transforms
+import traceback
 import base64
-
-from typing import List, Dict
-
 
 from corzinha import LhamaAPI
 
-app = FastAPI(title="Hair Color Simulator API")
+app = FastAPI(title="Lhama API")
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:5173"],  
+    allow_origins=["http://localhost:5173"], 
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -27,7 +21,7 @@ app.add_middleware(
 lhama_api = None
 
 @app.on_event("startup")
-async def load_hair_model():
+async def carregar_modelo():
     global lhama_api
     try:
         model_path = "models/parsenet/model.pth"
@@ -37,109 +31,110 @@ async def load_hair_model():
         print(f"Erro ao carregar modelo: {e}")
         raise
 
-def image_to_base64(image_array):
-    _, buffer = cv2.imencode('.jpg', image_array)
-    img_base64 = base64.b64encode(buffer).decode('utf-8')
-    return f"data:image/jpeg;base64,{img_base64}"
+def imagem_para_base64(imagem_array: np.ndarray) -> str:
+    _, buffer = cv2.imencode('.jpg', imagem_array)
+    img_b64 = base64.b64encode(buffer).decode('utf-8')
+    return f"data:image/jpeg;base64,{img_b64}"
 
-def process_single_image(image_array, intensity: float = 0.8):
+def processar_imagem_unica(imagem_array: np.ndarray, intensidade: float = 0.8) -> dict:
     try:
-        results = lhama_api.processa_imagem(image_array, intensity=intensity)
-        
-        response = {
-            "cor_original": results['cor_original'],
+        resultados = lhama_api.processa_imagem(imagem_array, intensity=intensidade)
+
+        resposta = {
+            "cor_original": resultados['cor_original'],
             "cores": {
-                "analogas": results['cores_analogas'],
-                "complementar": results['cor_complementar']
+                "analogas": resultados['cores_analogas'],
+                "complementar": resultados['cor_complementar']
             },
-            "images": {}
+            "images": {
+                "original": imagem_para_base64(resultados['imagem_original']),
+                "analoga_1": imagem_para_base64(resultados['analoga_1']),
+                "analoga_2": imagem_para_base64(resultados['analoga_2']),
+                "complementar": imagem_para_base64(resultados['complementar']),
+            }
         }
-        
-        response["images"]["original"] = image_to_base64(results['imagem_original'])
-        response["images"]["analoga_1"] = image_to_base64(results['analoga_1'])
-        response["images"]["analoga_2"] = image_to_base64(results['analoga_2'])
-        response["images"]["complementar"] = image_to_base64(results['complementar'])
-        
-        return response
-        
+        return resposta
+
     except Exception as e:
+        traceback.print_exc()
         raise HTTPException(status_code=500, detail=f"Erro no processamento: {str(e)}")
 
 @app.post("/process-hair-color")
-async def process_hair_color(file: UploadFile = File(...)):
-    if not file.content_type.startswith('image/'):
+async def processar_cor_cabelo(file: UploadFile = File(...)):
+    if not file.content_type.startswith("image/"):
         raise HTTPException(status_code=400, detail="Arquivo deve ser uma imagem")
-    
+
     if lhama_api is None:
         raise HTTPException(status_code=503, detail="Modelo não carregado")
-    
+
     try:
-        contents = await file.read()
-        nparr = np.frombuffer(contents, np.uint8)
-        image_array = cv2.imdecode(nparr, cv2.IMREAD_COLOR)
-        
-        if image_array is None:
+        conteudo = await file.read()
+        np_array = np.frombuffer(conteudo, np.uint8)
+        imagem_array = cv2.imdecode(np_array, cv2.IMREAD_COLOR)
+
+        if imagem_array is None:
             raise HTTPException(status_code=400, detail="Não foi possível decodificar a imagem")
-        
-        results = process_single_image(image_array)
-        
-        return JSONResponse(content=results)
-        
+
+        resultados = processar_imagem_unica(imagem_array)
+
+        return JSONResponse(content=resultados)
+
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
 @app.post("/process-hair-color-custom")
-async def process_hair_color_custom(
+async def processar_cor_cabelo_custom(
     file: UploadFile = File(...),
-    intensity: float = 0.8
+    intensidade: float = 0.8,
 ):
-    if not file.content_type.startswith('image/'):
+    if not file.content_type.startswith("image/"):
         raise HTTPException(status_code=400, detail="Arquivo deve ser uma imagem")
-    
+
     if lhama_api is None:
         raise HTTPException(status_code=503, detail="Modelo não carregado")
-    
-    if not 0.0 <= intensity <= 1.0:
+
+    if not 0.0 <= intensidade <= 1.0:
         raise HTTPException(status_code=400, detail="Intensidade deve estar entre 0.0 e 1.0")
-    
+
     try:
-        contents = await file.read()
-        nparr = np.frombuffer(contents, np.uint8)
-        image_array = cv2.imdecode(nparr, cv2.IMREAD_COLOR)
-        
-        if image_array is None:
+        conteudo = await file.read()
+        np_array = np.frombuffer(conteudo, np.uint8)
+        imagem_array = cv2.imdecode(np_array, cv2.IMREAD_COLOR)
+
+        if imagem_array is None:
             raise HTTPException(status_code=400, detail="Não foi possível decodificar a imagem")
-        
-        results = process_single_image(image_array, intensity=intensity)
-        
-        return JSONResponse(content=results)
-        
+
+        resultados = processar_imagem_unica(imagem_array, intensidade=intensidade)
+
+        return JSONResponse(content=resultados)
+
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
 @app.get("/health")
-async def health_check():
+async def checar_status():
     return {
-        "status": "healthy", 
-        "model_loaded": lhama_api is not None,
-        "model_type": lhama_api.model_type if lhama_api else None
+        "status": "healthy",
+        "modelo_carregado": lhama_api is not None,
+        "tipo_modelo": getattr(lhama_api, "model_type", None),
     }
 
 @app.get("/")
-async def root():
+async def raiz():
     return {
-        "message": "Lhama Hair Color API", 
-        "version": "4.3.0",
-        "description": "API para simulação de cores de cabelo usando deep learning"
+        "mensagem": "Lhama API",
+        "versao": "4.3.0",
+        "descricao": "API para simulação de cores de cabelo usando deep learning",
     }
 
 
 if __name__ == "__main__":
     import uvicorn
+
     uvicorn.run(
-        app, 
-        host="0.0.0.0", 
+        "main:app", 
+        host="0.0.0.0",
         port=8080,
-        reload=False,  
-        workers=1     
+        reload=False,
+        workers=1,
     )
