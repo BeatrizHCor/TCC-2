@@ -5,8 +5,10 @@ import {
   CabeleireirogetAtendimentosPage,
   getAtendimentobyAgendamentoId,
   postAtendimentoFuncionario,
-  putAtendimentoFuncionario,
+  putAtendimentoCabeleireiro,
   FuncionariogetAtendimentosPage,
+  putAtendimentoFuncionario,
+  postAtendimentoCabeleireiro,
 } from "../services/ServiceAtendimento";
 import { userTypes } from "../models/tipo-usuario.enum";
 import { authenticate } from "../services/Service";
@@ -65,6 +67,19 @@ RoutesAtendimento.post("/atendimento", async (req: Request, res: Response) => {
           AgendamentoID
         );
         res.status(201).json(result);
+      } else if ([userTypes.CABELEIREIRO].includes(userTypeAuth)) {
+        const result = await postAtendimentoCabeleireiro(
+          Data,
+          PrecoTotal,
+          Auxiliar,
+          SalaoId,
+          servicosAtendimento,
+          auxiliares,
+          AgendamentoID
+        );
+        res.status(201).json(result);
+      } else {
+        res.status(403).json({ message: "Unauthorized" });
       }
     }
   } catch (e) {
@@ -131,6 +146,20 @@ RoutesAtendimento.put(
             status
           );
           res.status(201).json(result);
+        } else if ([userTypes.CABELEIREIRO].includes(userTypeAuth)) {
+          const result = await putAtendimentoCabeleireiro(
+            atendimentoId as string,
+            Data,
+            PrecoTotal,
+            Auxiliar,
+            SalaoId,
+            servicosAtendimento,
+            auxiliares,
+            AgendamentoID,
+            status
+          );
+        } else {
+          res.status(403).json("Unauthorized");
         }
       }
     } catch (e) {

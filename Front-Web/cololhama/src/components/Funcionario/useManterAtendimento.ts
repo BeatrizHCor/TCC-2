@@ -92,14 +92,17 @@ export const useManterAtendimento = (
   >([]);
 
   useEffect(() => {
-    let serv = servicosAgendamento.map((a) => {
-      return {
-        PrecoItem: a.PrecoMin,
-        ServicoId: a.ServicoId,
-      } as ServicoAtendimento;
-    });
-    setServicoAtendimento(serv);
-  }, []);
+    if (!servicoAtendimento) {
+      let serv = servicosAgendamento.map((a) => {
+        return {
+          PrecoItem: a.PrecoMin,
+          ServicoId: a.ServicoId,
+        } as ServicoAtendimento;
+      });
+      setServicoAtendimento(serv);
+    }
+    console.log(servicoAtendimento);
+  }, [servicosDisponiveis]);
 
   useEffect(() => {
     if (auxiliar.length > 0)
@@ -128,7 +131,6 @@ export const useManterAtendimento = (
             await AtendimentoService.getAtendimentobyAgendamentoId(
               agendamentoId
             );
-          console.log(typeof atendimento.Data);
           if (atendimento) {
             let data = new Date(atendimento.Data as unknown as string);
             setData(formatDateToLocalDateTimeString(data));

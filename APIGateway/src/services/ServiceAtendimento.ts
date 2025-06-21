@@ -85,6 +85,37 @@ export const postAtendimentoFuncionario = async (
   }
 };
 
+export const postAtendimentoCabeleireiro = async (
+  Data: Date,
+  PrecoTotal: number,
+  Auxiliar: boolean,
+  SalaoId: string,
+  servicosAtendimento: ServicoAtendimento[] = [],
+  auxiliares: AtendimentoAuxiliar[] = [],
+  AgendamentoID: string
+) => {
+  let response = await fetch(CabeleireiroURL + `/atendimento`, {
+    method: "Post",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({
+      Data,
+      PrecoTotal,
+      Auxiliar,
+      SalaoId,
+      servicosAtendimento,
+      auxiliares,
+      AgendamentoID,
+    }),
+  });
+  if (response.ok) {
+    return (await response.json()) as Atendimento;
+  } else {
+    throw new Error("Erro ao buscar agendamento por ID");
+  }
+};
+
 export const putAtendimentoFuncionario = async (
   AtendimentoId: string,
   Data: Date,
@@ -119,6 +150,42 @@ export const putAtendimentoFuncionario = async (
   }
 };
 
+export const putAtendimentoCabeleireiro = async (
+  AtendimentoId: string,
+  Data: Date,
+  PrecoTotal: number,
+  Auxiliar: boolean,
+  SalaoId: string,
+  servicosAtendimento: ServicoAtendimento[] = [],
+  auxiliares: AtendimentoAuxiliar[] = [],
+  AgendamentoID: string,
+  status: ServicoAtendimento
+) => {
+  let response = await fetch(
+    CabeleireiroURL + `/atendimento/${AtendimentoId}`,
+    {
+      method: "Put",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        Data,
+        PrecoTotal,
+        Auxiliar,
+        SalaoId,
+        servicosAtendimento,
+        auxiliares,
+        AgendamentoID,
+        status,
+      }),
+    }
+  );
+  if (response.ok) {
+    return (await response.json()) as Atendimento;
+  } else {
+    throw new Error("Erro ao buscar agendamento por ID");
+  }
+};
 export const FuncionarioDeleteAtendimento = async (id: string) => {
   let response = await fetch(FuncionarioURL + `/atendimento/delete/${id}`, {
     method: "DELETE",
