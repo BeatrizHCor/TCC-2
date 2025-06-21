@@ -1,5 +1,5 @@
 import { useState, useRef, ChangeEvent } from 'react';
-import { IAService, ResultsType } from '../../services/IaService';
+import { IAService, ResultsType } from '../../services/IAService';
 
 export const useSimulacao = () => {
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
