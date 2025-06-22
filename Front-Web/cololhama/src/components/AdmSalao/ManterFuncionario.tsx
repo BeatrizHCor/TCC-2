@@ -27,7 +27,7 @@ const ManterFuncionario: React.FC = () => {
   const navigate = useNavigate();
   const { funcionarioId: funcionarioId } = useParams();
   const [openDeleteDialog, setOpenDeleteDialog] = useState(false);
-  const { doLogout } = useContext(AuthContext);
+  const { doLogout, userType, userId } = useContext(AuthContext);
   const {
     nome,
     setNome,
@@ -122,13 +122,12 @@ const ManterFuncionario: React.FC = () => {
       </Box>
     );
   }
-  if (!salaoId) {
+  if (!userType || !userId) {
     return (
       <Box sx={{ p: 3, textAlign: "center" }}>
         <Typography variant="h6" color="error">
           Acesso não autorizado. Você precisa ser um administrador para acessar
           esta página.
-          Id Salao {salaoId}
         </Typography>
         <Button
           variant="contained"

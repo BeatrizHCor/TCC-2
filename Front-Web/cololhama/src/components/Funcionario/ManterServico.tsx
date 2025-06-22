@@ -27,7 +27,7 @@ const ManterServico: React.FC = () => {
   const { servicoId: servicoId } = useParams();
 
   const [openDeleteDialog, setOpenDeleteDialog] = useState(false);
-  const { doLogout } = useContext(AuthContext);
+  const { doLogout, userId, userType } = useContext(AuthContext);
   const {
     Nome,
     setNome,
@@ -65,12 +65,11 @@ const ManterServico: React.FC = () => {
     }
   }, [forbidden]);
 
-  if (!SalaoId) {
+  if (!userType || !userId) {
     return (
       <Box sx={{ p: 3, textAlign: "center" }}>
         <Typography variant="h6" color="error">
           Acesso não autorizado. Você precisa ser um administrador de salão.
-          Id Salao {SalaoId}
         </Typography>
         <Button
           variant="contained"

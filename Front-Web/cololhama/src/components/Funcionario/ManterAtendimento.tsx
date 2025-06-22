@@ -50,7 +50,7 @@ import { Funcionario } from "../../models/funcionarioModel";
 
 const ManterAtendimento: React.FC = () => {
   const navigate = useNavigate();
-  const { doLogout, userType } = useContext(AuthContext);
+  const { doLogout, userType, userId} = useContext(AuthContext);
   const [openDeleteDialog, setOpenDeleteDialog] = useState(false);
   const [openServicosModal, setOpenServicosModal] = useState(false);
   const [openAuxiliarModal, setOpenAuxiliarModal] = useState(false);
@@ -155,7 +155,7 @@ const ManterAtendimento: React.FC = () => {
     setOpenAuxiliarModal(false);
   };
 
-  if (!salaoId) {
+  if (!userType || !userId) {
     return (
       <Box sx={{ p: 3, textAlign: "center" }}>
         <Typography variant="h6" color="error">

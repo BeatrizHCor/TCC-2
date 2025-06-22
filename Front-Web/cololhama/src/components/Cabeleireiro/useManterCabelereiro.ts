@@ -3,7 +3,6 @@ import { useNavigate } from "react-router-dom";
 import CabeleireiroService from "../../services/CabeleireiroService";
 import { validarCPF, validarEmail } from "../../utils/validations";
 
-const SalaoId = import.meta.env.SALAO_ID || "1";
 
 interface ValidationErrors {
   nome?: string;

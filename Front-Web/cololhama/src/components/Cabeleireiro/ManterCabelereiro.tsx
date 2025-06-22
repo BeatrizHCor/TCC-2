@@ -23,7 +23,7 @@ import { AuthContext } from "../../contexts/AuthContext";
 const ManterCabeleireiro: React.FC = () => {
   const navigate = useNavigate();
   const { cabeleireiroId } = useParams();
-  const { doLogout } = useContext(AuthContext);
+  const { doLogout, userType, userId } = useContext(AuthContext);
   const [openDeleteDialog, setOpenDeleteDialog] = useState(false);
 
   const {
@@ -133,12 +133,11 @@ const ManterCabeleireiro: React.FC = () => {
       </Box>
     );
   }
-  if (!salaoId) {
+  if (!userType || !userId) {
     return (
       <Box sx={{ p: 3, textAlign: "center" }}>
         <Typography variant="h6" color="error">
           Acesso não autorizado. Você precisa ser um administrador de salão.
-          Id Salao {salaoId}
         </Typography>
         <Button
           variant="contained"

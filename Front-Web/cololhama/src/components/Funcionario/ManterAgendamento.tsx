@@ -230,14 +230,11 @@ const ManterAgendamento: React.FC = () => {
     );
   }
 
-  if (!salaoId || !userType || !userId) {
+  if (!userType || !userId) {
     return (
       <Box sx={{ p: 3, textAlign: "center" }}>
         <Typography variant="h6" color="error">
           Acesso não autorizado. Você precisa ser um administrador de salão.
-          Id Salao {salaoId} 
-          Tipo de User {userType}
-          User Id {userId}
         </Typography>
         <Button
           variant="contained"
