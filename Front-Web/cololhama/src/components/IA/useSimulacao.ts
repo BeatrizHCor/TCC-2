@@ -1,104 +1,138 @@
-import { useState, useRef, ChangeEvent } from 'react';
+// hooks/useSimulacao.ts (Atualizado)
+import { useState, useRef, useCallback } from 'react';
 import { IAService, ResultsType } from '../../services/IAService';
-import { userTypes } from '../../models/tipo-usuario.enum';
+import { useHistorico } from './useHistorico';
 
-export const useSimulacao = (
-  userId: string,
-  userType: userTypes
-) => {
-  const [selectedFile, setSelectedFile] = useState<File | null>(null);
+export const useSimulacao = (userId: string | null, userType: string | null) => {
   const [preview, setPreview] = useState<string | null>(null);
   const [results, setResults] = useState<ResultsType | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [modalOpen, setModalOpen] = useState(false);
   const [modalImage, setModalImage] = useState<string | null>(null);
-  const fileInputRef = useRef<HTMLInputElement | null>(null);
+  const [showSaveDialog, setShowSaveDialog] = useState(false);
+  const [selectedFile, setSelectedFile] = useState<File | null>(null);
 
-  const handleFileSelect = async (event: ChangeEvent<HTMLInputElement>) => {
+  const fileInputRef = useRef<HTMLInputElement>(null);
+  const {
+    saveSimulation,
+    saveLoading,
+    saveSuccess,
+    clearSaveStatus,
+    error: saveError
+  } = useHistorico();
+
+  const handleFileSelect = useCallback((event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
-    if (!file) return;
+    if (file) {
+      setSelectedFile(file);
+      const validation = IAService.validateFile(file);
+      
+      if (!validation.isValid) {
+        setError(validation.error || 'Arquivo inválido');
+        return;
+      }
 
-    const validation = IAService.validateFile(file);
-    if (!validation.isValid) {
-      setError(validation.error || 'Arquivo inválido');
-      return;
+      setError(null);
+      IAService.createPreview(file)
+        .then(setPreview)
+        .catch(() => setError('Erro ao criar preview da imagem'));
     }
+  }, []);
 
-    setSelectedFile(file);
-    setError(null);
-    setResults(null);
-
-    try {
-      const previewUrl = await IAService.createPreview(file);
-      setPreview(previewUrl);
-    } catch (err) {
-      setError('Erro ao carregar preview da imagem');
-    }
-  };
-
-  const processImage = async () => {
+  const processImage = useCallback(async () => {
     if (!selectedFile) {
-      setError('Por favor, selecione uma imagem primeiro');
+      setError('Nenhum arquivo selecionado');
       return;
     }
 
     setLoading(true);
     setError(null);
 
-    const response = await IAService.processHairColor(selectedFile);
+    try {
+      const response = await IAService.processHairColor(selectedFile);
+      
+      if (response.success && response.data) {
+        setResults(response.data);
+        setPreview(null);
+        
+        // Se é cliente, mostra opção de salvar
+        if (userType === 'cliente' && userId) {
+          setShowSaveDialog(true);
+        }
+      } else {
+        setError(response.error || 'Erro no processamento');
+      }
+    } catch (error: any) {
+      setError(`Erro inesperado: ${error.message}`);
+    } finally {
+      setLoading(false);
+    }
+  }, [selectedFile, userType, userId]);
 
-    if (response.success && response.data) {
-      setResults(response.data);
-    } else {
-      setError(response.error || 'Erro desconhecido ao processar imagem');
+  const handleSaveSimulation = useCallback(async (salaoId: string) => {
+    if (!results || !userId) {
+      setError('Dados insuficientes para salvar');
+      return false;
     }
 
-    setLoading(false);
-  };
+    const success = await saveSimulation(userId, salaoId, results);
+    
+    if (success) {
+      setShowSaveDialog(false);
+      // Opcional: mostrar mensagem de sucesso
+    }
+    
+    return success;
+  }, [results, userId, saveSimulation]);
 
-  const handleImageClick = (image: string) => {
-    setModalImage(image);
+  const handleImageClick = useCallback((imageUrl: string) => {
+    setModalImage(imageUrl);
     setModalOpen(true);
-  };
+  }, []);
 
-  const closeModal = () => {
+  const closeModal = useCallback(() => {
     setModalOpen(false);
     setModalImage(null);
-  };
+  }, []);
 
-  const resetForm = () => {
-    setSelectedFile(null);
-    setPreview(null);
-    setResults(null);
-    setError(null);
-  };
-
-  const openFileDialog = () => {
+  const openFileDialog = useCallback(() => {
     fileInputRef.current?.click();
-  };
+  }, []);
 
-  const changeFile = () => {
-    resetForm();
+  const changeFile = useCallback(() => {
+    setResults(null);
+    setPreview(null);
+    setSelectedFile(null);
+    setError(null);
+    setShowSaveDialog(false);
+    clearSaveStatus();
     openFileDialog();
-  };
+  }, [openFileDialog, clearSaveStatus]);
+
+  const closeSaveDialog = useCallback(() => {
+    setShowSaveDialog(false);
+    clearSaveStatus();
+  }, [clearSaveStatus]);
 
   return {
-    selectedFile,
     preview,
     results,
     loading,
-    error,
+    error: error || saveError,
     modalOpen,
     modalImage,
+    showSaveDialog,
+    saveLoading,
+    saveSuccess,
     fileInputRef,
-    
     handleFileSelect,
     processImage,
     handleImageClick,
     closeModal,
-    resetForm,
     openFileDialog,
     changeFile,
+    handleSaveSimulation,
+    closeSaveDialog,
   };
 };

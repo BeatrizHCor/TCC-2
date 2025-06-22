@@ -146,6 +146,30 @@ export class HistoricoSimulacaoController {
             res.status(500).json({ error: "Erro interno ao atualizar histórico de simulação." });
         }
     }
+
+    static async salvarSimulacaoJson(req: Request, res: Response): Promise<void> {
+        try {
+            const { clienteId, salaoId, corOriginal, cores, imagens } = req.body;
+
+            if (!clienteId || !salaoId || !corOriginal || !cores || !imagens) {
+                res.status(400).json({ error: "Dados incompletos." });
+                return;
+            }
+            
+            const simulacaoSalva = await HistoricoSimulacaoService.salvarSimulacaoJson(
+                clienteId,
+                salaoId,
+                corOriginal,
+                cores,
+                imagens
+            );
+
+            res.status(201).json(simulacaoSalva);
+        } catch (error) {
+            console.error("Erro ao salvar simulação JSON:", error);
+            res.status(500).json({ error: "Erro interno ao salvar simulação." });
+        }
+    }
 }
 
 export default HistoricoSimulacaoController;

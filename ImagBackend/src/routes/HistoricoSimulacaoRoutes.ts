@@ -1,7 +1,7 @@
 import express from "express";
 import multer from "multer";
 import path from "path";
-import HistoricoSimulacaoController from "../controllers/HistoricoSimulacaoController";
+import { HistoricoSimulacaoController } from "../controllers/HistoricoSimulacaoController";
 
 const router = express.Router();
 
@@ -27,16 +27,18 @@ const upload = multer({
     storage: storage,
     fileFilter: fileFilter,
     limits: {
-        fileSize: 5 * 1024 * 1024, // limite de 5MB
+        fileSize: 100 * 1024 * 1024, // limite de 100MB
     }
 });
 
 
-router.post("/historico-simulacao", upload.single('imagem'), HistoricoSimulacaoController.createHistoricoSimulacao);
+//router.post("/historico-simulacao", upload.single('imagem'), HistoricoSimulacaoController.createHistoricoSimulacao);
 router.get("/historico-simulacao/ID/:id", HistoricoSimulacaoController.getHistoricoSimulacaoById);
 router.get("/historico-simulacao/cliente/:clienteId", HistoricoSimulacaoController.getHistoricoSimulacaoByCliente);
 router.get("/historico-simulacao/all", HistoricoSimulacaoController.getAllHistoricoSimulacao);
 router.put("/historico-simulacao/update/:id", HistoricoSimulacaoController.updateHistoricoSimulacao);
 router.delete("/historico-simulacao/delete/:id", HistoricoSimulacaoController.deleteHistoricoSimulacao);
+router.post("/historico-simulacao", HistoricoSimulacaoController.salvarSimulacaoJson);
+
 
 export default router;

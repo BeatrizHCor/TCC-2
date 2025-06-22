@@ -7,6 +7,7 @@ import { FileUploadArea } from './FileUploadArea';
 import { ColorPalette } from './colorPalette';
 import { CarouselResults } from './carrosselResultados';
 import { ImageModal } from './ImgModal';
+import { SaveSimulationDialog } from './salvarSimulacaoDialog';
 import theme from '../../styles/theme';
 
 const HairColorSimulator: React.FC = () => {
@@ -18,6 +19,9 @@ const HairColorSimulator: React.FC = () => {
     error,
     modalOpen,
     modalImage,
+    showSaveDialog,
+    saveLoading,
+    saveSuccess,
     fileInputRef,
     handleFileSelect,
     processImage,
@@ -25,6 +29,8 @@ const HairColorSimulator: React.FC = () => {
     closeModal,
     openFileDialog,
     changeFile,
+    handleSaveSimulation,
+    closeSaveDialog,
   } = useSimulacao(userId, userType!);
 
   return (
@@ -35,7 +41,6 @@ const HairColorSimulator: React.FC = () => {
       minHeight: 'calc(100vh - 64px)',
       backgroundColor: '#fafafa',
     }}>
-      {/* Header */}
       <Paper elevation={0} sx={{ p: 4, mb: 4, borderRadius: 3, textAlign: 'center' }}>
         <Typography
           variant="h3"
@@ -57,8 +62,7 @@ const HairColorSimulator: React.FC = () => {
         <Typography variant="h6" color="text.secondary" sx={{ maxWidth: 600, mx: 'auto' }}>
           Descubra como ficaria com diferentes cores de cabelo usando inteligência artificial
         </Typography>
-        
-        {/* Debug Info - Remover em produção */}
+
         {!userId ? (
           <Typography color="error.main" sx={{ mt: 2 }}>
             Usuário não logado
@@ -66,11 +70,15 @@ const HairColorSimulator: React.FC = () => {
         ) : (
           <Typography color="success.main" sx={{ mt: 2 }}>
             Logado como: {userType} (ID: {userId})
+            {userType === 'Cliente' && (
+              <Typography variant="body2" color="text.secondary" sx={{ mt: 0.5 }}>
+                Suas simulações serão salvas automaticamente no seu histórico
+              </Typography>
+            )}
           </Typography>
         )}
       </Paper>
 
-      {/* Hidden File Input */}
       <input
         type="file"
         accept="image/*"
@@ -79,7 +87,6 @@ const HairColorSimulator: React.FC = () => {
         onChange={handleFileSelect}
       />
 
-      {/* File Upload Area */}
       <FileUploadArea
         onFileSelect={openFileDialog}
         preview={results ? null : preview}
@@ -89,7 +96,6 @@ const HairColorSimulator: React.FC = () => {
         hasResults={!!results}
       />
 
-      {/* Error Alert */}
       {error && (
         <Alert
           severity="error"
@@ -108,18 +114,56 @@ const HairColorSimulator: React.FC = () => {
         </Alert>
       )}
 
-      {/* Results */}
       {results && (
         <Box sx={{ animation: 'fadeIn 0.5s ease-in' }}>
           <ColorPalette results={results} />
           <CarouselResults results={results} onImageClick={handleImageClick} />
+
+          {userType === 'Cliente' && saveSuccess && (
+            <Alert
+              severity="success"
+              sx={{ mt: 2, borderRadius: 2 }}
+            >
+              Simulação salva no seu histórico com sucesso!
+            </Alert>
+          )}
         </Box>
       )}
 
-      {/* Image Modal */}
+      {userType === 'Cliente' && results && (
+        <Box sx={{ textAlign: 'center', mt: 3 }}>
+          <Typography variant="body2" color="text.secondary" sx={{ mb: 1 }}>
+            Deseja salvar essa simulação no seu histórico?
+          </Typography>
+          <button
+            onClick={() => handleSaveSimulation(userId)}
+            style={{
+              backgroundColor: theme.palette.primary.main,
+              color: 'white',
+              padding: '10px 20px',
+              borderRadius: '8px',
+              border: 'none',
+              fontWeight: 600,
+              cursor: 'pointer',
+            }}
+          >
+            Salvar Simulação
+          </button>
+        </Box>
+      )}
+
+
       <ImageModal open={modalOpen} image={modalImage} onClose={closeModal} />
 
-      {/* Global Styles */}
+      <SaveSimulationDialog
+        open={showSaveDialog}
+        onClose={closeSaveDialog}
+        onSave={handleSaveSimulation}
+        loading={saveLoading}
+        success={saveSuccess}
+        error={error}
+      />
+
       <style>{`
         @keyframes fadeIn {
           from { opacity: 0; transform: translateY(20px); }

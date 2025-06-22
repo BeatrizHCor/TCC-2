@@ -23,6 +23,7 @@ import VisualizarAtendimentoPage from "./pages/Funcionario/VisualizarAtendimento
 import ManterAgendamentoPage from "./pages/Funcionario/ManterAgendamentoPage";
 import ManterAtendimento from "./components/Funcionario/ManterAtendimento";
 import SimulacaoPage from "./pages/IA/SimulacaoPage";
+import HistoricoSimulacoes from "./components/IA/VisualizarSimulacao";
 
 const App: React.FC = () => {
   return (
@@ -79,6 +80,7 @@ const App: React.FC = () => {
           <Route path="/atendimentos" element={<VisualizarAtendimentoPage />} />
 
           <Route path="/simulacao" element={<SimulacaoPage/>}/>
+          <Route path="/historico-simulacao" element={<HistoricoSimulacoes/>}/>
         </Routes>
       </ThemeProvider>
     </AuthContextProvider>

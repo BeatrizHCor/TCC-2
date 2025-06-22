@@ -235,6 +235,74 @@ class HistoricoSimulacaoService {
             throw error;
         }
     }
+
+static async salvarSimulacaoJson(
+  clienteId: string,
+  salaoId: string,
+  corOriginal: any,
+  cores: any,
+  imagens: any
+) {
+  try {
+    console.log("➡️ salvarSimulacaoJson iniciado");
+    console.log("clienteId:", clienteId);
+    console.log("salaoId:", salaoId);
+    console.log("corOriginal:", corOriginal);
+    console.log("cores:", cores);
+    console.log("imagens recebidas:", Object.keys(imagens));
+
+    const novoHistorico = await prisma.historicoSimulacao.create({
+      data: {
+        ClienteID: clienteId,
+        SalaoId: salaoId,
+        Data: new Date(),
+      },
+    });
+
+    const historicoId = novoHistorico.ID;
+    const baseDir = path.join(__dirname, "../../uploads/simulacoes", historicoId.toString());
+    fs.mkdirSync(baseDir, { recursive: true });
+
+    const imagensASalvar = [
+      { base64: imagens.original, desc: "Imagem Original", tipo: "Analoga" },
+      { base64: imagens.analoga_1, desc: "Cor Análoga 1", tipo: "Analoga" },
+      { base64: imagens.analoga_2, desc: "Cor Análoga 2", tipo: "Analoga2" },
+      { base64: imagens.complementar, desc: "Cor Complementar", tipo: "Complementar" },
+    ];
+
+    for (const img of imagensASalvar) {
+      console.log("🖼️ Salvando imagem:", img.desc);
+      if (!img.base64 || img.base64.length < 50) {
+        throw new Error(`Imagem inválida em: ${img.desc}`);
+      }
+
+      const buffer = Buffer.from(img.base64, "base64");
+      const filename = `${Date.now()}-${Math.random().toString(36).slice(2)}.jpg`;
+      const filepath = path.join(baseDir, filename);
+      const publicUrl = `/uploads/simulacoes/${historicoId}/${filename}`;
+
+      fs.writeFileSync(filepath, buffer);
+
+      await prisma.imagem.create({
+        data: {
+          HistoricoSimulacaoId: historicoId,
+          Endereco: publicUrl,
+          Descricao: img.desc,
+          Tipo: img.tipo as "Analoga" | "Analoga2" | "Complementar",
+        },
+      });
+    }
+
+    return {
+      historicoId,
+      message: "Simulação salva com sucesso.",
+    };
+  } catch (error) {
+    console.error("❌ Erro ao salvar simulação JSON:", error);
+    throw error;
+  }
+}
+
 }
 
 export default HistoricoSimulacaoService;
