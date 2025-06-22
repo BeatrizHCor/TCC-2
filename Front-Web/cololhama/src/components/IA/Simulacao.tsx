@@ -1,4 +1,4 @@
-import React, { useRef, useState, ChangeEvent } from 'react';
+import React, { useRef, useState, ChangeEvent, useContext } from 'react';
 import {
   Box,
   Button,
@@ -34,6 +34,7 @@ import {
 } from 'lucide-react';
 import { IAService, ResultsType } from '../../services/IAService';
 import { useSimulacao } from './useSimulacao';
+import { AuthContext } from '../../contexts/AuthContext';
 import theme from '../../styles/theme';
 
 const ColorCard: React.FC<{ color: string; label: string }> = ({ color, label }) => (
@@ -62,7 +63,7 @@ const ColorCard: React.FC<{ color: string; label: string }> = ({ color, label })
         boxShadow: '0 2px 8px rgba(0,0,0,0.15)',
         mr: 2,
       }}
-    />
+      />
     <Box>
       <Typography variant="subtitle1" fontWeight={600} color="text.primary">
         {label}
@@ -81,9 +82,9 @@ const ImageResult: React.FC<{
   onClickImage: () => void;
   isOriginal?: boolean;
 }> = ({ src, title, onDownload, onClickImage, isOriginal = false }) => (
-  <Card 
-    elevation={3}
-    sx={{ 
+  <Card
+  elevation={3}
+    sx={{
       borderRadius: 3,
       overflow: 'hidden',
       transition: 'all 0.3s ease',
@@ -93,14 +94,14 @@ const ImageResult: React.FC<{
         boxShadow: theme.shadows[8],
       }
     }}
-  >
+    >
     <Box sx={{ position: 'relative' }}>
       <CardMedia
         component="img"
         height="220"
         image={src}
         alt={title}
-        sx={{ 
+        sx={{
           cursor: 'pointer',
           transition: 'transform 0.3s ease',
           objectFit: 'cover',
@@ -143,10 +144,10 @@ const ImageResult: React.FC<{
       <Typography variant="h6" gutterBottom fontWeight={600} color="text.primary">
         {title}
       </Typography>
-      <Button 
-        fullWidth 
-        variant="contained" 
-        onClick={onDownload} 
+      <Button
+        fullWidth
+        variant="contained"
+        onClick={onDownload}
         startIcon={<Download size={16} />}
         sx={{
           borderRadius: 2,
@@ -169,10 +170,10 @@ const FileUploadArea: React.FC<{
   loading: boolean;
   hasResults: boolean;
 }> = ({ onFileSelect, preview, onChangeFile, onProcessImage, loading, hasResults }) => (
-  <Paper 
+  <Paper
     elevation={2}
-    sx={{ 
-      p: hasResults ? 2 : 4, 
+    sx={{
+      p: hasResults ? 2 : 4,
       mb: 4,
       borderRadius: 3,
       border: `2px dashed ${theme.palette.divider}`,
@@ -189,16 +190,16 @@ const FileUploadArea: React.FC<{
           px: 4,
           borderRadius: 2,
           transition: 'all 0.3s ease',
-          '&:hover': { 
+          '&:hover': {
             backgroundColor: theme.palette.primary.light + '20',
             borderColor: theme.palette.primary.main,
           },
         }}
       >
-        <CloudUpload 
-          size={hasResults ? 48 : 64} 
+        <CloudUpload
+          size={hasResults ? 48 : 64}
           color={theme.palette.primary.main}
-          style={{ marginBottom: hasResults ? 16 : 24 }} 
+          style={{ marginBottom: hasResults ? 16 : 24 }}
         />
         <Typography variant={hasResults ? "body1" : "h6"} gutterBottom fontWeight={600} color="text.primary">
           Selecione uma foto para começar
@@ -212,8 +213,8 @@ const FileUploadArea: React.FC<{
       </Box>
     ) : (
       <Box textAlign="center">
-        <Box 
-          sx={{ 
+        <Box
+          sx={{
             display: 'inline-block',
             p: 1,
             borderRadius: 2,
@@ -222,23 +223,23 @@ const FileUploadArea: React.FC<{
             mb: 3,
           }}
         >
-          <img 
-            src={preview} 
-            alt="Preview" 
-            style={{ 
-              maxWidth: hasResults ? 240 : 320, 
+          <img
+            src={preview}
+            alt="Preview"
+            style={{
+              maxWidth: hasResults ? 240 : 320,
               maxHeight: hasResults ? 240 : 320,
               borderRadius: 8,
               display: 'block',
-            }} 
+            }}
           />
         </Box>
         <Stack direction="row" spacing={2} justifyContent="center">
-          <Button 
-            variant="outlined" 
+          <Button
+            variant="outlined"
             onClick={onChangeFile}
             startIcon={<RotateCcw size={16} />}
-            sx={{ 
+            sx={{
               borderRadius: 2,
               px: 3,
               textTransform: 'none',
@@ -270,9 +271,9 @@ const FileUploadArea: React.FC<{
 const ColorPalette: React.FC<{ results: ResultsType }> = ({ results }) => (
   <Paper elevation={2} sx={{ p: 4, mb: 4, borderRadius: 3 }}>
     <Box sx={{ mb: 3 }}>
-      <Typography 
-        variant="h5" 
-        gutterBottom 
+      <Typography
+        variant="h5"
+        gutterBottom
         fontWeight={600}
         color={theme.palette.primary.main}
         sx={{ display: 'flex', alignItems: 'center', gap: 1 }}
@@ -329,7 +330,7 @@ const CarouselResults: React.FC<{
 
   const onTouchEnd = () => {
     if (!touchStart || !touchEnd) return;
-    
+
     const distance = touchStart - touchEnd;
     const isLeftSwipe = distance > minSwipeDistance;
     const isRightSwipe = distance < -minSwipeDistance;
@@ -356,9 +357,9 @@ const CarouselResults: React.FC<{
 
   return (
     <Paper elevation={2} sx={{ p: 4, mb: 4, borderRadius: 3, overflow: 'hidden' }}>
-      <Typography 
-        variant="h5" 
-        gutterBottom 
+      <Typography
+        variant="h5"
+        gutterBottom
         fontWeight={600}
         color={theme.palette.primary.main}
         sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 4 }}
@@ -368,14 +369,14 @@ const CarouselResults: React.FC<{
       </Typography>
 
       <Box sx={{ position: 'relative', width: '100%', maxWidth: 500, mx: 'auto' }}>
-        
-        <Box 
-          sx={{ 
+
+        <Box
+          sx={{
             position: 'relative',
             borderRadius: 3,
             overflow: 'hidden',
             backgroundColor: '#000',
-            aspectRatio: '4/5', 
+            aspectRatio: '4/5',
             mb: 3,
           }}
           onTouchStart={onTouchStart}
@@ -413,7 +414,7 @@ const CarouselResults: React.FC<{
                     display: 'block',
                   }}
                 />
-                
+
                 {image.isOriginal && (
                   <Chip
                     label="Original"
@@ -519,8 +520,8 @@ const CarouselResults: React.FC<{
                   width: 8,
                   height: 8,
                   borderRadius: '50%',
-                  backgroundColor: index === activeStep 
-                    ? 'rgba(255,255,255,0.9)' 
+                  backgroundColor: index === activeStep
+                    ? 'rgba(255,255,255,0.9)'
                     : 'rgba(255,255,255,0.4)',
                   cursor: 'pointer',
                   transition: 'all 0.3s ease',
@@ -538,18 +539,18 @@ const CarouselResults: React.FC<{
           <Typography variant="h6" fontWeight={600} gutterBottom>
             {images[activeStep].title}
           </Typography>
-          <Typography 
-            variant="body2" 
-            color="text.secondary" 
+          <Typography
+            variant="body2"
+            color="text.secondary"
             sx={{ mb: 2, lineHeight: 1.5 }}
           >
             {images[activeStep].description}
           </Typography>
-          
-          <Typography 
-            variant="caption" 
+
+          <Typography
+            variant="caption"
             color="text.secondary"
-            sx={{ 
+            sx={{
               fontWeight: 500,
               backgroundColor: 'rgba(0,0,0,0.05)',
               px: 2,
@@ -566,11 +567,11 @@ const CarouselResults: React.FC<{
           fullWidth
           variant="contained"
           onClick={() => IAService.downloadImage(
-            images[activeStep].src, 
+            images[activeStep].src,
             `${images[activeStep].title.toLowerCase().replace(/\s+/g, '_')}.jpg`
           )}
           startIcon={<Download size={18} />}
-          sx={{ 
+          sx={{
             borderRadius: 3,
             py: 1.5,
             fontWeight: 600,
@@ -587,10 +588,10 @@ const CarouselResults: React.FC<{
           Baixar {images[activeStep].title}
         </Button>
 
-        <Box 
-          sx={{ 
-            display: 'flex', 
-            gap: 1, 
+        <Box
+          sx={{
+            display: 'flex',
+            gap: 1,
             justifyContent: 'center',
             mt: 3,
             overflowX: 'auto',
@@ -607,8 +608,8 @@ const CarouselResults: React.FC<{
                 borderRadius: 2,
                 overflow: 'hidden',
                 cursor: 'pointer',
-                border: index === activeStep 
-                  ? `3px solid ${theme.palette.primary.main}` 
+                border: index === activeStep
+                  ? `3px solid ${theme.palette.primary.main}`
                   : '3px solid transparent',
                 transition: 'all 0.3s ease',
                 flexShrink: 0,
@@ -659,10 +660,10 @@ const ImageModal: React.FC<{
       },
     }}
   >
-    <DialogTitle sx={{ 
-      color: '#fff', 
-      display: 'flex', 
-      justifyContent: 'space-between', 
+    <DialogTitle sx={{
+      color: '#fff',
+      display: 'flex',
+      justifyContent: 'space-between',
       alignItems: 'center',
       pb: 1,
       flexShrink: 0,
@@ -674,10 +675,10 @@ const ImageModal: React.FC<{
         <X />
       </IconButton>
     </DialogTitle>
-    <DialogContent 
-      sx={{ 
-        display: 'flex', 
-        justifyContent: 'center', 
+    <DialogContent
+      sx={{
+        display: 'flex',
+        justifyContent: 'center',
         alignItems: 'center',
         p: 2,
         flex: 1,
@@ -712,6 +713,8 @@ const ImageModal: React.FC<{
 );
 
 const HairColorSimulator: React.FC = () => {
+
+  const { userType, userId } = useContext(AuthContext);
   const {
     preview,
     results,
@@ -726,7 +729,7 @@ const HairColorSimulator: React.FC = () => {
     closeModal,
     openFileDialog,
     changeFile,
-  } = useSimulacao();
+  } = useSimulacao(userId, userType!);
 
   return (
     <Box sx={{
@@ -756,7 +759,15 @@ const HairColorSimulator: React.FC = () => {
         </Typography>
         <Typography variant="h6" color="text.secondary" sx={{ maxWidth: 600, mx: 'auto' }}>
           Descubra como ficaria com diferentes cores de cabelo usando inteligência artificial
+
         </Typography>
+        {!userId ? (
+          <Typography> Não LOGADO</Typography>
+        ) : <Typography>           
+          Esta logado: {userType}
+          User ID: {userId}</Typography>
+        }
+
       </Paper>
 
       <input

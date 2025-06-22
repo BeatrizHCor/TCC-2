@@ -1,7 +1,11 @@
 import { useState, useRef, ChangeEvent } from 'react';
 import { IAService, ResultsType } from '../../services/IAService';
+import { userTypes } from '../../models/tipo-usuario.enum';
 
-export const useSimulacao = () => {
+export const useSimulacao = (
+  userId: string,
+  userType: userTypes
+) => {
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [preview, setPreview] = useState<string | null>(null);
   const [results, setResults] = useState<ResultsType | null>(null);
