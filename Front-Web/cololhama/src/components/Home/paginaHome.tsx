@@ -14,6 +14,8 @@ import EmojiEmotionsIcon from "@mui/icons-material/EmojiEmotions";
 import ArrowForwardIcon from "@mui/icons-material/ArrowForward";
 import { useNavigate } from "react-router-dom";
 import { useVisualizarServicos } from "../../components/Funcionario/useVisualizarServicos";
+import { useVisualizarCabeleireiros } from "../Cabeleireiro/useVisualizarCabeleireiro";
+
 
 const PaginaHome: React.FC = () => {
   const theme = useTheme();
@@ -21,8 +23,16 @@ const PaginaHome: React.FC = () => {
 
   const salaoId = import.meta.env.VITE_SALAO_ID;
   const { servicos, isLoading } = useVisualizarServicos(1, 10, salaoId);
+  const {
+    cabeleireiros,
+    isLoading: isLoadingCabeleireiros,
+    error: errorCabeleireiros
+  } = useVisualizarCabeleireiros(1, 4, salaoId, "", undefined);
+
 
   const sugestoes = ["Corte feminino", "Coloração", "Hidratação", "Barbearia"];
+
+
 
   return (
     <Box
@@ -137,7 +147,7 @@ const PaginaHome: React.FC = () => {
             </Button>
           </Box>
 
-          {/* Buscar Serviços */}
+          {/* Cabeleireiros */}
           <Box
             sx={{
               flex: "1 1 300px",
@@ -148,48 +158,51 @@ const PaginaHome: React.FC = () => {
             }}
           >
             <Typography variant="h6" gutterBottom>
-              Buscar Serviços
+              Conheça nossos Cabeleireiros
             </Typography>
-            <Paper
-              elevation={4}
-              sx={{
-                borderRadius: 4,
-                p: 2,
-                backgroundColor: "#fff",
-                display: "flex",
-                flexDirection: "column",
-                gap: 2,
-              }}
-            >
-              {sugestoes.map((item, index) => (
-                <Button
-                  key={index}
-                  variant="outlined"
-                  fullWidth
-                  onClick={() =>
-                    navigate(`/servicos?nome=${encodeURIComponent(item)}`)
-                  }
-                  sx={{
-                    justifyContent: "space-between",
-                    borderRadius: 3,
-                    textTransform: "none",
-                    fontWeight: 500,
-                    borderColor: theme.palette.primary.main,
-                    color: theme.palette.primary.main,
-                    transition: "0.3s",
-                    "&:hover": {
-                      backgroundColor:
-                        theme.palette.customColors?.softPink || "#fdecef",
-                      borderColor: theme.palette.primary.dark,
-                    },
-                  }}
-                  endIcon={<ArrowForwardIcon fontSize="small" />}
-                >
-                  {item}
-                </Button>
-              ))}
-            </Paper>
+
+            {isLoadingCabeleireiros ? (
+              <CircularProgress />
+            ) : (
+              <Paper
+                elevation={4}
+                sx={{
+                  borderRadius: 4,
+                  p: 2,
+                  backgroundColor: "#fff",
+                  display: "flex",
+                  flexDirection: "column",
+                  gap: 2,
+                }}
+              >
+                {cabeleireiros.slice(0, 4).map((cabel) => (
+                  <Button
+                    key={cabel.ID}
+                    fullWidth
+                    onClick={() => navigate(`/portfolio/${cabel.ID}`)}
+                    sx={{
+                      justifyContent: "space-between",
+                      borderRadius: 3,
+                      textTransform: "none",
+                      fontWeight: 500,
+                      border: `1px solid ${theme.palette.primary.main}`,
+                      color: theme.palette.primary.main,
+                      transition: "0.3s",
+                      "&:hover": {
+                        backgroundColor:
+                          theme.palette.customColors?.softPink || "#fdecef",
+                        borderColor: theme.palette.primary.dark,
+                      },
+                    }}
+                    endIcon={<ArrowForwardIcon fontSize="small" />}
+                  >
+                    {cabel.Nome}
+                  </Button>
+                ))}
+              </Paper>
+            )}
           </Box>
+
 
           {/* Sobre Nós */}
           <Box

@@ -16,8 +16,8 @@ export const useVisualizarCabeleireiros = (
   page: number = 1,
   limit: number = 10,
   salaoId: string,
-  userType: userTypes,
   termoBusca: string,
+  userType?: userTypes,
 ): UseVisualizarCabeleireirosResult => {
   const [cabeleireiros, setCabeleireiros] = useState<Cabeleireiro[]>([]);
   const [totalCabeleireiros, setTotalCabeleireiros] = useState<number>(0);

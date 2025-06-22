@@ -44,13 +44,13 @@ export const VisualizarCabeleireiro: React.FC = () => {
   const [nomeFilterInput, setNomeFilterInput] = useState("");
   const [termoBusca, setTermoBusca] = useState("");
 
-  const {
-    cabeleireiros,
-    totalCabeleireiros,
-    handleEditarCabeleireiro,
-    isLoading,
-    error,
-  } = useVisualizarCabeleireiros(page + 1, rowsPerPage, SalaoID, userType!, termoBusca);
+const {
+  cabeleireiros,
+  totalCabeleireiros,
+  handleEditarCabeleireiro,
+  isLoading,
+  error,
+} = useVisualizarCabeleireiros(page + 1, rowsPerPage, SalaoID, termoBusca, userType!);
 
   const handleChangePage = (_: unknown, newPage: number) => {
     setPage(newPage);
