@@ -31,7 +31,7 @@ const NavBar: React.FC = () => {
   const mainRoutes = [
     { route: "/servicos", label: "Serviços" },
     { route: "/cabeleireiros", label: "Cabeleireiros" },
-    { route: "/sobre", label: "Sobre Nós" },
+    { route: "/simulacao", label: "Simulação" },
   ];
   const userRoutes = [
     { route: "/agendamentos", label: "Agendamentos" },
@@ -45,6 +45,8 @@ const NavBar: React.FC = () => {
     { route: `/portfolio/${userId}`, label: "Portfolio" },
   ];
 
+  const aboutRoute = { route: "/sobre", label: "Sobre Nós" };
+
   const handleLogout = () => {
     doLogout();
     navigate("/");
@@ -55,6 +57,7 @@ const NavBar: React.FC = () => {
     ...(userType ? userRoutes : []),
     ...(userType && [userTypes.AdmSalao, userTypes.Funcionario, userTypes.AdmSistema].includes(userType) ? admRoutes : []),
     ...(userType && [userTypes.Cabeleireiro].includes(userType) ? cabeleireiroRoutes : []),
+    aboutRoute,
   ];
 
   const mobileMenu = (
@@ -115,12 +118,14 @@ const NavBar: React.FC = () => {
         }}
       >
         <Box sx={{ display: "flex", alignItems: "center" }}>
-          <ContentCutIcon
-            sx={{
-              color: theme.palette.customColors?.goldenBorder,
-              marginRight: "10px",
-            }}
-          />
+          <IconButton onClick={() => navigate("/")}>
+            <ContentCutIcon
+              sx={{
+                color: theme.palette.customColors?.goldenBorder,
+                marginRight: "10px",
+              }}
+            />
+          </IconButton>
         </Box>
 
         <Box sx={{ display: { xs: "none", md: "flex" }, gap: 3 }}>
@@ -232,31 +237,54 @@ const NavBar: React.FC = () => {
                 </Button>
               )}
               <Box sx={{ position: "relative", overflow: "hidden" }}>
-                <Button
-                  color="inherit"
-                  onClick={handleLogout}
-                  sx={{
-                    textTransform: "none",
-                    color: theme.palette.customColors?.lightGray,
-                    fontFamily: '"The Seasons", serif',
-                    fontSize: "1rem",
-                    transition: "0.3s ease-in-out",
-                    "&::after": {
-                      content: '""',
-                      display: "block",
-                      width: "0%",
-                      height: "2px",
-                      backgroundColor: "#fff",
-                      position: "absolute",
-                      bottom: 0,
-                      left: 0,
-                      transition: "width 0.3s ease-in-out",
-                    },
-                    "&:hover::after": { width: "100%" },
-                  }}
-                >
-                  Sair
-                </Button>
+                {userType === "Cliente" ? (
+                  <Box sx={{ position: "relative", overflow: "hidden" }}>
+                    <Button
+                      color="inherit"
+                      onClick={handleLogout}
+                      sx={{
+                        textTransform: "none",
+                        color: theme.palette.customColors?.lightGray,
+                        fontFamily: '"The Seasons", serif',
+                        fontSize: "1rem",
+                        transition: "0.3s ease-in-out",
+                        "&::after": {
+                          content: '""',
+                          display: "block",
+                          width: "0%",
+                          height: "2px",
+                          backgroundColor: "#fff",
+                          position: "absolute",
+                          bottom: 0,
+                          left: 0,
+                          transition: "width 0.3s ease-in-out",
+                        },
+                        "&:hover::after": { width: "100%" },
+                      }}
+                    >
+                      Sair
+                    </Button>
+                  </Box>
+                ) : (
+                  <Button
+                    onClick={handleLogout}
+                    sx={{
+                      backgroundColor: theme.palette.primary.main,
+                      color: theme.palette.customColors?.lightGray,
+                      borderRadius: "5px",
+                      padding: "5px 15px",
+                      fontWeight: "bold",
+                      textTransform: "none",
+                      border: `2px solid ${theme.palette.customColors?.goldenBorder}`,
+                      transition: "0.3s ease-in-out",
+                      "&:hover": {
+                        backgroundColor: theme.palette.customColors?.softPink,
+                      },
+                    }}
+                  >
+                    Sair
+                  </Button>
+                )}
               </Box>
             </>
           )}
