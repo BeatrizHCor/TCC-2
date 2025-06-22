@@ -13,8 +13,7 @@ const AuthGuard = ({ children, allowed }: PropsAuthGuard) => {
 
   useEffect(() => {
     checkLocalStorage().then((e) => {
-      console.log(e);
-      if (!e || (allowed && !allowed.includes(userType!))) {
+      if (!e || (allowed && !allowed.includes(e.userType))) {
         doLogout();
         setReroute(true);
       }

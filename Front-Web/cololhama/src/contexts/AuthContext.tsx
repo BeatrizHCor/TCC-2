@@ -1,9 +1,4 @@
-import React, {
-  createContext,
-  ReactNode,
-  useEffect,
-  useState,
-} from "react";
+import React, { createContext, ReactNode, useEffect, useState } from "react";
 import { userTypes } from "../models/tipo-usuario.enum";
 
 interface ComponentProps {
@@ -17,7 +12,7 @@ interface AuthContextInterface {
   doLogin: (email: string, password: string) => Promise<void>;
   doAuthenticate: () => Promise<void>;
   doLogout: () => void;
-  checkLocalStorage: () => Promise<boolean>;
+  checkLocalStorage: () => Promise<any>;
 }
 
 export const AuthContext = createContext({
@@ -67,8 +62,7 @@ export const AuthContextProvider = ({ children }: ComponentProps) => {
     }
   };
 
-  const doAuthenticate = async () => {
-  };
+  const doAuthenticate = async () => {};
 
   const doLogout = () => {
     localStorage.removeItem("usuario");
@@ -82,16 +76,15 @@ export const AuthContextProvider = ({ children }: ComponentProps) => {
     if (userStr) {
       try {
         const user = JSON.parse(userStr);
-        console.log("Usuário encontrado no localStorage:", user);
         setToken(user.token);
-        setuserId(user.userID); 
+        setuserId(user.userID);
         setUserType(user.userType);
-        return true;
+        return user;
       } catch (error) {
         console.error("Erro ao interpretar localStorage:", error);
+        return false;
       }
     }
-    return false;
   };
 
   useEffect(() => {

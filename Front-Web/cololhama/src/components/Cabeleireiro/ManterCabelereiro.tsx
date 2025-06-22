@@ -81,21 +81,23 @@ const ManterCabeleireiro: React.FC = () => {
     setTelefone(formattedValue);
   };
   const formatCNPJ = (value: string) => {
-
-    const cleanValue = value.replace(/\D/g, '');
+    const cleanValue = value.replace(/\D/g, "");
 
     const limitedValue = cleanValue.slice(0, 14);
 
     if (limitedValue.length <= 2) {
       return limitedValue;
     } else if (limitedValue.length <= 5) {
-      return limitedValue.replace(/(\d{2})(\d+)/, '$1.$2');
+      return limitedValue.replace(/(\d{2})(\d+)/, "$1.$2");
     } else if (limitedValue.length <= 8) {
-      return limitedValue.replace(/(\d{2})(\d{3})(\d+)/, '$1.$2.$3');
+      return limitedValue.replace(/(\d{2})(\d{3})(\d+)/, "$1.$2.$3");
     } else if (limitedValue.length <= 12) {
-      return limitedValue.replace(/(\d{2})(\d{3})(\d{3})(\d+)/, '$1.$2.$3/$4');
+      return limitedValue.replace(/(\d{2})(\d{3})(\d{3})(\d+)/, "$1.$2.$3/$4");
     } else {
-      return limitedValue.replace(/(\d{2})(\d{3})(\d{3})(\d{4})(\d+)/, '$1.$2.$3/$4-$5');
+      return limitedValue.replace(
+        /(\d{2})(\d{3})(\d{3})(\d{4})(\d+)/,
+        "$1.$2.$3/$4-$5"
+      );
     }
   };
   const handleCpfChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -258,7 +260,6 @@ const ManterCabeleireiro: React.FC = () => {
             </Box>
 
             <Box>
-
               <TextField
                 fullWidth
                 label="MEI (Microempreendedor Individual)"

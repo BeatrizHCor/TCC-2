@@ -3,7 +3,6 @@ import { useNavigate } from "react-router-dom";
 import CabeleireiroService from "../../services/CabeleireiroService";
 import { validarCPF, validarEmail } from "../../utils/validations";
 
-
 interface ValidationErrors {
   nome?: string;
   cpf?: string;
@@ -118,39 +117,41 @@ export const useManterCabeleireiro = (cabeleireiroId?: string) => {
       console.error("ID do salão não disponível");
       return;
     }
+    console.log(import.meta.env);
 
     setIsLoading(true);
+    setIsLoading(false);
 
-    try {
-      if (isEditing && cabeleireiroId) {
-        await CabeleireiroService.UpdateCabeleireiro(
-          cabeleireiroId,
-          cpf,
-          nome,
-          email,
-          telefone,
-          mei,
-          salaoId,
-          password
-        );
-      } else {
-        await CabeleireiroService.cadastrarCabeleireiro(
-          cpf,
-          nome,
-          email,
-          telefone,
-          mei,
-          salaoId,
-          password
-        );
-      }
+    // try {
+    //   if (isEditing && cabeleireiroId) {
+    //     await CabeleireiroService.UpdateCabeleireiro(
+    //       cabeleireiroId,
+    //       cpf,
+    //       nome,
+    //       email,
+    //       telefone,
+    //       mei,
+    //       salaoId,
+    //       password
+    //     );
+    //   } else {
+    //     await CabeleireiroService.cadastrarCabeleireiro(
+    //       cpf,
+    //       nome,
+    //       email,
+    //       telefone,
+    //       mei,
+    //       salaoId,
+    //       password
+    //     );
+    //   }
 
-      navigate(-1);
-    } catch (error) {
-      console.error("Erro ao salvar cabeleireiro:", error);
-    } finally {
-      setIsLoading(false);
-    }
+    //   navigate(-1);
+    // } catch (error) {
+    //   console.error("Erro ao salvar cabeleireiro:", error);
+    // } finally {
+    //   setIsLoading(false);
+    // }
   };
 
   const handleDelete = async () => {
