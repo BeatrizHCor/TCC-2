@@ -63,20 +63,7 @@ const HairColorSimulator: React.FC = () => {
           Descubra como ficaria com diferentes cores de cabelo usando inteligência artificial
         </Typography>
 
-        {!userId ? (
-          <Typography color="error.main" sx={{ mt: 2 }}>
-            Usuário não logado
-          </Typography>
-        ) : (
-          <Typography color="success.main" sx={{ mt: 2 }}>
-            Logado como: {userType} (ID: {userId})
-            {userType === 'Cliente' && (
-              <Typography variant="body2" color="text.secondary" sx={{ mt: 0.5 }}>
-                Suas simulações serão salvas automaticamente no seu histórico
-              </Typography>
-            )}
-          </Typography>
-        )}
+
       </Paper>
 
       <input

@@ -30,6 +30,7 @@ import { useHistorico } from './useHistorico';
 import { HistoricoSimulacao } from '../../services/HistóricoSimulacaoService';
 import { format } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
+import { getImagemUrl } from '../../services/HistóricoSimulacaoService';
 import { userTypes } from '../../models/tipo-usuario.enum';
 
 const HistoricoSimulacoes: React.FC = () => {
@@ -151,7 +152,7 @@ const HistoricoSimulacoes: React.FC = () => {
                                     <CardMedia
                                         component="img"
                                         height="200"
-                                        image={simulacao.imagens[0].Endereco}
+                                        image={getImagemUrl(simulacao.imagens[0].Endereco)}
                                         alt="Simulação"
                                         sx={{ objectFit: 'cover' }}
                                     />
@@ -235,7 +236,7 @@ const HistoricoSimulacoes: React.FC = () => {
                                     <Grid item xs={6} sm={3} key={imagem.ID}>
                                         <Box>
                                             <img
-                                                src={imagem.Endereco}
+                                                src={getImagemUrl(imagem.Endereco)}
                                                 alt={imagem.Descricao}
                                                 style={{
                                                     width: '100%',
@@ -250,7 +251,7 @@ const HistoricoSimulacoes: React.FC = () => {
                                             <IconButton
                                                 size="small"
                                                 onClick={() => handleDownloadImage(
-                                                    imagem.Endereco,
+                                                    getImagemUrl(imagem.Endereco),
                                                     `simulacao_${index + 1}.jpg`
                                                 )}
                                             >

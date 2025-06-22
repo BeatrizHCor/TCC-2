@@ -38,7 +38,10 @@ router.get("/historico-simulacao/cliente/:clienteId", HistoricoSimulacaoControll
 router.get("/historico-simulacao/all", HistoricoSimulacaoController.getAllHistoricoSimulacao);
 router.put("/historico-simulacao/update/:id", HistoricoSimulacaoController.updateHistoricoSimulacao);
 router.delete("/historico-simulacao/delete/:id", HistoricoSimulacaoController.deleteHistoricoSimulacao);
+
+
 router.post("/historico-simulacao", HistoricoSimulacaoController.salvarSimulacaoJson);
+router.get("/historico/cliente/:clienteId", HistoricoSimulacaoController.getHistoricoSimulacaoByCliente);
 
 
 export default router;

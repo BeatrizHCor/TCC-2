@@ -14,7 +14,6 @@ class HistoricoSimulacaoService {
         tipoImagem: "Analoga" | "Analoga2" | "Complementar",
     ) {
         try {
-
             const historicoSimulacao = await prisma.historicoSimulacao.create({
                 data: {
                     Data: new Date(),
@@ -157,6 +156,29 @@ class HistoricoSimulacaoService {
 
     static async getHistoricoSimulacaoByClienteId(clienteId: string) {
         try {
+            console.log("🔍 Service - Buscando histórico para clienteId:", clienteId);
+            
+            // Primeiro, vamos contar TODOS os registros na tabela
+            const totalCount = await prisma.historicoSimulacao.count();
+            console.log("📊 Service - TOTAL de registros na tabela historicoSimulacao:", totalCount);
+            
+            // Agora vamos contar quantos registros existem para este cliente específico
+            const clienteCount = await prisma.historicoSimulacao.count({
+                where: {
+                    ClienteID: clienteId,
+                },
+            });
+            console.log(`📊 Service - TOTAL de registros para cliente ${clienteId}:`, clienteCount);
+            
+            // Vamos buscar TODOS os ClienteIDs únicos para debug
+            const todosClienteIds = await prisma.historicoSimulacao.findMany({
+                select: {
+                    ClienteID: true,
+                },
+                distinct: ['ClienteID'],
+            });
+            console.log("📊 Service - TODOS os ClienteIDs únicos na tabela:", todosClienteIds.map(h => h.ClienteID));
+            
             const historicos = await prisma.historicoSimulacao.findMany({
                 where: {
                     ClienteID: clienteId,
@@ -171,16 +193,31 @@ class HistoricoSimulacaoService {
                 },
             });
 
-            return historicos.map((historico) => ({
+            console.log("📊 Service - Históricos encontrados na consulta final:", historicos.length);
+            
+            if (historicos.length > 0) {
+                console.log("📋 Service - Primeiro registro encontrado:");
+                console.log("  - ID:", historicos[0].ID);
+                console.log("  - ClienteID:", historicos[0].ClienteID);
+                console.log("  - Data:", historicos[0].Data);
+                console.log("  - Tem Cliente?", !!historicos[0].Cliente);
+                console.log("  - Tem Salao?", !!historicos[0].Salao);
+                console.log("  - Quantidade de imagens:", historicos[0].Imagem?.length || 0);
+            }
+
+            const resultado = historicos.map((historico) => ({
                 ID: historico.ID,
                 Data: historico.Data,
                 Cliente: historico.Cliente,
                 Salao: historico.Salao,
                 imagens: historico.Imagem,
             }));
+
+            console.log("📤 Service - Retornando", resultado.length, "registros processados");
+            return resultado;
         } catch (error) {
             console.error(
-                "Erro ao buscar histórico de simulação por cliente:",
+                "❌ Service - Erro ao buscar histórico de simulação por cliente:",
                 error,
             );
             throw error;
@@ -236,73 +273,82 @@ class HistoricoSimulacaoService {
         }
     }
 
-static async salvarSimulacaoJson(
-  clienteId: string,
-  salaoId: string,
-  corOriginal: any,
-  cores: any,
-  imagens: any
-) {
-  try {
-    console.log("➡️ salvarSimulacaoJson iniciado");
-    console.log("clienteId:", clienteId);
-    console.log("salaoId:", salaoId);
-    console.log("corOriginal:", corOriginal);
-    console.log("cores:", cores);
-    console.log("imagens recebidas:", Object.keys(imagens));
+    static async salvarSimulacaoJson(
+        clienteId: string,
+        salaoId: string,
+        corOriginal: any,
+        cores: any,
+        imagens: any
+    ) {
+        try {
+            console.log("➡️ salvarSimulacaoJson iniciado");
+            console.log("clienteId:", clienteId);
+            console.log("salaoId:", salaoId);
+            console.log("corOriginal:", corOriginal);
+            console.log("cores:", cores);
+            console.log("imagens recebidas:", Object.keys(imagens));
 
-    const novoHistorico = await prisma.historicoSimulacao.create({
-      data: {
-        ClienteID: clienteId,
-        SalaoId: salaoId,
-        Data: new Date(),
-      },
-    });
+            const novoHistorico = await prisma.historicoSimulacao.create({
+                data: {
+                    ClienteID: clienteId,
+                    SalaoId: salaoId,
+                    Data: new Date(),
+                },
+            });
 
-    const historicoId = novoHistorico.ID;
-    const baseDir = path.join(__dirname, "../../uploads/simulacoes", historicoId.toString());
-    fs.mkdirSync(baseDir, { recursive: true });
+            const historicoId = novoHistorico.ID;
+            const baseDir = path.join(__dirname, "../../uploads/simulacoes", historicoId.toString());
+            fs.mkdirSync(baseDir, { recursive: true });
 
-    const imagensASalvar = [
-      { base64: imagens.original, desc: "Imagem Original", tipo: "Analoga" },
-      { base64: imagens.analoga_1, desc: "Cor Análoga 1", tipo: "Analoga" },
-      { base64: imagens.analoga_2, desc: "Cor Análoga 2", tipo: "Analoga2" },
-      { base64: imagens.complementar, desc: "Cor Complementar", tipo: "Complementar" },
-    ];
+            const imagensASalvar = [
+                { base64: imagens.original, desc: "Imagem Original", tipo: "Analoga" },
+                { base64: imagens.analoga_1, desc: "Cor Análoga 1", tipo: "Analoga" },
+                { base64: imagens.analoga_2, desc: "Cor Análoga 2", tipo: "Analoga2" },
+                { base64: imagens.complementar, desc: "Cor Complementar", tipo: "Complementar" },
+            ];
 
-    for (const img of imagensASalvar) {
-      console.log("🖼️ Salvando imagem:", img.desc);
-      if (!img.base64 || img.base64.length < 50) {
-        throw new Error(`Imagem inválida em: ${img.desc}`);
-      }
+            for (const img of imagensASalvar) {
+                console.log("🖼️ Salvando imagem:", img.desc);
+                if (!img.base64 || img.base64.length < 50) {
+                    throw new Error(`Imagem inválida em: ${img.desc}`);
+                }
 
-      const buffer = Buffer.from(img.base64, "base64");
-      const filename = `${Date.now()}-${Math.random().toString(36).slice(2)}.jpg`;
-      const filepath = path.join(baseDir, filename);
-      const publicUrl = `/uploads/simulacoes/${historicoId}/${filename}`;
+                const buffer = Buffer.from(img.base64, "base64");
+                const filename = `${Date.now()}-${Math.random().toString(36).slice(2)}.jpg`;
+                const filepath = path.join(baseDir, filename);
+                const baseUrl = process.env.VITE_API_URL || 'http://localhost:3000';
+                const publicUrl = `${baseUrl}/uploads/simulacoes/${historicoId}/${filename}`;
+                //const publicUrl = `/uploads/simulacoes/${historicoId}/${filename}`;
 
-      fs.writeFileSync(filepath, buffer);
+                fs.writeFileSync(filepath, buffer);
 
-      await prisma.imagem.create({
-        data: {
-          HistoricoSimulacaoId: historicoId,
-          Endereco: publicUrl,
-          Descricao: img.desc,
-          Tipo: img.tipo as "Analoga" | "Analoga2" | "Complementar",
-        },
-      });
+                await prisma.imagem.create({
+                    data: {
+                        HistoricoSimulacaoId: historicoId,
+                        Endereco: publicUrl,
+                        Descricao: img.desc,
+                        Tipo: img.tipo as "Analoga" | "Analoga2" | "Complementar",
+                    },
+                });
+            }
+
+            return {
+                historicoId,
+                message: "Simulação salva com sucesso.",
+            };
+        } catch (error) {
+            console.error("❌ Erro ao salvar simulação JSON:", error);
+            throw error;
+        }
     }
 
-    return {
-      historicoId,
-      message: "Simulação salva com sucesso.",
-    };
-  } catch (error) {
-    console.error("❌ Erro ao salvar simulação JSON:", error);
-    throw error;
-  }
-}
-
+    // ❌ REMOVER ESTE MÉTODO - Ele não deveria estar no Service
+    // Este método está misturando responsabilidades de Controller e Service
+    /*
+    static async getHistoricoSimulacaoByCliente(req: Request, res: Response): Promise<void> {
+        // Este método deveria estar no Controller, não no Service
+    }
+    */
 }
 
 export default HistoricoSimulacaoService;

@@ -23,7 +23,7 @@ import VisualizarAtendimentoPage from "./pages/Funcionario/VisualizarAtendimento
 import ManterAgendamentoPage from "./pages/Funcionario/ManterAgendamentoPage";
 import ManterAtendimento from "./components/Funcionario/ManterAtendimento";
 import SimulacaoPage from "./pages/IA/SimulacaoPage";
-import HistoricoSimulacoes from "./components/IA/VisualizarSimulacao";
+import HistoricoSimulacoes from "./components/IA/VisualizarHistoricoSimulacao";
 
 const App: React.FC = () => {
   return (

@@ -80,7 +80,7 @@ export class HistoricoSimulacaoController {
         }
     }
 
-    static async getHistoricoSimulacaoByCliente(req: Request, res: Response): Promise<void> {
+  /*  static async getHistoricoSimulacaoByCliente(req: Request, res: Response): Promise<void> {
         try {
             const { clienteId } = req.params;
             
@@ -100,7 +100,7 @@ export class HistoricoSimulacaoController {
             console.error("Erro ao buscar históricos de simulação por cliente:", error);
             res.status(500).json({ error: "Erro interno ao buscar históricos de simulação." });
         }
-    }
+    }*/
 
     static async deleteHistoricoSimulacao(req: Request, res: Response): Promise<void> {
         try {
@@ -155,7 +155,7 @@ export class HistoricoSimulacaoController {
                 res.status(400).json({ error: "Dados incompletos." });
                 return;
             }
-            
+
             const simulacaoSalva = await HistoricoSimulacaoService.salvarSimulacaoJson(
                 clienteId,
                 salaoId,
@@ -170,6 +170,58 @@ export class HistoricoSimulacaoController {
             res.status(500).json({ error: "Erro interno ao salvar simulação." });
         }
     }
+
+
+static async getHistoricoSimulacaoByCliente(req: Request, res: Response): Promise<void> {
+        try {
+            const { clienteId } = req.params;
+            
+            console.log("🔍 Controller - getHistoricoSimulacaoByCliente chamado com clienteId:", clienteId);
+
+            if (!clienteId) {
+                console.log("❌ Controller - ClienteId não fornecido");
+                res.status(400).json({ 
+                    success: false, 
+                    error: "ClienteId é obrigatório." 
+                });
+                return;
+            }
+
+            console.log("📞 Controller - Chamando Service.getHistoricoSimulacaoByClienteId...");
+            
+            // Chama o método correto do Service
+            const historicos = await HistoricoSimulacaoService.getHistoricoSimulacaoByClienteId(clienteId);
+            
+            console.log("📊 Controller - Resultado recebido do Service:");
+            console.log("- Quantidade encontrada:", historicos?.length || 0);
+            console.log("- Tipo do resultado:", typeof historicos);
+            console.log("- É array?", Array.isArray(historicos));
+            
+            if (historicos && historicos.length > 0) {
+                console.log("- IDs dos históricos:", historicos.map(h => h.ID));
+                console.log("- Datas dos históricos:", historicos.map(h => h.Data));
+            }
+
+            const response = {
+                success: true,
+                data: historicos || []
+            };
+
+            console.log("📤 Controller - Enviando resposta final:");
+            console.log("- success:", response.success);
+            console.log("- data.length:", response.data.length);
+            console.log("- response completo:", JSON.stringify(response, null, 2));
+
+            res.status(200).json(response);
+        } catch (error) {
+            console.error("❌ Controller - Erro ao buscar históricos de simulação por cliente:", error);
+            res.status(500).json({ 
+                success: false, 
+                error: "Erro interno ao buscar históricos de simulação." 
+            });
+        }
+    }
+
 }
 
 export default HistoricoSimulacaoController;

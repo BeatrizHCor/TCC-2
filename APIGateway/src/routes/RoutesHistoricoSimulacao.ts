@@ -184,35 +184,22 @@ routerHistoricoSimulacao.post("/historico-simulacao", async (req: Request, res: 
   }
 });
 
-// Adiciona endpoint para testar conectividade com o serviço de histórico
-routerHistoricoSimulacao.get("/test-connection", async (req: Request, res: Response): Promise<void> => {
+routerHistoricoSimulacao.get("/historico/cliente/:clienteId", async (req: Request, res: Response) => {
+  const { clienteId } = req.params;
+  console.log(`🔍 Recebida requisição GET /historico/cliente/${clienteId} no gateway`);
+
   try {
-    console.log("Testando conectividade com serviço de histórico...");
-    console.log("URL:", `${HISTORICO_URL}/health`);
-    
-    const result = await axios.get(`${HISTORICO_URL}/health`, {
-      timeout: 5000
-    });
-    
-    res.json({
-      status: "OK",
-      historicoService: {
-        url: HISTORICO_URL,
-        status: result.status,
-        data: result.data
-      }
-    });
+    const result = await axios.get(`${HISTORICO_URL}/historico/cliente/${clienteId}`);
+    console.log(`✅ Resposta do serviço histórico para cliente ${clienteId}:`, result.data);
+    res.status(result.status).json(result.data);
   } catch (error: any) {
-    console.error("Erro no teste de conectividade:", error.message);
-    res.status(500).json({
-      status: "ERROR",
-      error: error.message,
-      historicoService: {
-        url: HISTORICO_URL,
-        accessible: false
-      }
+    console.error(`❌ Erro ao buscar histórico de cliente ${clienteId} via gateway:`, error.message);
+    res.status(error.response?.status || 500).json({
+      error: "Erro ao buscar histórico de cliente via gateway",
+      details: error.response?.data || error.message,
     });
   }
 });
+
 
 export default routerHistoricoSimulacao;
