@@ -138,6 +138,7 @@ const ManterCabeleireiro: React.FC = () => {
       <Box sx={{ p: 3, textAlign: "center" }}>
         <Typography variant="h6" color="error">
           Acesso não autorizado. Você precisa ser um administrador de salão.
+          Id Salao {salaoId}
         </Typography>
         <Button
           variant="contained"

@@ -91,7 +91,6 @@ const ManterFuncionario: React.FC = () => {
     setCpf(formattedValue);
   };
 
-  // formata telefone enquanto digita
   const handleTelefoneChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const rawValue = e.target.value.replace(/\D/g, "");
     const limitedValue = rawValue.slice(0, 11);
@@ -129,6 +128,7 @@ const ManterFuncionario: React.FC = () => {
         <Typography variant="h6" color="error">
           Acesso não autorizado. Você precisa ser um administrador para acessar
           esta página.
+          Id Salao {salaoId}
         </Typography>
         <Button
           variant="contained"

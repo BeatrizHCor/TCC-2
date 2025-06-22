@@ -22,7 +22,6 @@ import { AuthContextProvider } from "./contexts/AuthContext";
 import VisualizarAtendimentoPage from "./pages/Funcionario/VisualizarAtendimento";
 import ManterAgendamentoPage from "./pages/Funcionario/ManterAgendamentoPage";
 import ManterAtendimento from "./components/Funcionario/ManterAtendimento";
-import HairColorSimulator from "./components/IA/Simulacao";
 import SimulacaoPage from "./pages/IA/SimulacaoPage";
 
 const App: React.FC = () => {
