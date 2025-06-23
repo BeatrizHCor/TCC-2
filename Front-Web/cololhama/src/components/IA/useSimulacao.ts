@@ -1,4 +1,3 @@
-// hooks/useSimulacao.ts (Atualizado)
 import { useState, useRef, useCallback } from 'react';
 import { IAService, ResultsType } from '../../services/IAService';
 import { useHistorico } from './useHistorico';
@@ -14,6 +13,7 @@ export const useSimulacao = (userId: string | null, userType: string | null) => 
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
 
   const fileInputRef = useRef<HTMLInputElement>(null);
+
   const {
     saveSimulation,
     saveLoading,
@@ -21,6 +21,12 @@ export const useSimulacao = (userId: string | null, userType: string | null) => 
     clearSaveStatus,
     error: saveError
   } = useHistorico();
+
+  const resetInput = () => {
+    if (fileInputRef.current) {
+      fileInputRef.current.value = '';
+    }
+  };
 
   const handleFileSelect = useCallback((event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
@@ -37,6 +43,8 @@ export const useSimulacao = (userId: string | null, userType: string | null) => 
       IAService.createPreview(file)
         .then(setPreview)
         .catch(() => setError('Erro ao criar preview da imagem'));
+
+      resetInput();
     }
   }, []);
 
@@ -55,8 +63,7 @@ export const useSimulacao = (userId: string | null, userType: string | null) => 
       if (response.success && response.data) {
         setResults(response.data);
         setPreview(null);
-        
-        // Se é cliente, mostra opção de salvar
+
         if (userType === 'cliente' && userId) {
           setShowSaveDialog(true);
         }
@@ -80,9 +87,8 @@ export const useSimulacao = (userId: string | null, userType: string | null) => 
     
     if (success) {
       setShowSaveDialog(false);
-      // Opcional: mostrar mensagem de sucesso
     }
-    
+
     return success;
   }, [results, userId, saveSimulation]);
 
@@ -107,6 +113,7 @@ export const useSimulacao = (userId: string | null, userType: string | null) => 
     setError(null);
     setShowSaveDialog(false);
     clearSaveStatus();
+    resetInput(); 
     openFileDialog();
   }, [openFileDialog, clearSaveStatus]);
 

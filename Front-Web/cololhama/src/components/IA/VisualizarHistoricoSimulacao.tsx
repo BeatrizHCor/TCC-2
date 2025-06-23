@@ -32,6 +32,7 @@ import { format } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
 import { getImagemUrl } from '../../services/HistóricoSimulacaoService';
 import { userTypes } from '../../models/tipo-usuario.enum';
+import { ImageModal } from './ImgModal'; 
 
 const HistoricoSimulacoes: React.FC = () => {
     const { userType, userId } = useContext(AuthContext);
@@ -45,15 +46,22 @@ const HistoricoSimulacoes: React.FC = () => {
         clearError,
     } = useHistorico();
 
-    const [deleteDialog, setDeleteDialog] = useState<{
-        open: boolean;
-        simulacao: HistoricoSimulacao | null;
-    }>({ open: false, simulacao: null });
+    const [deleteDialog, setDeleteDialog] = useState<{ open: boolean, simulacao: HistoricoSimulacao | null }>({ open: false, simulacao: null });
+    const [viewDialog, setViewDialog] = useState<{ open: boolean, simulacao: HistoricoSimulacao | null }>({ open: false, simulacao: null });
 
-    const [viewDialog, setViewDialog] = useState<{
-        open: boolean;
-        simulacao: HistoricoSimulacao | null;
-    }>({ open: false, simulacao: null });
+    // Novo: estados do modal de imagem
+    const [modalOpen, setModalOpen] = useState(false);
+    const [modalImage, setModalImage] = useState<string | null>(null);
+
+    const handleImageClick = (url: string) => {
+        setModalImage(url);
+        setModalOpen(true);
+    };
+
+    const closeModal = () => {
+        setModalOpen(false);
+        setModalImage(null);
+    };
 
     useEffect(() => {
         if (userId) {
@@ -118,11 +126,7 @@ const HistoricoSimulacoes: React.FC = () => {
             </Paper>
 
             {error && (
-                <Alert
-                    severity="error"
-                    sx={{ mb: 3 }}
-                    onClose={clearError}
-                >
+                <Alert severity="error" sx={{ mb: 3 }} onClose={clearError}>
                     {error}
                 </Alert>
             )}
@@ -181,7 +185,6 @@ const HistoricoSimulacoes: React.FC = () => {
                                         </Box>
                                     )}
 
-
                                     <Chip
                                         label={`${simulacao.imagens?.length || 0} imagens`}
                                         size="small"
@@ -215,61 +218,105 @@ const HistoricoSimulacoes: React.FC = () => {
                 </Grid>
             )}
 
-            <Dialog
-                open={viewDialog.open}
-                onClose={() => setViewDialog({ open: false, simulacao: null })}
-                maxWidth="md"
-                fullWidth
-            >
-                <DialogTitle>
-                    Detalhes da Simulação
-                </DialogTitle>
-                <DialogContent>
-                    {viewDialog.simulacao && (
-                        <Box>
-                            <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>
-                                {format(new Date(viewDialog.simulacao.Data), 'dd/MM/yyyy HH:mm', { locale: ptBR })}
-                            </Typography>
+<Dialog
+    open={viewDialog.open}
+    onClose={() => setViewDialog({ open: false, simulacao: null })}
+    maxWidth="md"
+    fullWidth
+>
+    <DialogTitle sx={{ fontWeight: 'bold', textAlign: 'center' }}>
+        Visualização da Simulação
+    </DialogTitle>
 
-                            <Grid container spacing={2}>
-                                {viewDialog.simulacao.imagens?.map((imagem, index) => (
-                                    <Grid item xs={6} sm={3} key={imagem.ID}>
-                                        <Box>
-                                            <img
-                                                src={getImagemUrl(imagem.Endereco)}
-                                                alt={imagem.Descricao}
-                                                style={{
-                                                    width: '100%',
-                                                    height: '150px',
-                                                    objectFit: 'cover',
-                                                    borderRadius: 8
-                                                }}
-                                            />
-                                            <Typography variant="caption" display="block" sx={{ mt: 1 }}>
-                                                {imagem.Descricao}
-                                            </Typography>
-                                            <IconButton
-                                                size="small"
-                                                onClick={() => handleDownloadImage(
-                                                    getImagemUrl(imagem.Endereco),
-                                                    `simulacao_${index + 1}.jpg`
-                                                )}
-                                            >
-                                                <Download size={16} />
-                                            </IconButton>
-                                        </Box>
-                                    </Grid>
-                                ))}
-                            </Grid>
-                        </Box>
-                    )}
-                </DialogContent>
-                <DialogActions>
-                    <Button onClick={() => setViewDialog({ open: false, simulacao: null })}>
-                        Fechar
-                    </Button>
-                </DialogActions>
-            </Dialog>
+    <DialogContent>
+        {viewDialog.simulacao && (
+            <>
+                <Typography
+                    variant="body2"
+                    color="text.secondary"
+                    textAlign="center"
+                    sx={{ mb: 3 }}
+                >
+                    {format(new Date(viewDialog.simulacao.Data), 'dd/MM/yyyy HH:mm', {
+                        locale: ptBR,
+                    })}
+                </Typography>
+
+                <Grid container spacing={2}>
+                    {viewDialog.simulacao.imagens?.slice(0, 4).map((imagem, index) => (
+                        <Grid item xs={12} sm={6} md={3} key={imagem.ID}>
+                            <Box
+                                sx={{
+                                    position: 'relative',
+                                    overflow: 'hidden',
+                                    borderRadius: 2,
+                                    boxShadow: 3,
+                                    transition: 'transform 0.3s',
+                                    '&:hover img': {
+                                        transform: 'scale(1.05)',
+                                    },
+                                    cursor: 'pointer',
+                                }}
+                                onClick={() => handleImageClick(getImagemUrl(imagem.Endereco))}
+                            >
+                                <img
+                                    src={getImagemUrl(imagem.Endereco)}
+                                    alt={imagem.Descricao}
+                                    style={{
+                                        width: '100%',
+                                        height: '200px',
+                                        objectFit: 'cover',
+                                        transition: 'transform 0.3s ease',
+                                    }}
+                                />
+                                <Box
+                                    sx={{
+                                        position: 'absolute',
+                                        bottom: 0,
+                                        width: '100%',
+                                        background: 'rgba(0,0,0,0.6)',
+                                        color: '#fff',
+                                        p: 1,
+                                        display: 'flex',
+                                        justifyContent: 'space-between',
+                                        alignItems: 'center',
+                                    }}
+                                >
+                                    <Typography
+                                        variant="caption"
+                                        sx={{ fontWeight: 'bold' }}
+                                    >
+                                        {imagem.Descricao}
+                                    </Typography>
+                                    <IconButton
+                                        size="small"
+                                        onClick={(e) => {
+                                            e.stopPropagation();
+                                            handleDownloadImage(
+                                                getImagemUrl(imagem.Endereco),
+                                                `simulacao_${index + 1}.jpg`
+                                            );
+                                        }}
+                                        sx={{ color: 'white' }}
+                                    >
+                                        <Download size={16} />
+                                    </IconButton>
+                                </Box>
+                            </Box>
+                        </Grid>
+                    ))}
+                </Grid>
+            </>
+        )}
+    </DialogContent>
+
+    <DialogActions>
+        <Button onClick={() => setViewDialog({ open: false, simulacao: null })}>
+            Fechar
+        </Button>
+    </DialogActions>
+</Dialog>
+
 
             <Dialog
                 open={deleteDialog.open}
@@ -278,25 +325,20 @@ const HistoricoSimulacoes: React.FC = () => {
                 <DialogTitle>Confirmar Exclusão</DialogTitle>
                 <DialogContent>
                     <Typography>
-                        Tem certeza que deseja excluir esta simulação?
-                        Esta ação não pode ser desfeita.
+                        Tem certeza que deseja excluir esta simulação? Esta ação não pode ser desfeita.
                     </Typography>
                 </DialogContent>
                 <DialogActions>
-                    <Button
-                        onClick={() => setDeleteDialog({ open: false, simulacao: null })}
-                    >
+                    <Button onClick={() => setDeleteDialog({ open: false, simulacao: null })}>
                         Cancelar
                     </Button>
-                    <Button
-                        onClick={handleConfirmDelete}
-                        color="error"
-                        variant="contained"
-                    >
+                    <Button onClick={handleConfirmDelete} color="error" variant="contained">
                         Excluir
                     </Button>
                 </DialogActions>
             </Dialog>
+
+            <ImageModal open={modalOpen} image={modalImage} onClose={closeModal} />
         </Box>
     );
 };
