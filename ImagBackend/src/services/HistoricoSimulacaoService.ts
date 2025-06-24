@@ -60,10 +60,9 @@ class HistoricoSimulacaoService {
             const imagemComConteudo = historicoSimulacao.Imagem.map(
                 (imagem) => {
                     try {
-                        // CORREÇÃO: Usar path absoluto baseado no diretório do projeto
                         const uploadsDir = path.join(process.cwd(), 'uploads');
                         const filePath = path.join(uploadsDir, imagem.Endereco.replace('/uploads/', ''));
-                        
+
                         if (fs.existsSync(filePath)) {
                             const fileStat = fs.statSync(filePath);
                             const fileSizeInBytes = fileStat.size;
@@ -84,7 +83,7 @@ class HistoricoSimulacaoService {
                         };
                     } catch (err) {
                         console.error(
-                            `Erro ao processar arquivo ${imagem.Endereco}:`,
+                            'Erro ao processar arquivo ${imagem.Endereco}:',
                             err,
                         );
                         return {
@@ -112,42 +111,6 @@ class HistoricoSimulacaoService {
         }
     }
 
-    static async getAllHistoricoSimulacao(
-        skip: number = 0,
-        take: number = 10,
-        clienteId: string | null = null,
-        salaoId: string | null = null,
-    ) {
-        try {
-            const whereClause: any = {};
-            if (clienteId) whereClause.ClienteID = clienteId;
-            if (salaoId) whereClause.SalaoId = salaoId;
-
-            const historicos = await prisma.historicoSimulacao.findMany({
-                skip: skip,
-                take: take,
-                where: Object.keys(whereClause).length > 0
-                    ? whereClause
-                    : undefined,
-                include: {
-                    Cliente: true,
-                    Salao: true,
-                    Imagem: true,
-                },
-                orderBy: {
-                    Data: "desc",
-                },
-            });
-
-            return historicos;
-        } catch (error) {
-            console.error(
-                "Erro ao buscar todos os históricos de simulação:",
-                error,
-            );
-            throw error;
-        }
-    }
 
     static async getHistoricoSimulacaoByClienteId(clienteId: string) {
         try {
@@ -183,51 +146,83 @@ class HistoricoSimulacaoService {
         }
     }
 
+
     static async deleteHistoricoSimulacao(id: string) {
         try {
-            const historicoSimulacao = await prisma.historicoSimulacao.delete({
+            const historico = await prisma.historicoSimulacao.findUnique({
                 where: { ID: id },
+                include: {
+                    Imagem: true,
+                },
             });
-            if (historicoSimulacao) {
-                return true;
-            } else {
+
+            if (!historico) {
+                console.log('Histórico ${id} não encontrado');
                 return false;
             }
-        } catch (error) {
-            console.error("Erro ao deletar histórico de simulação:", error);
-            throw error;
-        }
-    }
 
-    static async updateHistoricoSimulacao(id: string, descricaoImagem: string) {
-        try {
-            const imagem = await prisma.imagem.findFirst({
+            for (const imagem of historico.Imagem) {
+                try {
+                    let filePath = imagem.Endereco;
+
+                    if (!path.isAbsolute(filePath)) {
+                        if (filePath.startsWith('/uploads/')) {
+                            filePath = path.join(process.cwd(), filePath.substring(1)); 
+                        } else if (filePath.startsWith('uploads/')) {
+                            filePath = path.join(process.cwd(), filePath);
+                        } else {
+                            filePath = path.join(process.cwd(), 'uploads', filePath);
+                        }
+                    }
+
+                    if (fs.existsSync(filePath)) {
+                        fs.unlinkSync(filePath);
+                    } else {
+                        console.log('Arquivo não encontrado: ${filePath}');
+                    }
+                } catch (fileError) {
+                    console.error('Erro ao deletar arquivo ${imagem.Endereco}:', fileError);
+                }
+            }
+
+            const imagensDeleted = await prisma.imagem.deleteMany({
                 where: { HistoricoSimulacaoId: id },
             });
 
-            if (!imagem) {
-                throw new Error("Imagem associada ao histórico não encontrada");
+            console.log('${imagensDeleted.count} imagens deletadas do banco');
+
+            const historicoSimulacao = await prisma.historicoSimulacao.delete({
+                where: { ID: id },
+            });
+
+            try {
+                const historicoDir = path.join(process.cwd(), 'uploads', 'simulacoes', id);
+                if (fs.existsSync(historicoDir)) {
+                    const files = fs.readdirSync(historicoDir);
+                    if (files.length === 0) {
+                        fs.rmdirSync(historicoDir);
+                        console.log('Pasta deletada: ${historicoDir}');
+                    } else {
+                        console.log('Pasta não deletada (não está vazia): ${historicoDir}');
+                    }
+                }
+            } catch (dirError) {
+                console.error('Erro ao deletar pasta:', dirError);
             }
 
-            const imagemAtualizada = await prisma.imagem.update({
-                where: { ID: imagem.ID },
-                data: {
-                    Descricao: descricaoImagem,
-                },
-            });
-            const historicoAtualizado = await prisma.historicoSimulacao
-                .findUnique({
-                    where: { ID: id },
-                    include: {
-                        Cliente: true,
-                        Salao: true,
-                        Imagem: true,
-                    },
-                });
+            console.log('Histórico ${id} deletado com sucesso!');
+            return !!historicoSimulacao;
 
-            return historicoAtualizado;
         } catch (error) {
-            console.error("Erro ao atualizar histórico de simulação:", error);
+            console.error("Erro ao deletar histórico de simulação:", error);
+
+            if (error instanceof Error) {
+                if (error.message.includes('P2025')) {
+                    throw new Error("Simulação não encontrada para exclusão");
+                } else if (error.message.includes('P2003')) {
+                    throw new Error("Não é possível deletar: existem dependências");
+                }
+            }
             throw error;
         }
     }
@@ -240,7 +235,6 @@ class HistoricoSimulacaoService {
         imagens: any
     ) {
         try {
-            // Validações iniciais
             if (!clienteId || !salaoId) {
                 throw new Error("ClienteID e SalaoID são obrigatórios");
             }
@@ -268,22 +262,21 @@ class HistoricoSimulacaoService {
             console.log("✅ Histórico criado com ID:", novoHistorico.ID);
 
             const historicoId = novoHistorico.ID;
-            
-            // CORREÇÃO: Usar path absoluto baseado no diretório do projeto
+
             const uploadsBaseDir = path.join(process.cwd(), 'uploads', 'simulacoes');
             const baseDir = path.join(uploadsBaseDir, historicoId.toString());
-            
-            // Garantir que o diretório existe
+
             if (!fs.existsSync(uploadsBaseDir)) {
                 fs.mkdirSync(uploadsBaseDir, { recursive: true });
-                console.log("📁 Diretório uploads/simulacoes criado");
-            }
-            
-            if (!fs.existsSync(baseDir)) {
-                fs.mkdirSync(baseDir, { recursive: true });
-                console.log("📁 Diretório específico criado:", baseDir);
+                console.log(" Diretório uploads/simulacoes criado");
             }
 
+            if (!fs.existsSync(baseDir)) {
+                fs.mkdirSync(baseDir, { recursive: true });
+                console.log("Diretório específico criado:", baseDir);
+            }
+
+            //arrumar quando tiver tipo original
             const imagensASalvar = [
                 { base64: imagens.original, desc: "Imagem Original", tipo: "Analoga" },
                 { base64: imagens.analoga_1, desc: "Cor Análoga 1", tipo: "Analoga" },
@@ -291,57 +284,50 @@ class HistoricoSimulacaoService {
                 { base64: imagens.complementar, desc: "Cor Complementar", tipo: "Complementar" },
             ];
 
-            console.log("🖼️ Processando", imagensASalvar.length, "imagens...");
+            console.log("Processando", imagensASalvar.length, "imagens...");
 
             for (let i = 0; i < imagensASalvar.length; i++) {
                 const img = imagensASalvar[i];
-                
-                console.log(`📸 Processando imagem ${i + 1}:`, img.desc);
+
+                console.log('📸 Processando imagem ${i + 1}:', img.desc);
 
                 if (!img.base64) {
-                    console.warn(`⚠️ Imagem ${img.desc} está vazia, pulando...`);
+                    console.warn('Imagem ${img.desc} está vazia, pulando...');
                     continue;
                 }
 
-                // Limpar o prefixo data:image se existir
                 let base64Data = img.base64;
                 if (base64Data.includes(',')) {
                     base64Data = base64Data.split(',')[1];
                 }
 
                 if (!base64Data || base64Data.length < 50) {
-                    console.warn(`⚠️ Imagem ${img.desc} muito pequena ou inválida, pulando...`);
+                    console.warn('Imagem ${img.desc} muito pequena ou inválida, pulando...');
                     continue;
                 }
 
                 try {
                     const buffer = Buffer.from(base64Data, "base64");
-                    const filename = `${Date.now()}-${Math.random().toString(36).slice(2)}.jpg`;
+                    const filename = '${Date.now()}-${Math.random().toString(36).slice(2)}.jpg';
                     const filepath = path.join(baseDir, filename);
-                    
-                    // CORREÇÃO: Salvar apenas o path relativo no banco
-                    const relativePath = `/uploads/simulacoes/${historicoId}/${filename}`;
 
-                    console.log(`💾 Salvando arquivo: ${filename}`);
-                    console.log(`📍 Path completo: ${filepath}`);
-                    console.log(`🔗 Path relativo: ${relativePath}`);
+                    const relativePath = '/uploads/simulacoes/${historicoId}/${filename}';
 
                     fs.writeFileSync(filepath, buffer);
 
                     await prisma.imagem.create({
                         data: {
                             HistoricoSimulacaoId: historicoId,
-                            Endereco: relativePath, // CORREÇÃO: Salvar path relativo
+                            Endereco: relativePath,
                             Descricao: img.desc,
                             Tipo: img.tipo as "Analoga" | "Analoga2" | "Complementar",
                         },
                     });
 
-                    console.log(`✅ Imagem ${img.desc} salva com sucesso`);
+                    console.log('Imagem ${img.desc} salva com sucesso');
 
                 } catch (imgError) {
-                    console.error(`❌ Erro ao processar imagem ${img.desc}:`, imgError);
-                    // Continuar com as outras imagens mesmo se uma falhar
+                    console.error('Erro ao processar imagem ${img.desc}:', imgError);
                     continue;
                 }
             }
@@ -355,10 +341,9 @@ class HistoricoSimulacaoService {
             };
 
         } catch (error: any) {
-            console.error("❌ Erro ao salvar simulação JSON:", error);
-            console.error("📋 Stack trace:", error.stack);
-            
-            // Melhor tratamento de erro
+            console.error("Erro ao salvar simulação JSON:", error);
+            console.error("Stack trace:", error.stack);
+
             if (error.code === 'P2002') {
                 throw new Error("Erro de duplicação no banco de dados");
             } else if (error.code === 'ENOENT') {
@@ -366,7 +351,7 @@ class HistoricoSimulacaoService {
             } else if (error.code === 'EACCES') {
                 throw new Error("Erro de permissão ao salvar arquivo");
             } else {
-                throw new Error(`Erro interno: ${error.message}`);
+                throw new Error('Erro interno: ${error.message}');
             }
         }
     }
