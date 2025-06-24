@@ -50,18 +50,18 @@ class HistoricoSimulacaoService {
 
     try {
       const userStr = localStorage.getItem("usuario");
-      
+
       if (userStr) {
         const user = JSON.parse(userStr);
-        
+
         if (user.token) {
           headers['Authorization'] = `Bearer ${user.token}`;
         }
-        
+
         if (user.userId || user.userID) {
           headers['X-User-Id'] = user.userId || user.userID;
         }
-        
+
         if (user.userType) {
           headers['X-User-Type'] = user.userType;
         }
@@ -134,7 +134,7 @@ class HistoricoSimulacaoService {
     try {
       const headers = this.getAuthHeaders();
       const url = `${this.gatewayUrl}/historico/cliente/${clienteId}`;
-      
+
       const response = await fetch(url, {
         method: 'GET',
         headers: headers,
@@ -146,7 +146,7 @@ class HistoricoSimulacaoService {
       }
 
       const responseText = await response.text();
-      
+
       let data;
       try {
         data = JSON.parse(responseText);
@@ -156,7 +156,7 @@ class HistoricoSimulacaoService {
 
       if (data && (data.success !== false)) {
         const historicoData = data.data || data || [];
-        
+
         return {
           success: true,
           data: Array.isArray(historicoData) ? historicoData : [],
@@ -167,7 +167,7 @@ class HistoricoSimulacaoService {
           error: data.error || data.message || "Erro desconhecido na resposta da API"
         };
       }
-      
+
     } catch (error: any) {
       return {
         success: false,
@@ -187,7 +187,7 @@ class HistoricoSimulacaoService {
     try {
       const headers = this.getAuthHeaders();
       const url = `${this.gatewayUrl}/historico/salao/${salaoId}`;
-      
+
       const response = await fetch(url, {
         method: 'GET',
         headers: headers,
@@ -213,22 +213,67 @@ class HistoricoSimulacaoService {
   }
 
   async deleteSimulation(historicoId: string): Promise<{ success: boolean; error?: string }> {
+    if (!historicoId) {
+      return {
+        success: false,
+        error: "ID do histórico é obrigatório"
+      };
+    }
+
     try {
+      console.log(`🗑️ Deletando simulação: ${historicoId}`);
+
       const headers = this.getAuthHeaders();
+
+      // CORREÇÃO: Usar a rota correta que acabamos de criar no gateway
       const url = `${this.gatewayUrl}/historico/simulacao/${historicoId}`;
-      
+
+      console.log(`📡 Fazendo DELETE para: ${url}`);
+      console.log(`🔑 Headers:`, headers);
+
       const response = await fetch(url, {
         method: 'DELETE',
         headers: headers,
       });
 
+      console.log(`📊 Status da resposta: ${response.status}`);
+
       if (!response.ok) {
         const errorText = await response.text();
-        throw new Error(`Erro ${response.status}: ${response.statusText} - ${errorText}`);
+        console.error(`❌ Erro na resposta: ${errorText}`);
+
+        // Tratar diferentes tipos de erro
+        if (response.status === 404) {
+          throw new Error("Simulação não encontrada");
+        } else if (response.status === 403) {
+          throw new Error("Você não tem permissão para deletar esta simulação");
+        } else if (response.status === 409) {
+          throw new Error("Não é possível deletar: existem dependências");
+        } else {
+          throw new Error(`Erro ${response.status}: ${response.statusText} - ${errorText}`);
+        }
       }
 
-      return { success: true };
+      // Tentar fazer parse da resposta
+      let responseData;
+      try {
+        const responseText = await response.text();
+        responseData = responseText ? JSON.parse(responseText) : {};
+      } catch (parseError) {
+        console.warn("⚠️ Não foi possível fazer parse da resposta, mas a operação parece ter sido bem-sucedida");
+        responseData = { success: true };
+      }
+
+      console.log(`✅ Simulação deletada com sucesso:`, responseData);
+
+      return {
+        success: true,
+        //message: responseData.message || "Simulação deletada com sucesso"
+      };
+
     } catch (error: any) {
+      console.error(`❌ Erro ao deletar simulação:`, error);
+
       return {
         success: false,
         error: `Erro ao deletar simulação: ${error.message}`,
@@ -244,7 +289,7 @@ class HistoricoSimulacaoService {
     try {
       const headers = this.getAuthHeaders();
       const url = `${this.gatewayUrl}/historico/simulacao/${historicoId}`;
-      
+
       const response = await fetch(url, {
         method: 'GET',
         headers: headers,

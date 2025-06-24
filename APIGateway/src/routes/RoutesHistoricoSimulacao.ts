@@ -145,4 +145,118 @@ routerHistoricoSimulacao.get("/historico/cliente/:clienteId", async (req: Reques
   }
 });
 
+routerHistoricoSimulacao.delete("/historico/simulacao/:historicoId", async (req: Request, res: Response): Promise<void> => {
+  try {
+    const { historicoId } = req.params;
+    
+    if (!historicoId) {
+      res.status(400).json({ error: "ID do histórico é obrigatório" });
+      return;
+    }
+
+    const userTypeHeader = req.headers['x-user-type'] as string;
+    const userIdHeader = req.headers['x-user-id'] as string;
+    const authToken = req.headers['authorization'];
+
+    if (userTypeHeader && userIdHeader && authToken) {
+      if (userTypeHeader !== 'Cliente') {
+        res.status(403).json({ 
+          error: "Apenas clientes podem deletar simulações",
+          debug: {
+            userType: userTypeHeader,
+            expectedType: 'Cliente'
+          }
+        });
+        return;
+      }
+
+      try {
+        const result = await axios.delete(`${HISTORICO_URL}/historico-simulacao/delete/${historicoId}`, {
+          headers: {
+            "Authorization": authToken,
+            "X-User-Type": userTypeHeader,
+            "X-User-Id": userIdHeader
+          },
+          timeout: 30000
+        });
+
+        res.status(result.status).json(result.data);
+        return;
+
+      } catch (axiosError: any) {
+        res.status(axiosError.response?.status || 500).json({ 
+          error: "Erro na comunicação com serviço de histórico",
+          details: {
+            status: axiosError.response?.status,
+            message: axiosError.message,
+            data: axiosError.response?.data
+          },
+          suggestion: "Verifique se o serviço de histórico está rodando na porta 4000"
+        });
+        return;
+      }
+    }
+
+    try {
+      const { userInfo, auth } = await getUserInfoAndAuth(req.headers);
+
+      if (!auth) {
+        res.status(403).json({ error: "Usuário não autenticado" });
+        return;
+      }
+
+      if (!userInfo) {
+        res.status(403).json({ error: "Informações do usuário não encontradas" });
+        return;
+      }
+
+      if (userInfo.userType !== userTypes.CLIENTE) {
+        res.status(403).json({ 
+          error: "Apenas clientes podem deletar simulações",
+          debug: {
+            userType: userInfo.userType,
+            expectedType: userTypes.CLIENTE
+          }
+        });
+        return;
+      }
+
+      try {
+        const result = await axios.delete(`${HISTORICO_URL}/historico-simulacao/delete/${historicoId}`, {
+          headers: {
+            "Authorization": req.headers.authorization
+          },
+          timeout: 30000
+        });
+
+        res.status(result.status).json(result.data);
+
+      } catch (axiosError: any) {
+        res.status(axiosError.response?.status || 500).json({ 
+          error: "Erro na comunicação com serviço de histórico",
+          details: {
+            status: axiosError.response?.status,
+            message: axiosError.message,
+            data: axiosError.response?.data
+          }
+        });
+      }
+
+    } catch (authError: any) {
+      res.status(403).json({ 
+        error: "Erro na autenticação", 
+        details: authError.message,
+        suggestion: "Verifique se o token está válido"
+      });
+    }
+
+  } catch (error: any) {
+    res.status(500).json({ 
+      error: "Erro interno ao deletar histórico", 
+      details: error.message,
+      suggestion: "Verifique os logs do servidor para mais detalhes"
+    });
+  }
+});
+
 export default routerHistoricoSimulacao;

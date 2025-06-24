@@ -5,17 +5,17 @@ export class HistoricoSimulacaoController {
     static async createHistoricoSimulacao(req: Request, res: Response): Promise<void> {
         try {
             const { ClienteId, SalaoId, descricaoImagem, tipoImagem } = req.body;
-            
+
             if (!ClienteId || !SalaoId || !descricaoImagem || !tipoImagem) {
-                res.status(400).json({ 
-                    error: "ClienteId, SalaoId, descricaoImagem e tipoImagem são obrigatórios." 
+                res.status(400).json({
+                    error: "ClienteId, SalaoId, descricaoImagem e tipoImagem são obrigatórios."
                 });
                 return;
             }
 
             if (!["Analoga", "Analoga2", "Complementar"].includes(tipoImagem)) {
-                res.status(400).json({ 
-                    error: "tipoImagem deve ser: Analoga, Analoga2 ou Complementar." 
+                res.status(400).json({
+                    error: "tipoImagem deve ser: Analoga, Analoga2 ou Complementar."
                 });
                 return;
             }
@@ -49,12 +49,12 @@ export class HistoricoSimulacaoController {
         try {
             const { id } = req.params;
             const historicoSimulacao = await HistoricoSimulacaoService.getHistoricoSimulacaoById(id);
-            
+
             if (!historicoSimulacao) {
                 res.status(404).json({ error: "Histórico de simulação não encontrado." });
                 return;
             }
-            
+
             res.status(200).json(historicoSimulacao);
         } catch (error) {
             console.error("Erro ao buscar histórico de simulação por ID:", error);
@@ -62,66 +62,66 @@ export class HistoricoSimulacaoController {
         }
     }
 
-    static async getAllHistoricoSimulacao(req: Request, res: Response): Promise<void> {
-        try {
-            const { skip, take, clienteId, salaoId } = req.query;
-            
-            const historicos = await HistoricoSimulacaoService.getAllHistoricoSimulacao(
-                Number(skip) || 0,
-                Number(take) || 10,
-                clienteId ? String(clienteId) : null,
-                salaoId ? String(salaoId) : null
-            );
-            
-            res.status(200).json(historicos);
-        } catch (error) {
-            console.error("Erro ao buscar históricos de simulação:", error);
-            res.status(500).json({ error: "Erro interno ao buscar históricos de simulação." });
-        }
-    }
-
     static async deleteHistoricoSimulacao(req: Request, res: Response): Promise<void> {
         try {
             const { id } = req.params;
-            
-            const deletedHistorico = await HistoricoSimulacaoService.deleteHistoricoSimulacao(id);
-            
-            if (!deletedHistorico) {
-                res.status(404).json({ error: "Histórico de simulação não encontrado." });
-                return;
-            }
-            
-            res.status(200).json({ message: "Histórico de simulação deletado com sucesso." });
-        } catch (error) {
-            console.error("Erro ao deletar histórico de simulação:", error);
-            res.status(500).json({ error: "Erro interno ao deletar histórico de simulação." });
-        }
-    }
 
-    static async updateHistoricoSimulacao(req: Request, res: Response): Promise<void> {
-        try {
-            const { id } = req.params;
-            const { descricaoImagem } = req.body;
-            
-            if (!descricaoImagem) {
-                res.status(400).json({ error: "descricaoImagem é obrigatória." });
+            if (!id) {
+                res.status(400).json({
+                    success: false,
+                    error: "ID do histórico é obrigatório."
+                });
                 return;
             }
-            
-            const historicoAtualizado = await HistoricoSimulacaoService.updateHistoricoSimulacao(
-                id,
-                descricaoImagem
-            );
-            
-            if (!historicoAtualizado) {
-                res.status(404).json({ error: "Histórico de simulação não encontrado." });
+
+            console.log(' Solicitação de exclusão para histórico: ${id}');
+
+            const historicoExiste = await HistoricoSimulacaoService.getHistoricoSimulacaoById(id);
+
+            if (!historicoExiste) {
+                res.status(404).json({
+                    success: false,
+                    error: "Histórico de simulação não encontrado."
+                });
                 return;
             }
-            
-            res.status(200).json(historicoAtualizado);
-        } catch (error) {
-            console.error("Erro ao atualizar histórico de simulação:", error);
-            res.status(500).json({ error: "Erro interno ao atualizar histórico de simulação." });
+
+            const deletedHistorico = await HistoricoSimulacaoService.deleteHistoricoSimulacao(id);
+
+            if (!deletedHistorico) {
+                res.status(500).json({
+                    success: false,
+                    error: "Erro ao deletar histórico de simulação."
+                });
+                return;
+            }
+
+            res.status(200).json({
+                success: true,
+                message: "Histórico de simulação deletado com sucesso.",
+                historicoId: id
+            });
+
+        } catch (error: any) {
+            console.error("Erro ao deletar histórico de simulação:", error);
+
+            if (error.message?.includes("não encontrada")) {
+                res.status(404).json({
+                    success: false,
+                    error: "Simulação não encontrada para exclusão."
+                });
+            } else if (error.message?.includes("dependências")) {
+                res.status(409).json({
+                    success: false,
+                    error: "Não é possível deletar: existem dependências."
+                });
+            } else {
+                res.status(500).json({
+                    success: false,
+                    error: "Erro interno ao deletar histórico de simulação.",
+                    details: process.env.NODE_ENV === 'development' ? error.message : undefined
+                });
+            }
         }
     }
 
@@ -152,17 +152,17 @@ export class HistoricoSimulacaoController {
     static async getHistoricoSimulacaoByCliente(req: Request, res: Response): Promise<void> {
         try {
             const { clienteId } = req.params;
-            
+
             if (!clienteId) {
-                res.status(400).json({ 
-                    success: false, 
-                    error: "ClienteId é obrigatório." 
+                res.status(400).json({
+                    success: false,
+                    error: "ClienteId é obrigatório."
                 });
                 return;
             }
 
             const historicos = await HistoricoSimulacaoService.getHistoricoSimulacaoByClienteId(clienteId);
-            
+
             const response = {
                 success: true,
                 data: historicos || []
@@ -171,9 +171,9 @@ export class HistoricoSimulacaoController {
             res.status(200).json(response);
         } catch (error) {
             console.error("Erro ao buscar históricos de simulação por cliente:", error);
-            res.status(500).json({ 
-                success: false, 
-                error: "Erro interno ao buscar históricos de simulação." 
+            res.status(500).json({
+                success: false,
+                error: "Erro interno ao buscar históricos de simulação."
             });
         }
     }
