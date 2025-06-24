@@ -3,7 +3,6 @@ import { useNavigate } from "react-router-dom";
 import CabeleireiroService from "../../services/CabeleireiroService";
 import { validarCPF, validarEmail } from "../../utils/validations";
 
-
 interface ValidationErrors {
   nome?: string;
   cpf?: string;
