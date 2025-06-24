@@ -32,6 +32,7 @@ const NavBar: React.FC = () => {
     { route: "/servicos", label: "Serviços" },
     { route: "/cabeleireiros", label: "Cabeleireiros" },
     { route: "/simulacao", label: "Simulação" },
+    { route: "/historico-simulacao", label: "Histórico de Simulação" },
   ];
   const userRoutes = [
     { route: "/agendamentos", label: "Agendamentos" },

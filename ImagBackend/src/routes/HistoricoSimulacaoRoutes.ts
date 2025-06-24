@@ -31,17 +31,13 @@ const upload = multer({
     }
 });
 
-
-//router.post("/historico-simulacao", upload.single('imagem'), HistoricoSimulacaoController.createHistoricoSimulacao);
 router.get("/historico-simulacao/ID/:id", HistoricoSimulacaoController.getHistoricoSimulacaoById);
 router.get("/historico-simulacao/cliente/:clienteId", HistoricoSimulacaoController.getHistoricoSimulacaoByCliente);
 router.get("/historico-simulacao/all", HistoricoSimulacaoController.getAllHistoricoSimulacao);
 router.put("/historico-simulacao/update/:id", HistoricoSimulacaoController.updateHistoricoSimulacao);
 router.delete("/historico-simulacao/delete/:id", HistoricoSimulacaoController.deleteHistoricoSimulacao);
 
-
 router.post("/historico-simulacao", HistoricoSimulacaoController.salvarSimulacaoJson);
 router.get("/historico/cliente/:clienteId", HistoricoSimulacaoController.getHistoricoSimulacaoByCliente);
-
 
 export default router;

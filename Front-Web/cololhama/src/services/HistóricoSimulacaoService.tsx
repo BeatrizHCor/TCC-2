@@ -108,7 +108,7 @@ class HistoricoSimulacaoService {
 
       const payload = {
         clienteId: request.clienteId,
-        salaoId: request.salaoId || this.defaultSalaoId,
+        salaoId: this.defaultSalaoId,
         corOriginal: request.resultados.cor_original,
         cores: request.resultados.cores,
         imagens: imagensLimpa,
