@@ -18,16 +18,18 @@ import {
 import { useParams } from "react-router-dom";
 import { usePortfolio } from "./usePortfolioPage";
 import { AuthContext } from "../../contexts/AuthContext";
+import theme from "../../styles/theme";
 
 export default function PortfolioPage() {
   const { cabeleireiroId } = useParams<{ cabeleireiroId: string }>();
-  const {
+const {
     imagens,
     loading,
     error,
     uploadImagem,
     deleteImagem,
     fetchImagens,
+    updateDescricaoPortfolio,
     portfolioId,
     nomeCabeleireiro,
     DescricaoPort
@@ -45,7 +47,32 @@ export default function PortfolioPage() {
   const [deleting, setDeleting] = useState(false);
   const [deleteError, setDeleteError] = useState<string | null>(null);
 
+  const [editDescDialog, setEditDescDialog] = useState(false);
+  const [novaDescricao, setNovaDescricao] = useState("");
+  const [updatingDesc, setUpdatingDesc] = useState(false);
+  const [updateDescError, setUpdateDescError] = useState<string | null>(null);
 
+   const handleEditDescription = () => {
+    setNovaDescricao(DescricaoPort || "");
+    setEditDescDialog(true);
+    setUpdateDescError(null);
+  };
+
+  const handleUpdateDescription = async () => {
+    setUpdatingDesc(true);
+    setUpdateDescError(null);
+
+    try {
+      await updateDescricaoPortfolio(novaDescricao);
+      setEditDescDialog(false);
+      setShowSuccess(true);
+    } catch (err) {
+      setUpdateDescError("Falha ao atualizar a descrição. Tente novamente.");
+      console.error("Erro ao atualizar descrição:", err);
+    } finally {
+      setUpdatingDesc(false);
+    }
+  };
   const handleDeleteImage = async () => {
     if (!selectedImage) return;
 
@@ -96,7 +123,13 @@ export default function PortfolioPage() {
   return (
     <Box p={4}>
       <Box display="flex" justifyContent="space-between" alignItems="center" mb={3}>
-        <Typography variant="h4" component="h1">
+        <Typography variant="h4" component="h1"
+          sx={{
+            mb: { xs: 1, md: 0 },
+            fontWeight: 600,
+            color: theme.palette.primary.main,
+            textAlign: { xs: 'center', md: 'left' },
+          }}>
           Portfólio: {nomeCabeleireiro ? ` ${nomeCabeleireiro}` : ""}
         </Typography>
         {cabeleireiroId === userId ? (
@@ -110,8 +143,27 @@ export default function PortfolioPage() {
           </Button>
         ) : null}
       </Box>
-      <Typography variant="h6" component="h3" color="text.secondary">
+      <Typography 
+        variant="h6" 
+        component="h3" 
+        color="text.secondary"
+        onClick={cabeleireiroId === userId ? handleEditDescription : undefined}
+        sx={{
+          cursor: cabeleireiroId === userId ? "pointer" : "default",
+          "&:hover": cabeleireiroId === userId ? {
+            backgroundColor: "action.hover",
+            padding: "4px 8px",
+            borderRadius: "4px",
+            transition: "background-color 0.2s"
+          } : {}
+        }}
+      >
         Descrição: {DescricaoPort ? ` ${DescricaoPort}` : ""}
+        {cabeleireiroId === userId && !DescricaoPort && (
+          <Typography component="span" variant="caption" color="primary" ml={1}>
+            (Clique para adicionar)
+          </Typography>
+        )}
       </Typography>
       {error && (
         <Alert severity="error" sx={{ mb: 2 }}>
@@ -291,6 +343,52 @@ export default function PortfolioPage() {
           </Button>
         </DialogActions>
       </Dialog>
+
+      <Dialog
+        open={editDescDialog}
+        onClose={() => !updatingDesc && setEditDescDialog(false)}
+        fullWidth
+        maxWidth="sm"
+      >
+        <DialogTitle>Editar Descrição do Portfólio</DialogTitle>
+        <DialogContent>
+          {updateDescError && (
+            <Alert severity="error" sx={{ mb: 2 }}>
+              {updateDescError}
+            </Alert>
+          )}
+
+          <TextField
+            fullWidth
+            label="Descrição do portfólio"
+            value={novaDescricao}
+            onChange={(e) => setNovaDescricao(e.target.value)}
+            margin="normal"
+            disabled={updatingDesc}
+            multiline
+            rows={3}
+            placeholder="Descreva seu portfólio..."
+          />
+        </DialogContent>
+
+        <DialogActions>
+          <Button
+            onClick={() => setEditDescDialog(false)}
+            disabled={updatingDesc}
+          >
+            Cancelar
+          </Button>
+          <Button
+            onClick={handleUpdateDescription}
+            disabled={updatingDesc}
+            variant="contained"
+            color="primary"
+          >
+            {updatingDesc ? <CircularProgress size={24} /> : "Salvar"}
+          </Button>
+        </DialogActions>
+      </Dialog>
+
       <Dialog
         open={deleteDialog}
         onClose={() => !deleting && setDeleteDialog(false)}
@@ -344,6 +442,7 @@ export default function PortfolioPage() {
           </Button>
         </DialogActions>
       </Dialog>
+
       <Snackbar
         open={showSuccess}
         autoHideDuration={4000}
@@ -351,7 +450,7 @@ export default function PortfolioPage() {
         anchorOrigin={{ vertical: "bottom", horizontal: "center" }}
       >
         <Alert onClose={handleCloseSuccess} severity="success">
-          Imagem adicionada com sucesso!
+          Operação realizada com sucesso!
         </Alert>
       </Snackbar>
     </Box>

@@ -2,14 +2,14 @@ import axios from "axios";
 import { get } from "http";
 
 const api = axios.create({
-  baseURL: import.meta.env.VITE_IMAGEM_URL || "http://localhost:4000",
+  baseURL: import.meta.env.VITE_GATEWAY_URL || "http://localhost:4000",
   timeout: 10000,
   headers: {
     "Content-Type": "application/json",
   },
 });
 const apiUpload = axios.create({
-  baseURL: import.meta.env.VITE_IMAGEM_URL || "http://localhost:4000",
+  baseURL: import.meta.env.VITE_GATEWAY_URL || "http://localhost:4000",
   timeout: 10000,
   headers: {
     "Content-Type": "multipart/form-data",
@@ -30,13 +30,13 @@ addAuthInterceptor(apiUpload);
 class PortfolioService {
   static async uploadImagemPortfolio(
     file: File,
-    portfolioId: string,
+    PortfolioId: string,
     descricao: string,
   ) {
     try {
       const formData = new FormData();
       formData.append("imagem", file, file.name);
-      formData.append("PortfolioId", portfolioId);
+      formData.append("PortfolioId", PortfolioId);
       formData.append("Descricao", descricao);
       console.log(
         "Dados do FormData:",
@@ -44,7 +44,7 @@ class PortfolioService {
         formData.get("Descricao"),
         formData.get("imagem"),
       );
-      const response = await apiUpload.post(`/imagem/portfolio`, formData);
+      const response = await apiUpload.post(`/imagem/portfolio/${PortfolioId}`, formData);
 
       return response.data;
     } catch (error) {
@@ -87,6 +87,21 @@ class PortfolioService {
         console.error("Erro desconhecido:", error);
       }
       throw new Error("Erro ao buscar portfólio por cabeleireiro.");
+    }
+  }
+  static async atualizarPortfolio(PortfolioId: string, descricaoPortfolio : string) {
+    try {
+      const response = await api.put(`/portfolio/${PortfolioId}`, {
+        descricaoPortfolio ,
+      });
+      return response.data;
+    } catch (error) {
+      if (axios.isAxiosError(error)) {
+        console.error("Erro completo:", error.response || error.message);
+      } else {
+        console.error("Erro desconhecido:", error);
+      }
+      throw new Error("Erro ao atualizar portfólio por Id.");
     }
   }
   static async deleteImagemPortfolio(portfolioId: string, imagemId: string) {

@@ -17,6 +17,7 @@ export const usePortfolio = (cabeleireiroId: string | undefined) => {
   const [portfolioId, setPortfolioId] = useState<string | null>(null);
   const [nomeCabeleireiro, setNomeCabeleireiro] = useState<string | null>(null);
   const [DescricaoPort, setDescricaoPort] = useState<string | null>(null);
+
   const fetchImagens = useCallback(async () => {
     if (!cabeleireiroId) {
       setImagens([]);
@@ -93,6 +94,7 @@ export const usePortfolio = (cabeleireiroId: string | undefined) => {
       setLoading(false);
     }
   };
+
   const deleteImagem = async (imagemId: string) => {
     if (!imagemId) {
       throw new Error("ID da imagem não disponível");
@@ -126,6 +128,41 @@ export const usePortfolio = (cabeleireiroId: string | undefined) => {
     }
   };
 
+  const updateDescricaoPortfolio = async (novaDescricao: string) => {
+    if (!portfolioId) {
+      throw new Error("ID do portfólio não disponível");
+    }
+
+    setLoading(true);
+    setError(null);
+
+    try {
+      await PortfolioService.atualizarPortfolio(portfolioId, 
+        novaDescricao
+      );
+      await fetchImagens();
+    } catch (err) {
+      if (axios.isAxiosError(err)) {
+        console.error("Erro ao atualizar descrição:", {
+          status: err.response?.status,
+          data: err.response?.data,
+          message: err.message,
+        });
+        setError(
+          `Erro ao atualizar descrição: ${
+            err.response?.data?.message || err.message
+          }`,
+        );
+      } else {
+        console.error("Erro desconhecido:", err);
+        setError("Erro desconhecido ao atualizar descrição");
+      }
+      throw err;
+    } finally {
+      setLoading(false);
+    }
+  };
+
   useEffect(() => {
     fetchImagens();
   }, [fetchImagens]);
@@ -137,6 +174,7 @@ export const usePortfolio = (cabeleireiroId: string | undefined) => {
     fetchImagens,
     uploadImagem,
     deleteImagem,
+    updateDescricaoPortfolio,
     portfolioId,
     nomeCabeleireiro,
     DescricaoPort,

@@ -15,7 +15,6 @@ export class ImagemController {
         PortfolioId,
         Descricao
       );
-//novo
       res.status(201).json(imagem);
     } catch (error) {
       if (!res.headersSent) {

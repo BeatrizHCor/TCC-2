@@ -46,6 +46,22 @@ export class PortfolioController {
       res.status(500).json({ error: "Erro interno ao buscar portfolio." });
     }
   }
+  static async upadatePortfolioDescricaoById(req: Request, res: Response): Promise<void> {
+    try {
+      const { id } = req.params;
+      const { descricaoPortfolio } = req.body;
+      const portfolio = await PortfolioService.updatePortfolio(id, descricaoPortfolio);
+      if (!portfolio) {
+        res.status(404).json({ error: "Portfolio não encontrado." });
+        return;
+      }
+      res.status(200).json(portfolio);
+    } catch (error) {
+      console.error("Erro ao buscar portfolio por ID:", error);
+      res.status(500).json({ error: "Erro interno ao buscar portfolio." });
+    }
+  }
+
   static async getAllPortfolios(req: Request, res: Response): Promise<void> {
     try {
       const { skip, take, salaoId } = req.query;

@@ -78,9 +78,12 @@ export const getImagemById = async (id: string) => {
 };
 
 export const getPortfolioInfoById = async (id: string) => {
-  let responsePortfolio = await fetch(VITE_IMAGEM_URL + "/portfolio/info/" + id, {
-    method: "GET",
-  });
+  let responsePortfolio = await fetch(
+    VITE_IMAGEM_URL + "/portfolio/info/" + id,
+    {
+      method: "GET",
+    },
+  );
 
   return handleApiResponse<Portfolio>(
     responsePortfolio,
@@ -88,11 +91,34 @@ export const getPortfolioInfoById = async (id: string) => {
   );
 };
 
-export const deleteImagemByIdNoPortfolio = async (portfolioId: string, imagemId: string) => {
-  let responsePortfolio = await fetch(VITE_IMAGEM_URL + `/imagem/${portfolioId}/${imagemId}`, {
-    method: "DELETE",
+export const updatePortfolioDescricaoById = async (
+  id: string,
+  descricaoPortfolio: string,
+) => {
+  let responsePortfolio = await fetch(VITE_IMAGEM_URL + "/portfolio/" + id, {
+    method: "PUT",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({ descricaoPortfolio: descricaoPortfolio }),
   });
-  if (responsePortfolio.status === 204){
+  return handleApiResponse<Portfolio>(
+    responsePortfolio,
+    "atualizar portfolio descricao por ID",
+  );
+};
+
+export const deleteImagemByIdNoPortfolio = async (
+  portfolioId: string,
+  imagemId: string,
+) => {
+  let responsePortfolio = await fetch(
+    VITE_IMAGEM_URL + `/imagem/${portfolioId}/${imagemId}`,
+    {
+      method: "DELETE",
+    },
+  );
+  if (responsePortfolio.status === 204) {
     return true;
   }
   return handleApiResponse<Imagem>(
