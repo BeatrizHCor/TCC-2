@@ -16,8 +16,9 @@ if (!fs.existsSync(uploadsDir)) {
 const PORT = process.env.PORT;
 const route = Router();
 const app = express();
-app.use(express.urlencoded({ extended: true }));
-app.use(express.json());
+app.use(express.urlencoded({ extended: true, limit: '100mb' }));
+app.use(express.json({ limit: '100mb' }));
+
 app.use(cors());
 
 route.get("/", (_req: Request, res: Response) => {

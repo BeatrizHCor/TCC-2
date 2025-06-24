@@ -80,28 +80,6 @@ export class HistoricoSimulacaoController {
         }
     }
 
-    static async getHistoricoSimulacaoByCliente(req: Request, res: Response): Promise<void> {
-        try {
-            const { clienteId } = req.params;
-            
-            if (!clienteId) {
-                res.status(400).json({ error: "ClienteId é obrigatório." });
-                return;
-            }
-            
-            const historicos = await HistoricoSimulacaoService.getHistoricoSimulacaoByClienteId(clienteId);
-            
-            if (historicos && historicos.length > 0) {
-                res.status(200).json(historicos);
-            } else {
-                res.status(204).send();
-            }
-        } catch (error) {
-            console.error("Erro ao buscar históricos de simulação por cliente:", error);
-            res.status(500).json({ error: "Erro interno ao buscar históricos de simulação." });
-        }
-    }
-
     static async deleteHistoricoSimulacao(req: Request, res: Response): Promise<void> {
         try {
             const { id } = req.params;
@@ -144,6 +122,59 @@ export class HistoricoSimulacaoController {
         } catch (error) {
             console.error("Erro ao atualizar histórico de simulação:", error);
             res.status(500).json({ error: "Erro interno ao atualizar histórico de simulação." });
+        }
+    }
+
+    static async salvarSimulacaoJson(req: Request, res: Response): Promise<void> {
+        try {
+            const { clienteId, salaoId, corOriginal, cores, imagens } = req.body;
+
+            if (!clienteId || !salaoId || !corOriginal || !cores || !imagens) {
+                res.status(400).json({ error: "Dados incompletos." });
+                return;
+            }
+
+            const simulacaoSalva = await HistoricoSimulacaoService.salvarSimulacaoJson(
+                clienteId,
+                salaoId,
+                corOriginal,
+                cores,
+                imagens
+            );
+
+            res.status(201).json(simulacaoSalva);
+        } catch (error) {
+            console.error("Erro ao salvar simulação JSON:", error);
+            res.status(500).json({ error: "Erro interno ao salvar simulação." });
+        }
+    }
+
+    static async getHistoricoSimulacaoByCliente(req: Request, res: Response): Promise<void> {
+        try {
+            const { clienteId } = req.params;
+            
+            if (!clienteId) {
+                res.status(400).json({ 
+                    success: false, 
+                    error: "ClienteId é obrigatório." 
+                });
+                return;
+            }
+
+            const historicos = await HistoricoSimulacaoService.getHistoricoSimulacaoByClienteId(clienteId);
+            
+            const response = {
+                success: true,
+                data: historicos || []
+            };
+
+            res.status(200).json(response);
+        } catch (error) {
+            console.error("Erro ao buscar históricos de simulação por cliente:", error);
+            res.status(500).json({ 
+                success: false, 
+                error: "Erro interno ao buscar históricos de simulação." 
+            });
         }
     }
 }
