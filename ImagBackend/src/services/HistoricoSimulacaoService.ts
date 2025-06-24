@@ -83,7 +83,7 @@ class HistoricoSimulacaoService {
                         };
                     } catch (err) {
                         console.error(
-                            'Erro ao processar arquivo ${imagem.Endereco}:',
+                            `Erro ao processar arquivo ${imagem.Endereco}:`,
                             err,
                         );
                         return {
@@ -157,10 +157,15 @@ class HistoricoSimulacaoService {
             });
 
             if (!historico) {
-                console.log('Histórico ${id} não encontrado');
+                console.log(`Histórico ${id} não encontrado`);
                 return false;
             }
 
+            // Definir diretório da simulação
+            const historicoDir = path.join(process.cwd(), 'uploads', 'simulacoes', id);
+            console.log(`🗂️ Processando exclusão do diretório: ${historicoDir}`);
+
+            // Deletar arquivos individuais primeiro (baseado nos registros do banco)
             for (const imagem of historico.Imagem) {
                 try {
                     let filePath = imagem.Endereco;
@@ -177,44 +182,90 @@ class HistoricoSimulacaoService {
 
                     if (fs.existsSync(filePath)) {
                         fs.unlinkSync(filePath);
+                        console.log(`🗑️ Arquivo deletado: ${filePath}`);
                     } else {
-                        console.log('Arquivo não encontrado: ${filePath}');
+                        console.log(`⚠️ Arquivo não encontrado: ${filePath}`);
                     }
                 } catch (fileError) {
-                    console.error('Erro ao deletar arquivo ${imagem.Endereco}:', fileError);
+                    console.error(`❌ Erro ao deletar arquivo ${imagem.Endereco}:`, fileError);
                 }
             }
 
+            // Função auxiliar para deletar diretório recursivamente
+            const deletarDiretorioRecursivo = (dirPath: string) => {
+                if (fs.existsSync(dirPath)) {
+                    const files = fs.readdirSync(dirPath);
+                    
+                    files.forEach((file) => {
+                        const filePath = path.join(dirPath, file);
+                        const stat = fs.statSync(filePath);
+                        
+                        if (stat.isDirectory()) {
+                            // Se é diretório, chamar recursivamente
+                            deletarDiretorioRecursivo(filePath);
+                        } else {
+                            // Se é arquivo, deletar
+                            fs.unlinkSync(filePath);
+                            console.log(`🗑️ Arquivo removido: ${filePath}`);
+                        }
+                    });
+                    
+                    // Depois de limpar tudo, deletar o diretório
+                    fs.rmdirSync(dirPath);
+                    console.log(`📁 Diretório removido: ${dirPath}`);
+                } else {
+                    console.log(`⚠️ Diretório não encontrado: ${dirPath}`);
+                }
+            };
+
+            // Deletar registros do banco primeiro
             const imagensDeleted = await prisma.imagem.deleteMany({
                 where: { HistoricoSimulacaoId: id },
             });
 
-            console.log('${imagensDeleted.count} imagens deletadas do banco');
+            console.log(`📊 ${imagensDeleted.count} imagens deletadas do banco`);
 
             const historicoSimulacao = await prisma.historicoSimulacao.delete({
                 where: { ID: id },
             });
 
+            // Agora deletar completamente o diretório e todo seu conteúdo
             try {
-                const historicoDir = path.join(process.cwd(), 'uploads', 'simulacoes', id);
-                if (fs.existsSync(historicoDir)) {
-                    const files = fs.readdirSync(historicoDir);
-                    if (files.length === 0) {
-                        fs.rmdirSync(historicoDir);
-                        console.log('Pasta deletada: ${historicoDir}');
-                    } else {
-                        console.log('Pasta não deletada (não está vazia): ${historicoDir}');
-                    }
-                }
+                deletarDiretorioRecursivo(historicoDir);
+                console.log(`✅ Diretório completamente removido: ${historicoDir}`);
             } catch (dirError) {
-                console.error('Erro ao deletar pasta:', dirError);
+                console.error(`❌ Erro ao deletar diretório ${historicoDir}:`, dirError);
+                
+                // Fallback: tentar deletar arquivos restantes manualmente
+                try {
+                    if (fs.existsSync(historicoDir)) {
+                        const remainingFiles = fs.readdirSync(historicoDir);
+                        console.log(`🔄 Tentando limpeza manual. Arquivos restantes: ${remainingFiles.length}`);
+                        
+                        remainingFiles.forEach(file => {
+                            try {
+                                const fullPath = path.join(historicoDir, file);
+                                fs.unlinkSync(fullPath);
+                                console.log(`🗑️ Arquivo removido manualmente: ${fullPath}`);
+                            } catch (cleanupError) {
+                                console.error(`❌ Erro na limpeza manual do arquivo ${file}:`, cleanupError);
+                            }
+                        });
+                        
+                        // Tentar deletar diretório vazio
+                        fs.rmdirSync(historicoDir);
+                        console.log(`📁 Diretório removido após limpeza manual: ${historicoDir}`);
+                    }
+                } catch (fallbackError) {
+                    console.error(`❌ Erro no fallback de limpeza:`, fallbackError);
+                }
             }
 
-            console.log('Histórico ${id} deletado com sucesso!');
+            console.log(`🎉 Histórico ${id} deletado com sucesso!`);
             return !!historicoSimulacao;
 
         } catch (error) {
-            console.error("Erro ao deletar histórico de simulação:", error);
+            console.error("❌ Erro ao deletar histórico de simulação:", error);
 
             if (error instanceof Error) {
                 if (error.message.includes('P2025')) {
@@ -268,12 +319,12 @@ class HistoricoSimulacaoService {
 
             if (!fs.existsSync(uploadsBaseDir)) {
                 fs.mkdirSync(uploadsBaseDir, { recursive: true });
-                console.log(" Diretório uploads/simulacoes criado");
+                console.log("📁 Diretório uploads/simulacoes criado");
             }
 
             if (!fs.existsSync(baseDir)) {
                 fs.mkdirSync(baseDir, { recursive: true });
-                console.log("Diretório específico criado:", baseDir);
+                console.log("📁 Diretório específico criado:", baseDir);
             }
 
             //arrumar quando tiver tipo original
@@ -284,15 +335,15 @@ class HistoricoSimulacaoService {
                 { base64: imagens.complementar, desc: "Cor Complementar", tipo: "Complementar" },
             ];
 
-            console.log("Processando", imagensASalvar.length, "imagens...");
+            console.log("📷 Processando", imagensASalvar.length, "imagens...");
 
             for (let i = 0; i < imagensASalvar.length; i++) {
                 const img = imagensASalvar[i];
 
-                console.log('📸 Processando imagem ${i + 1}:', img.desc);
+                console.log(`📸 Processando imagem ${i + 1}:`, img.desc);
 
                 if (!img.base64) {
-                    console.warn('Imagem ${img.desc} está vazia, pulando...');
+                    console.warn(`⚠️ Imagem ${img.desc} está vazia, pulando...`);
                     continue;
                 }
 
@@ -302,16 +353,16 @@ class HistoricoSimulacaoService {
                 }
 
                 if (!base64Data || base64Data.length < 50) {
-                    console.warn('Imagem ${img.desc} muito pequena ou inválida, pulando...');
+                    console.warn(`⚠️ Imagem ${img.desc} muito pequena ou inválida, pulando...`);
                     continue;
                 }
 
                 try {
                     const buffer = Buffer.from(base64Data, "base64");
-                    const filename = '${Date.now()}-${Math.random().toString(36).slice(2)}.jpg';
+                    const filename = `${Date.now()}-${Math.random().toString(36).slice(2)}.jpg`;
                     const filepath = path.join(baseDir, filename);
 
-                    const relativePath = '/uploads/simulacoes/${historicoId}/${filename}';
+                    const relativePath = `/uploads/simulacoes/${historicoId}/${filename}`;
 
                     fs.writeFileSync(filepath, buffer);
 
@@ -324,10 +375,10 @@ class HistoricoSimulacaoService {
                         },
                     });
 
-                    console.log('Imagem ${img.desc} salva com sucesso');
+                    console.log(`✅ Imagem ${img.desc} salva com sucesso`);
 
                 } catch (imgError) {
-                    console.error('Erro ao processar imagem ${img.desc}:', imgError);
+                    console.error(`❌ Erro ao processar imagem ${img.desc}:`, imgError);
                     continue;
                 }
             }
@@ -351,7 +402,7 @@ class HistoricoSimulacaoService {
             } else if (error.code === 'EACCES') {
                 throw new Error("Erro de permissão ao salvar arquivo");
             } else {
-                throw new Error('Erro interno: ${error.message}');
+                throw new Error(`Erro interno: ${error.message}`);
             }
         }
     }
