@@ -267,12 +267,24 @@ class AgendamentoService {
     }
   };
 
+  static async getAtendimentoIdByAgendamentoId(agendamentoId: string): Promise<string | undefined> {
+    const agendamento = await prisma.agendamentos.findUnique({
+      where: { ID: agendamentoId },
+      include: { Atendimento: true },
+    });
+    return agendamento?.Atendimento?.ID;
+  }
+
   static async deleteAgendamento(id: string) {
     try {
+      const atendimentoId = await AgendamentoService.getAtendimentoIdByAgendamentoId(id);
+      if (atendimentoId) {
+        await prisma.atendimento.delete({
+          where: { ID: atendimentoId },
+        });
+      }
       return await prisma.agendamentos.delete({
-        where: {
-          ID: id,
-        },
+        where: { ID: id },
       });
     } catch (e) {
       console.error(e);

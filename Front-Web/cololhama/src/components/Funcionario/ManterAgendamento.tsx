@@ -107,7 +107,8 @@ const ManterAgendamento: React.FC = () => {
     isTimeSlotOccupied,
     setCabeleireiroIdWithHorarios,
     cofirmarAtendimento,
-    setValidationErrors
+    setValidationErrors,
+    atendimentoId
   } = useManterAgendamento(userType!, agendamentoId, userId);
 
   const handleOpenDeleteDialog = () => {
@@ -540,6 +541,7 @@ const ManterAgendamento: React.FC = () => {
                   color="error"
                   startIcon={<DeleteIcon />}
                   onClick={handleOpenDeleteDialog}
+                  disabled={(isEditing && !canSaveEdit) || status === StatusAgendamento.Finalizado || !!atendimentoId}
                 >
                   Excluir
                 </Button>

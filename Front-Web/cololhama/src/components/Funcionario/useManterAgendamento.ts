@@ -50,6 +50,7 @@ export const useManterAgendamento = (
   const [clientesDisponiveis, setClientesDisponiveis] = useState<Cliente[]>([]);
   const [cabeleireiroId, setCabeleireiroId] = useState("");
   const [cabeleireiroNome, setCabeleireiroNome] = useState("");
+  const [atendimentoId, setAtendimentoId] = useState<string | null>(null);
   const [servicosAgendamento, setServicosAgendamento] = useState<
     ServicoAgendamento[]
   >([]);
@@ -318,8 +319,9 @@ export const useManterAgendamento = (
         setClienteNome(agendamento.Cliente?.Nome || "");
         setCabeleireiroId(agendamento.CabeleireiroID);
         setCabeleireiroNome(agendamento.Cabeleireiro?.Nome || "");
+        setAtendimentoId(agendamento.AtendimentoID || null);
         setSalaoId(agendamento.SalaoId);
-        console.log("agendamento:: ", agendamento);
+
         if (agendamento.ServicoAgendamento) {
           setServicosAgendamento(agendamento.ServicoAgendamento);
         }
@@ -696,6 +698,7 @@ export const useManterAgendamento = (
     setCabeleireiroIdWithHorarios,
     cofirmarAtendimento,
     setValidationErrors,
+    atendimentoId
   };
 };
 

@@ -168,13 +168,6 @@ class AgendamentoService {
     servicosIds: string[] = []
   ): Promise<Agendamentos> {
     try {
-      console.log("Criando agendamento com os seguintes parâmetros:", {
-        Data,
-        ClienteID,
-        CabeleireiroID,
-        SalaoId,
-        servicosIds,
-      });
       const response = await api.post(`/cliente/agendamento`, {
         Data,
         ClienteID,
@@ -206,6 +199,7 @@ class AgendamentoService {
         SalaoId,
         servicosIds,
       });
+        console.log("Agendamento atualizado (funcionario):", response.data);
       return response.data;
     } catch (error) {
       console.error("Erro ao atualizar agendamento (funcionário):", error);
@@ -256,12 +250,14 @@ class AgendamentoService {
         SalaoId,
         servicosIds,
       });
+      console.log("Agendamento atualizado (cliente):", response.data);
       return response.data;
     } catch (error) {
       console.error("Erro ao atualizar agendamento (cliente):", error);
       throw error;
     }
   }
+
   static async getFuncionarioAgendamentoById(
     id: string,
     includeRelations: boolean
@@ -276,6 +272,7 @@ class AgendamentoService {
       throw error;
     }
   }
+
   static async getCabeleireiroAgendamentoById(
     id: string,
     includeRelations: boolean
@@ -294,7 +291,7 @@ class AgendamentoService {
     id: string,
     includeRelations: boolean
   ): Promise<Agendamentos> {
-    try {
+    try {console.log("includeRelations:  ", includeRelations);
       const response = await api.get(`/cliente/agendamento/${id}`, {
         params: { includeRelations },
       });
@@ -344,7 +341,7 @@ class AgendamentoService {
         { params: { data } }
       );
       if (response.status === 200) {
-        console.error("buscar horários ocupados futuros: ", response.data);
+        console.log("buscar horários ocupados futuros: ", response.data);
         return response.data;
       }
       console.error(

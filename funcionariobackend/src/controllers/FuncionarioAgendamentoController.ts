@@ -23,10 +23,11 @@ class AgendamentoController {
     }
   };
 
-  static findById = async (req: Request, res: Response) => {
+   static findById = async (req: Request, res: Response) => {
     try {
       const { id } = req.params;
-      const includeRelations = req.query.include === "true";
+      const includeRelations = req.query.includeRelations === "true";
+      console.log("includeRelations controller: ", includeRelations);
       const agendamento = await AgendamentoService.findById(
         id,
         includeRelations,
@@ -44,11 +45,12 @@ class AgendamentoController {
       res.status(204).json({ message: "Agendamentos não encontrado" });
     }
   };
+  
   static createAgendamento = async (req: Request, res: Response) => {
     try {
       const { Data, ClienteID, SalaoId, CabeleireiroID, servicosIds } =
         req.body;
-      console.log(req.body);
+     console.log("criar agendamento paramentros", req.body);
       const agendamento = await AgendamentoService.createAgendamento(
         new Date(Data),
         "Agendado",
@@ -96,11 +98,12 @@ class AgendamentoController {
       res.status(500).json({ message: "Erro ao atualizar o agendamento" });
     }
   };
-
   static deleteAgendamento = async (req: Request, res: Response) => {
     try {
       const { id } = req.params;
+      console.log("controller do delete: ", id);
       const agendamento = await AgendamentoService.deleteAgendamento(id);
+      console.log(agendamento);
       if (!agendamento) {
         res.status(404).json({ message: "Agendamento não encontrado" });
       } else {

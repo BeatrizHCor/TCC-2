@@ -152,7 +152,7 @@ export const CabeleireiroUpdateAgendamento = async (
       ClienteID,
       CabeleireiroID,
       SalaoId,
-      servicoIds: servicosIds,
+      servicosIds,
     }),
   });
   if (response.ok) {

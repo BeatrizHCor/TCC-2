@@ -169,7 +169,7 @@ RoutesAgendamento.get(
   async (req: Request, res: Response) => {
     const { id } = req.params;
     const includeRelations = req.query.includeRelations === "true";
-    try {
+    try { 
       const { userInfo, auth } = await getUserInfoAndAuth(req.headers);
       if (!userInfo) {
         res.status(403).json({ message: "Não autorizado" });
@@ -189,7 +189,6 @@ RoutesAgendamento.get(
           );
 
           if (agendamento) {
-            console.log("teste: ", agendamento);
             res.status(200).json(agendamento);
           } else {
             res.status(204).send();
@@ -247,7 +246,7 @@ RoutesAgendamento.post(
   "/cabeleireiro/agendamento",
   async (req: Request, res: Response) => {
     const { Data, ClienteID, SalaoId, CabeleireiroID } = req.body;
-    const { ServicoIds } = req.body;
+    const { servicosIds } = req.body;
     try {
       const { userInfo, auth } = await getUserInfoAndAuth(req.headers);
       if (!userInfo) {
@@ -267,7 +266,7 @@ RoutesAgendamento.post(
             ClienteID,
             CabeleireiroID,
             SalaoId,
-            ServicoIds
+            servicosIds
           );
 
           if (agendamento) {
@@ -468,8 +467,7 @@ RoutesAgendamento.post(
   "/cliente/agendamento",
   async (req: Request, res: Response) => {
     const { Data, ClienteID, SalaoId, CabeleireiroID } = req.body;
-    const { ServicoIds } = req.body;
-    console.log("Gateway ServicoId: ", ServicoIds);
+    const { servicosIds } = req.body;
     try {
       const { userInfo, auth } = await getUserInfoAndAuth(req.headers);
       if (!userInfo) {
@@ -489,7 +487,7 @@ RoutesAgendamento.post(
             ClienteID,
             CabeleireiroID,
             SalaoId,
-            ServicoIds
+            servicosIds
           );
 
           if (agendamento) {

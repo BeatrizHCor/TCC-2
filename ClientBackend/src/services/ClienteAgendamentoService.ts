@@ -120,7 +120,8 @@ class AgendamentoService {
                             Cliente: true,
                             Cabeleireiro: true,
                             Atendimento: true,
-                            ServicoAgendamento: true
+                            ServicoAgendamento: true,
+                            
                         },
                     }
                     : {}),
@@ -140,10 +141,6 @@ class AgendamentoService {
         servicos: string[] = [],
     ) => {
         try {
-            for (const servico of servicos) {
-
-                console.log("servico: ", servico)
-            }
             return await prisma.$transaction(async (tx) => {
                 const servicosSelecionados = await tx.servico.findMany({
                     where: {
@@ -167,7 +164,7 @@ class AgendamentoService {
                             ServicoId: servico.ID,
                             Nome: servico.Nome,
                             PrecoMin: servico.PrecoMin,
-                            PrecoMax: servico.PrecoMax                     
+                            PrecoMax: servico.PrecoMax,
                         })),
                     });
                 }
