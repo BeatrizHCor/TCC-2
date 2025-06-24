@@ -26,7 +26,6 @@ class PortfolioService {
         try {
             const portfolio = await prisma.portfolio.findUnique({
                 where: { ID: id },
-                
             });
             return portfolio;
         } catch (error) {

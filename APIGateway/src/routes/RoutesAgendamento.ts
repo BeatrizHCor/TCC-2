@@ -247,7 +247,7 @@ RoutesAgendamento.post(
   "/cabeleireiro/agendamento",
   async (req: Request, res: Response) => {
     const { Data, ClienteID, SalaoId, CabeleireiroID } = req.body;
-    const { ServicoId } = req.body;
+    const { ServicoIds } = req.body;
     try {
       const { userInfo, auth } = await getUserInfoAndAuth(req.headers);
       if (!userInfo) {
@@ -267,7 +267,7 @@ RoutesAgendamento.post(
             ClienteID,
             CabeleireiroID,
             SalaoId,
-            ServicoId
+            ServicoIds
           );
 
           if (agendamento) {
@@ -468,7 +468,8 @@ RoutesAgendamento.post(
   "/cliente/agendamento",
   async (req: Request, res: Response) => {
     const { Data, ClienteID, SalaoId, CabeleireiroID } = req.body;
-    const { ServicoId } = req.body;
+    const { ServicoIds } = req.body;
+    console.log("Gateway ServicoId: ", ServicoIds);
     try {
       const { userInfo, auth } = await getUserInfoAndAuth(req.headers);
       if (!userInfo) {
@@ -488,7 +489,7 @@ RoutesAgendamento.post(
             ClienteID,
             CabeleireiroID,
             SalaoId,
-            ServicoId
+            ServicoIds
           );
 
           if (agendamento) {

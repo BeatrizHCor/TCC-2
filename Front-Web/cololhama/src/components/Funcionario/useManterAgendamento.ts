@@ -319,7 +319,7 @@ export const useManterAgendamento = (
         setCabeleireiroId(agendamento.CabeleireiroID);
         setCabeleireiroNome(agendamento.Cabeleireiro?.Nome || "");
         setSalaoId(agendamento.SalaoId);
-
+        console.log("agendamento:: ", agendamento);
         if (agendamento.ServicoAgendamento) {
           setServicosAgendamento(agendamento.ServicoAgendamento);
         }
@@ -516,13 +516,13 @@ export const useManterAgendamento = (
     }
 
     setIsLoading(true);
-    const servicosIds: string[] = [];
-    for (const servico of servicosAgendamento) {
+    let servicosIds: string[] = [];
+    for (let servico of servicosAgendamento) {
       if (servico.ServicoId) {
-        servicosIds.push(servico.ServicoId);
+        servicosIds.push(servico.ServicoId);        
       }
     }
-    console.log("services: ", servicosIds);
+    console.log("services no create: ", servicosIds);
     try {
       if (isEditing && agendamentoId) {
         switch (userType) {

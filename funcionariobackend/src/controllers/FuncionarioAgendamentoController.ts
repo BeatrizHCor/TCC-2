@@ -26,16 +26,18 @@ class AgendamentoController {
   static findById = async (req: Request, res: Response) => {
     try {
       const { id } = req.params;
-      const includeRelations = req.query.includeRelations === "true";
-      console.log(includeRelations, id);
-      const cabeleireiro = await AgendamentoService.findById(
+      const includeRelations = req.query.include === "true";
+      const agendamento = await AgendamentoService.findById(
         id,
         includeRelations,
       );
-      if (!cabeleireiro) {
-        res.status(204).json({ message: "Agendamentos não encontrado" });
+      console.log("agendamento: ", agendamento);
+      if (!agendamento) {
+        res
+          .status(204)
+          .json({ message: "Agendamentos não encontrado" });
       } else {
-        res.json(cabeleireiro);
+        res.json(agendamento);
       }
     } catch (e) {
       console.log(e);

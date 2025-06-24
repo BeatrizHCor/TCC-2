@@ -120,6 +120,7 @@ class AgendamentoService {
                             Cliente: true,
                             Cabeleireiro: true,
                             Atendimento: true,
+                            ServicoAgendamento: true
                         },
                     }
                     : {}),
@@ -139,6 +140,10 @@ class AgendamentoService {
         servicos: string[] = [],
     ) => {
         try {
+            for (const servico of servicos) {
+
+                console.log("servico: ", servico)
+            }
             return await prisma.$transaction(async (tx) => {
                 const servicosSelecionados = await tx.servico.findMany({
                     where: {
@@ -162,7 +167,7 @@ class AgendamentoService {
                             ServicoId: servico.ID,
                             Nome: servico.Nome,
                             PrecoMin: servico.PrecoMin,
-                            PrecoMax: servico.PrecoMax,
+                            PrecoMax: servico.PrecoMax                     
                         })),
                     });
                 }
@@ -251,46 +256,45 @@ class AgendamentoService {
             throw new Error("Erro ao adicionar atendimento ao agendamento");
         }
     };
-static async getHorariosOcupadosFuturos(
-  salaoId: string,
-  cabeleireiroId: string,
-  dataInicial: Date,
-): Promise<[Date, number][]> {
-  try {
-    const agendamentos = await prisma.agendamentos.findMany({
-      where: {
-        SalaoId: salaoId,
-        CabeleireiroID: cabeleireiroId,
-        Data: {
-          gte: dataInicial,
-        },
-        Status: {
-          in: ["Agendado"],
-        },
-      },
-      select: {
-        Data: true,
-        ServicoAgendamento: {
-          select: {
-            ID: true,
-          },
-        },
-      },
-      orderBy: {
-        Data: "asc",
-      },
-    });
+    static async getHorariosOcupadosFuturos(
+        salaoId: string,
+        cabeleireiroId: string,
+        dataInicial: Date,
+    ): Promise<[Date, number][]> {
+        try {
+            const agendamentos = await prisma.agendamentos.findMany({
+                where: {
+                    SalaoId: salaoId,
+                    CabeleireiroID: cabeleireiroId,
+                    Data: {
+                        gte: dataInicial,
+                    },
+                    Status: {
+                        in: ["Agendado"],
+                    },
+                },
+                select: {
+                    Data: true,
+                    ServicoAgendamento: {
+                        select: {
+                            ID: true,
+                        },
+                    },
+                },
+                orderBy: {
+                    Data: "asc",
+                },
+            });
 
-    return agendamentos.map((a) => [
-      a.Data,
-      a.ServicoAgendamento.length,
-    ]);
-  } catch (e) {
-    console.error(e);
-    throw new Error("Erro ao buscar horários ocupados futuros");
-  }
-}
-
+            return agendamentos.map((a) => [
+                a.Data,
+                a.ServicoAgendamento.length,
+            ]);
+        } catch (e) {
+            console.error(e);
+            throw new Error("Erro ao buscar horários ocupados futuros");
+        }
+    }
 }
 
 export default AgendamentoService;

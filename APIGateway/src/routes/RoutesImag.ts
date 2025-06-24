@@ -65,7 +65,7 @@ RoutesImagem.put(
             if (!portfolio) {
                 res.status(409).json({
                     message:
-                    "Dados invalidos ou ausentes ao atualizar descriacao, Portfolio nao localizado",
+                        "Dados invalidos ou ausentes ao atualizar descriacao, Portfolio nao localizado",
                 });
                 return;
             }
@@ -86,8 +86,11 @@ RoutesImagem.put(
                 ) {
                     res.status(403).json({ message: "Unauthorized" });
                 } else {
-                    const result = await updatePortfolioDescricaoById(PortfolioId, descricaoPortfolio);
-                    
+                    const result = await updatePortfolioDescricaoById(
+                        PortfolioId,
+                        descricaoPortfolio,
+                    );
+
                     if (result) {
                         res.status(200).json(result);
                     } else {
@@ -138,105 +141,105 @@ RoutesImagem.get(
     },
 );
 RoutesImagem.post(
-  "/imagem/portfolio/:PortfolioId",
-  upload.single("imagem"),
-  async (req: Request, res: Response) => {
-    try {
-      const { PortfolioId } = req.params;
-      const { userInfo, auth } = await getUserInfoAndAuth(req.headers);
-      
-      const portfolio = await getPortfolioInfoById(PortfolioId);
-      if (!portfolio) {
-        res.status(409).json({
-          message: "Dados inválidos ou ausentes. Portfolio não encontrado.",
-        });
-        return;
-      }
-      
-      if (
-        userInfo.userType === userTypes.CABELEIREIRO &&
-        userInfo.userID !== portfolio.CabeleireiroID
-      ) {
-        res.status(403).json({ message: "Não autorizado" });
-        return;
-      }
-        if (
-            !auth &&
-            ![
-            userTypes.CABELEIREIRO,
-            userTypes.ADM_SALAO,
-            userTypes.ADM_SISTEMA,
-            ].includes(userInfo.userType)
-        ) {
-            res.status(403).json({ message: "Unauthorized" });
-            return;
+    "/imagem/portfolio/:PortfolioId",
+    upload.single("imagem"),
+    async (req: Request, res: Response) => {
+        try {
+            const { PortfolioId } = req.params;
+            const { userInfo, auth } = await getUserInfoAndAuth(req.headers);
+
+            const portfolio = await getPortfolioInfoById(PortfolioId);
+            if (!portfolio) {
+                res.status(409).json({
+                    message:
+                        "Dados inválidos ou ausentes. Portfolio não encontrado.",
+                });
+                return;
+            }
+
+            if (
+                userInfo.userType === userTypes.CABELEIREIRO &&
+                userInfo.userID !== portfolio.CabeleireiroID
+            ) {
+                res.status(403).json({ message: "Não autorizado" });
+                return;
+            }
+            if (
+                !auth &&
+                ![
+                    userTypes.CABELEIREIRO,
+                    userTypes.ADM_SALAO,
+                    userTypes.ADM_SISTEMA,
+                ].includes(userInfo.userType)
+            ) {
+                res.status(403).json({ message: "Unauthorized" });
+                return;
+            }
+            if (!req.file) {
+                res.status(400).json({ message: "Nenhum arquivo foi enviado" });
+                return;
+            }
+
+            const FormData = require("form-data");
+            const form = new FormData();
+
+            form.append("imagem", req.file.buffer, {
+                filename: req.file.originalname,
+                contentType: req.file.mimetype,
+            });
+
+            const portfolioIdToSend = req.body.PortfolioId || PortfolioId;
+            form.append("PortfolioId", portfolioIdToSend);
+            form.append("Descricao", req.body.Descricao || "");
+
+            console.log("Dados sendo enviados:", {
+                PortfolioId: portfolioIdToSend,
+                Descricao: req.body.Descricao || "",
+                arquivo: req.file.originalname,
+                tamanho: req.file.size,
+            });
+
+            const axios = require("axios");
+
+            const response = await axios.post(
+                `${process.env.VITE_IMAGEM_URL}/imagem/portfolio`,
+                form,
+                {
+                    headers: {
+                        ...form.getHeaders(),
+                        Authorization: req.headers.authorization || "",
+                    },
+                },
+            );
+
+            const result = response.data;
+
+            if (response.status === 200 || response.status === 201) {
+                res.status(200).json(result);
+            } else {
+                console.error("Erro do backend de imagens:", result);
+                res.status(response.status).json({
+                    message: "Erro ao enviar imagem para backend de imagens",
+                    detalhes: result,
+                });
+            }
+        } catch (e: any) {
+            console.error("Erro no gateway:", e);
+
+         
+            if (e.response) {
+                res.status(e.response.status).json({
+                    message: "Erro ao enviar para backend de imagens",
+                    error: e.response.data,
+                });
+            } else {
+                res.status(500).json({
+                    message: "Erro interno ao processar imagem",
+                    error: e.message,
+                });
+            }
         }
-      if (!req.file) {
-        res.status(400).json({ message: "Nenhum arquivo foi enviado" });
-        return;
-      }
-
-      const FormData = require('form-data');
-      const form = new FormData();
-      
-      form.append('imagem', req.file.buffer, {
-        filename: req.file.originalname,
-        contentType: req.file.mimetype
-      });
-      
-      const portfolioIdToSend = req.body.PortfolioId || PortfolioId;
-      form.append('PortfolioId', portfolioIdToSend);
-      form.append('Descricao', req.body.Descricao || '');
-
-      console.log('Dados sendo enviados:', {
-        PortfolioId: portfolioIdToSend,
-        Descricao: req.body.Descricao || '',
-        arquivo: req.file.originalname,
-        tamanho: req.file.size
-      });
-
-      const axios = require('axios');
-      
-      const response = await axios.post(
-        `${process.env.VITE_IMAGEM_URL}/imagem/portfolio`, 
-        form,
-        {
-          headers: {
-            ...form.getHeaders(),
-            Authorization: req.headers.authorization || "",
-          }
-        }
-      );
-
-      const result = response.data;
-      
-      if (response.status === 200 || response.status === 201) {
-        res.status(200).json(result);
-      } else {
-        console.error('Erro do backend de imagens:', result);
-        res.status(response.status).json({
-          message: "Erro ao enviar imagem para backend de imagens",
-          detalhes: result,
-        });
-      }
-      
-    } catch (e: any) {
-      console.error('Erro no gateway:', e);
-      
-      // Se for erro do axios, pegar mais detalhes
-      if (e.response) {
-        res.status(e.response.status).json({ 
-          message: "Erro ao enviar para backend de imagens",
-          error: e.response.data 
-        });
-      } else {
-        res.status(500).json({ 
-          message: "Erro interno ao processar imagem",
-          error: e.message 
-        });
-      }
-    }
-  }
+    },
 );
 
 RoutesImagem.delete(

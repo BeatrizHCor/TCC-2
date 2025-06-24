@@ -168,6 +168,13 @@ class AgendamentoService {
     servicosIds: string[] = []
   ): Promise<Agendamentos> {
     try {
+      console.log("Criando agendamento com os seguintes parâmetros:", {
+        Data,
+        ClienteID,
+        CabeleireiroID,
+        SalaoId,
+        servicosIds,
+      });
       const response = await api.post(`/cliente/agendamento`, {
         Data,
         ClienteID,
@@ -335,7 +342,7 @@ class AgendamentoService {
       const response = await api.get(
         `/agendamento/horarios/${salaoId}/${cabeleireiroId}`,
         { params: { data } }
-      );console.log("resposta: ", response)
+      );
       if (response.status === 200) {
         console.error("buscar horários ocupados futuros: ", response.data);
         return response.data;
