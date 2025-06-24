@@ -22,7 +22,8 @@ import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns';
 import { ptBR } from 'date-fns/locale';
 import InfoIcon from '@mui/icons-material/Info';
 import { useNavigate } from 'react-router-dom';
-import { createTheme, ThemeProvider } from '@mui/material/styles';
+import { ThemeProvider } from '@mui/material/styles';
+import theme from '../../styles/theme';
 
 import FullCalendar from '@fullcalendar/react';
 import dayGridPlugin from '@fullcalendar/daygrid';
@@ -31,18 +32,6 @@ import { Agendamentos } from '../../models/agendamentoModel';
 import { StatusAgendamento } from '../../models/StatusAgendamento.enum';
 import { useVisualizarAgendamentos } from './useVisualizarAgendamento';
 import { AuthContext } from '../../contexts/AuthContext';
-
-const theme = createTheme({
-  palette: {
-    primary: {
-      main: '#7d1e26',
-      contrastText: '#ffffff',
-    },
-    secondary: {
-      main: '#f5f5f5',
-    },
-  },
-});
 
 const VisualizarAgendamento: React.FC = () => {
   const SalaoId = import.meta.env.VITE_SALAO_ID || '1';
@@ -91,9 +80,15 @@ const VisualizarAgendamento: React.FC = () => {
       minute: '2-digit',
     });
 
+  const formatarHorario = (data: Date): string =>
+    new Date(data).toLocaleTimeString('pt-BR', {
+      hour: '2-digit',
+      minute: '2-digit',
+    });
+
   const getStatusColor = (status: StatusAgendamento) => {
     switch (status) {
-      case StatusAgendamento.Agendado: return '#7d1e26'; // vermelho institucional
+      case StatusAgendamento.Agendado: return '#7d1e26';
       case StatusAgendamento.Confirmado: return '#4caf50';
       case StatusAgendamento.Finalizado: return '#9c27b0';
       case StatusAgendamento.Cancelado: return '#f44336';
@@ -103,7 +98,7 @@ const VisualizarAgendamento: React.FC = () => {
 
   const eventosCalendario = useMemo(() => {
     return agendamentos.map((ag) => ({
-      title: ag.Cliente?.Nome || `Cliente ${ag.ClienteID}`,
+      title: `${ag.Cliente?.Nome || `Cliente ${ag.ClienteID}`}`,
       date: ag.Data,
       id: String(ag.ID),
       extendedProps: ag,
@@ -125,7 +120,7 @@ const VisualizarAgendamento: React.FC = () => {
               textAlign: { xs: 'center', md: 'left' },
             }}
           >
-            <Typography variant="h4" color="primary">
+            <Typography variant="h4" color="primary" sx={{ fontWeight: 'bold' }}>
               Agendamentos
             </Typography>
             <Button
@@ -164,6 +159,7 @@ const VisualizarAgendamento: React.FC = () => {
               label={modoCalendario ? 'Modo Calendário' : 'Modo Lista'}
             />
           </Box>
+
           {isLoading ? (
             <Box sx={{ display: 'flex', justifyContent: 'center', py: 5 }}>
               <CircularProgress color="primary" />
@@ -181,21 +177,78 @@ const VisualizarAgendamento: React.FC = () => {
                 eventClick={(info) => {
                   handleVerDetalhes(info.event.extendedProps as Agendamentos);
                 }}
-                dayCellClassNames={({ date }) =>
-                  date.getMonth() !== new Date().getMonth() ? 'fc-other-month' : ''
-                }
-                dayCellContent={({ date }) => <span>{date.getDate()}</span>}
+                headerToolbar={{
+                  left: 'prev,next today',
+                  center: 'title',
+                  right: 'dayGridMonth',
+                }}
+                buttonText={{
+                  today: 'Hoje',
+                  month: 'Mês',
+                }}
+                dayHeaderClassNames={() => 'fc-day-header-custom'}
+                dayCellClassNames={({ date, isPast, isToday, isOther }) => {
+                  let classes = [];
+                  if (isToday) classes.push('fc-day-today-custom');
+                  if (isOther) classes.push('fc-day-other-month-custom');
+
+                  const dateStr = date.toISOString().split('T')[0];
+                  const hasEvents = agendamentos.some(ag => {
+                    const agDate = new Date(ag.Data).toISOString().split('T')[0];
+                    return agDate === dateStr;
+                  });
+                  if (hasEvents && !isToday) classes.push('fc-day-has-events');
+
+                  return classes.join(' ');
+                }}
+                validRange={{
+                  start: '1900-01-01',
+                  end: '2099-12-31',
+                }}
               />
               <style>{`
-                .fc {
-                  --fc-today-bg-color: #fdecea;
-                  --fc-event-bg-color: #7d1e26;
-                  --fc-event-text-color: white;
+                .fc .fc-button {
+                  background-color: ${theme.palette.primary.main} !important;
+                  border-color: ${theme.palette.primary.main} !important;
+                  color: white !important;
                 }
-                .fc-other-month {
-                  opacity: 0.15 !important;
-                  pointer-events: none;
-                  background-color: #f5f5f5 !important;
+
+                .fc .fc-button:hover,
+                .fc .fc-button:focus,
+                .fc .fc-button:active {
+                  background-color: ${theme.palette.secondary.main} !important;
+                  border-color: ${theme.palette.secondary.main} !important;
+                }
+
+                .fc .fc-toolbar-title {
+                  color: ${theme.palette.primary.main};
+                  font-weight: bold;
+                  font-size: 1.4rem;
+                }
+
+                .fc .fc-daygrid-event {
+                  background-color: ${theme.palette.primary.main};
+                  color: white;
+                  border-radius: 6px;
+                  padding: 2px 4px;
+                  font-size: 0.75rem;
+                  font-weight: 500;
+                }
+
+                .fc .fc-day-has-events::before {
+                  background-color: ${theme.palette.customColors?.goldenBorder};
+                  box-shadow: 0 0 6px ${theme.palette.customColors?.goldenBorder};
+                }
+
+                .fc .fc-day-today-custom {
+                  background-color: ${theme.palette.customColors?.lightGray} !important;
+                }
+
+                .fc .fc-day-header-custom {
+                  background-color: ${theme.palette.primary.main};
+                  color: white;
+                  font-weight: bold;
+                  padding: 8px 4px;
                 }
               `}</style>
             </Box>
@@ -247,15 +300,15 @@ const VisualizarAgendamento: React.FC = () => {
               </List>
 
               <TablePagination
-                rowsPerPageOptions={[5, 10, 25]}
                 component="div"
                 count={totalAgendamentos}
-                rowsPerPage={rowsPerPage}
                 page={page}
                 onPageChange={handleChangePage}
+                rowsPerPage={rowsPerPage}
                 onRowsPerPageChange={handleChangeRowsPerPage}
-                labelRowsPerPage="Itens por página:"
-                labelDisplayedRows={({ from, to, count }) => `${from}-${to} de ${count}`}
+                rowsPerPageOptions={[5, 10, 25]}
+                labelRowsPerPage="Agendamentos por página"
+                sx={{ mt: 2 }}
               />
             </>
           )}
@@ -268,23 +321,22 @@ const VisualizarAgendamento: React.FC = () => {
                   <Chip
                     label={agendamentoSelecionado.Status}
                     size="small"
-                    sx={{
-                      ml: 2,
-                      bgcolor: getStatusColor(agendamentoSelecionado.Status),
-                      color: 'white',
-                      fontWeight: 'bold',
-                    }}
+                    sx={{ ml: 2, bgcolor: getStatusColor(agendamentoSelecionado.Status), color: 'white', fontWeight: 'bold' }}
                   />
                 </DialogTitle>
                 <DialogContent dividers>
-                  <Typography fontWeight="bold" sx={{ mt: 2 }}>Data e Hora</Typography>
+                  <Typography fontWeight="bold" sx={{ mt: 2 }}>
+                    Data e Hora
+                  </Typography>
                   <Typography>{formatarDataHora(agendamentoSelecionado.Data)}</Typography>
-
-                  <Typography fontWeight="bold" sx={{ mt: 2 }}>Cliente</Typography>
-                  <Typography>{agendamentoSelecionado.Cliente?.Nome || "Nome não encontrado"}</Typography>
-
-                  <Typography fontWeight="bold" sx={{ mt: 2 }}>Profissional</Typography>
-                  <Typography>{agendamentoSelecionado.Cabeleireiro?.Nome || "Nome não encontrado"}</Typography>
+                  <Typography fontWeight="bold" sx={{ mt: 2 }}>
+                    Cliente
+                  </Typography>
+                  <Typography>{agendamentoSelecionado.Cliente?.Nome || 'Nome não encontrado'}</Typography>
+                  <Typography fontWeight="bold" sx={{ mt: 2 }}>
+                    Profissional
+                  </Typography>
+                  <Typography>{agendamentoSelecionado.Cabeleireiro?.Nome || 'Nome não encontrado'}</Typography>
                 </DialogContent>
                 <DialogActions>
                   <Button onClick={handleFecharModal}>Fechar</Button>
