@@ -32,16 +32,22 @@ const NavBar: React.FC = () => {
     { route: "/servicos", label: "Serviços" },
     { route: "/cabeleireiros", label: "Cabeleireiros" },
     { route: "/simulacao", label: "Simulação" },
+  ];
+  
+  const clienteRoutes = [
     { route: "/historico-simulacao", label: "Histórico de Simulação" },
   ];
+  
   const userRoutes = [
     { route: "/agendamentos", label: "Agendamentos" },
     { route: "/atendimentos", label: "Atendimentos" },
   ];
+  
   const admRoutes = [
     { route: "/listaClientes", label: "Clientes" },
     { route: "/funcionarios", label: "Funcionarios" },
   ];
+  
   const cabeleireiroRoutes = [
     { route: `/portfolio/${userId}`, label: "Portfolio" },
   ];
@@ -55,6 +61,7 @@ const NavBar: React.FC = () => {
 
   const navLinks = [
     ...mainRoutes,
+    ...(userType && [userTypes.Cliente].includes(userType) ? clienteRoutes : []),
     ...(userType ? userRoutes : []),
     ...(userType && [userTypes.AdmSalao, userTypes.Funcionario, userTypes.AdmSistema].includes(userType) ? admRoutes : []),
     ...(userType && [userTypes.Cabeleireiro].includes(userType) ? cabeleireiroRoutes : []),
@@ -164,7 +171,6 @@ const NavBar: React.FC = () => {
         <Box sx={{ display: { xs: "none", md: "flex" }, gap: 2, alignItems: "center" }}>
           {!userId ? (
             <>
-              {/* Botões Login e Cadastre-se */}
               <Button
                 component={Link}
                 to="/login"
