@@ -17,7 +17,7 @@ class AtendimentoService {
     salaoId: string | null = null,
     cabeleireiro: string | null = null,
     userId: string,
-    data: string | null = null
+    data: string | null = null,
   ) {
     const where: Prisma.AtendimentoWhereInput = {};
     if (salaoId !== null) {
@@ -55,7 +55,7 @@ class AtendimentoService {
         some: {
           AND: [
             {
-              Cabeleireiro: {
+              Cliente: {
                 ID: userId,
               },
             },
@@ -69,21 +69,21 @@ class AtendimentoService {
       where,
       ...(includeRelations
         ? {
-            include: {
-              Salao: false,
-              AtendimentoAuxiliar: {
-                include: { Auxiliar: true },
-              },
-              Agendamentos: {
-                include: {
-                  Cliente: true,
-                  ServicoAgendamento: true,
-                  Cabeleireiro: true,
-                },
-              },
-              ServicoAtendimento: true,
+          include: {
+            Salao: false,
+            AtendimentoAuxiliar: {
+              include: { Auxiliar: true },
             },
-          }
+            Agendamentos: {
+              include: {
+                Cliente: true,
+                ServicoAgendamento: true,
+                Cabeleireiro: true,
+              },
+            },
+            ServicoAtendimento: true,
+          },
+        }
         : {}),
     });
   }
@@ -95,7 +95,7 @@ class AtendimentoService {
     salaoId: string | null = null,
     cabeleireiro: string | null = null,
     userId: string,
-    data: string | null = null
+    data: string | null = null,
   ) {
     const skip = (page - 1) * limit;
     const where: Prisma.AtendimentoWhereInput = {};
@@ -129,6 +129,18 @@ class AtendimentoService {
           ],
         },
       };
+    } else {
+      where.Agendamentos = {
+        some: {
+          AND: [
+            {
+              Cliente: {
+                ID: userId,
+              },
+            },
+          ],
+        },
+      };
     }
     const [total, atendimentos] = await Promise.all([
       prisma.atendimento.count({ where }),
@@ -139,7 +151,7 @@ class AtendimentoService {
         salaoId,
         cabeleireiro,
         userId,
-        data
+        data,
       ),
     ]);
 
@@ -155,21 +167,21 @@ class AtendimentoService {
       where: { ID: id },
       ...(includeRelations
         ? {
-            include: {
-              Salao: true,
-              AtendimentoAuxiliar: {
-                include: { Auxiliar: true },
-              },
-              Agendamentos: {
-                include: { Cliente: true },
-              },
-              ServicoAtendimento: {
-                include: {
-                  Servico: true,
-                },
+          include: {
+            Salao: true,
+            AtendimentoAuxiliar: {
+              include: { Auxiliar: true },
+            },
+            Agendamentos: {
+              include: { Cliente: true },
+            },
+            ServicoAtendimento: {
+              include: {
+                Servico: true,
               },
             },
-          }
+          },
+        }
         : {}),
     });
   }
@@ -215,7 +227,7 @@ class AtendimentoService {
     Auxiliar: boolean,
     SalaoId: string,
     servicosAtendimento: ServicoAtendimento[] = [],
-    auxiliares: AtendimentoAuxiliar[] = []
+    auxiliares: AtendimentoAuxiliar[] = [],
   ) => {
     try {
       return await prisma.$transaction(async (tx) => {
@@ -260,7 +272,7 @@ class AtendimentoService {
     Auxiliar: boolean,
     SalaoId: string,
     servicosAtendimento: ServicoAtendimento[] = [],
-    auxiliares: AtendimentoAuxiliar[] = []
+    auxiliares: AtendimentoAuxiliar[] = [],
   ) => {
     try {
       return await prisma.$transaction(async (tx) => {

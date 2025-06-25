@@ -27,11 +27,10 @@ export const FuncionariogetAtendimentosPage = async (
       method: "GET",
     },
   );
-  if (responseAgendamentos.ok) {
-    return (await responseAgendamentos.json()) as Agendamentos[];
-  } else {
-    throw new Error("Error in fetching Agendamentos");
-  }
+  return handleApiResponse<Agendamentos[]>(
+    responseAgendamentos,
+    "buscar atendimentos",
+  );
 };
 
 export const ClientegetAtendimentosPage = async (
@@ -49,7 +48,7 @@ export const ClientegetAtendimentosPage = async (
         cabeleireiro ? `&cabeleireiro=${cabeleireiro}` : ""
       }`,
   );
-  let responseAgendamentos = await fetch(
+  let responseAtendimento = await fetch(
     ClienteURL +
       `/atendimento/page?page=${page}&limit=${limit}&userId=${userId}&salaoId=${salaoId}&data=${data}&includeRelations=${includeRelations}${
         cabeleireiro ? `&cabeleireiro=${cabeleireiro}` : ""
@@ -58,11 +57,10 @@ export const ClientegetAtendimentosPage = async (
       method: "GET",
     },
   );
-  if (responseAgendamentos.ok) {
-    return (await responseAgendamentos.json()) as Agendamentos[];
-  } else {
-    throw new Error("Error in fetching Agendamentos");
-  }
+  return handleApiResponse<Atendimento[]>(
+    responseAtendimento,
+    "buscar atendimentos",
+  );
 };
 
 export const getAtendimentobyAgendamentoId = async (agendamentoId: string) => {
@@ -262,12 +260,11 @@ export const CabeleireirogetAtendimentosPage = async (
       method: "GET",
     },
   );
-  if (responseAtendimentos.ok) {
-    return (await responseAtendimentos.json()) as Agendamentos[];
-  } else {
-    throw new Error("Error in fetching Agendamentos");
-  }
-};
+  return handleApiResponse<Agendamentos[]>(
+    responseAtendimentos,
+    "buscar atendimentos",
+  );
+}
 export const CabeleireirogetAtendimentobyId = async (atendimentoId: string) => {
   let response = await fetch(
     CabeleireiroURL + `/atendimento/ID/${atendimentoId}`,
@@ -290,9 +287,8 @@ export const ClientegetAtendimentobyId = async (atendimentoId: string) => {
       method: "GET",
     },
   );
-  if (response.ok) {
-    return (await response.json()) as Atendimento;
-  } else {
-    throw new Error("Erro ao buscar agendamento por ID");
-  }
+  return handleApiResponse<Agendamentos[]>(
+    response,
+    "buscar atendimentos",
+  );
 };

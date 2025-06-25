@@ -642,7 +642,7 @@ export const useManterAgendamento = (
       console.log("não é possível salvar a edição");
       return;
     }
-    console.log("setsndo serviços agendamento");
+    console.log("set serviços agendamento");
     setIsLoading(true);
     let servicosIds: string[] = [];
     for (let servico of servicosAgendamento) {
