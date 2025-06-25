@@ -78,6 +78,19 @@ export const getAtendimentobyAgendamentoId = async (agendamentoId: string) => {
     throw new Error("Erro ao buscar agendamento por ID");
   }
 };
+export const FuncionariogetAtendimentobyId = async (atendimentoId: string) => {
+  let response = await fetch(
+    FuncionarioURL + `/atendimento/ID/${atendimentoId}`,
+    {
+      method: "GET",
+    }
+  );
+  if (response.ok) {
+    return (await response.json()) as Atendimento;
+  } else {
+    throw new Error("Erro ao buscar agendamento por ID");
+  }
+};
 
 export const postAtendimentoFuncionario = async (
   Data: Date,
@@ -253,5 +266,33 @@ export const CabeleireirogetAtendimentosPage = async (
     return (await responseAtendimentos.json()) as Agendamentos[];
   } else {
     throw new Error("Error in fetching Agendamentos");
+  }
+};
+export const CabeleireirogetAtendimentobyId = async (atendimentoId: string) => {
+  let response = await fetch(
+    CabeleireiroURL + `/atendimento/ID/${atendimentoId}`,
+    {
+      method: "GET",
+    }
+  );
+  if (response.ok) {
+    return (await response.json()) as Atendimento;
+  } else {
+    throw new Error("Erro ao buscar agendamento por ID");
+  }
+};
+//-----Cliente
+
+export const ClientegetAtendimentobyId = async (atendimentoId: string) => {
+  let response = await fetch(
+    ClienteURL + `/atendimento/ID/${atendimentoId}`,
+    {
+      method: "GET",
+    }
+  );
+  if (response.ok) {
+    return (await response.json()) as Atendimento;
+  } else {
+    throw new Error("Erro ao buscar agendamento por ID");
   }
 };

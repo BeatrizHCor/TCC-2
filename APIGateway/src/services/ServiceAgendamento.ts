@@ -11,7 +11,7 @@ export const FuncionarioPostAgendamento = async (
   ClienteID: string,
   CabeleireiroID: string,
   SalaoId: string,
-  servicosIds: string[]
+  servicosIds: string[],
 ) => {
   let responseAgendamento = await fetch(FuncionarioURL + "/agendamento", {
     method: "POST",
@@ -28,7 +28,7 @@ export const FuncionarioPostAgendamento = async (
   });
   return handleApiResponse<Agendamentos>(
     responseAgendamento,
-    "criar agendamento"
+    "criar agendamento",
   );
 };
 
@@ -39,7 +39,7 @@ export const FuncionarioUpdateAgendamento = async (
   ClienteID: string,
   CabeleireiroID: string,
   SalaoId: string,
-  servicosIds: string[]
+  servicosIds: string[],
 ) => {
   let response = await fetch(FuncionarioURL + `/agendamento/${id}`, {
     method: "PUT",
@@ -55,11 +55,10 @@ export const FuncionarioUpdateAgendamento = async (
       servicosIds,
     }),
   });
-  if (response.ok) {
-    return (await response.json()) as Agendamentos;
-  } else {
-    throw new Error("Erro ao atualizar agendamento");
-  }
+  return handleApiResponse<Agendamentos>(
+    response,
+    "atualizar agendamento",
+  );
 };
 
 export const FuncionariogetAgendamentosPage = async (
@@ -69,31 +68,31 @@ export const FuncionariogetAgendamentosPage = async (
   salaoId: number,
   dia: number,
   mes: number,
-  ano: number
+  ano: number,
 ) => {
   let responseAgendamentos = await fetch(
     FuncionarioURL +
       `/agendamento/page?page=${page}&limit=${limit}&salaoId=${salaoId}&dia=${dia}&mes=${mes}&ano=${ano}&includeRelations=${includeRelations}`,
     {
       method: "GET",
-    }
+    },
   );
   return handleApiResponse<Agendamentos>(
     responseAgendamentos,
-    "get agendamentos paginados"
+    "get agendamentos paginados",
   );
 };
 
 export const FuncionariogetAgendamentoById = async (
   id: string,
-  includeRelations = false
+  includeRelations = false,
 ) => {
   let response = await fetch(
     FuncionarioURL +
       `/agendamento/ID/${id}?includeRelations=${includeRelations}`,
     {
       method: "GET",
-    }
+    },
   );
   return handleApiResponse<Agendamentos>(response, "buscar agendamento por ID");
 };
@@ -112,7 +111,7 @@ export const CabeleireiroPostAgendamento = async (
   ClienteID: string,
   CabeleireiroID: string,
   SalaoId: string,
-  servicosIds: string[]
+  servicosIds: string[],
 ) => {
   let responseAgendamento = await fetch(CabeleireiroURL + "/agendamento", {
     method: "POST",
@@ -129,7 +128,7 @@ export const CabeleireiroPostAgendamento = async (
   });
   return handleApiResponse<Agendamentos>(
     responseAgendamento,
-    "criar agendamento"
+    "criar agendamento",
   );
 };
 export const CabeleireiroUpdateAgendamento = async (
@@ -139,7 +138,7 @@ export const CabeleireiroUpdateAgendamento = async (
   ClienteID: string,
   CabeleireiroID: string,
   SalaoId: string,
-  servicosIds: string[]
+  servicosIds: string[],
 ) => {
   let response = await fetch(CabeleireiroURL + `/agendamento/${id}`, {
     method: "PUT",
@@ -155,11 +154,10 @@ export const CabeleireiroUpdateAgendamento = async (
       servicosIds,
     }),
   });
-  if (response.ok) {
-    return (await response.json()) as Agendamentos;
-  } else {
-    throw new Error("Erro ao atualizar agendamento");
-  }
+  return handleApiResponse<Agendamentos>(
+    response,
+    "atualizar agendamento",
+  );
 };
 export const CabeleireirogetAgendamentosPage = async (
   page: number | null,
@@ -169,30 +167,30 @@ export const CabeleireirogetAgendamentosPage = async (
   CabeleireiroId: string,
   dia: number,
   mes: number,
-  ano: number
+  ano: number,
 ) => {
   let responseAgendamentos = await fetch(
     CabeleireiroURL +
       `/agendamento/page?page=${page}&limit=${limit}&salaoId=${salaoId}&CabeleireiroId=${CabeleireiroId}&dia=${dia}&mes=${mes}&ano=${ano}&includeRelations=${includeRelations}`,
     {
       method: "GET",
-    }
+    },
   );
   return handleApiResponse<Agendamentos>(
     responseAgendamentos,
-    "get agendamentos paginados"
+    "get agendamentos paginados",
   );
 };
 export const CabeleireirogetAgendamentoById = async (
   id: string,
-  includeRelations = false
+  includeRelations = false,
 ) => {
   let response = await fetch(
     CabeleireiroURL +
       `/agendamento/ID/${id}?includeRelations=${includeRelations}`,
     {
       method: "GET",
-    }
+    },
   );
   return handleApiResponse<Agendamentos>(response, "buscar agendamento por ID");
 };
@@ -212,7 +210,7 @@ export const ClientePostAgendamento = async (
   ClienteID: string,
   CabeleireiroID: string,
   SalaoId: string,
-  servicosIds: string[]
+  servicosIds: string[],
 ) => {
   let responseAgendamento = await fetch(ClienteURL + "/agendamento", {
     method: "POST",
@@ -229,7 +227,7 @@ export const ClientePostAgendamento = async (
   });
   return handleApiResponse<Agendamentos>(
     responseAgendamento,
-    "criar agendamento"
+    "criar agendamento",
   );
 };
 export const ClienteUpdateAgendamento = async (
@@ -239,7 +237,7 @@ export const ClienteUpdateAgendamento = async (
   ClienteID: string,
   CabeleireiroID: string,
   SalaoId: string,
-  servicosIds: string[]
+  servicosIds: string[],
 ) => {
   let response = await fetch(ClienteURL + `/agendamento/${id}`, {
     method: "PUT",
@@ -255,11 +253,10 @@ export const ClienteUpdateAgendamento = async (
       servicosIds,
     }),
   });
-  if (response.ok) {
-    return (await response.json()) as Agendamentos;
-  } else {
-    throw new Error("Erro ao atualizar agendamento");
-  }
+  return handleApiResponse<Agendamentos>(
+    response,
+    "atualizar agendamento",
+  );
 };
 export const ClientegetAgendamentosPage = async (
   page: number | null,
@@ -269,29 +266,29 @@ export const ClientegetAgendamentosPage = async (
   ClienteId: string,
   dia: number,
   mes: number,
-  ano: number
+  ano: number,
 ) => {
   let responseAgendamentos = await fetch(
     ClienteURL +
       `/agendamento/page?page=${page}&limit=${limit}&salaoId=${salaoId}&ClienteId=${ClienteId}&dia=${dia}&mes=${mes}&ano=${ano}&includeRelations=${includeRelations}`,
     {
       method: "GET",
-    }
+    },
   );
   return handleApiResponse<Agendamentos>(
     responseAgendamentos,
-    "get agendamentos paginados"
+    "get agendamentos paginados",
   );
 };
 export const ClientegetAgendamentoById = async (
   id: string,
-  includeRelations = false
+  includeRelations = false,
 ) => {
   let response = await fetch(
     ClienteURL + `/agendamento/ID/${id}?includeRelations=${includeRelations}`,
     {
       method: "GET",
-    }
+    },
   );
   return handleApiResponse<Agendamentos>(response, "buscar agendamento por ID");
 };
@@ -309,16 +306,22 @@ export const ClienteDeleteAgendamento = async (id: string) => {
 export const getHorariosOcupadosFuturos = async (
   salaoId: string,
   cabeleireiroId: string,
-  data: string
+  data: string,
 ) => {
-  const url = `${ClienteURL}/agendamento/horarios/${salaoId}/${cabeleireiroId}?data=${encodeURIComponent(
-    data
-  )}`;
+  const url =
+    `${ClienteURL}/agendamento/horarios/${salaoId}/${cabeleireiroId}?data=${
+      encodeURIComponent(
+        data,
+      )
+    }`;
   let response = await fetch(url, {
     method: "GET",
     headers: {
       "Content-Type": "application/json",
     },
   });
-  return handleApiResponse<[Date, number][]>(response, "busacar horários ocupados");
+  return handleApiResponse<[Date, number][]>(
+    response,
+    "busacar horários ocupados",
+  );
 };

@@ -256,7 +256,24 @@ const ManterAgendamento: React.FC = () => {
       console.log(e);
     }
   };
-
+  const handleIrAtendimento = async (e: React.FormEvent) => {
+    try {
+      navigate(`/atendimento/editar/${atendimentoId}`, {
+        state: {
+          data: data,
+          status: status,
+          servicosAgendamento: servicosAgendamento,
+          cabeleireiroId: cabeleireiroId,
+          cabeleireiroNome: cabeleireiroNome,
+          clienteId: clienteId,
+          clienteNome: clienteNome,
+          agendamentoId: agendamentoId,
+        },
+      });
+    } catch (e) {
+      console.log(e);
+    }
+  };
   return (
     <Box sx={{ width: "100%", p: 3 }}>
       <Paper
@@ -306,7 +323,7 @@ const ManterAgendamento: React.FC = () => {
                       }
                     }}
                     disabled={
-                      !canSaveEdit || loadingHorarios || !cabeleireiroId || status === StatusAgendamento.Finalizado
+                      !canSaveEdit || loadingHorarios || !cabeleireiroId || status === StatusAgendamento.Finalizado || status === StatusAgendamento.Confirmado
                     }
                     shouldDisableTime={(timeValue, clockType) => {
                       if (clockType === "hours" && data) {
@@ -361,7 +378,7 @@ const ManterAgendamento: React.FC = () => {
                         ? "Cliente atual (você)"
                         : "Clique para selecionar um cliente"
                     }
-                    disabled={!canSaveEdit || loadingHorarios || status === StatusAgendamento.Finalizado}
+                    disabled={!canSaveEdit || loadingHorarios || status === StatusAgendamento.Finalizado || status === StatusAgendamento.Confirmado}
                     slotProps={{
                       input: { readOnly: true },
                     }}
@@ -373,7 +390,6 @@ const ManterAgendamento: React.FC = () => {
                     }}
                   />
                 </Box>
-
                 <Box>
                   <TextField
                     fullWidth
@@ -391,7 +407,7 @@ const ManterAgendamento: React.FC = () => {
                         ? "Cabeleireiro atual (você)"
                         : "Clique para selecionar um cabeleireiro"
                     }
-                    disabled={!canSaveEdit || loadingHorarios || status === StatusAgendamento.Finalizado}
+                    disabled={!canSaveEdit || loadingHorarios || status === StatusAgendamento.Finalizado || status === StatusAgendamento.Confirmado}
                     slotProps={{
                       input: {
                         readOnly: true,
@@ -432,7 +448,7 @@ const ManterAgendamento: React.FC = () => {
               <Button
                 variant="outlined"
                 startIcon={<AddIcon />}
-                disabled={!canSaveEdit || loadingHorarios || status === StatusAgendamento.Finalizado}
+                disabled={!canSaveEdit || loadingHorarios || status === StatusAgendamento.Finalizado || status === StatusAgendamento.Confirmado}
                 onClick={() => setOpenServicosModal(true)}
                 sx={{ mb: 2 }}
                 fullWidth
@@ -480,7 +496,8 @@ const ManterAgendamento: React.FC = () => {
                                 !canSaveEdit ||
                                 loadingHorarios ||
                                 !cabeleireiroId ||
-                                status === StatusAgendamento.Finalizado
+                                status === StatusAgendamento.Finalizado ||
+                                status === StatusAgendamento.Confirmado
                               }
                               onClick={() =>
                                 handleRemoveServico(
@@ -541,7 +558,7 @@ const ManterAgendamento: React.FC = () => {
                   color="error"
                   startIcon={<DeleteIcon />}
                   onClick={handleOpenDeleteDialog}
-                  disabled={(isEditing && !canSaveEdit) || status === StatusAgendamento.Finalizado || !!atendimentoId}
+                  disabled={(isEditing && !canSaveEdit) || status === StatusAgendamento.Finalizado || status === StatusAgendamento.Confirmado || !!atendimentoId}
                 >
                   Excluir
                 </Button>
@@ -556,11 +573,11 @@ const ManterAgendamento: React.FC = () => {
                     <SaveIcon />
                   )
                 }
-                disabled={isLoading || (isEditing && !canSaveEdit) || status === StatusAgendamento.Finalizado || !canSaveEdit}
+                disabled={isLoading || (isEditing && !canSaveEdit) || status === StatusAgendamento.Finalizado || status === StatusAgendamento.Confirmado || !canSaveEdit}
               >
                 {isEditing ? "Salvar Alterações" : "Criar Agendamento"}
               </Button>
-              {isEditing ? (
+              {isEditing && userType !== "Cliente" && status !== StatusAgendamento.Confirmado && status !== StatusAgendamento.Finalizado ? (
                 <Button
                   variant="contained"
                   startIcon={
@@ -570,13 +587,24 @@ const ManterAgendamento: React.FC = () => {
                       <SaveIcon />
                     )
                   }
-                  disabled={
-                    status === StatusAgendamento.Finalizado ||
-                    status === StatusAgendamento.Confirmado
-                  }
                   onClick={handleConfirmar}
                 >
                   Confirmar Atendimento
+                </Button>
+              ) : null}
+              {isEditing && atendimentoId ? (
+                <Button
+                  variant="contained"
+                  startIcon={
+                    isLoading ? (
+                      <CircularProgress size={20} color="inherit" />
+                    ) : (
+                      <SaveIcon />
+                    )
+                  }
+                  onClick={handleIrAtendimento}
+                >
+                  Ir para Atendimento
                 </Button>
               ) : null}
             </Box>
@@ -672,7 +700,7 @@ const ManterAgendamento: React.FC = () => {
                             color="primary"
                             component="span"
                           >
-                            {formatCurrency(servico.PrecoMin)} -{" "}
+                            {formatCurrency(servico.PrecoMin)} - {" "}
                             {formatCurrency(servico.PrecoMax)}
                           </Typography>
                         </span>

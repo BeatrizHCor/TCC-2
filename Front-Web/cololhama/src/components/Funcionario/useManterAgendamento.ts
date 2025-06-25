@@ -321,7 +321,7 @@ export const useManterAgendamento = (
         setCabeleireiroNome(agendamento.Cabeleireiro?.Nome || "");
         setAtendimentoId(agendamento.AtendimentoID || null);
         setSalaoId(agendamento.SalaoId);
-
+        console.log("atenteminetooooID", agendamento.AtendimentoID);
         if (agendamento.ServicoAgendamento) {
           setServicosAgendamento(agendamento.ServicoAgendamento);
         }
@@ -408,7 +408,6 @@ export const useManterAgendamento = (
 
   const cofirmarAtendimento = async (e: React.FormEvent) => {
     e.preventDefault();
-    setStatus(StatusAgendamento.Confirmado);
     console.log({
       data,
       status: StatusAgendamento.Confirmado,
@@ -430,48 +429,6 @@ export const useManterAgendamento = (
     }
 
     try {
-      if (salaoId && agendamentoId) {
-        switch (userType) {
-          case userTypes.Funcionario:
-          case userTypes.AdmSalao:
-          case userTypes.AdmSistema:
-            await AgendamentoService.updateFuncionarioAgendamento(
-              agendamentoId,
-              new Date(data).toISOString(),
-              StatusAgendamento.Confirmado,
-              clienteId,
-              cabeleireiroId,
-              salaoId,
-              servicosIds,
-            );
-            break;
-          case userTypes.Cabeleireiro:
-            await AgendamentoService.updateCabeleireiroAgendamento(
-              agendamentoId,
-              new Date(data).toISOString(),
-              status,
-              clienteId,
-              cabeleireiroId,
-              salaoId,
-              servicosIds,
-            );
-            break;
-
-          case userTypes.Cliente:
-            await AgendamentoService.updateClienteAgendamento(
-              agendamentoId,
-              new Date(data).toISOString(),
-              status,
-              clienteId,
-              cabeleireiroId,
-              salaoId,
-              servicosIds,
-            );
-            break;
-          default:
-            throw new Error("Tipo de usuário inválido");
-        }
-      }
       let St = StatusAgendamento.Confirmado;
       return navigate("/atendimento/novo", {
         state: {
@@ -501,6 +458,7 @@ export const useManterAgendamento = (
       setIsLoading(false);
     }
   };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
@@ -524,7 +482,6 @@ export const useManterAgendamento = (
         servicosIds.push(servico.ServicoId);        
       }
     }
-    console.log("services no create: ", servicosIds);
     try {
       if (isEditing && agendamentoId) {
         switch (userType) {

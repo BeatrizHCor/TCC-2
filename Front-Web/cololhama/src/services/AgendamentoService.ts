@@ -242,6 +242,13 @@ class AgendamentoService {
     servicosIds: string[] = []
   ): Promise<Agendamentos> {
     try {
+              console.log("Parâmetros recebidos em updateClienteAgendamento:", {
+        Data,
+        ClienteID,
+        CabeleireiroID,
+        SalaoId,
+        servicosIds,
+      });
       const response = await api.put(`/cliente/agendamento/${id}`, {
         Data,
         Status,
@@ -291,7 +298,7 @@ class AgendamentoService {
     id: string,
     includeRelations: boolean
   ): Promise<Agendamentos> {
-    try {console.log("includeRelations:  ", includeRelations);
+    try {
       const response = await api.get(`/cliente/agendamento/${id}`, {
         params: { includeRelations },
       });

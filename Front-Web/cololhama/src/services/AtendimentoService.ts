@@ -126,6 +126,19 @@ class AtendimentoService {
       return false;
     }
   };
+
+  static getAtendimentoById = async (atendimentoId: string) => {
+  try {
+    const response = await api.get(`/atendimento/ID/${atendimentoId}`);
+    if (response.status === 403) {
+      return false;
+    }
+    return response.data;
+  } catch (error) {
+    console.error("Erro ao buscar atendimento:", error);
+    return false;
+  }
+};
   static createAtendimento = async (
     Data: Date,
     PrecoTotal: number,

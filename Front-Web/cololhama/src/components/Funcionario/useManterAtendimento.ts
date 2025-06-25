@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import AgendamentoService from "../../services/AgendamentoService";
 import ServicoService from "../../services/ServicoService";
@@ -57,7 +57,8 @@ export const useManterAtendimento = (
   stateCabNome: string,
   stateCliId: string,
   stateStatus: StatusAgendamento,
-  stateCliNome: string
+  stateCliNome: string,
+  atendimentoIdFromUrl?: string 
 ) => {
   const [data, setData] = useState(stateData);
   const [status, setStatus] = useState<StatusAgendamento>(stateStatus);
@@ -77,12 +78,12 @@ export const useManterAtendimento = (
   >([]);
   const [clienteNome, setClienteNome] = useState(stateCliNome);
   const [salaoId, setSalaoId] = useState<string | null>(
-    import.meta.env.VITE_SALAO_ID
+    import.meta.env.VITE_SALAO_ID,
   );
   const [forbidden, setForbidden] = useState<boolean>(false);
   const [isLoading, setIsLoading] = useState(false);
   const [validationErrors, setValidationErrors] = useState<ValidationErrors>(
-    {}
+    {},
   );
   const [isEditing, setIsEditing] = useState(false);
   const [precoTotal, setPrecoTotal] = useState(0);
@@ -91,31 +92,31 @@ export const useManterAtendimento = (
     ServicoAtendimento[]
   >([]);
 
-  useEffect(() => {
-    if (!servicoAtendimento) {
-      let serv = servicosAgendamento.map((a) => {
-        return {
-          PrecoItem: a.PrecoMin,
-          ServicoId: a.ServicoId,
-        } as ServicoAtendimento;
-      });
-      setServicoAtendimento(serv);
-    }
-    console.log(servicoAtendimento);
-  }, [servicosDisponiveis]);
+useEffect(() => {
+  if (servicoAtendimento.length === 0 && servicosAgendamento && servicosAgendamento.length > 0) {
+    let serv = servicosAgendamento.map((a) => {
+      return {
+        PrecoItem: a.PrecoMin,
+        ServicoId: a.ServicoId,
+      } as ServicoAtendimento;
+    });
+    setServicoAtendimento(serv);
+  }
+}, [servicosAgendamento]);
 
   useEffect(() => {
-    if (auxiliar.length > 0)
+    if (auxiliar.length > 0) {
       setAuxiliarNome(
         auxiliaresDisponives.find((a) => a.ID === auxiliar[0].AuxiliarID)
-          ?.Nome || ""
+          ?.Nome || "",
       );
+    }
   }, [auxiliaresDisponives]);
 
   useEffect(() => {
     let v = servicoAtendimento.reduce(
       (sum: number, s: ServicoAtendimento) => sum + s.PrecoItem,
-      0
+      0,
     );
     setPrecoTotal(v);
   }, [servicoAtendimento]);
@@ -123,13 +124,16 @@ export const useManterAtendimento = (
   useEffect(() => {
     const loadInitialData = async () => {
       if (!salaoId) return;
-
+      if (atendimentoIdFromUrl) {
+        setIsEditing(true);
+        setAtendimentoId(atendimentoIdFromUrl);
+      }
       setIsLoading(true);
       try {
-        if (agendamentoId) {
-          let atendimento: Atendimento =
-            await AtendimentoService.getAtendimentobyAgendamentoId(
-              agendamentoId
+        if (agendamentoId && isEditing) {
+          let atendimento: Atendimento = await AtendimentoService
+            .getAtendimentobyAgendamentoId(
+              agendamentoId,
             );
           if (atendimento) {
             let data = new Date(atendimento.Data as unknown as string);
@@ -139,7 +143,7 @@ export const useManterAtendimento = (
             setCabeleireiroId(atendimento.Agendamentos[0].CabeleireiroID);
             setClienteId(atendimento.Agendamentos[0].ClienteID);
             setAuxiliar(
-              atendimento.AtendimentoAuxiliar || ([] as AtendimentoAuxiliar[])
+              atendimento.AtendimentoAuxiliar || ([] as AtendimentoAuxiliar[]),
             );
             setIsEditing(true);
           }
@@ -154,7 +158,7 @@ export const useManterAtendimento = (
         setClientesDisponiveis(clientes);
         const cabeleireiros = await CabeleireiroService.getCabeleireiroBySalao(
           salaoId,
-          false
+          false,
         );
         setCabeleireirosDisponiveis(cabeleireiros);
       } catch (error) {
@@ -165,7 +169,7 @@ export const useManterAtendimento = (
     };
 
     loadInitialData();
-  }, [salaoId]);
+  }, [salaoId, atendimentoIdFromUrl]);
 
   const validateForm = (): boolean => {
     const errors: ValidationErrors = {};
@@ -232,9 +236,49 @@ export const useManterAtendimento = (
           servicoAtendimento,
           auxiliar,
           agendamentoId!,
-          status
+          status,
         );
       } else {
+        switch (userType) {
+          case userTypes.Funcionario:
+          case userTypes.AdmSalao:
+          case userTypes.AdmSistema:
+            await AgendamentoService.updateFuncionarioAgendamento(
+              agendamentoId,
+              new Date(data).toISOString(),
+              StatusAgendamento.Confirmado,
+              clienteId,
+              cabeleireiroId,
+              salaoId,
+              servicosIds,
+            );
+            break;
+          case userTypes.Cabeleireiro:
+            await AgendamentoService.updateCabeleireiroAgendamento(
+              agendamentoId,
+              new Date(data).toISOString(),
+              status,
+              clienteId,
+              cabeleireiroId,
+              salaoId,
+              servicosIds,
+            );
+            break;
+
+          case userTypes.Cliente:
+            await AgendamentoService.updateClienteAgendamento(
+              agendamentoId,
+              new Date(data).toISOString(),
+              status,
+              clienteId,
+              cabeleireiroId,
+              salaoId,
+              servicosIds,
+            );
+            break;
+          default:
+            throw new Error("Tipo de usuário inválido");
+        }
         await AtendimentoService.createAtendimento(
           new Date(data),
           precoTotal,
@@ -243,7 +287,7 @@ export const useManterAtendimento = (
           servicoAtendimento,
           auxiliar,
           agendamentoId!,
-          status
+          status,
         );
       }
     } catch (error: unknown) {

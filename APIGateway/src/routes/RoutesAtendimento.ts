@@ -1,21 +1,23 @@
-import { Router, Request, Response } from "express";
+import { Request, Response, Router } from "express";
 
 import {
-  FuncionarioDeleteAtendimento,
+  CabeleireiroDeleteAtendimento,
   CabeleireirogetAtendimentosPage,
+  ClientegetAtendimentosPage,
+  FuncionarioDeleteAtendimento,
+  FuncionariogetAtendimentosPage,
   getAtendimentobyAgendamentoId,
+  postAtendimentoCabeleireiro,
   postAtendimentoFuncionario,
   putAtendimentoCabeleireiro,
-  FuncionariogetAtendimentosPage,
   putAtendimentoFuncionario,
-  postAtendimentoCabeleireiro,
-  CabeleireiroDeleteAtendimento,
-  ClientegetAtendimentosPage,
+  FuncionariogetAtendimentobyId,
+  ClientegetAtendimentobyId,
+  CabeleireirogetAtendimentobyId
 } from "../services/ServiceAtendimento";
 import { userTypes } from "../models/tipo-usuario.enum";
 import { authenticate } from "../services/Service";
 import { getUserInfoAndAuth } from "../utils/FazerAutenticacaoEGetUserInfo";
-import { FuncionariogetAgendamentosPage } from "../services/ServiceAgendamento";
 
 const RoutesAtendimento = Router();
 
@@ -32,14 +34,14 @@ RoutesAtendimento.post("/atendimento", async (req: Request, res: Response) => {
   try {
     const userInfo = JSON.parse(
       Buffer.from(req.headers.authorization || "", "base64").toString(
-        "utf-8"
-      ) || "{}"
+        "utf-8",
+      ) || "{}",
     );
     let userTypeAuth = userInfo.userType;
     const auth = await authenticate(
       userInfo.userID,
       userInfo.token,
-      userInfo.userType
+      userInfo.userType,
     );
     if (
       !auth ||
@@ -59,6 +61,7 @@ RoutesAtendimento.post("/atendimento", async (req: Request, res: Response) => {
           userTypes.ADM_SISTEMA,
         ].includes(userTypeAuth)
       ) {
+        console.log("criar atendimento paramentros", req.body);
         const result = await postAtendimentoFuncionario(
           Data,
           PrecoTotal,
@@ -66,7 +69,7 @@ RoutesAtendimento.post("/atendimento", async (req: Request, res: Response) => {
           SalaoId,
           servicosAtendimento,
           auxiliares,
-          AgendamentoID
+          AgendamentoID,
         );
         res.status(201).json(result);
       } else if ([userTypes.CABELEIREIRO].includes(userTypeAuth)) {
@@ -77,7 +80,7 @@ RoutesAtendimento.post("/atendimento", async (req: Request, res: Response) => {
           SalaoId,
           servicosAtendimento,
           auxiliares,
-          AgendamentoID
+          AgendamentoID,
         );
         res.status(201).json(result);
       } else {
@@ -91,7 +94,67 @@ RoutesAtendimento.post("/atendimento", async (req: Request, res: Response) => {
     res.status(500).send("Erro no ao criar atendimento");
   }
 });
-
+RoutesAtendimento.get(
+  "/atendimento/ID/:id",
+  async (req: Request, res: Response) => {
+    const { id } = req.params;
+    try {
+      const { userInfo, auth } = await getUserInfoAndAuth(req.headers);
+      if (
+        !auth ||
+        ![
+          userTypes.CABELEIREIRO,
+          userTypes.FUNCIONARIO,
+          userTypes.ADM_SALAO,
+          userTypes.ADM_SISTEMA,
+        ].includes(userInfo.userTypeAuth)
+      ) {
+        res.status(403).json({ message: "Unauthorized" });
+      } else {
+        if (
+          [
+            userTypes.FUNCIONARIO,
+            userTypes.ADM_SALAO,
+            userTypes.ADM_SISTEMA,
+          ].includes(userInfo.userTypeAuth)
+        ) {
+          const result = await FuncionariogetAtendimentobyId(id);
+          if (result) {
+            res.status(201).json(result);
+          } else {
+            res.status(404).json({ message: "Atendimento não encontrado" });
+          }
+        } else if ([userTypes.CABELEIREIRO].includes(userInfo.userTypeAuth)) {
+          const result = await CabeleireirogetAtendimentobyId(id);
+          if (result && result.Agendamentos[0].CabeleireiroID !== userInfo.userID) {
+            res.status(403).json({ message: "Unauthorized" });
+            return;
+          } else if (result) {
+            res.status(201).json(result);
+          } else {
+            res.status(404).json({ message: "Atendimento não encontrado" });
+          }
+          if ([userTypes.CLIENTE].includes(userInfo.userTypeAuth)) {
+            const result = await ClientegetAtendimentobyId(id);
+          if (result && result.Agendamentos[0].ClienteID! !== userInfo.userID) {
+            res.status(403).json({ message: "Unauthorized" });
+            return;
+          } else if (result) {
+            res.status(201).json(result);
+          } else {
+            res.status(404).json({ message: "Atendimento não encontrado" });
+          }
+          }
+        } else {
+          res.status(403).json({ message: "Unauthorized" });
+        }
+      }
+    } catch (e) {
+      console.log(e);
+      res.status(500).send("Erro no busacr atendimento por id");
+    }
+  },
+);
 RoutesAtendimento.put(
   "/atendimento/:atendimentoId",
   async (req: Request, res: Response) => {
@@ -109,14 +172,14 @@ RoutesAtendimento.put(
     try {
       const userInfo = JSON.parse(
         Buffer.from(req.headers.authorization || "", "base64").toString(
-          "utf-8"
-        ) || "{}"
+          "utf-8",
+        ) || "{}",
       );
       let userTypeAuth = userInfo.userType;
       const auth = await authenticate(
         userInfo.userID,
         userInfo.token,
-        userInfo.userType
+        userInfo.userType,
       );
       if (
         !auth ||
@@ -145,7 +208,7 @@ RoutesAtendimento.put(
             servicosAtendimento,
             auxiliares,
             AgendamentoID,
-            status
+            status,
           );
           res.status(201).json(result);
         } else if ([userTypes.CABELEIREIRO].includes(userTypeAuth)) {
@@ -158,7 +221,7 @@ RoutesAtendimento.put(
             servicosAtendimento,
             auxiliares,
             AgendamentoID,
-            status
+            status,
           );
           res.status(201).json(result);
         } else {
@@ -170,7 +233,7 @@ RoutesAtendimento.put(
 
       res.status(500).send("Erro no ao atualizar atendimento");
     }
-  }
+  },
 );
 
 RoutesAtendimento.get(
@@ -185,7 +248,7 @@ RoutesAtendimento.get(
       console.log(e);
       res.status(500).send("Error querying Agendamento");
     }
-  }
+  },
 );
 
 RoutesAtendimento.get(
@@ -221,7 +284,7 @@ RoutesAtendimento.get(
             salaoId,
             data,
             cliente ? String(cliente) : null,
-            cabeleireiro ? String(cabeleireiro) : null
+            cabeleireiro ? String(cabeleireiro) : null,
           );
           if (agendamentos) {
             res.status(200).json(agendamentos);
@@ -238,7 +301,7 @@ RoutesAtendimento.get(
       console.error("Erro ao buscar agendamento:", erro);
       res.status(500).json({ message: "Erro interno do servidor" });
     }
-  }
+  },
 );
 RoutesAtendimento.get(
   "/cliente/atendimento/page",
@@ -273,7 +336,7 @@ RoutesAtendimento.get(
             salaoId,
             data,
             userId,
-            cabeleireiro ? String(cabeleireiro) : null
+            cabeleireiro ? String(cabeleireiro) : null,
           );
           if (agendamentos) {
             res.status(200).json(agendamentos);
@@ -290,7 +353,7 @@ RoutesAtendimento.get(
       console.error("Erro ao buscar agendamento:", erro);
       res.status(500).json({ message: "Erro interno do servidor" });
     }
-  }
+  },
 );
 
 RoutesAtendimento.get(
@@ -319,7 +382,7 @@ RoutesAtendimento.get(
             salaoId,
             data,
             userId,
-            cliente
+            cliente,
           );
           if (agendamentos) {
             res.status(200).json(agendamentos);
@@ -336,7 +399,7 @@ RoutesAtendimento.get(
       console.error("Erro ao buscar agendamento:", erro);
       res.status(500).json({ message: "Erro interno do servidor" });
     }
-  }
+  },
 );
 
 RoutesAtendimento.delete(
@@ -382,7 +445,7 @@ RoutesAtendimento.delete(
       console.error("Erro ao deletar agendamento:", erro);
       res.status(500).json({ message: "Erro interno do servidor" });
     }
-  }
+  },
 );
 
 export default RoutesAtendimento;

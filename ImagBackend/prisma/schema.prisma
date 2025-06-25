@@ -78,7 +78,7 @@ model Cabeleireiro {
   Nome          String
   Email         String
   Telefone      String
-  Mei           String
+  Mei           String?
   Salao         Salao                @relation(fields: [SalaoId], references: [ID])
   SalaoId       String
   Portfolio     Portfolio?
@@ -217,6 +217,7 @@ enum ImagemTipo {
   Analoga2
   Complementar
   Portfolio
+  Original
 }
 
 model Imagem {

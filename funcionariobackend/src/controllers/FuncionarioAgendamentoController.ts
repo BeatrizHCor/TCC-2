@@ -23,7 +23,7 @@ class AgendamentoController {
     }
   };
 
-   static findById = async (req: Request, res: Response) => {
+  static findById = async (req: Request, res: Response) => {
     try {
       const { id } = req.params;
       const includeRelations = req.query.includeRelations === "true";
@@ -45,12 +45,12 @@ class AgendamentoController {
       res.status(204).json({ message: "Agendamentos não encontrado" });
     }
   };
-  
+
   static createAgendamento = async (req: Request, res: Response) => {
     try {
       const { Data, ClienteID, SalaoId, CabeleireiroID, servicosIds } =
         req.body;
-     console.log("criar agendamento paramentros", req.body);
+      console.log("criar agendamento paramentros", req.body);
       const agendamento = await AgendamentoService.createAgendamento(
         new Date(Data),
         "Agendado",

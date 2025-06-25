@@ -41,12 +41,10 @@ class AgendamentoController {
     try {
       const { id } = req.params;
       const includeRelations = req.query.includeRelations === "true";
-      console.log("includeRelations controller: ", includeRelations);
       const agendamento = await AgendamentoService.findById(
         id,
         includeRelations,
       );
-      console.log("agendamento: ", agendamento);
       if (!agendamento) {
         res
           .status(204)
@@ -91,6 +89,7 @@ class AgendamentoController {
       const { id } = req.params;
       const { Data, Status, ClienteID, SalaoId, CabeleireiroID, servicosIds } =
         req.body;
+        console.log("parametros no serv backCliente: ", Data, Status, ClienteID, CabeleireiroID, SalaoId, servicosIds);
       const agendamento = await AgendamentoService.updateAgendamento(
         id,
         new Date(Data),
