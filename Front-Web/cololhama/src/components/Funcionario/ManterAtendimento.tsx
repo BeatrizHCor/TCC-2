@@ -30,6 +30,7 @@ import {
   Alert,
   InputAdornment,
 } from "@mui/material";
+import { ptBR } from "date-fns/locale";
 import { useLocation, useNavigate, useParams } from "react-router-dom";
 import { useManterAgendamento } from "./useManterAgendamento";
 import SaveIcon from "@mui/icons-material/Save";
@@ -47,6 +48,25 @@ import { Cabeleireiro } from "../../models/cabelereiroModel";
 import useManterAtendimento from "./useManterAtendimento";
 import { ServicoAtendimento } from "../../models/servicoAtendimentoModel";
 import { Funcionario } from "../../models/funcionarioModel";
+import { DateTimePicker } from "@mui/x-date-pickers/DateTimePicker";
+import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
+import { AdapterDateFns } from "@mui/x-date-pickers/AdapterDateFns";
+
+function formatDateToLocalDateTimeString(date: Date) {
+  const pad = (n: number) => n.toString().padStart(2, "0");
+
+  return (
+    date.getFullYear() +
+    "-" +
+    pad(date.getMonth() + 1) +
+    "-" +
+    pad(date.getDate()) +
+    "T" +
+    pad(date.getHours()) +
+    ":" +
+    pad(date.getMinutes())
+  );
+}
 
 const ManterAtendimento: React.FC = () => {
   const navigate = useNavigate();
@@ -101,7 +121,6 @@ const ManterAtendimento: React.FC = () => {
     atendimentoId,
     auxiliaresDisponives,
     setAuxiliaresDisponiveis,
-
   } = useManterAtendimento(
     userType!,
     stateServicos,
@@ -114,6 +133,7 @@ const ManterAtendimento: React.FC = () => {
     stateCliNome,
     atendimentoIdFromUrl
   );
+
   const handleOpenDeleteDialog = () => {
     setOpenDeleteDialog(true);
   };
@@ -136,6 +156,7 @@ const ManterAtendimento: React.FC = () => {
     setServicoAtendimento([...servicoAtendimento, novoServicoAtendimento]);
     setOpenServicosModal(false);
   };
+
   const handleRemoveServico = (servicoId: string | undefined) => {
     if (servicoId) {
       const servicosAtualizados = servicoAtendimento.filter(
@@ -150,6 +171,21 @@ const ManterAtendimento: React.FC = () => {
       style: "currency",
       currency: "BRL",
     }).format(value);
+  };
+
+  const getDataTimeHelperText = () => {
+    if (validationErrors.data) {
+      return validationErrors.data;
+    }
+    const duracaoEstimada = Math.max(1, servicoAtendimento.length) * 40;
+    return `Selecione data e horário (duração estimada: ${duracaoEstimada}min)`;
+  };
+
+  const getDataTimeHelperColor = () => {
+    if (validationErrors.data) {
+      return "error";
+    }
+    return "text.secondary";
   };
 
   useEffect(() => {
@@ -242,25 +278,35 @@ const ManterAtendimento: React.FC = () => {
                   gap: { xs: 2, sm: 3 },
                 }}
               >
-                <Box>
-                  <TextField
-                    fullWidth
-                    required
-                    type="datetime-local"
+                <LocalizationProvider
+                  dateAdapter={AdapterDateFns}
+                  adapterLocale={ptBR}
+                >
+                  <DateTimePicker
                     label="Data e Hora"
-                    value={data}
-                    onChange={(e) => {
-                      console.log(e.target.value);
-                      setData(e.target.value);
+                    value={data ? new Date(data) : null}
+                    onChange={(newValue) => {
+                      if (newValue) {
+                        const localDateTime = formatDateToLocalDateTimeString(newValue);
+                        setData(localDateTime);
+                      } else {
+                        setData("");
+                      }
                     }}
-                    error={Boolean(validationErrors.data)}
-                    helperText={validationErrors.data}
+                    disabled={userType === "Cliente" || isLoading}
+                    minDateTime={new Date()}
+                    format="dd/MM/yyyy HH:mm"
                     slotProps={{
-                      inputLabel: { shrink: true },
+                      textField: {
+                        fullWidth: true,
+                        required: true,
+                        error: Boolean(validationErrors.data),
+                        helperText: getDataTimeHelperText(),
+                      },
                     }}
-                    disabled={userType === "Cliente"}
                   />
-                </Box>
+                </LocalizationProvider>
+
                 <Box>
                   <FormControl fullWidth required>
                     <InputLabel>Status</InputLabel>
@@ -270,6 +316,7 @@ const ManterAtendimento: React.FC = () => {
                       onChange={(e) =>
                         setStatus(e.target.value as StatusAgendamento)
                       }
+                      disabled={userType === "Cliente"}
                     >
                       <MenuItem
                         key={StatusAgendamento.Confirmado}
@@ -336,17 +383,15 @@ const ManterAtendimento: React.FC = () => {
                     sx={{ cursor: "pointer" }}
                   />
                 </Box>
+
                 <Box>
                   <TextField
                     fullWidth
-                    required
                     label="Auxiliar"
                     value={auxiliarNome}
-                    error={Boolean(validationErrors.cabeleireiroId)}
-                    helperText={validationErrors.cabeleireiroId}
                     onClick={() => setOpenAuxiliarModal(true)}
                     disabled={userType === "Cliente"}
-                    placeholder="Clique para selecionar um cabeleireiro"
+                    placeholder="Clique para selecionar um auxiliar"
                     slotProps={{
                       input: {
                         readOnly: true,
@@ -374,6 +419,7 @@ const ManterAtendimento: React.FC = () => {
                 </Box>
               </Box>
             </Box>
+
             <Box sx={{ flex: 1 }}>
               <Typography variant="h6" sx={{ mb: 2 }}>
                 Serviços do Atendimento
@@ -402,7 +448,7 @@ const ManterAtendimento: React.FC = () => {
                   <TableBody>
                     {servicoAtendimento.length === 0 ? (
                       <TableRow>
-                        <TableCell colSpan={4} align="center">
+                        <TableCell colSpan={3} align="center">
                           <Typography variant="body2" color="text.secondary">
                             Nenhum serviço adicionado
                           </Typography>
@@ -443,6 +489,7 @@ const ManterAtendimento: React.FC = () => {
                                   const float = parseFloat(raw) / 100;
                                   handlePrecoItem(servicoAtendimento.ID, float);
                                 }}
+                                disabled={userType === "Cliente"}
                               />
                             </TableCell>
                             <TableCell align="center">
@@ -467,6 +514,9 @@ const ManterAtendimento: React.FC = () => {
                 <Box sx={{ mt: 2 }}>
                   <Typography variant="subtitle2">
                     Total: {formatCurrency(precoTotal)}
+                  </Typography>
+                  <Typography variant="caption" color="text.secondary">
+                    Tempo estimado: {servicoAtendimento.length * 40} minutos
                   </Typography>
                 </Box>
               )}
@@ -576,6 +626,7 @@ const ManterAtendimento: React.FC = () => {
           <Button onClick={() => setOpenServicosModal(false)}>Fechar</Button>
         </DialogActions>
       </Dialog>
+
       <Dialog
         open={openAuxiliarModal}
         onClose={() => setOpenAuxiliarModal(false)}
