@@ -25,6 +25,7 @@ interface ValidationErrors {
   cabeleireiroId?: string;
   servicos?: string;
 }
+
 const formatCurrency = (value: number) => {
   return new Intl.NumberFormat("pt-BR", {
     style: "currency",
@@ -58,7 +59,7 @@ export const useManterAtendimento = (
   stateCliId: string,
   stateStatus: StatusAgendamento,
   stateCliNome: string,
-  atendimentoIdFromUrl?: string 
+  atendimentoIdFromUrl?: string
 ) => {
   const [data, setData] = useState(stateData);
   const [status, setStatus] = useState<StatusAgendamento>(stateStatus);
@@ -92,26 +93,33 @@ export const useManterAtendimento = (
     ServicoAtendimento[]
   >([]);
 
-useEffect(() => {
-  if (servicoAtendimento.length === 0 && servicosAgendamento && servicosAgendamento.length > 0) {
-    let serv = servicosAgendamento.map((a) => {
-      return {
-        PrecoItem: a.PrecoMin,
-        ServicoId: a.ServicoId,
-      } as ServicoAtendimento;
-    });
-    setServicoAtendimento(serv);
-  }
-}, [servicosAgendamento]);
+  useEffect(() => {
+    if (servicoAtendimento.length === 0 && servicosAgendamento && servicosAgendamento.length > 0) {
+      let serv = servicosAgendamento.map((a) => {
+        return {
+          PrecoItem: a.PrecoMin,
+          ServicoId: a.ServicoId,
+        } as ServicoAtendimento;
+      });
+      setServicoAtendimento(serv);
+    }
+  }, [servicosAgendamento]);
 
   useEffect(() => {
-    if (auxiliar.length > 0) {
-      setAuxiliarNome(
-        auxiliaresDisponives.find((a) => a.ID === auxiliar[0].AuxiliarID)
-          ?.Nome || "",
-      );
+    if (
+      auxiliar.length > 0 &&
+      auxiliaresDisponives.length > 0
+    ) {
+      const nome = auxiliaresDisponives.find(
+        (a) => a.ID === auxiliar[0].AuxiliarID
+      )?.Nome;
+
+      setAuxiliarNome(nome || "Nenhum");
+    } else {
+      setAuxiliarNome("Nenhum");
     }
-  }, [auxiliaresDisponives]);
+  }, [auxiliar, auxiliaresDisponives]);
+
 
   useEffect(() => {
     let v = servicoAtendimento.reduce(
@@ -124,20 +132,28 @@ useEffect(() => {
   useEffect(() => {
     const loadInitialData = async () => {
       if (!salaoId) return;
+
       if (atendimentoIdFromUrl) {
         setIsEditing(true);
         setAtendimentoId(atendimentoIdFromUrl);
       }
+
       setIsLoading(true);
+
       try {
-        if (agendamentoId && isEditing) {
-          let atendimento: Atendimento = await AtendimentoService
-            .getAtendimentobyAgendamentoId(
-              agendamentoId,
-            );
+        const auxiliares = await FuncionarioService.getAuxiliarBySalao(salaoId);
+        console.log('Auxiliares carregados:', auxiliares);
+        if (auxiliares) {
+          setAuxiliaresDisponiveis(auxiliares as Funcionario[]);
+        }
+
+        if (agendamentoId && (isEditing || atendimentoIdFromUrl)) {
+          const atendimento: Atendimento = await AtendimentoService
+            .getAtendimentobyAgendamentoId(agendamentoId);
+
           if (atendimento) {
-            let data = new Date(atendimento.Data as unknown as string);
-            setData(formatDateToLocalDateTimeString(data));
+            const dataAtendimento = new Date(atendimento.Data as unknown as string);
+            setData(formatDateToLocalDateTimeString(dataAtendimento));
             setAtendimentoId(atendimento.ID!);
             setServicoAtendimento(atendimento.ServicoAtendimento);
             setCabeleireiroId(atendimento.Agendamentos[0].CabeleireiroID);
@@ -147,20 +163,20 @@ useEffect(() => {
             );
             setIsEditing(true);
           }
-          let Auxiliares = await FuncionarioService.getAuxiliarBySalao(salaoId);
-          if (Auxiliares) {
-            setAuxiliaresDisponiveis(Auxiliares as Funcionario[]);
-          }
         }
+
         const servicos = await ServicoService.getServicosBySalao(salaoId);
         setServicosDisponiveis(servicos);
+
         const clientes = await ClienteService.getClientesBySalao(salaoId);
         setClientesDisponiveis(clientes);
+
         const cabeleireiros = await CabeleireiroService.getCabeleireiroBySalao(
           salaoId,
           false,
         );
         setCabeleireirosDisponiveis(cabeleireiros);
+
       } catch (error) {
         console.error("Erro ao carregar dados iniciais:", error);
       } finally {
@@ -169,7 +185,7 @@ useEffect(() => {
     };
 
     loadInitialData();
-  }, [salaoId, atendimentoIdFromUrl]);
+  }, [salaoId, atendimentoIdFromUrl, agendamentoId]);
 
   const validateForm = (): boolean => {
     const errors: ValidationErrors = {};
