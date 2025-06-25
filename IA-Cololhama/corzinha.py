@@ -23,14 +23,15 @@ except ImportError:
     UNET_AVAILABLE = False
 
 
-class ProcessCor:    
+class ProcessCor:
     @staticmethod
     def get_cores_analogas(hex_color: str, angle_range: int = 45) -> List[str]:
         r, g, b = [int(hex_color[i:i+2], 16) / 255.0 for i in (1, 3, 5)]
         h, l, s = colorsys.rgb_to_hls(r, g, b)
         
-        s = min(s * 2.2, 1.0)
-        
+        s = s + (1.0 - s) * 0.5
+        l = min(max(l * 1.03, 0), 1) 
+
         cores_analogas = []
         for angle in (-angle_range, angle_range):
             h_new = (h + angle / 360.0) % 1.0
@@ -39,21 +40,23 @@ class ProcessCor:
                 int(r_new * 255), int(g_new * 255), int(b_new * 255)
             )
             cores_analogas.append(hex_new)
-        
+
         return cores_analogas
-    
+
     @staticmethod
     def get_cor_complementar(hex_color: str) -> str:
         r, g, b = [int(hex_color[i:i+2], 16) / 255.0 for i in (1, 3, 5)]
         h, l, s = colorsys.rgb_to_hls(r, g, b)
-        
+
         h_comp = (h + 0.5) % 1.0
+        s = s + (1.0 - s) * 0.5  
+        l = min(max(l * 1.03, 0), 1)
+
         r_comp, g_comp, b_comp = colorsys.hls_to_rgb(h_comp, l, s)
-        
+
         return '#{:02x}{:02x}{:02x}'.format(
             int(r_comp * 255), int(g_comp * 255), int(b_comp * 255)
         )
-
 
 class ProcessMask:    
     @staticmethod
