@@ -24,6 +24,7 @@ import ManterAgendamentoPage from "./pages/Funcionario/ManterAgendamentoPage";
 import ManterAtendimento from "./components/Funcionario/ManterAtendimento";
 import SimulacaoPage from "./pages/IA/SimulacaoPage";
 import HistoricoSimulacoes from "./components/IA/VisualizarHistoricoSimulacao";
+import SobrePage from "./pages/Home/SobrePage";
 
 const App: React.FC = () => {
   return (
@@ -34,6 +35,7 @@ const App: React.FC = () => {
 
         <Routes>
           <Route path="/" element={<HomePage />} />
+          <Route path="/sobre" element={<SobrePage />} />
           <Route path="/perfil" element={<PerfilCliente />} />
           <Route path="/cadastro" element={<CadastroPage />} />
           <Route path="/login" element={<LoginPage />} />
