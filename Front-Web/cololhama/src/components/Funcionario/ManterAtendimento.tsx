@@ -157,13 +157,15 @@ const ManterAtendimento: React.FC = () => {
     setOpenServicosModal(false);
   };
 
-  const handleRemoveServico = (servicoId: string | undefined) => {
-    if (servicoId) {
-      const servicosAtualizados = servicoAtendimento.filter(
-        (sa) => sa.ServicoId !== servicoId
-      );
-      setServicoAtendimento(servicosAtualizados);
-    }
+  const handleRemoveServico = (index: number) => {
+    const servicosAtualizados = servicoAtendimento.filter((_, i) => i !== index);
+    setServicoAtendimento(servicosAtualizados);
+    
+    const novoTotal = servicosAtualizados.reduce(
+      (sum: number, s: ServicoAtendimento) => sum + s.PrecoItem,
+      0
+    );
+    setPrecoTotal(novoTotal);
   };
 
   const formatCurrency = (value: number) => {
@@ -228,21 +230,23 @@ const ManterAtendimento: React.FC = () => {
     );
   }
 
-  function handlePrecoItem(ID: string | undefined, value: number): void {
+  function handlePrecoItem(index: number, value: number): void {
     let servicoAtendimentos = [...servicoAtendimento];
-    let index = servicoAtendimentos.findIndex((sa) => sa.ID === ID);
-    if (index >= 0) {
+    
+    if (index >= 0 && index < servicoAtendimentos.length) {
       servicoAtendimentos[index] = {
         ...servicoAtendimentos[index],
         PrecoItem: value,
       };
+      
+      let total = servicoAtendimentos.reduce(
+        (sum: number, s: ServicoAtendimento) => sum + s.PrecoItem,
+        0
+      );
+      
+      setServicoAtendimento(servicoAtendimentos);
+      setPrecoTotal(total);
     }
-    let total = servicoAtendimentos.reduce(
-      (sum: number, s: ServicoAtendimento) => sum + s.PrecoItem,
-      0
-    );
-    setServicoAtendimento(servicoAtendimentos);
-    setPrecoTotal(total);
   }
 
   return (
@@ -455,12 +459,12 @@ const ManterAtendimento: React.FC = () => {
                         </TableCell>
                       </TableRow>
                     ) : (
-                      servicoAtendimento.map((servicoAtendimento) => {
+                      servicoAtendimento.map((servicoAtend, index) => {
                         let servico = servicosDisponiveis.find(
-                          (s) => s.ID === servicoAtendimento.ServicoId
+                          (s) => s.ID === servicoAtend.ServicoId
                         );
                         return (
-                          <TableRow key={servicoAtendimento.ID}>
+                          <TableRow key={`${servicoAtend.ServicoId}-${index}`}>
                             <TableCell>
                               {servico?.Nome || "Serviço não encontrado"}
                             </TableCell>
@@ -478,16 +482,14 @@ const ManterAtendimento: React.FC = () => {
                                     padding: "8px",
                                   },
                                 }}
-                                value={formatCurrency(
-                                  servicoAtendimento.PrecoItem
-                                )}
+                                value={formatCurrency(servicoAtend.PrecoItem)}
                                 onChange={(e) => {
                                   const raw = e.target.value.replace(
                                     /[^\d]/g,
                                     ""
                                   );
                                   const float = parseFloat(raw) / 100;
-                                  handlePrecoItem(servicoAtendimento.ID, float);
+                                  handlePrecoItem(index, float); 
                                 }}
                                 disabled={userType === "Cliente"}
                               />
@@ -496,7 +498,7 @@ const ManterAtendimento: React.FC = () => {
                               <IconButton
                                 size="small"
                                 color="error"
-                                onClick={() => handleRemoveServico(servicoAtendimento.ServicoId)}
+                                onClick={() => handleRemoveServico(index)} 
                                 disabled={userType === "Cliente"}
                               >
                                 <RemoveIcon />
