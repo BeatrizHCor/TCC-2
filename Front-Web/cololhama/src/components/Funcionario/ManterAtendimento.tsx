@@ -30,6 +30,7 @@ import {
   Alert,
   InputAdornment,
 } from "@mui/material";
+import { ptBR } from "date-fns/locale";
 import { useLocation, useNavigate, useParams } from "react-router-dom";
 import { useManterAgendamento } from "./useManterAgendamento";
 import SaveIcon from "@mui/icons-material/Save";
@@ -47,6 +48,25 @@ import { Cabeleireiro } from "../../models/cabelereiroModel";
 import useManterAtendimento from "./useManterAtendimento";
 import { ServicoAtendimento } from "../../models/servicoAtendimentoModel";
 import { Funcionario } from "../../models/funcionarioModel";
+import { DateTimePicker } from "@mui/x-date-pickers/DateTimePicker";
+import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
+import { AdapterDateFns } from "@mui/x-date-pickers/AdapterDateFns";
+
+function formatDateToLocalDateTimeString(date: Date) {
+  const pad = (n: number) => n.toString().padStart(2, "0");
+
+  return (
+    date.getFullYear() +
+    "-" +
+    pad(date.getMonth() + 1) +
+    "-" +
+    pad(date.getDate()) +
+    "T" +
+    pad(date.getHours()) +
+    ":" +
+    pad(date.getMinutes())
+  );
+}
 
 const ManterAtendimento: React.FC = () => {
   const navigate = useNavigate();
@@ -101,7 +121,6 @@ const ManterAtendimento: React.FC = () => {
     atendimentoId,
     auxiliaresDisponives,
     setAuxiliaresDisponiveis,
-
   } = useManterAtendimento(
     userType!,
     stateServicos,
@@ -114,6 +133,7 @@ const ManterAtendimento: React.FC = () => {
     stateCliNome,
     atendimentoIdFromUrl
   );
+
   const handleOpenDeleteDialog = () => {
     setOpenDeleteDialog(true);
   };
@@ -136,13 +156,16 @@ const ManterAtendimento: React.FC = () => {
     setServicoAtendimento([...servicoAtendimento, novoServicoAtendimento]);
     setOpenServicosModal(false);
   };
-  const handleRemoveServico = (servicoId: string | undefined) => {
-    if (servicoId) {
-      const servicosAtualizados = servicoAtendimento.filter(
-        (sa) => sa.ServicoId !== servicoId
-      );
-      setServicoAtendimento(servicosAtualizados);
-    }
+
+  const handleRemoveServico = (index: number) => {
+    const servicosAtualizados = servicoAtendimento.filter((_, i) => i !== index);
+    setServicoAtendimento(servicosAtualizados);
+    
+    const novoTotal = servicosAtualizados.reduce(
+      (sum: number, s: ServicoAtendimento) => sum + s.PrecoItem,
+      0
+    );
+    setPrecoTotal(novoTotal);
   };
 
   const formatCurrency = (value: number) => {
@@ -150,6 +173,21 @@ const ManterAtendimento: React.FC = () => {
       style: "currency",
       currency: "BRL",
     }).format(value);
+  };
+
+  const getDataTimeHelperText = () => {
+    if (validationErrors.data) {
+      return validationErrors.data;
+    }
+    const duracaoEstimada = Math.max(1, servicoAtendimento.length) * 40;
+    return `Selecione data e horário (duração estimada: ${duracaoEstimada}min)`;
+  };
+
+  const getDataTimeHelperColor = () => {
+    if (validationErrors.data) {
+      return "error";
+    }
+    return "text.secondary";
   };
 
   useEffect(() => {
@@ -192,21 +230,23 @@ const ManterAtendimento: React.FC = () => {
     );
   }
 
-  function handlePrecoItem(ID: string | undefined, value: number): void {
+  function handlePrecoItem(index: number, value: number): void {
     let servicoAtendimentos = [...servicoAtendimento];
-    let index = servicoAtendimentos.findIndex((sa) => sa.ID === ID);
-    if (index >= 0) {
+    
+    if (index >= 0 && index < servicoAtendimentos.length) {
       servicoAtendimentos[index] = {
         ...servicoAtendimentos[index],
         PrecoItem: value,
       };
+      
+      let total = servicoAtendimentos.reduce(
+        (sum: number, s: ServicoAtendimento) => sum + s.PrecoItem,
+        0
+      );
+      
+      setServicoAtendimento(servicoAtendimentos);
+      setPrecoTotal(total);
     }
-    let total = servicoAtendimentos.reduce(
-      (sum: number, s: ServicoAtendimento) => sum + s.PrecoItem,
-      0
-    );
-    setServicoAtendimento(servicoAtendimentos);
-    setPrecoTotal(total);
   }
 
   return (
@@ -242,25 +282,35 @@ const ManterAtendimento: React.FC = () => {
                   gap: { xs: 2, sm: 3 },
                 }}
               >
-                <Box>
-                  <TextField
-                    fullWidth
-                    required
-                    type="datetime-local"
+                <LocalizationProvider
+                  dateAdapter={AdapterDateFns}
+                  adapterLocale={ptBR}
+                >
+                  <DateTimePicker
                     label="Data e Hora"
-                    value={data}
-                    onChange={(e) => {
-                      console.log(e.target.value);
-                      setData(e.target.value);
+                    value={data ? new Date(data) : null}
+                    onChange={(newValue) => {
+                      if (newValue) {
+                        const localDateTime = formatDateToLocalDateTimeString(newValue);
+                        setData(localDateTime);
+                      } else {
+                        setData("");
+                      }
                     }}
-                    error={Boolean(validationErrors.data)}
-                    helperText={validationErrors.data}
+                    disabled={userType === "Cliente" || isLoading}
+                    minDateTime={new Date()}
+                    format="dd/MM/yyyy HH:mm"
                     slotProps={{
-                      inputLabel: { shrink: true },
+                      textField: {
+                        fullWidth: true,
+                        required: true,
+                        error: Boolean(validationErrors.data),
+                        helperText: getDataTimeHelperText(),
+                      },
                     }}
-                    disabled={userType === "Cliente"}
                   />
-                </Box>
+                </LocalizationProvider>
+
                 <Box>
                   <FormControl fullWidth required>
                     <InputLabel>Status</InputLabel>
@@ -270,6 +320,7 @@ const ManterAtendimento: React.FC = () => {
                       onChange={(e) =>
                         setStatus(e.target.value as StatusAgendamento)
                       }
+                      disabled={userType === "Cliente"}
                     >
                       <MenuItem
                         key={StatusAgendamento.Confirmado}
@@ -336,17 +387,15 @@ const ManterAtendimento: React.FC = () => {
                     sx={{ cursor: "pointer" }}
                   />
                 </Box>
+
                 <Box>
                   <TextField
                     fullWidth
-                    required
                     label="Auxiliar"
                     value={auxiliarNome}
-                    error={Boolean(validationErrors.cabeleireiroId)}
-                    helperText={validationErrors.cabeleireiroId}
                     onClick={() => setOpenAuxiliarModal(true)}
                     disabled={userType === "Cliente"}
-                    placeholder="Clique para selecionar um cabeleireiro"
+                    placeholder="Clique para selecionar um auxiliar"
                     slotProps={{
                       input: {
                         readOnly: true,
@@ -374,6 +423,7 @@ const ManterAtendimento: React.FC = () => {
                 </Box>
               </Box>
             </Box>
+
             <Box sx={{ flex: 1 }}>
               <Typography variant="h6" sx={{ mb: 2 }}>
                 Serviços do Atendimento
@@ -402,19 +452,19 @@ const ManterAtendimento: React.FC = () => {
                   <TableBody>
                     {servicoAtendimento.length === 0 ? (
                       <TableRow>
-                        <TableCell colSpan={4} align="center">
+                        <TableCell colSpan={3} align="center">
                           <Typography variant="body2" color="text.secondary">
                             Nenhum serviço adicionado
                           </Typography>
                         </TableCell>
                       </TableRow>
                     ) : (
-                      servicoAtendimento.map((servicoAtendimento) => {
+                      servicoAtendimento.map((servicoAtend, index) => {
                         let servico = servicosDisponiveis.find(
-                          (s) => s.ID === servicoAtendimento.ServicoId
+                          (s) => s.ID === servicoAtend.ServicoId
                         );
                         return (
-                          <TableRow key={servicoAtendimento.ID}>
+                          <TableRow key={`${servicoAtend.ServicoId}-${index}`}>
                             <TableCell>
                               {servico?.Nome || "Serviço não encontrado"}
                             </TableCell>
@@ -432,24 +482,23 @@ const ManterAtendimento: React.FC = () => {
                                     padding: "8px",
                                   },
                                 }}
-                                value={formatCurrency(
-                                  servicoAtendimento.PrecoItem
-                                )}
+                                value={formatCurrency(servicoAtend.PrecoItem)}
                                 onChange={(e) => {
                                   const raw = e.target.value.replace(
                                     /[^\d]/g,
                                     ""
                                   );
                                   const float = parseFloat(raw) / 100;
-                                  handlePrecoItem(servicoAtendimento.ID, float);
+                                  handlePrecoItem(index, float); 
                                 }}
+                                disabled={userType === "Cliente"}
                               />
                             </TableCell>
                             <TableCell align="center">
                               <IconButton
                                 size="small"
                                 color="error"
-                                onClick={() => handleRemoveServico(servicoAtendimento.ServicoId)}
+                                onClick={() => handleRemoveServico(index)} 
                                 disabled={userType === "Cliente"}
                               >
                                 <RemoveIcon />
@@ -467,6 +516,9 @@ const ManterAtendimento: React.FC = () => {
                 <Box sx={{ mt: 2 }}>
                   <Typography variant="subtitle2">
                     Total: {formatCurrency(precoTotal)}
+                  </Typography>
+                  <Typography variant="caption" color="text.secondary">
+                    Tempo estimado: {servicoAtendimento.length * 40} minutos
                   </Typography>
                 </Box>
               )}
@@ -576,6 +628,7 @@ const ManterAtendimento: React.FC = () => {
           <Button onClick={() => setOpenServicosModal(false)}>Fechar</Button>
         </DialogActions>
       </Dialog>
+
       <Dialog
         open={openAuxiliarModal}
         onClose={() => setOpenAuxiliarModal(false)}
