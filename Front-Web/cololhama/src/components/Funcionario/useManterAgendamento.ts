@@ -11,6 +11,7 @@ import { Cliente } from "../../models/clienteModel";
 import { userTypes } from "../../models/tipo-usuario.enum";
 import ClienteService from "../../services/ClienteService";
 import axios from "axios";
+import { Agendamentos } from "../../models/agendamentoModel";
 
 interface ValidationErrors {
   data?: string;
@@ -321,7 +322,6 @@ export const useManterAgendamento = (
         setCabeleireiroNome(agendamento.Cabeleireiro?.Nome || "");
         setAtendimentoId(agendamento.AtendimentoID || null);
         setSalaoId(agendamento.SalaoId);
-        console.log("atenteminetooooID", agendamento.AtendimentoID);
         if (agendamento.ServicoAgendamento) {
           setServicosAgendamento(agendamento.ServicoAgendamento);
         }
@@ -479,7 +479,7 @@ export const useManterAgendamento = (
     let servicosIds: string[] = [];
     for (let servico of servicosAgendamento) {
       if (servico.ServicoId) {
-        servicosIds.push(servico.ServicoId);        
+        servicosIds.push(servico.ServicoId);
       }
     }
     try {
@@ -621,6 +621,96 @@ export const useManterAgendamento = (
     }
   };
 
+  const handleCancel = async () => {
+    console.log("checks cancelar agendamento");
+    if (!isEditing || !agendamentoId) {
+      console.log("não está editando ou ID do agendamento não disponível");
+      return;
+    }
+
+    if (!validateForm()) {
+      console.log("validação do formulário falhou");
+      return;
+    }
+
+    if (!salaoId) {
+      console.error("ID do salão não disponível");
+      return;
+    }
+
+    if (isEditing && !canSaveEdit()) {
+      console.log("não é possível salvar a edição");
+      return;
+    }
+    console.log("setsndo serviços agendamento");
+    setIsLoading(true);
+    let servicosIds: string[] = [];
+    for (let servico of servicosAgendamento) {
+      if (servico.ServicoId) {
+        servicosIds.push(servico.ServicoId);
+      }
+    }
+    try {
+      let cancelado: boolean | Agendamentos = false;
+      if (isEditing && agendamentoId) {
+        console.log("cancelando agendamento");
+        switch (userType) {
+          case userTypes.Funcionario:
+          case userTypes.AdmSalao:
+          case userTypes.AdmSistema:
+            cancelado = await AgendamentoService.updateFuncionarioAgendamento(
+              agendamentoId,
+              new Date(data).toISOString(),
+              StatusAgendamento.Cancelado,
+              clienteId,
+              cabeleireiroId,
+              salaoId,
+              servicosIds,
+            );
+            break;
+          case userTypes.Cabeleireiro:
+            cancelado = await AgendamentoService.updateCabeleireiroAgendamento(
+              agendamentoId,
+              new Date(data).toISOString(),
+              StatusAgendamento.Cancelado,
+              clienteId,
+              cabeleireiroId,
+              salaoId,
+              servicosIds,
+            );
+            break;
+          case userTypes.Cliente:
+            cancelado = await AgendamentoService.updateClienteAgendamento(
+              agendamentoId,
+              new Date(data).toISOString(),
+              StatusAgendamento.Cancelado,
+              clienteId,
+              cabeleireiroId,
+              salaoId,
+              servicosIds,
+            );
+            break;
+          default:
+            throw new Error("Tipo de usuário inválido");
+        }
+        if (cancelado) {
+          navigate(-1);
+        }
+      }
+    } catch (error: unknown) {
+      console.error("Erro ao cancelar agendamento:", error);
+
+      if (axios.isAxiosError(error)) {
+        if (error.response?.status === 403) {
+          setForbidden(true);
+        }
+      } else {
+        console.error("Erro desconhecido:", error);
+      }
+    } finally {
+      setIsLoading(false);
+    }
+  };
   return {
     data,
     setData: setDataWithHorarios,
@@ -655,7 +745,8 @@ export const useManterAgendamento = (
     setCabeleireiroIdWithHorarios,
     cofirmarAtendimento,
     setValidationErrors,
-    atendimentoId
+    atendimentoId,
+    handleCancel,
   };
 };
 

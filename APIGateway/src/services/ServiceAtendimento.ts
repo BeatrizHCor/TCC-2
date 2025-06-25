@@ -16,14 +16,8 @@ export const FuncionariogetAtendimentosPage = async (
   salaoId: number,
   data: string,
   cliente: string | null,
-  cabeleireiro: string | null
+  cabeleireiro: string | null,
 ) => {
-  console.log(
-    FuncionarioURL +
-      `/atendimento/page?page=${page}&limit=${limit}&salaoId=${salaoId}&data=${data}&includeRelations=${includeRelations}${
-        cliente ? `&cliente=${cliente}` : ""
-      }${cabeleireiro ? `&cliente=${cabeleireiro}` : ""}`
-  );
   let responseAgendamentos = await fetch(
     FuncionarioURL +
       `/atendimento/page?page=${page}&limit=${limit}&salaoId=${salaoId}&data=${data}&includeRelations=${includeRelations}${
@@ -31,7 +25,7 @@ export const FuncionariogetAtendimentosPage = async (
       }${cabeleireiro ? `&cabeleireiro=${cabeleireiro}` : ""}`,
     {
       method: "GET",
-    }
+    },
   );
   if (responseAgendamentos.ok) {
     return (await responseAgendamentos.json()) as Agendamentos[];
@@ -47,8 +41,14 @@ export const ClientegetAtendimentosPage = async (
   salaoId: number,
   data: string,
   userId: string,
-  cabeleireiro: string | null
+  cabeleireiro: string | null,
 ) => {
+  console.log(
+    ClienteURL +
+      `/atendimento/page?page=${page}&limit=${limit}&userId=${userId}&salaoId=${salaoId}&data=${data}&includeRelations=${includeRelations}${
+        cabeleireiro ? `&cabeleireiro=${cabeleireiro}` : ""
+      }`,
+  );
   let responseAgendamentos = await fetch(
     ClienteURL +
       `/atendimento/page?page=${page}&limit=${limit}&userId=${userId}&salaoId=${salaoId}&data=${data}&includeRelations=${includeRelations}${
@@ -56,7 +56,7 @@ export const ClientegetAtendimentosPage = async (
       }`,
     {
       method: "GET",
-    }
+    },
   );
   if (responseAgendamentos.ok) {
     return (await responseAgendamentos.json()) as Agendamentos[];
@@ -70,7 +70,7 @@ export const getAtendimentobyAgendamentoId = async (agendamentoId: string) => {
     FuncionarioURL + `/atendimentobyagendamento/${agendamentoId}`,
     {
       method: "GET",
-    }
+    },
   );
   if (response.ok) {
     return (await response.json()) as Atendimento;
@@ -83,7 +83,7 @@ export const FuncionariogetAtendimentobyId = async (atendimentoId: string) => {
     FuncionarioURL + `/atendimento/ID/${atendimentoId}`,
     {
       method: "GET",
-    }
+    },
   );
   if (response.ok) {
     return (await response.json()) as Atendimento;
@@ -99,7 +99,7 @@ export const postAtendimentoFuncionario = async (
   SalaoId: string,
   servicosAtendimento: ServicoAtendimento[] = [],
   auxiliares: AtendimentoAuxiliar[] = [],
-  AgendamentoID: string
+  AgendamentoID: string,
 ) => {
   let response = await fetch(FuncionarioURL + `/atendimento`, {
     method: "Post",
@@ -130,7 +130,7 @@ export const postAtendimentoCabeleireiro = async (
   SalaoId: string,
   servicosAtendimento: ServicoAtendimento[] = [],
   auxiliares: AtendimentoAuxiliar[] = [],
-  AgendamentoID: string
+  AgendamentoID: string,
 ) => {
   let response = await fetch(CabeleireiroURL + `/atendimento`, {
     method: "Post",
@@ -163,7 +163,7 @@ export const putAtendimentoFuncionario = async (
   servicosAtendimento: ServicoAtendimento[] = [],
   auxiliares: AtendimentoAuxiliar[] = [],
   AgendamentoID: string,
-  status: ServicoAtendimento
+  status: ServicoAtendimento,
 ) => {
   let response = await fetch(FuncionarioURL + `/atendimento/${AtendimentoId}`, {
     method: "Put",
@@ -197,7 +197,7 @@ export const putAtendimentoCabeleireiro = async (
   servicosAtendimento: ServicoAtendimento[] = [],
   auxiliares: AtendimentoAuxiliar[] = [],
   AgendamentoID: string,
-  status: ServicoAtendimento
+  status: ServicoAtendimento,
 ) => {
   let response = await fetch(
     CabeleireiroURL + `/atendimento/${AtendimentoId}`,
@@ -216,7 +216,7 @@ export const putAtendimentoCabeleireiro = async (
         AgendamentoID,
         status,
       }),
-    }
+    },
   );
   if (response.ok) {
     return (await response.json()) as Atendimento;
@@ -251,7 +251,7 @@ export const CabeleireirogetAtendimentosPage = async (
   salaoId: number,
   data: string,
   userId: string,
-  cliente: string | null
+  cliente: string | null,
 ) => {
   let responseAtendimentos = await fetch(
     CabeleireiroURL +
@@ -260,7 +260,7 @@ export const CabeleireirogetAtendimentosPage = async (
       }`,
     {
       method: "GET",
-    }
+    },
   );
   if (responseAtendimentos.ok) {
     return (await responseAtendimentos.json()) as Agendamentos[];
@@ -273,7 +273,7 @@ export const CabeleireirogetAtendimentobyId = async (atendimentoId: string) => {
     CabeleireiroURL + `/atendimento/ID/${atendimentoId}`,
     {
       method: "GET",
-    }
+    },
   );
   if (response.ok) {
     return (await response.json()) as Atendimento;
@@ -288,7 +288,7 @@ export const ClientegetAtendimentobyId = async (atendimentoId: string) => {
     ClienteURL + `/atendimento/ID/${atendimentoId}`,
     {
       method: "GET",
-    }
+    },
   );
   if (response.ok) {
     return (await response.json()) as Atendimento;

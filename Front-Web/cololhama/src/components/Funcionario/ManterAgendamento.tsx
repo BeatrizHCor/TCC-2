@@ -47,7 +47,7 @@ import { Cliente } from "../../models/clienteModel";
 import { DateTimePicker } from "@mui/x-date-pickers/DateTimePicker";
 import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
 import { AdapterDateFns } from "@mui/x-date-pickers/AdapterDateFns";
-
+import { userTypes } from "../../models/tipo-usuario.enum";
 
 function formatDateToLocalDateTimeString(date: Date) {
   const pad = (n: number) => n.toString().padStart(2, "0");
@@ -70,6 +70,7 @@ const ManterAgendamento: React.FC = () => {
   const isEditing = !!agendamentoId;
   const { doLogout, userType, userId } = useContext(AuthContext);
   const [openDeleteDialog, setOpenDeleteDialog] = useState(false);
+  const [openCancelDialog, setOpenCancelDialog] = useState(false);
   const [openServicosModal, setOpenServicosModal] = useState(false);
   const [openCabeleireirosModal, setOpenCabeleireirosModal] = useState(false);
   const [openClientesModal, setOpenClientesModal] = useState(false);
@@ -108,7 +109,8 @@ const ManterAgendamento: React.FC = () => {
     setCabeleireiroIdWithHorarios,
     cofirmarAtendimento,
     setValidationErrors,
-    atendimentoId
+    atendimentoId,
+    handleCancel
   } = useManterAgendamento(userType!, agendamentoId, userId);
 
   const handleOpenDeleteDialog = () => {
@@ -123,7 +125,16 @@ const ManterAgendamento: React.FC = () => {
     await handleDelete();
     handleCloseDeleteDialog();
   };
-
+  const handleOpenCancelDialog = () => {
+    setOpenCancelDialog(true);
+  };
+  const handleCloseCancelDialog = () => {
+    setOpenCancelDialog(false);
+  };
+  const handleConfirmCancel = async () => {
+    await handleCancel();
+    handleCloseCancelDialog();
+  }
   const handleAddServico = (servico: Servico) => {
     const novoServicoAgendamento: ServicoAgendamento = {
       Nome: servico.Nome,
@@ -323,7 +334,7 @@ const ManterAgendamento: React.FC = () => {
                       }
                     }}
                     disabled={
-                      !canSaveEdit || loadingHorarios || !cabeleireiroId || status === StatusAgendamento.Finalizado || status === StatusAgendamento.Confirmado
+                      !canSaveEdit || loadingHorarios || !cabeleireiroId || status !== StatusAgendamento.Agendado
                     }
                     shouldDisableTime={(timeValue, clockType) => {
                       if (clockType === "hours" && data) {
@@ -378,7 +389,7 @@ const ManterAgendamento: React.FC = () => {
                         ? "Cliente atual (você)"
                         : "Clique para selecionar um cliente"
                     }
-                    disabled={!canSaveEdit || loadingHorarios || status === StatusAgendamento.Finalizado || status === StatusAgendamento.Confirmado}
+                    disabled={!canSaveEdit || loadingHorarios || status !== StatusAgendamento.Agendado}
                     slotProps={{
                       input: { readOnly: true },
                     }}
@@ -407,7 +418,7 @@ const ManterAgendamento: React.FC = () => {
                         ? "Cabeleireiro atual (você)"
                         : "Clique para selecionar um cabeleireiro"
                     }
-                    disabled={!canSaveEdit || loadingHorarios || status === StatusAgendamento.Finalizado || status === StatusAgendamento.Confirmado}
+                    disabled={!canSaveEdit || loadingHorarios || status !== StatusAgendamento.Agendado}
                     slotProps={{
                       input: {
                         readOnly: true,
@@ -448,7 +459,7 @@ const ManterAgendamento: React.FC = () => {
               <Button
                 variant="outlined"
                 startIcon={<AddIcon />}
-                disabled={!canSaveEdit || loadingHorarios || status === StatusAgendamento.Finalizado || status === StatusAgendamento.Confirmado}
+                disabled={!canSaveEdit || loadingHorarios || status !== StatusAgendamento.Agendado}
                 onClick={() => setOpenServicosModal(true)}
                 sx={{ mb: 2 }}
                 fullWidth
@@ -496,8 +507,7 @@ const ManterAgendamento: React.FC = () => {
                                 !canSaveEdit ||
                                 loadingHorarios ||
                                 !cabeleireiroId ||
-                                status === StatusAgendamento.Finalizado ||
-                                status === StatusAgendamento.Confirmado
+                                status !== StatusAgendamento.Agendado
                               }
                               onClick={() =>
                                 handleRemoveServico(
@@ -552,15 +562,29 @@ const ManterAgendamento: React.FC = () => {
               Voltar
             </Button>
             <Box sx={{ display: "flex", gap: { xs: 1, sm: 2 } }}>
-              {isEditing && (
+              {isEditing && [
+                userTypes.AdmSalao,
+                userTypes.AdmSistema,
+              ].includes(userType) && (
+                  <Button
+                    variant="outlined"
+                    color="error"
+                    startIcon={<DeleteIcon />}
+                    onClick={handleOpenDeleteDialog}
+                    disabled={(isEditing && !canSaveEdit) || !!atendimentoId}
+                  >
+                    Excluir
+                  </Button>
+                )}
+              {isEditing && status === StatusAgendamento.Agendado && (
                 <Button
                   variant="outlined"
                   color="error"
                   startIcon={<DeleteIcon />}
-                  onClick={handleOpenDeleteDialog}
-                  disabled={(isEditing && !canSaveEdit) || status === StatusAgendamento.Finalizado || status === StatusAgendamento.Confirmado || !!atendimentoId}
+                  onClick={handleOpenCancelDialog}
+                  disabled={(isEditing && !canSaveEdit) || !!atendimentoId}
                 >
-                  Excluir
+                  Cancelar
                 </Button>
               )}
               <Button
@@ -573,11 +597,11 @@ const ManterAgendamento: React.FC = () => {
                     <SaveIcon />
                   )
                 }
-                disabled={isLoading || (isEditing && !canSaveEdit) || status === StatusAgendamento.Finalizado || status === StatusAgendamento.Confirmado || !canSaveEdit}
+                disabled={isLoading || (isEditing && !canSaveEdit) || status !== StatusAgendamento.Agendado || !canSaveEdit}
               >
                 {isEditing ? "Salvar Alterações" : "Criar Agendamento"}
               </Button>
-              {isEditing && userType !== "Cliente" && status !== StatusAgendamento.Confirmado && status !== StatusAgendamento.Finalizado ? (
+              {isEditing && userType !== "Cliente" && status === StatusAgendamento.Agendado ? (
                 <Button
                   variant="contained"
                   startIcon={
@@ -665,7 +689,20 @@ const ManterAgendamento: React.FC = () => {
           </Button>
         </DialogActions>
       </Dialog>
-
+      <Dialog open={openCancelDialog} onClose={handleCloseCancelDialog}>
+        <DialogTitle>Confirmar Cancelamento</DialogTitle>
+        <DialogContent>
+          <DialogContentText>
+            Tem certeza que deseja cancelar este agendamento?
+          </DialogContentText>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={handleCloseCancelDialog}>Voltar</Button>
+          <Button onClick={handleConfirmCancel} color="error" autoFocus>
+            Confirmar
+          </Button>
+        </DialogActions>
+      </Dialog>
       <Dialog
         open={openServicosModal}
         onClose={() => setOpenServicosModal(false)}

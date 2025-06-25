@@ -83,6 +83,7 @@ class AtendimentoService {
       return false;
     }
   }
+  
   static async getAtendimentosPageFuncionario(
     page: number,
     limit: number,

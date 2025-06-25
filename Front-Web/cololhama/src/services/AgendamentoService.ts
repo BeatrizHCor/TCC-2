@@ -31,7 +31,7 @@ class AgendamentoService {
     ano: number,
     mes: number,
     dia: number,
-    includeRelations: boolean = false
+    includeRelations: boolean = false,
   ): Promise<AgendamentoPaginadoResponse> {
     try {
       const response = await api.get(`/funcionario/agendamento/page`, {
@@ -59,7 +59,7 @@ class AgendamentoService {
     ano: number,
     mes: number,
     dia: number,
-    includeRelations: boolean = false
+    includeRelations: boolean = false,
   ): Promise<AgendamentoPaginadoResponse> {
     try {
       const response = await api.get(`/cabeleireiro/agendamento/page`, {
@@ -88,7 +88,7 @@ class AgendamentoService {
     ano: number,
     mes: number,
     dia: number,
-    includeRelations: boolean = false
+    includeRelations: boolean = false,
   ): Promise<AgendamentoPaginadoResponse> {
     try {
       const response = await api.get(`/cliente/agendamento/page`, {
@@ -114,7 +114,7 @@ class AgendamentoService {
     ClienteID: string,
     CabeleireiroID: string,
     SalaoId: string,
-    servicosIds: string[] = []
+    servicosIds: string[] = [],
   ): Promise<Agendamentos> {
     try {
       console.log("Parâmetros recebidos em createFuncionarioAgendamento:", {
@@ -143,7 +143,7 @@ class AgendamentoService {
     ClienteID: string,
     CabeleireiroID: string,
     SalaoId: string,
-    servicosIds: string[] = []
+    servicosIds: string[] = [],
   ): Promise<Agendamentos> {
     try {
       const response = await api.post(`/cabeleireiro/agendamento`, {
@@ -165,7 +165,7 @@ class AgendamentoService {
     ClienteID: string,
     CabeleireiroID: string,
     SalaoId: string,
-    servicosIds: string[] = []
+    servicosIds: string[] = [],
   ): Promise<Agendamentos> {
     try {
       const response = await api.post(`/cliente/agendamento`, {
@@ -188,8 +188,8 @@ class AgendamentoService {
     ClienteID: string,
     CabeleireiroID: string,
     SalaoId: string,
-    servicosIds: string[] = []
-  ): Promise<Agendamentos> {
+    servicosIds: string[] = [],
+  ): Promise<Agendamentos | false> {
     try {
       const response = await api.put(`/funcionario/agendamento/${id}`, {
         Data,
@@ -199,7 +199,13 @@ class AgendamentoService {
         SalaoId,
         servicosIds,
       });
-        console.log("Agendamento atualizado (funcionario):", response.data);
+      console.log("Agendamento atualizado (funcionario):", response.data);
+      if (response.status === 403) {
+        console.error(
+          "Erro ao atualizar agendamento (funcionário): Acesso negado",
+        );
+        return false;
+      }
       return response.data;
     } catch (error) {
       console.error("Erro ao atualizar agendamento (funcionário):", error);
@@ -214,8 +220,8 @@ class AgendamentoService {
     ClienteID: string,
     CabeleireiroID: string,
     SalaoId: string,
-    servicosIds: string[] = []
-  ): Promise<Agendamentos> {
+    servicosIds: string[] = [],
+  ): Promise<Agendamentos | false> {
     try {
       const response = await api.put(`/cabeleireiro/agendamento/${id}`, {
         Data,
@@ -225,6 +231,12 @@ class AgendamentoService {
         SalaoId,
         servicosIds,
       });
+      if (response.status === 403) {
+        console.error(
+          "Erro ao atualizar agendamento (cabeleireiro): Acesso negado",
+        );
+        return false;
+      }
       return response.data;
     } catch (error) {
       console.error("Erro ao atualizar agendamento (cabeleireiro):", error);
@@ -239,10 +251,10 @@ class AgendamentoService {
     ClienteID: string,
     CabeleireiroID: string,
     SalaoId: string,
-    servicosIds: string[] = []
-  ): Promise<Agendamentos> {
+    servicosIds: string[] = [],
+  ): Promise<Agendamentos | false> {
     try {
-              console.log("Parâmetros recebidos em updateClienteAgendamento:", {
+      console.log("Parâmetros recebidos em updateClienteAgendamento:", {
         Data,
         ClienteID,
         CabeleireiroID,
@@ -257,6 +269,10 @@ class AgendamentoService {
         SalaoId,
         servicosIds,
       });
+      if (response.status === 403) {
+        console.error("Erro ao atualizar agendamento (cliente): Acesso negado");
+        return false;
+      }
       console.log("Agendamento atualizado (cliente):", response.data);
       return response.data;
     } catch (error) {
@@ -267,7 +283,7 @@ class AgendamentoService {
 
   static async getFuncionarioAgendamentoById(
     id: string,
-    includeRelations: boolean
+    includeRelations: boolean,
   ): Promise<Agendamentos> {
     try {
       const response = await api.get(`/funcionario/agendamento/${id}`, {
@@ -282,7 +298,7 @@ class AgendamentoService {
 
   static async getCabeleireiroAgendamentoById(
     id: string,
-    includeRelations: boolean
+    includeRelations: boolean,
   ): Promise<Agendamentos> {
     try {
       const response = await api.get(`/cabeleireiro/agendamento/${id}`, {
@@ -296,7 +312,7 @@ class AgendamentoService {
   }
   static async getClienteAgendamentoById(
     id: string,
-    includeRelations: boolean
+    includeRelations: boolean,
   ): Promise<Agendamentos> {
     try {
       const response = await api.get(`/cliente/agendamento/${id}`, {
@@ -340,12 +356,12 @@ class AgendamentoService {
   static async getHorariosOcupadosFuturos(
     salaoId: string,
     cabeleireiroId: string,
-    data: string
+    data: string,
   ): Promise<[string, number][] | false> {
     try {
       const response = await api.get(
         `/agendamento/horarios/${salaoId}/${cabeleireiroId}`,
-        { params: { data } }
+        { params: { data } },
       );
       if (response.status === 200) {
         console.log("buscar horários ocupados futuros: ", response.data);
@@ -353,7 +369,7 @@ class AgendamentoService {
       }
       console.error(
         "Erro ao buscar horários ocupados futuros:",
-        response.status
+        response.status,
       );
       return false;
     } catch (error) {
