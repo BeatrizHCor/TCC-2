@@ -68,7 +68,7 @@ class AtendimentoService {
           page,
           limit,
           includeRelations: true,
-          SalaoId: salaoId,
+          salaoId: salaoId,
           cabeleireiro: cabelereiroFilter,
           userId,
           data: dataFilter,

@@ -136,7 +136,7 @@ RoutesAtendimento.get(
           }
           if ([userTypes.CLIENTE].includes(userInfo.userTypeAuth)) {
             const result = await ClientegetAtendimentobyId(id);
-          if (result && result.Agendamentos[0].ClienteID! !== userInfo.userID) {
+          if (result && result[0]?.ClienteID !== userInfo.userID) {
             res.status(403).json({ message: "Unauthorized" });
             return;
           } else if (result) {
@@ -324,7 +324,7 @@ RoutesAtendimento.get(
         if (
           auth &&
           [
-            userTypes.FUNCIONARIO,
+            userTypes.CLIENTE,
             userTypes.ADM_SALAO,
             userTypes.ADM_SISTEMA,
           ].includes(userInfo.userType)
