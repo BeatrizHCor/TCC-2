@@ -51,6 +51,8 @@ const ManterFuncionario: React.FC = () => {
     validationErrors,
     handleSubmit,
     handleDelete,
+    deleteResult,
+    setDeleteResult,
     forbidden,
   } = useManterFuncionario(funcionarioId);
 
@@ -65,6 +67,11 @@ const ManterFuncionario: React.FC = () => {
   const handleConfirmDelete = async () => {
     await handleDelete();
     handleCloseDeleteDialog();
+  };
+
+  const handleCloseDeleteResult = () => {
+    setDeleteResult(null);
+    navigate("/funcionarios");
   };
 
   const handleCpfChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -399,6 +406,19 @@ const ManterFuncionario: React.FC = () => {
           <Button onClick={handleConfirmDelete} color="error" autoFocus>
             Excluir
           </Button>
+        </DialogActions>
+      </Dialog>
+
+      {/* Pop-up de resultado da exclusão/desativação */}
+      <Dialog open={!!deleteResult} onClose={handleCloseDeleteResult}>
+        <DialogTitle>Resultado da exclusão</DialogTitle>
+        <DialogContent>
+          <DialogContentText>
+            {deleteResult?.message}
+          </DialogContentText>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={handleCloseDeleteResult} autoFocus>OK</Button>
         </DialogActions>
       </Dialog>
     </Box>

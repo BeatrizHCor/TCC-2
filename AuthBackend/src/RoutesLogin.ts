@@ -13,7 +13,9 @@ import {
 import {
   deleteFuncionario,
   getFuncionarioByCpf,
+  getFuncionarioById,
   postFuncionario,
+  updateFuncionario,
 } from "./Services/ServiceFunc";
 import { createPortfolio, deletePortfolio } from "./Services/ServiceImag";
 import {
@@ -107,7 +109,7 @@ RoutesLogin.post("/cadastrar/cliente", async (req: Request, res: Response) => {
       Email,
       Password,
       SalaoId,
-      userType
+      userType,
     );
     if (!register) {
       console.log("Register auth failed");
@@ -126,6 +128,76 @@ RoutesLogin.post("/cadastrar/cliente", async (req: Request, res: Response) => {
     res.status(500).send("Error in creating customer");
   }
 });
+
+RoutesLogin.post(
+  "/cadastrar/cabeleireiro",
+  async (req: Request, res: Response) => {
+    let { CPF, Nome, Email, Telefone, SalaoId, Password, userType, Mei } =
+      req.body;
+    console.log(req.body);
+    try {
+      let cabeleireiro = await postCabeleireiro(
+        CPF,
+        Nome,
+        Email,
+        Telefone,
+        SalaoId,
+        Mei,
+      );
+      if (!cabeleireiro) {
+        throw new Error("Cabeleireiro not created");
+      }
+      let portfolio = await createPortfolio(
+        cabeleireiro.ID!,
+        "Portfolio de " + Nome,
+        SalaoId,
+      );
+      if (!portfolio) {
+        console.log("Portfolio not created");
+        let cabeleireiroDelete = await deleteCabeleireiro(cabeleireiro.ID!);
+        if (cabeleireiroDelete) {
+          console.log("Cabeleireiro deleted successfully");
+        } else {
+          console.log(
+            "Falha ao deletar cabeleireiro após falha na criação do portfolio",
+          );
+        }
+        throw new Error("Portfolio creation failed");
+      } else {
+        console.log("Cabeleireiro ID: ", cabeleireiro.ID);
+        let register = await registerLogin(
+          cabeleireiro.ID!,
+          Email,
+          String(Password),
+          SalaoId,
+          userType,
+        );
+        if (!register) {
+          console.log("Register failed");
+          let cabeleireiroDelete = await deleteCabeleireiro(cabeleireiro.ID!);
+          let portfolioDelete = await deletePortfolio(portfolio.ID!);
+          if (cabeleireiroDelete && portfolioDelete) {
+            console.log("Cabeleireiro e Portfolio deletados com sucesso.");
+          } else if (!cabeleireiroDelete) {
+            console.log("Falha ao deletar cabeleireiro após falha no registro");
+          } else if (!portfolioDelete) {
+            console.log("Falha ao deletar portfolio após falha no registro");
+          }
+          throw new Error("Login registration failed");
+        }
+        let token = await verifyPasswordAndReturnToken(
+          Email,
+          Password,
+          SalaoId,
+        );
+        res.status(200).send(token);
+      }
+    } catch (e) {
+      console.log(e);
+      res.status(500).send("Error in creating Cabeleireiro");
+    }
+  },
+);
 
 RoutesLogin.post(
   "/cadastrar/funcionario",
@@ -155,7 +227,7 @@ RoutesLogin.post(
         Telefone,
         SalaoId,
         Auxiliar,
-        Salario
+        Salario,
       );
       if (!funcionario) {
         throw new Error("Funcionario not created");
@@ -165,7 +237,7 @@ RoutesLogin.post(
         Email,
         Password,
         SalaoId,
-        userType
+        userType,
       );
       if (!register) {
         console.log("Register auth failed, deleting user");
@@ -184,76 +256,57 @@ RoutesLogin.post(
       console.log(e);
       res.status(500).send("Error in creating Funcionario");
     }
-  }
+  },
 );
 
-RoutesLogin.post(
-  "/cadastrar/cabeleireiro",
+RoutesLogin.delete(
+  "/funcionario/delete/:id",
   async (req: Request, res: Response) => {
-    let { CPF, Nome, Email, Telefone, SalaoId, Password, userType, Mei } =
-      req.body;
-    console.log(req.body);
+    const { id } = req.params;
     try {
-      let cabeleireiro = await postCabeleireiro(
-        CPF,
-        Nome,
-        Email,
-        Telefone,
-        SalaoId,
-        Mei
-      );
-      if (!cabeleireiro) {
-        throw new Error("Cabeleireiro not created");
-      }
-      let portfolio = await createPortfolio(
-        cabeleireiro.ID!,
-        "Portfolio de " + Nome,
-        SalaoId
-      );
-      if (!portfolio) {
-        console.log("Portfolio not created");
-        let cabeleireiroDelete = await deleteCabeleireiro(cabeleireiro.ID!);
-        if (cabeleireiroDelete) {
-          console.log("Cabeleireiro deleted successfully");
-        } else {
-          console.log(
-            "Falha ao deletar cabeleireiro após falha na criação do portfolio"
-          );
+      try {
+        console.log("IDDD: ", id);
+        let deleted = await deleteFuncionario(id);
+        if (deleted) {
+          await deleteAuth(id);
+          res.status(200).json({
+            message: "Funcionário deletado com sucesso.",
+          });
+          return;
         }
-        throw new Error("Portfolio creation failed");
-      } else {
-        console.log("Cabeleireiro ID: ", cabeleireiro.ID);
-        let register = await registerLogin(
-          cabeleireiro.ID!,
-          Email,
-          String(Password),
-          SalaoId,
-          userType
-        );
-        if (!register) {
-          console.log("Register failed");
-          let cabeleireiroDelete = await deleteCabeleireiro(cabeleireiro.ID!);
-          let portfolioDelete = await deletePortfolio(portfolio.ID!);
-          if (cabeleireiroDelete && portfolioDelete) {
-            console.log("Cabeleireiro e Portfolio deletados com sucesso.");
-          } else if (!cabeleireiroDelete) {
-            console.log("Falha ao deletar cabeleireiro após falha no registro");
-          } else if (!portfolioDelete) {
-            console.log("Falha ao deletar portfolio após falha no registro");
+      } catch (err: any) {
+        if (err.message && err.message.includes("em uso")) {
+          const funcionarioAtual = await getFuncionarioById(id);
+          if (funcionarioAtual) {
+            await updateFuncionario(
+              id,
+              funcionarioAtual.Nome,
+              funcionarioAtual.CPF,
+              funcionarioAtual.Email,
+              funcionarioAtual.Telefone,
+              funcionarioAtual.SalaoId,
+              funcionarioAtual.Auxiliar,
+              funcionarioAtual.Salario || 0,
+              StatusCadastro.DESATIVADO,
+            );
           }
-          throw new Error("Login registration failed");
+          await deleteAuth(id);
+          res.status(200).json({
+            message:
+              "Funcionário não pôde ser removido por dependências, mas foi desativado e a autorização removida.",
+          });
+          return;
+        } else {
+          throw err;
         }
-        let token = await verifyPasswordAndReturnToken(
-          Email,
-          Password,
-          SalaoId
-        );
-        res.status(200).send(token);
       }
     } catch (e) {
       console.log(e);
-      res.status(500).send("Error in creating Cabeleireiro");
+      res.status(500).json({
+        message: "Erro ao deletar/desativar funcionário.",
+      });
     }
-  }
+  },
 );
+
 export default RoutesLogin;

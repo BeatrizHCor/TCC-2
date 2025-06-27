@@ -51,6 +51,7 @@ export const useVisualizarFuncionarios = (
             SalaoId: item.SalaoId ?? "",
             Auxiliar: item.Auxiliar ?? false,
             DataCadastro: item.DataCadastro ?? "",
+            Status: item.Status,
           })
         );
         setFuncionarios(listaFuncionarios);

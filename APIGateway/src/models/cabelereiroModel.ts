@@ -1,5 +1,6 @@
 import { Agendamentos } from "./agendamentoModel";
 import { Portfolio } from "./portifolioModel";
+import { StatusCadastro } from "./status.cadastro.enum";
 
 export interface Cabeleireiro {
     ID?: string;
@@ -12,5 +13,6 @@ export interface Cabeleireiro {
     Portfolio?: Portfolio; 
     Agendamentos?: Agendamentos[];
     DataCadastro?: Date;
+    Status?: StatusCadastro
   }
   

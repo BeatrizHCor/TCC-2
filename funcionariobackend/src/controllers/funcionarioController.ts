@@ -13,7 +13,7 @@ class FuncionarioController {
         includeRelations === "true",
         salaoId ? String(salaoId) : ""
       );
-      res.json(funcionarios);
+      res.status(200).json(funcionarios);
     } catch (error) {
       console.log(error);
       res.status(404).json({ message: "Funcionário não encontrado" });
@@ -30,7 +30,7 @@ class FuncionarioController {
         includeRelations === "true",
         salaoId ? String(salaoId) : ""
       );
-      res.json(funcionarios);
+      res.status(200).json(funcionarios);
     } catch (error) {
       console.log(error);
       res.status(500).send("something went wrong");
@@ -78,7 +78,7 @@ class FuncionarioController {
       if (!funcionario) {
         res.status(204).json({ message: "Funcionário não encontrado" });
       } else {
-        res.json(funcionario);
+        res.status(200).json(funcionario);
       }
     } catch (error) {
       console.log(error);
@@ -93,7 +93,7 @@ class FuncionarioController {
       if (!funcionario) {
         res.status(204).json({ message: "Funcionários não encontrados" });
       } else {
-        res.json(funcionario);
+        res.status(200).json(funcionario);
       }
     } catch (error) {
       console.log(error);
@@ -113,7 +113,7 @@ class FuncionarioController {
       if (!funcionario) {
         res.status(204).json({ message: "Funcionário não encontrado" });
       } else {
-        res.json(funcionario);
+        res.status(200).json(funcionario);
       }
     } catch (error) {
       console.log(error);
@@ -144,7 +144,7 @@ class FuncionarioController {
   static async update(req: Request, res: Response): Promise<void> {
     try {
       const { id } = req.params;
-      const { Nome, CPF, Email, Telefone, SalaoId, Auxiliar, Salario } =
+      const { Nome, CPF, Email, Telefone, SalaoId, Auxiliar, Salario, Status } =
         req.body;
       const updatedFuncionario = await FuncionarioService.update(
         id,
@@ -154,9 +154,10 @@ class FuncionarioController {
         Telefone,
         SalaoId,
         Auxiliar,
-        Salario
+        Salario,
+        Status ? Status : Status.ATIVO
       );
-      res.json(updatedFuncionario);
+      res.status(200).json(updatedFuncionario);
     } catch (error) {
       console.log(error);
       res.status(500).send("something went wrong");
@@ -181,7 +182,13 @@ class FuncionarioController {
       }
     } catch (error) {
       console.log(error);
-      if (error instanceof Error && error.message.includes("constraint")) {
+  if (
+    (error instanceof Error && error.message.includes("constraint")) ||
+    (typeof error === "object" &&
+      error !== null &&
+      "code" in error &&
+      (error as any).code === "P2003")
+  ) {
         res.status(409).json({
           message: "Não é possível excluir: funcionário está em uso.",
         });

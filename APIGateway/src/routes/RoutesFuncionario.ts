@@ -3,8 +3,8 @@ import {
   deleteFuncionario,
   deleteServico,
   findServicoByNomeAndSalaoId,
-  getFuncionarioById,
   getAuxiliarBySalao,
+  getFuncionarioById,
   getFuncionarioPage,
   getServicoById,
   getServicoPage,
@@ -35,8 +35,8 @@ RoutesFuncionario.get(
     try {
       const userInfo = JSON.parse(
         Buffer.from(req.headers.authorization || "", "base64").toString(
-          "utf-8"
-        ) || "{}"
+          "utf-8",
+        ) || "{}",
       );
       if (
         !userInfo ||
@@ -52,7 +52,7 @@ RoutesFuncionario.get(
         const auth = await authenticate(
           userInfo.userID,
           userInfo.token,
-          userInfo.userType
+          userInfo.userType,
         );
         console.log("auth retorno :", auth);
         if (
@@ -71,7 +71,7 @@ RoutesFuncionario.get(
             limit,
             nome,
             includeRelations,
-            salaoId
+            salaoId,
           );
           res.json(funcionarios);
         }
@@ -80,7 +80,7 @@ RoutesFuncionario.get(
       console.error("Erro ao buscar funcionarios:", error);
       res.status(500).json({ message: "Erro interno do servidor" });
     }
-  }
+  },
 );
 
 RoutesFuncionario.post(
@@ -100,14 +100,14 @@ RoutesFuncionario.post(
     try {
       const userInfo = JSON.parse(
         Buffer.from(req.headers.authorization || "", "base64").toString(
-          "utf-8"
-        ) || "{}"
+          "utf-8",
+        ) || "{}",
       );
       let userTypeAuth = userInfo.userType;
       const auth = await authenticate(
         userInfo.userID,
         userInfo.token,
-        userInfo.userType
+        userInfo.userType,
       );
       if (
         !auth ||
@@ -144,7 +144,7 @@ RoutesFuncionario.post(
             Auxiliar,
             Salario,
             Password,
-            userType
+            userType,
           );
           if (result) {
             res.status(201).json(result);
@@ -157,7 +157,7 @@ RoutesFuncionario.post(
       console.log(e);
       res.status(500).send("Error in creating Funcionario");
     }
-  }
+  },
 );
 
 RoutesFuncionario.delete(
@@ -167,14 +167,14 @@ RoutesFuncionario.delete(
     try {
       const userInfo = JSON.parse(
         Buffer.from(req.headers.authorization || "", "base64").toString(
-          "utf-8"
-        ) || "{}"
+          "utf-8",
+        ) || "{}",
       );
       let userTypeAuth = userInfo.userType;
       const auth = await authenticate(
         userInfo.userID,
         userInfo.token,
-        userInfo.userType
+        userInfo.userType,
       );
       if (
         !auth ||
@@ -187,17 +187,27 @@ RoutesFuncionario.delete(
         res.status(403).json({ message: "Unauthorized" });
       } else {
         let funcionarioDelete = await deleteFuncionario(id);
-        if (funcionarioDelete) {
-          res.status(200).send(funcionarioDelete);
+        if (funcionarioDelete && funcionarioDelete.status === "excluido") {
+          res.status(200).json({
+            message: funcionarioDelete.message,
+            status: "excluido",
+          });
+        } else if (
+          funcionarioDelete && funcionarioDelete.status === "desativado"
+        ) {
+          res.status(200).json({
+            message: funcionarioDelete.message,
+            status: "desativado",
+          });
         } else {
-          res.status(404).send("Funcionario not deleted");
+          res.status(404).json({ message: "Funcionario not deleted" });
         }
       }
     } catch (e) {
       console.log(e);
       res.status(500).send("Error in deleting Funcionario");
     }
-  }
+  },
 );
 
 RoutesFuncionario.get(
@@ -215,7 +225,7 @@ RoutesFuncionario.get(
       console.log(e);
       res.status(500).send("Error in getting Funcionario");
     }
-  }
+  },
 );
 
 RoutesFuncionario.get(
@@ -233,7 +243,7 @@ RoutesFuncionario.get(
       console.log(e);
       res.status(500).send("Error in getting Funcionario");
     }
-  }
+  },
 );
 
 RoutesFuncionario.put(
@@ -262,7 +272,7 @@ RoutesFuncionario.put(
           Telefone,
           SalaoId,
           Auxiliar,
-          Salario
+          Salario,
         );
         if (funcionarioUpdate) {
           res.status(200).send(funcionarioUpdate);
@@ -274,7 +284,7 @@ RoutesFuncionario.put(
       console.log(e);
       res.status(500).send("Error in updating Funcionario");
     }
-  }
+  },
 );
 
 //--------SERVIÇO--------//
@@ -295,7 +305,7 @@ RoutesFuncionario.get("/servico/page", async (req: Request, res: Response) => {
       nome,
       precoMin,
       precoMax,
-      includeRelations
+      includeRelations,
     );
     res.json(funcionarios);
   } catch (error) {
@@ -323,7 +333,7 @@ RoutesFuncionario.post("/servico", async (req: Request, res: Response) => {
         SalaoId,
         PrecoMin,
         PrecoMax,
-        Descricao
+        Descricao,
       );
       res.status(201).send(servico);
     }
@@ -359,7 +369,7 @@ RoutesFuncionario.delete(
       console.log(e);
       res.status(500).send("Error in deleting Funcionario");
     }
-  }
+  },
 );
 
 RoutesFuncionario.put(
@@ -386,7 +396,7 @@ RoutesFuncionario.put(
           SalaoId,
           PrecoMin,
           PrecoMax,
-          Descricao
+          Descricao,
         );
         if (servicoUpdate) {
           res.status(200).send(servicoUpdate);
@@ -396,7 +406,7 @@ RoutesFuncionario.put(
       console.log(e);
       res.status(500).send("Error in updating Funcionario");
     }
-  }
+  },
 );
 
 RoutesFuncionario.get(
@@ -414,7 +424,7 @@ RoutesFuncionario.get(
       console.log(e);
       res.status(500).send("Error in getting Funcionario");
     }
-  }
+  },
 );
 
 RoutesFuncionario.get(
@@ -432,7 +442,7 @@ RoutesFuncionario.get(
       console.log(e);
       res.status(500).send("Error in getting Funcionario");
     }
-  }
+  },
 );
 
 RoutesFuncionario.get(
@@ -450,6 +460,6 @@ RoutesFuncionario.get(
       console.log(e);
       res.status(500).send("Error in finding Servicos");
     }
-  }
+  },
 );
 export default RoutesFuncionario;

@@ -5,6 +5,7 @@ import e, { response } from "express";
 import { handleApiResponse } from "../utils/HandlerDeRespostaDoBackend";
 
 const FuncionarioURL = process.env.FUNC_URL || "http://localhost:3002";
+const Auth_URL = process.env.AUTH_URL || "http://localhost:3001";
 export const postFuncionario = async (
   CPF: string,
   Nome: string,
@@ -57,13 +58,21 @@ export const getFuncionarioPage = async (
 
 export const deleteFuncionario = async (id: string) => {
   let responseFuncionario = await fetch(
-    FuncionarioURL + `/funcionario/delete/${id}`,
+    Auth_URL + `/funcionario/delete/${id}`,
     {
       method: "DELETE",
     }
   );
   if (responseFuncionario.ok) {
-    return (await responseFuncionario.json()) as Funcionario;
+    const data = await responseFuncionario.json();
+    if (data && typeof data.message === "string") {
+      if (data.message.includes("desativado")) {
+        return { status: "desativado", message: data.message };
+      } else if (data.message.includes("deletado")) {
+        return { status: "excluido", message: data.message };
+      }
+    }
+    return { status: "outro", message: data.message || "Operação realizada" };
   } else {
     throw new Error("Error in deleting Funcionario");
   }

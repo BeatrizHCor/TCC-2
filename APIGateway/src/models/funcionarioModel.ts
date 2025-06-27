@@ -1,5 +1,6 @@
 import { AtendimentoAuxiliar } from "./atendimentoAuxiliarModel";
 import { Salao } from "./salaoModel";
+import { StatusCadastro } from "./status.cadastro.enum";
 
 export interface Funcionario {
     ID?: string;
@@ -13,4 +14,5 @@ export interface Funcionario {
     Salario?: number;
     AtendimentoAuxiliar?: AtendimentoAuxiliar[];
     DataCadastro?: Date;
+    Status?: StatusCadastro;
   }

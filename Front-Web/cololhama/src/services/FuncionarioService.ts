@@ -44,6 +44,7 @@ export const FuncionarioService = {
           },
         }
       );
+      console.log("funcionários:", response.data.data);
       if (response.status === 403) {
         return false;
       }
@@ -88,15 +89,22 @@ export const FuncionarioService = {
     }
   },
 
-  async deleteFuncionario(id: string): Promise<void> {
+  async deleteFuncionario(id: string): Promise<{status: string, message: string}|false> {
     try {
       const response = await api.delete(`/funcionario/delete/${id}`);
-      if (response.status === 200) {
-        console.log("Funcionario deletedo: ", response.data.Nome);
+      if (response.status === 200 && response.data && response.data.status) {
+        return { status: response.data.status, message: response.data.message };
+      } else if (response.status === 404) {
+        return { status: "nao_encontrado", message: "Funcionário não encontrado ou não deletado." };
+      } else {
+        return false;
       }
-    } catch (error) {
+    } catch (error: any) {
+      if (error.response && error.response.data && error.response.data.message) {
+        return { status: "erro", message: error.response.data.message };
+      }
       console.error("Erro ao deletar funcionário:", error);
-      throw error;
+      return { status: "erro", message: "Erro ao deletar funcionário." };
     }
   },
 

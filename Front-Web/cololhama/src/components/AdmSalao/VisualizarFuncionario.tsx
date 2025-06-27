@@ -21,6 +21,7 @@ import { AuthContext } from "../../contexts/AuthContext";
 import { userTypes } from "../../models/tipo-usuario.enum";
 import theme from "../../styles/theme";
 import "../../styles/styles.global.css";
+import { StatusCadastro } from "../../models/status.cadastro.enum";
 
 const SalaoID = import.meta.env.VITE_SALAO_ID || "1";
 
@@ -29,6 +30,7 @@ const colunas = [
   { id: "email", label: "Email" },
   { id: "telefone", label: "Telefone" },
   { id: "dataCadastro", label: "Data de Cadastro" },
+  { id: "Status", label: "Status" }
 ];
 
 export const VisualizarFuncionarios: React.FC = () => {
@@ -81,7 +83,7 @@ export const VisualizarFuncionarios: React.FC = () => {
 
   return (
     <Box sx={{ width: "100%", p: { xs: 2, sm: 4 } }}>
-       <Box
+      <Box
         sx={{
           display: 'flex',
           flexWrap: 'wrap',
@@ -90,7 +92,7 @@ export const VisualizarFuncionarios: React.FC = () => {
           alignItems: 'center',
           mb: 2,
         }}
-        >
+      >
         <Typography
           variant="h4"
           sx={{
@@ -99,8 +101,8 @@ export const VisualizarFuncionarios: React.FC = () => {
             color: theme.palette.primary.main,
             textAlign: { xs: 'center', md: 'left' },
           }}
-          >
-          Funcionários          
+        >
+          Funcionários
         </Typography>
       </Box>
       <Box
@@ -163,13 +165,13 @@ export const VisualizarFuncionarios: React.FC = () => {
       </Box>
 
       <Paper
-  elevation={1}
-  sx={{
-    borderRadius: 2,
-    overflow: "hidden", 
-    backgroundColor: "#f5f5f5",
-  }}
->
+        elevation={1}
+        sx={{
+          borderRadius: 2,
+          overflow: "hidden",
+          backgroundColor: "#f5f5f5",
+        }}
+      >
 
         <TableContainer>
           <Table>
@@ -203,9 +205,16 @@ export const VisualizarFuncionarios: React.FC = () => {
                   <TableCell>
                     {funcionario.DataCadastro
                       ? new Date(funcionario.DataCadastro).toLocaleDateString(
-                          "pt-BR"
-                        )
+                        "pt-BR"
+                      )
                       : "N/A"}
+                  </TableCell>
+                  <TableCell>
+                    { funcionario.Status === "ATIVO"
+                      ? "Ativo"
+                      : funcionario.Status === "DESATIVADO"
+                        ? "Inativo"
+                        : "Pendente"}
                   </TableCell>
                   {isADMSalao && (
                     <TableCell>

@@ -1,6 +1,6 @@
-import { Prisma } from "@prisma/client";
+import { Prisma, StatusCadastro } from "@prisma/client";
 import prisma from "../config/database";
-import { isValidString } from "../utils/ValidacaoValoresBusca";
+
 
 class FuncionarioService {
   static async getFuncionarios(
@@ -20,7 +20,6 @@ class FuncionarioService {
     if (salaoId) {
       where.SalaoId = salaoId;
     }
-    where.Status = "ATIVO";
     return await prisma.funcionario.findMany({
       ...(skip !== null ? { skip } : {}),
       ...(limit !== null ? { take: limit } : {}),
@@ -54,7 +53,6 @@ class FuncionarioService {
     if (nome !== null) {
       where.Nome = { contains: nome, mode: "insensitive" };
     }
-    where.Status = "ATIVO";
     const [total, funcionarios] = await Promise.all([
       prisma.funcionario.count({ where }),
       FuncionarioService.getFuncionarios(
@@ -197,7 +195,8 @@ class FuncionarioService {
     Telefone: string,
     SalaoId: string,
     Auxiliar: boolean,
-    Salario: number
+    Salario: number,
+    Status?: StatusCadastro
   ) {
     try {
       const existingFuncionario = await this.findById(id);
@@ -216,6 +215,7 @@ class FuncionarioService {
           SalaoId,
           Auxiliar,
           Salario,
+          Status: Status ? Status : existingFuncionario.Status
         },
       });
     } catch (error) {
@@ -239,10 +239,6 @@ class FuncionarioService {
   }
 
   static async deleteById(ID: string) {
-    const existingFuncionario = await this.findById(ID);
-    if (!existingFuncionario) {
-      throw new Error("Funcionário não encontrado");
-    }
     return await prisma.funcionario.delete({
       where: {
         ID: ID,

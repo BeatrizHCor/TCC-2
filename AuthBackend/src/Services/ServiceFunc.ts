@@ -1,6 +1,5 @@
 import "dotenv/config";
-import { Funcionario, Servico } from "@prisma/client";
-import e, { response } from "express";
+import { Funcionario, Servico, StatusCadastro } from "@prisma/client";
 import { handleApiResponse } from "../utils/HandlerDeRespostaDoBackend";
 
 const FuncionarioURL = process.env.FUNC_URL || "http://localhost:3002";
@@ -62,11 +61,22 @@ export const deleteFuncionario = async (id: string) => {
         {
             method: "DELETE",
         },
-    );
-    if (responseFuncionario.status === 204) {
+    );console.log(responseFuncionario.status, responseFuncionario.json());
+    if (responseFuncionario.ok) {
         return true;
+    } else if (responseFuncionario.status === 409) {
+        console.log("Status da resposta:", responseFuncionario.status);
+        const data = await responseFuncionario.json().catch(() => ({}));
+        console.log("Body da resposta:", data);
+        const msg = data && data.message
+            ? data.message
+            : "Não é possível excluir: funcionário está em uso.";
+        throw new Error(msg);
     } else {
-        throw new Error("Error in deleting Funcionario");
+             return handleApiResponse<Funcionario>(
+            responseFuncionario,
+            "deletar Funcionario",
+        );
     }
 };
 
@@ -79,6 +89,7 @@ export const updateFuncionario = async (
     SalaoId: string,
     Auxiliar: boolean,
     Salario: number,
+    Status?: StatusCadastro,
 ) => {
     let responseFuncionario = await fetch(
         FuncionarioURL + `/funcionario/update/${id}`,
@@ -88,7 +99,16 @@ export const updateFuncionario = async (
                 "Content-Type": "application/json",
             },
             body: JSON.stringify(
-                { Nome, CPF, Email, Telefone, SalaoId, Auxiliar, Salario },
+                {
+                    Nome,
+                    CPF,
+                    Email,
+                    Telefone,
+                    SalaoId,
+                    Auxiliar,
+                    Salario,
+                    Status,
+                },
             ),
         },
     );

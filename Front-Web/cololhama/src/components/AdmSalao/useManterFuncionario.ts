@@ -30,6 +30,10 @@ export const useManterFuncionario = (funcionarioId?: string) => {
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [forbidden, setForbidden] = useState<boolean>(false);
+  const [deleteResult, setDeleteResult] = useState<{
+    status: string;
+    message: string;
+  } | null>(null);
 
   const [isLoading, setIsLoading] = useState(false);
   const [validationErrors, setValidationErrors] = useState<ValidationErrors>(
@@ -183,9 +187,20 @@ export const useManterFuncionario = (funcionarioId?: string) => {
     setIsLoading(true);
 
     try {
-      await FuncionarioService.deleteFuncionario(funcionarioId);
-      navigate("/funcionarios");
+      const result = await FuncionarioService.deleteFuncionario(funcionarioId);
+      if (result && result.status) {
+        setDeleteResult(result);
+      } else {
+        setDeleteResult({
+          status: "erro",
+          message: "Erro ao excluir funcionário.",
+        });
+      }
     } catch (error) {
+      setDeleteResult({
+        status: "erro",
+        message: "Erro ao excluir funcionário.",
+      });
       console.error("Erro ao excluir funcionário:", error);
     } finally {
       setIsLoading(false);
@@ -243,6 +258,8 @@ export const useManterFuncionario = (funcionarioId?: string) => {
     validationErrors,
     handleSubmit,
     handleDelete,
+    deleteResult,
+    setDeleteResult,
     forbidden,
   };
 };
