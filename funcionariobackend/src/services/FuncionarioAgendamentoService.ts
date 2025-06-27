@@ -205,14 +205,13 @@ class AgendamentoService {
         await tx.servicoAgendamento.deleteMany({
           where: { AgendamentosId: id },
         });
+        let services: Servico[] = [];
         if (servicosIds.length > 0) {
-          let services = await tx.servico.findMany({
+          services = await tx.servico.findMany({
             where: {
               ID: { in: servicosIds },
             },
           });
-          console.log(servicosIds);
-          console.log(services);
           await tx.servicoAgendamento.createMany({
             data: services.map((servico) => ({
               AgendamentosId: id,

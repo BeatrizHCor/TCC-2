@@ -239,6 +239,8 @@ export const ClienteUpdateAgendamento = async (
   SalaoId: string,
   servicosIds: string[],
 ) => {
+console.log("parametros no service backCliente: ", Data, Status, ClienteID, CabeleireiroID, SalaoId, servicosIds);
+
   let response = await fetch(ClienteURL + `/agendamento/${id}`, {
     method: "PUT",
     headers: {

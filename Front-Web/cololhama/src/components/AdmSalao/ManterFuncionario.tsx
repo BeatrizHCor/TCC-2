@@ -93,18 +93,17 @@ const ManterFuncionario: React.FC = () => {
 
   const handleTelefoneChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const rawValue = e.target.value.replace(/\D/g, "");
-    const limitedValue = rawValue.slice(0, 11);
     let formattedValue = "";
 
-    if (limitedValue.length <= 2) {
-      formattedValue = limitedValue;
-    } else if (limitedValue.length <= 7) {
-      formattedValue = `(${limitedValue.slice(0, 2)}) ${limitedValue.slice(2)}`;
+    if (rawValue.length <= 2) {
+      formattedValue = rawValue;
+    } else if (rawValue.length <= 7) {
+      formattedValue = `(${rawValue.slice(0, 2)}) ${rawValue.slice(2)}`;
     } else {
-      formattedValue = `(${limitedValue.slice(0, 2)}) ${limitedValue.slice(
+      formattedValue = `(${rawValue.slice(0, 2)}) ${rawValue.slice(
         2,
         7
-      )}-${limitedValue.slice(7, 11)}`;
+      )}-${rawValue.slice(7, 11)}`;
     }
 
     setTelefone(formattedValue);

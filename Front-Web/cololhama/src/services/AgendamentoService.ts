@@ -258,7 +258,7 @@ class AgendamentoService {
         Data,
         ClienteID,
         CabeleireiroID,
-        SalaoId,
+        SalaoId: SalaoId,
         servicosIds,
       });
       const response = await api.put(`/cliente/agendamento/${id}`, {
@@ -353,6 +353,7 @@ class AgendamentoService {
       return false;
     }
   }
+
   static async getHorariosOcupadosFuturos(
     salaoId: string,
     cabeleireiroId: string,

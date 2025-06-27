@@ -87,9 +87,9 @@ class AgendamentoController {
   static updateAgendamento = async (req: Request, res: Response) => {
     try {
       const { id } = req.params;
-      const { Data, Status, ClienteID, SalaoId, CabeleireiroID, servicosIds } =
+      const { Data, Status, ClienteID, CabeleireiroID, SalaoId, servicosIds } =
         req.body;
-        console.log("parametros no serv backCliente: ", Data, Status, ClienteID, CabeleireiroID, SalaoId, servicosIds);
+        console.log("parametros no controller backCliente: ", Data, Status, ClienteID, CabeleireiroID, SalaoId, servicosIds);
       const agendamento = await AgendamentoService.updateAgendamento(
         id,
         new Date(Data),
