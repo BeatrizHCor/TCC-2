@@ -44,7 +44,6 @@ RoutesCabeleireiro.post(
 
           if (
             !CPF || !Nome || !Email || !Telefone || !SalaoId || !Password ||
-            !Mei ||
             !userType
           ) {
             res.status(400).json({

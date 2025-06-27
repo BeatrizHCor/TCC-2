@@ -61,7 +61,10 @@ class CabeleireiroController {
   };
   static create = async (req: Request, res: Response): Promise<void> => {
     try {
-      const { Email, CPF, Telefone, SalaoId, Mei, Nome } = req.body;
+      let { Email, CPF, Telefone, SalaoId, Mei, Nome } = req.body;
+      if (!Mei){
+        Mei = null
+      }
       const cabeleireiro = await CabeleireiroService.create(
         CPF,
         Email,

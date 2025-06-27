@@ -90,9 +90,6 @@ export const useManterCabeleireiro = (cabeleireiroId?: string) => {
       errors.telefone = "Telefone é obrigatório";
     }
 
-    if (!mei.trim()) {
-      errors.mei = "MEI é obrigatório";
-    }
     if (!isEditing && !password.trim()) {
       errors.password = "Senha é obrigatória";
     }
