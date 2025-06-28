@@ -11,7 +11,7 @@ class HistoricoSimulacaoService {
             path: string;
         },
         descricaoImagem: string,
-        tipoImagem: "Analoga" | "Analoga2" | "Complementar",
+        tipoImagem: "Original"|"Analoga" | "Analoga2" | "Complementar",
     ) {
         try {
             const historicoSimulacao = await prisma.historicoSimulacao.create({
@@ -161,11 +161,8 @@ class HistoricoSimulacaoService {
                 return false;
             }
 
-            // Definir diretório da simulação
             const historicoDir = path.join(process.cwd(), 'uploads', 'simulacoes', id);
-            console.log(`🗂️ Processando exclusão do diretório: ${historicoDir}`);
 
-            // Deletar arquivos individuais primeiro (baseado nos registros do banco)
             for (const imagem of historico.Imagem) {
                 try {
                     let filePath = imagem.Endereco;
@@ -182,16 +179,14 @@ class HistoricoSimulacaoService {
 
                     if (fs.existsSync(filePath)) {
                         fs.unlinkSync(filePath);
-                        console.log(`🗑️ Arquivo deletado: ${filePath}`);
                     } else {
                         console.log(`⚠️ Arquivo não encontrado: ${filePath}`);
                     }
                 } catch (fileError) {
-                    console.error(`❌ Erro ao deletar arquivo ${imagem.Endereco}:`, fileError);
+                    console.error(`Erro ao deletar arquivo ${imagem.Endereco}:`, fileError);
                 }
             }
 
-            // Função auxiliar para deletar diretório recursivamente
             const deletarDiretorioRecursivo = (dirPath: string) => {
                 if (fs.existsSync(dirPath)) {
                     const files = fs.readdirSync(dirPath);
@@ -201,71 +196,54 @@ class HistoricoSimulacaoService {
                         const stat = fs.statSync(filePath);
                         
                         if (stat.isDirectory()) {
-                            // Se é diretório, chamar recursivamente
                             deletarDiretorioRecursivo(filePath);
                         } else {
-                            // Se é arquivo, deletar
                             fs.unlinkSync(filePath);
-                            console.log(`🗑️ Arquivo removido: ${filePath}`);
                         }
                     });
                     
-                    // Depois de limpar tudo, deletar o diretório
                     fs.rmdirSync(dirPath);
-                    console.log(`📁 Diretório removido: ${dirPath}`);
                 } else {
-                    console.log(`⚠️ Diretório não encontrado: ${dirPath}`);
+                    console.log(`Diretório não encontrado: ${dirPath}`);
                 }
             };
 
-            // Deletar registros do banco primeiro
             const imagensDeleted = await prisma.imagem.deleteMany({
                 where: { HistoricoSimulacaoId: id },
             });
-
-            console.log(`📊 ${imagensDeleted.count} imagens deletadas do banco`);
 
             const historicoSimulacao = await prisma.historicoSimulacao.delete({
                 where: { ID: id },
             });
 
-            // Agora deletar completamente o diretório e todo seu conteúdo
             try {
                 deletarDiretorioRecursivo(historicoDir);
-                console.log(`✅ Diretório completamente removido: ${historicoDir}`);
             } catch (dirError) {
-                console.error(`❌ Erro ao deletar diretório ${historicoDir}:`, dirError);
                 
-                // Fallback: tentar deletar arquivos restantes manualmente
                 try {
                     if (fs.existsSync(historicoDir)) {
                         const remainingFiles = fs.readdirSync(historicoDir);
-                        console.log(`🔄 Tentando limpeza manual. Arquivos restantes: ${remainingFiles.length}`);
                         
                         remainingFiles.forEach(file => {
                             try {
                                 const fullPath = path.join(historicoDir, file);
                                 fs.unlinkSync(fullPath);
-                                console.log(`🗑️ Arquivo removido manualmente: ${fullPath}`);
                             } catch (cleanupError) {
-                                console.error(`❌ Erro na limpeza manual do arquivo ${file}:`, cleanupError);
+                                console.error(`Erro na limpeza manual do arquivo ${file}:`, cleanupError);
                             }
                         });
                         
-                        // Tentar deletar diretório vazio
                         fs.rmdirSync(historicoDir);
-                        console.log(`📁 Diretório removido após limpeza manual: ${historicoDir}`);
+                        console.log(`Diretório removido após limpeza manual: ${historicoDir}`);
                     }
                 } catch (fallbackError) {
-                    console.error(`❌ Erro no fallback de limpeza:`, fallbackError);
+                    console.error(`Erro no fallback de limpeza:`, fallbackError);
                 }
             }
 
-            console.log(`🎉 Histórico ${id} deletado com sucesso!`);
             return !!historicoSimulacao;
 
         } catch (error) {
-            console.error("❌ Erro ao deletar histórico de simulação:", error);
 
             if (error instanceof Error) {
                 if (error.message.includes('P2025')) {
@@ -291,11 +269,9 @@ class HistoricoSimulacaoService {
             }
 
             if (!imagens || typeof imagens !== 'object') {
-                throw new Error("Dados de imagens são obrigatórios");
             }
 
-            console.log("🚀 Iniciando salvamento da simulação...");
-            console.log("📋 Dados recebidos:", {
+            console.log("Dados recebidos:", {
                 clienteId,
                 salaoId,
                 temImagens: !!imagens,
@@ -310,7 +286,6 @@ class HistoricoSimulacaoService {
                 },
             });
 
-            console.log("✅ Histórico criado com ID:", novoHistorico.ID);
 
             const historicoId = novoHistorico.ID;
 
@@ -319,23 +294,19 @@ class HistoricoSimulacaoService {
 
             if (!fs.existsSync(uploadsBaseDir)) {
                 fs.mkdirSync(uploadsBaseDir, { recursive: true });
-                console.log("📁 Diretório uploads/simulacoes criado");
             }
 
             if (!fs.existsSync(baseDir)) {
                 fs.mkdirSync(baseDir, { recursive: true });
-                console.log("📁 Diretório específico criado:", baseDir);
             }
 
-            //arrumar quando tiver tipo original
             const imagensASalvar = [
-                { base64: imagens.original, desc: "Imagem Original", tipo: "Analoga" },
+                { base64: imagens.original, desc: "Imagem Original", tipo: "Original" },
                 { base64: imagens.analoga_1, desc: "Cor Análoga 1", tipo: "Analoga" },
                 { base64: imagens.analoga_2, desc: "Cor Análoga 2", tipo: "Analoga2" },
                 { base64: imagens.complementar, desc: "Cor Complementar", tipo: "Complementar" },
             ];
 
-            console.log("📷 Processando", imagensASalvar.length, "imagens...");
 
             for (let i = 0; i < imagensASalvar.length; i++) {
                 const img = imagensASalvar[i];
@@ -343,7 +314,6 @@ class HistoricoSimulacaoService {
                 console.log(`📸 Processando imagem ${i + 1}:`, img.desc);
 
                 if (!img.base64) {
-                    console.warn(`⚠️ Imagem ${img.desc} está vazia, pulando...`);
                     continue;
                 }
 
@@ -353,7 +323,6 @@ class HistoricoSimulacaoService {
                 }
 
                 if (!base64Data || base64Data.length < 50) {
-                    console.warn(`⚠️ Imagem ${img.desc} muito pequena ou inválida, pulando...`);
                     continue;
                 }
 
@@ -371,19 +340,16 @@ class HistoricoSimulacaoService {
                             HistoricoSimulacaoId: historicoId,
                             Endereco: relativePath,
                             Descricao: img.desc,
-                            Tipo: img.tipo as "Analoga" | "Analoga2" | "Complementar",
+                            Tipo: img.tipo as "Original" | "Analoga" | "Analoga2" | "Complementar",
                         },
                     });
 
-                    console.log(`✅ Imagem ${img.desc} salva com sucesso`);
 
                 } catch (imgError) {
-                    console.error(`❌ Erro ao processar imagem ${img.desc}:`, imgError);
                     continue;
                 }
             }
 
-            console.log("🎉 Simulação salva com sucesso!");
 
             return {
                 historicoId,
