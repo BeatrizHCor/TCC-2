@@ -135,6 +135,7 @@ const ManterAgendamento: React.FC = () => {
     await handleCancel();
     handleCloseCancelDialog();
   }
+
   const handleAddServico = (servico: Servico) => {
     const novoServicoAgendamento: ServicoAgendamento = {
       Nome: servico.Nome,
@@ -156,24 +157,26 @@ const ManterAgendamento: React.FC = () => {
       );
 
       if (isOcupadoComNovosServicos) {
-
-        setData("");
+        setValidationErrors((prev) => ({
+          ...prev,
+          data: "Este horário tem indisponibilidade de tempo com os novos serviços",
+        }));
       }
     }
+
   };
 
   const handleRemoveServico = (servicoId: string) => {
     const novosServicos = servicosAgendamento.filter((s) => s.ServicoId !== servicoId);
     setServicosAgendamento(novosServicos);
 
-
     if (data && horariosOcupados.length > 0) {
-      const isOcupadoComNovosServicos = isTimeSlotOccupied(
-        new Date(data),
-        new Date(data).getHours(),
-        novosServicos
+      const isOcupadoComNovosServicos = isHorarioOcupado(
+        data,
+        isEditing,
+        horaOriginal,
+        novosServicos 
       );
-
 
       if (!isOcupadoComNovosServicos && validationErrors.data) {
         setValidationErrors((prev) => ({
@@ -337,13 +340,26 @@ const ManterAgendamento: React.FC = () => {
                       !canSaveEdit || loadingHorarios || !cabeleireiroId || status !== StatusAgendamento.Agendado
                     }
                     shouldDisableTime={(timeValue, clockType) => {
-                      if (clockType === "hours" && data) {
-                        const selectedDate = new Date(data.split("T")[0]);
-                        const hour = Math.max(0, Math.min(23, Number(timeValue)));
-                        return isTimeSlotOccupied(selectedDate, hour, servicosAgendamento);
+                      if (clockType === "hours") {
+                        const hour = Number(timeValue);
+                        if (data) {
+                          const selectedDate = new Date(data.split("T")[0]);
+                          const selectedDateTime = new Date(selectedDate);
+                          selectedDateTime.setHours(hour, 0, 0, 0);
+
+                          if (isEditing && horaOriginal) {
+                            const originalDate = new Date(horaOriginal);
+                            if (selectedDateTime.getTime() === originalDate.getTime()) {
+                              return false;
+                            }
+                          }
+
+                          return isTimeSlotOccupied(selectedDate, hour, servicosAgendamento);
+                        }
                       }
                       return false;
                     }}
+
                     minDateTime={new Date()}
                     format="dd/MM/yyyy HH:mm"
                     slotProps={{
