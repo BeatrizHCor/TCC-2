@@ -14,6 +14,7 @@ import {
   Typography,
 } from "@mui/material";
 import EditIcon from "@mui/icons-material/Edit";
+import CloseIcon from "@mui/icons-material/Close";
 import { Funcionario } from "../../models/funcionarioModel";
 import { useVisualizarFuncionarios } from "./useVisualizarFuncionario";
 import { Link } from "react-router-dom";
@@ -22,6 +23,7 @@ import { userTypes } from "../../models/tipo-usuario.enum";
 import theme from "../../styles/theme";
 import "../../styles/styles.global.css";
 import { StatusCadastro } from "../../models/status.cadastro.enum";
+import { CheckIcon } from "lucide-react";
 
 const SalaoID = import.meta.env.VITE_SALAO_ID || "1";
 
@@ -210,11 +212,11 @@ export const VisualizarFuncionarios: React.FC = () => {
                       : "N/A"}
                   </TableCell>
                   <TableCell>
-                    { funcionario.Status === "ATIVO"
-                      ? "Ativo"
-                      : funcionario.Status === "DESATIVADO"
-                        ? "Inativo"
-                        : "Pendente"}
+                      {funcionario.Status === "ATIVO" ? (
+                        <CheckIcon color="green" />
+                      ) : (
+                        <CloseIcon sx={{ color: "red" }} />
+                      )}
                   </TableCell>
                   {isADMSalao && (
                     <TableCell>

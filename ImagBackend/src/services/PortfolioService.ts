@@ -33,7 +33,17 @@ class PortfolioService {
             throw error;
         }
     }
-
+    static async getPortfolioInfoByCabeleireiroId(id: string) {
+        try {
+            const portfolio = await prisma.portfolio.findUnique({
+                where: { CabeleireiroID: id },
+            });
+            return portfolio;
+        } catch (error) {
+            console.error("Erro ao buscar info de portfolio por cabeleireiro:", error);
+            throw error;
+        }
+    }
     static async getPortfolioById(id: string) {
         try {
             const portfolio = await prisma.portfolio.findUnique({

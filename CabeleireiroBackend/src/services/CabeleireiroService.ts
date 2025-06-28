@@ -1,4 +1,4 @@
-import { Prisma } from "@prisma/client";
+import { Prisma, StatusCadastro } from "@prisma/client";
 import prisma from "../config/database";
 
 class CabeleireiroService {
@@ -89,7 +89,6 @@ class CabeleireiroService {
     if (salaoId) {
       where.SalaoId = salaoId;
     }
-    where.Status = "ATIVO";
     return await prisma.cabeleireiro.findMany({
       ...(skip !== null ? { skip } : {}),
       ...(limit !== null ? { take: limit } : {}),
@@ -121,7 +120,6 @@ class CabeleireiroService {
         mode: "insensitive",
       };
     }
-    where.Status = "ATIVO";
     const [total, cabeleireiros] = await Promise.all([
       await prisma.cabeleireiro.count({ where }),
       CabeleireiroService.getCabeleireirosNomes(
@@ -168,17 +166,22 @@ class CabeleireiroService {
     Nome: string,
     Telefone: string,
     SalaoId: string,
+    ID?: string,
   ) => {
     try {
+      const data: any = {
+        CPF,
+        Email,
+        Mei,
+        Nome,
+        Telefone,
+        SalaoId,
+      };
+      if (ID) {
+        data.ID = ID;
+      }
       return await prisma.cabeleireiro.create({
-        data: {
-          CPF,
-          Email,
-          Mei,
-          Nome,
-          Telefone,
-          SalaoId,
-        },
+        data,
       });
     } catch (e) {
       console.log(e);
@@ -193,8 +196,14 @@ class CabeleireiroService {
     Telefone: string,
     SalaoId: string,
     ID: string,
+    Status?: StatusCadastro
   ) => {
     try {
+      const existingCabeleireiro = await CabeleireiroService.findById(ID);
+      if (!existingCabeleireiro) {
+        console.log("Cabeleireiro não encontrado");
+        return null;
+      }
       return await prisma.cabeleireiro.update({
         data: {
           CPF,
@@ -203,6 +212,7 @@ class CabeleireiroService {
           Nome,
           Telefone,
           SalaoId,
+          Status: Status ? Status : existingCabeleireiro.Status
         },
         where: {
           ID: ID,
@@ -214,16 +224,11 @@ class CabeleireiroService {
     }
   };
   static delete = async (ID: string) => {
-    try {
       return await prisma.cabeleireiro.delete({
         where: {
           ID: ID,
         },
       });
-    } catch (e) {
-      console.log(e);
-      return null;
-    }
   };
   static getBySalao = async (salaoID: string, includeRelations = false) => {
     try {

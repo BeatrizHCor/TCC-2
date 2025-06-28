@@ -25,12 +25,27 @@ export const createPortfolio = async (
   );
 };
 export const deletePortfolio = async (id: string) => {
-  let responsePortfolio = await fetch(VITE_IMAGEM_URL + "/portfolio/delete/" + id, {
-    method: "DELETE",
-  });
-    return handleApiResponse<Portfolio>(
+  let responsePortfolio = await fetch(
+    VITE_IMAGEM_URL + "/portfolio/delete/" + id,
+    {
+      method: "DELETE",
+    },
+  );
+  return handleApiResponse<Portfolio>(
     responsePortfolio,
     "deletar portfolio pelo id do cabelereiro",
   );
-  
-}
+};
+
+export const getPortfolioByCabeleireiroId = async (id: string) => {
+  let responsePortfolio = await fetch(
+    VITE_IMAGEM_URL + `/portfolio/info/cabeleireiro/${id}`,
+    {
+      method: "GET",
+    },
+  );
+  return handleApiResponse<Portfolio>(
+    responsePortfolio,
+    "buscar portfolio pelo id do cabeleireiro",
+  );
+};

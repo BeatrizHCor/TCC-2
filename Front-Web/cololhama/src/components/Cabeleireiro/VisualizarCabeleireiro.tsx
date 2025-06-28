@@ -17,6 +17,7 @@ import {
 } from "@mui/material";
 import EditIcon from "@mui/icons-material/Edit";
 import CheckIcon from "@mui/icons-material/Check";
+import CloseIcon from "@mui/icons-material/Close";
 import { Image } from "@mui/icons-material";
 import { useVisualizarCabeleireiros } from "./useVisualizarCabeleireiro";
 import "../../styles/styles.global.css";
@@ -34,6 +35,7 @@ const colunas = [
   { id: "telefone", label: "Telefone", admVisivel: true },
   { id: "mei", label: "MEI", admVisivel: true },
   { id: "portif", label: "Portfólio" },
+  { id: "status", label: "Status", admVisivel: true },
   { id: "acoes", label: "Ações", admVisivel: true },
 ];
 
@@ -227,7 +229,13 @@ const {
                         Portfólio
                       </Button>
                     </TableCell>
-
+                    <TableCell align="center">
+                      {cabeleireiro.Status === "ATIVO" ? (
+                        <CheckIcon sx={{ color: "green" }} />
+                      ) : (
+                        <CloseIcon sx={{ color: "red" }} />
+                      )}
+                    </TableCell>
                     {canEdit && (
                       <TableCell align="center">
                         <Button

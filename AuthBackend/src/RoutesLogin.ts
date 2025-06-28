@@ -17,12 +17,15 @@ import {
   postFuncionario,
   updateFuncionario,
 } from "./Services/ServiceFunc";
-import { createPortfolio, deletePortfolio } from "./Services/ServiceImag";
 import {
   deleteCabeleireiro,
+  getCabeleireiroById,
   postCabeleireiro,
+  updateCabeleireiro,
 } from "./Services/ServiceCabelereiro";
+import { createPortfolio, deletePortfolio, getPortfolioByCabeleireiroId } from "./Services/ServiceImag";
 import { StatusCadastro } from "@prisma/client";
+import { findLoginbyUserId } from "./Services/Service";
 
 const RoutesLogin = Router();
 
@@ -143,10 +146,11 @@ RoutesLogin.post(
         Telefone,
         SalaoId,
         Mei,
+        undefined
       );
       if (!cabeleireiro) {
         throw new Error("Cabeleireiro not created");
-      }
+      }console.log("Cabeleireiro created: ", cabeleireiro);
       let portfolio = await createPortfolio(
         cabeleireiro.ID!,
         "Portfolio de " + Nome,
@@ -164,7 +168,7 @@ RoutesLogin.post(
         }
         throw new Error("Portfolio creation failed");
       } else {
-        console.log("Cabeleireiro ID: ", cabeleireiro.ID);
+        console.log("Portfolio created: ", portfolio);
         let register = await registerLogin(
           cabeleireiro.ID!,
           Email,
@@ -185,6 +189,7 @@ RoutesLogin.post(
           }
           throw new Error("Login registration failed");
         }
+        console.log("Cabeleireiro login: ", register);
         let token = await verifyPasswordAndReturnToken(
           Email,
           Password,
@@ -265,7 +270,6 @@ RoutesLogin.delete(
     const { id } = req.params;
     try {
       try {
-        console.log("IDDD: ", id);
         let deleted = await deleteFuncionario(id);
         if (deleted) {
           await deleteAuth(id);
@@ -308,5 +312,159 @@ RoutesLogin.delete(
     }
   },
 );
+RoutesLogin.delete(
+  "/cabeleireiro/delete/:id",
+  async (req: Request, res: Response) => {
+    const { id } = req.params;
+
+    let cabeleireiroBackup = null;
+    let loginBackup = null;
+    let portfolioBackup = null;
+
+    try {
+      cabeleireiroBackup = await getCabeleireiroById(id, false);
+      loginBackup = await findLoginbyUserId(id);
+      portfolioBackup = await getPortfolioByCabeleireiroId(id);
+
+      if (!cabeleireiroBackup) {
+        res.status(404).json({ message: "Cabeleireiro não encontrado." });
+        return;
+      }
+    } catch (error) {
+      console.error("Erro ao buscar dados para backup:", error);
+      res.status(500).json({ message: "Erro ao acessar dados do cabeleireiro ou portfolio." });
+      return;
+    }
+    let cabeleireiroDeleted = false;
+    let cabeleireiroDeactivated = false;
+    let loginDeleted = false;
+    let portfolioDeleted = false;
+
+    try {
+      if (portfolioBackup && portfolioBackup.ID) {
+        const portfolioDeleteResult = await deletePortfolio(portfolioBackup.ID);
+        if (!portfolioDeleteResult) {
+          throw new Error("Falha ao deletar portfolio do cabeleireiro");
+        }
+        portfolioDeleted = true;
+      }
+
+      try {
+        await deleteCabeleireiro(id);
+        cabeleireiroDeleted = true;
+      } catch (err: any) {
+        if (err.message && err.message.includes("em uso")) {
+          await updateCabeleireiro(
+            cabeleireiroBackup.Email,
+            cabeleireiroBackup.CPF,
+            cabeleireiroBackup.Telefone,
+            cabeleireiroBackup.SalaoId,
+            cabeleireiroBackup.Mei ?? undefined,
+            cabeleireiroBackup.Nome,
+            cabeleireiroBackup.ID,
+            StatusCadastro.DESATIVADO,
+          );
+          cabeleireiroDeactivated = true;
+        } else {
+         throw new Error("Falha ao deletar cabeleireiro");
+        }
+      }
+      const loginDeleteResult = await deleteAuth(id);
+      if (!loginDeleteResult) {
+        throw new Error("Falha ao deletar login do cabeleireiro");
+      }
+      loginDeleted = true;
+
+      res.status(200).json({
+        message: cabeleireiroDeleted
+          ? "Cabeleireiro deletado, portfolio e login removidos com sucesso."
+          : "Cabeleireiro desativado, portfolio e login removidos com sucesso.",
+        details: {
+          cabeleireiroDeleted,
+          cabeleireiroDeactivated,
+          loginDeleted: true,
+          portfolioDeleted: !!portfolioBackup,
+        }
+      });
+
+    } catch (error) {
+      console.error("Erro durante operação de deleção:", error);
+      await performRollbackCabeleireiro(
+        cabeleireiroBackup,
+        loginBackup,
+        portfolioBackup,
+        cabeleireiroDeleted,
+        cabeleireiroDeactivated,
+        loginDeleted,
+        portfolioDeleted
+      );
+      res.status(500).json({
+        message: "Erro durante a operação. Todas as alterações foram revertidas.",
+        error: (error as Error).message
+      });
+    }
+  }
+);
+
+async function performRollbackCabeleireiro(
+  cabeleireiroBackup: any,
+  loginBackup: any,
+  portfolioBackup: any,
+  cabeleireiroDeleted: boolean,
+  cabeleireiroDeactivated: boolean,
+  loginDeleted: boolean,
+  portfolioDeleted: boolean
+) {
+  try {
+    console.log("Iniciando rollback...");
+    if (portfolioDeleted && portfolioBackup) {
+      try {
+        await createPortfolio(
+          portfolioBackup.CabeleireiroId,
+          portfolioBackup.Descricao,
+          portfolioBackup.SalaoId
+        );
+        console.log("Portfolio restaurado com sucesso");
+      } catch (error) {
+        console.error("Erro ao restaurar portfolio:", error);
+      }
+    }
+    if (cabeleireiroDeleted && cabeleireiroBackup) {
+      try {
+        await postCabeleireiro(
+          cabeleireiroBackup.CPF,
+          cabeleireiroBackup.Nome,
+          cabeleireiroBackup.Email,
+          cabeleireiroBackup.Telefone,
+          cabeleireiroBackup.SalaoId,
+          cabeleireiroBackup.Mei ?? "",
+          cabeleireiroBackup.ID ?? undefined,
+        );
+        console.log("Cabeleireiro recriado com sucesso");
+      } catch (error) {
+        console.error("Erro ao recriar cabeleireiro:", error);
+      }
+    } else if (cabeleireiroDeactivated && cabeleireiroBackup) {
+      try {
+        await updateCabeleireiro(
+          cabeleireiroBackup.Email,
+          cabeleireiroBackup.CPF,
+          cabeleireiroBackup.Telefone,
+          cabeleireiroBackup.SalaoId,
+          cabeleireiroBackup.Mei ?? undefined,
+          cabeleireiroBackup.Nome,
+          cabeleireiroBackup.ID,
+          StatusCadastro.ATIVO,
+        );
+        console.log("Cabeleireiro reativado com sucesso");
+      } catch (error) {
+        console.error("Erro ao reativar cabeleireiro:", error);
+      }
+    }
+    console.log("Rollback concluído");
+  } catch (error) {
+    console.error("Erro crítico durante rollback:", error);
+  }
+}
 
 export default RoutesLogin;

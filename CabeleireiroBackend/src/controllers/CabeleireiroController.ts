@@ -61,9 +61,12 @@ class CabeleireiroController {
   };
   static create = async (req: Request, res: Response): Promise<void> => {
     try {
-      let { Email, CPF, Telefone, SalaoId, Mei, Nome } = req.body;
-      if (!Mei){
-        Mei = null
+      let { Email, CPF, Telefone, SalaoId, Mei, Nome, ID } = req.body;
+      if (!Mei) {
+        Mei = null;
+      }
+      if (!ID) {
+        ID = null;
       }
       const cabeleireiro = await CabeleireiroService.create(
         CPF,
@@ -72,6 +75,7 @@ class CabeleireiroController {
         Nome,
         Telefone,
         SalaoId,
+        ID,
       );
       if (!cabeleireiro || cabeleireiro === null) {
         res
@@ -89,7 +93,8 @@ class CabeleireiroController {
   };
   static update = async (req: Request, res: Response): Promise<void> => {
     try {
-      const { Email, CPF, Telefone, SalaoId, Mei, Nome, ID } = req.body;
+      const { Email, CPF, Telefone, SalaoId, Mei, Nome, ID, Status } = req.body;
+      console.log("atualizando cabeleireiro");
       const cabeleireiro = await CabeleireiroService.update(
         CPF,
         Email,
@@ -98,6 +103,7 @@ class CabeleireiroController {
         Telefone,
         SalaoId,
         ID,
+        Status ? Status : Status.ATIVO,
       );
       if (!cabeleireiro) {
         res
@@ -113,22 +119,44 @@ class CabeleireiroController {
         .json({ message: "Não foi possivél criar o Cabeleireiro" });
     }
   };
+
   static delete = async (req: Request, res: Response): Promise<void> => {
     try {
       const { id } = req.params;
-      const cabeleireiro = await CabeleireiroService.delete(id);
-      if (!cabeleireiro) {
-        res.status(404).json({ message: "Cabeleireiro não pode ser deletado" });
+      const existingCabeleireiro = await CabeleireiroService.findById(id);
+      if (!existingCabeleireiro) {
+        res.status(404).json({ message: "Cabeleireiro não encontrado." });
+        return;
       } else {
-        res.status(200).json(cabeleireiro);
+        const cabeleireiro = await CabeleireiroService.delete(id);
+        if (!cabeleireiro) {
+          throw new Error("Erro ao excluir cabeleireiro.");
+        } else {
+          res.status(200).json(cabeleireiro);
+        }
       }
-    } catch (e) {
-      console.log(e);
-      res
-        .status(500)
-        .json({ message: "Não foi possivél deletar o Cabeleireiro" });
+    } catch (error) {
+      console.log(error);
+      if (
+        (error instanceof Error && error.message.includes("constraint")) ||
+        (typeof error === "object" &&
+          error !== null &&
+          "code" in error &&
+          (error as any).code === "P2003")
+      ) {
+        res.status(409).json({
+          message: "Não é possível excluir: cabeleireiro está em uso.",
+        });
+      } else {
+        res.status(500).json({
+          message: error instanceof Error
+            ? error.message
+            : "Erro ao excluir cabeleireiro",
+        });
+      }
     }
   };
+
   static getBySalao = async (req: Request, res: Response): Promise<void> => {
     try {
       const { salaoId } = req.params;

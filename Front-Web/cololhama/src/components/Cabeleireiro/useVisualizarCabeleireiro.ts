@@ -62,6 +62,7 @@ export const useVisualizarCabeleireiros = (
             Telefone: item?.Telefone ?? "",
             Mei: item?.Mei ?? "",
             SalaoId: item?.SalaoId ?? "",
+            Status: item?.Status ?? "",
           }),
         );
         setCabeleireiros(listaCabeleireiros);

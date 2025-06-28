@@ -25,6 +25,7 @@ const ManterCabeleireiro: React.FC = () => {
   const { cabeleireiroId } = useParams();
   const { doLogout, userType, userId } = useContext(AuthContext);
   const [openDeleteDialog, setOpenDeleteDialog] = useState(false);
+  const [openResultDialog, setOpenResultDialog] = useState(false);
 
   const {
     nome,
@@ -48,7 +49,20 @@ const ManterCabeleireiro: React.FC = () => {
     handleSubmit,
     handleDelete,
     forbidden,
+    deleteResult,
   } = useManterCabeleireiro(cabeleireiroId);
+
+  useEffect(() => {
+    if (forbidden) {
+      doLogout();
+    }
+  }, [forbidden]);
+
+  useEffect(() => {
+    if (deleteResult) {
+      setOpenResultDialog(true);
+    }
+  }, [deleteResult]);
 
   const handleOpenDeleteDialog = () => {
     setOpenDeleteDialog(true);
@@ -61,6 +75,12 @@ const ManterCabeleireiro: React.FC = () => {
   const handleConfirmDelete = async () => {
     await handleDelete();
     handleCloseDeleteDialog();
+  };
+
+  const handleCloseResultDialog = () => {
+    setOpenResultDialog(false);
+      navigate(-1);
+    
   };
 
   const handleTelefoneChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -122,12 +142,6 @@ const ManterCabeleireiro: React.FC = () => {
 
     setCpf(formattedValue);
   };
-  useEffect(() => {
-    if (forbidden) {
-      doLogout();
-    }
-  }, [forbidden]);
-
   while (!salaoId && isLoading) {
     return (
       <Box sx={{ p: 3, textAlign: "center" }}>
@@ -415,6 +429,25 @@ const ManterCabeleireiro: React.FC = () => {
           <Button onClick={handleCloseDeleteDialog}>Cancelar</Button>
           <Button onClick={handleConfirmDelete} color="error" autoFocus>
             Excluir
+          </Button>
+        </DialogActions>
+      </Dialog>
+      <Dialog open={openResultDialog} onClose={handleCloseResultDialog}>
+        <DialogTitle>
+          {deleteResult?.status === "DELETADO"
+            ? "Cabeleireiro excluído"
+            : deleteResult?.status === "DESATIVADO"
+            ? "Cabeleireiro desativado"
+            : "Erro ao excluir/desativar"}
+        </DialogTitle>
+        <DialogContent>
+          <DialogContentText>
+            {deleteResult?.message}
+          </DialogContentText>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={handleCloseResultDialog} autoFocus>
+            OK
           </Button>
         </DialogActions>
       </Dialog>

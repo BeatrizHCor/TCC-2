@@ -30,6 +30,11 @@ export const useManterCabeleireiro = (cabeleireiroId?: string) => {
     {}
   );
   const [isEditing, setIsEditing] = useState(false);
+  const [deleteResult, setDeleteResult] = useState<{
+    status: string;
+    message: string;
+    details?: any;
+  } | null>(null);
 
   const navigate = useNavigate();
 
@@ -155,11 +160,16 @@ export const useManterCabeleireiro = (cabeleireiroId?: string) => {
     }
 
     setIsLoading(true);
+    setDeleteResult(null);
 
     try {
-      await CabeleireiroService.deleteCabeleireiro(cabeleireiroId);
-      navigate(-1);
-    } catch (error) {
+      const result = await CabeleireiroService.deleteCabeleireiro(cabeleireiroId);
+      setDeleteResult(result);
+    } catch (error: any) {
+      setDeleteResult({
+        status: "ERRO",
+        message: error.message || "Erro ao excluir cabeleireiro.",
+      });
       console.error("Erro ao excluir cabeleireiro:", error);
     } finally {
       setIsLoading(false);
@@ -188,6 +198,7 @@ export const useManterCabeleireiro = (cabeleireiroId?: string) => {
     handleSubmit,
     handleDelete,
     forbidden,
+    deleteResult,
   };
 };
 

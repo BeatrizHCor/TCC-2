@@ -1,5 +1,5 @@
 import "dotenv/config";
-import { Cabeleireiro } from "@prisma/client";
+import { Cabeleireiro, StatusCadastro } from "@prisma/client";
 import { handleApiResponse } from "../utils/HandlerDeRespostaDoBackend";
 
 const CabeleireiroURL = process.env.CABELEREIRO_URL || "http://localhost:7779";
@@ -10,7 +10,8 @@ export const postCabeleireiro = async (
   Email: string,
   Telefone: string,
   SalaoId: string,
-  Mei: string
+  Mei: string,
+  ID?: string | undefined,
 ) => {
   let responseCabeleireiro = await fetch(CabeleireiroURL + "/cabeleireiro", {
     method: "POST",
@@ -24,11 +25,12 @@ export const postCabeleireiro = async (
       SalaoId: SalaoId,
       Mei: Mei,
       Nome: Nome,
+      ID: ID ? ID : undefined,
     }),
   });
   return handleApiResponse<Cabeleireiro>(
     responseCabeleireiro,
-    "criar Cabeleireiro"
+    "criar Cabeleireiro",
   );
 };
 
@@ -37,7 +39,7 @@ export const getCabeleireiroPage = async (
   limit: number,
   includeRelations: boolean = false,
   salaoId?: number,
-  nome?: string | null
+  nome?: string | null,
 ) => {
   console.log(CabeleireiroURL);
   let responseCabeleireiros = await fetch(
@@ -47,11 +49,11 @@ export const getCabeleireiroPage = async (
       `${nome ? "&nome=" + String(nome) : ""}`,
     {
       method: "GET",
-    }
+    },
   );
   return handleApiResponse<Cabeleireiro[]>(
     responseCabeleireiros,
-    "buscar Cabeleireiros paginados"
+    "buscar Cabeleireiros paginados",
   );
 };
 
@@ -60,12 +62,23 @@ export const deleteCabeleireiro = async (id: string) => {
     CabeleireiroURL + `/cabeleireiro/delete/${id}`,
     {
       method: "DELETE",
-    }
+    },
   );
   if (responseCabeleireiro.ok) {
-    return (await responseCabeleireiro.json()) as Cabeleireiro;
+    return true;
+  } else if (responseCabeleireiro.status === 409) {
+    console.log("Status da resposta:", responseCabeleireiro.status);
+    const data = await responseCabeleireiro.json().catch(() => ({}));
+    console.log("Body da resposta:", data);
+    const msg = data && data.message
+      ? data.message
+      : "Não é possível excluir: cabeleireiro está em uso.";
+    throw new Error(msg);
   } else {
-    throw new Error("Error in deleting Cabeleireiro");
+    return handleApiResponse<Cabeleireiro>(
+      responseCabeleireiro,
+      "deletar Cabeleireiro",
+    );
   }
 };
 
@@ -76,51 +89,61 @@ export const updateCabeleireiro = async (
   SalaoId: string,
   Mei: string | undefined,
   Nome: string,
-  ID: string | undefined
+  ID: string | undefined,
+  Status?: StatusCadastro,
 ) => {
   let responseCabeleireiro = await fetch(CabeleireiroURL + "/cabeleireiro", {
     method: "PUT",
     headers: {
       "Content-Type": "application/json",
     },
-    body: JSON.stringify({ Email, CPF, Telefone, SalaoId, Mei, Nome, ID }),
+    body: JSON.stringify({
+      Email,
+      CPF,
+      Telefone,
+      SalaoId,
+      Mei,
+      Nome,
+      ID,
+      Status,
+    }),
   });
   return handleApiResponse<Cabeleireiro>(
     responseCabeleireiro,
-    "update Cabeleireiro"
+    "update Cabeleireiro",
   );
 };
 
 export const getCabeleireiroById = async (
   id: string,
-  includeRelations: boolean
+  includeRelations: boolean,
 ) => {
   let responseCabeleireiro = await fetch(
     CabeleireiroURL +
       `/cabeleireiro/ID/${id}?includeRelations=${includeRelations}`,
     {
       method: "GET",
-    }
+    },
   );
   return handleApiResponse<Cabeleireiro>(
     responseCabeleireiro,
-    "buscar Cabeleireiro por Id"
+    "buscar Cabeleireiro por Id",
   );
 };
 
 export const getCabeleireiroBySalao = async (
   salaoId: string,
-  includeRelations: boolean
+  includeRelations: boolean,
 ) => {
   let responseCabeleireiro = await fetch(
     CabeleireiroURL +
       `/cabeleireiro/salao/${salaoId}?includeRelations=${includeRelations}`,
     {
       method: "GET",
-    }
+    },
   );
   return handleApiResponse<Cabeleireiro[]>(
     responseCabeleireiro,
-    "buscar Cabeleireiros por Salao"
+    "buscar Cabeleireiros por Salao",
   );
 };

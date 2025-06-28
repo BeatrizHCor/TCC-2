@@ -155,13 +155,24 @@ export const CabeleireiroService = {
     }
   },
 
-  async deleteCabeleireiro(id: string): Promise<Cabeleireiro> {
+  async deleteCabeleireiro(id: string): Promise<{ status: string; message: string; details?: any }> {
     try {
       const response = await api.delete(`/cabeleireiro/delete/${id}`);
-      return response.data;
-    } catch (error) {
-      console.error("Erro ao deletar cabeleireiro:", error);
-      throw error;
+      return {
+        status: response.data.status,
+        message: response.data.message,
+        details: response.data.details || {},
+      };
+    } catch (error: any) {
+      let message = "Erro ao deletar cabeleireiro.";
+      if (error.response && error.response.data && error.response.data.message) {
+        message = error.response.data.message;
+      }
+      return {
+        status: "ERRO",
+        message,
+        details: error.response?.data?.details || {},
+      };
     }
   },
   async UpdateCabeleireiro(

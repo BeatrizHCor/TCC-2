@@ -216,11 +216,18 @@ RoutesCabeleireiro.delete(
     } else {
       let { id } = req.params;
       try {
-        let cabeleireiro = await deleteCabeleireiro(id);
-        res.status(200).send(cabeleireiro);
-      } catch (e) {
+        const result = await deleteCabeleireiro(id);
+        res.status(200).json({
+          status: result.status,
+          message: result.message,
+          details: result.details || {},
+        });
+      } catch (e: any) {
         console.log(e);
-        res.status(500).send("Error deleting Cabeleireiros");
+        res.status(500).json({
+          status: "ERRO",
+          message: e.message || "Error deleting Cabeleireiros",
+        });
       }
     }
   },

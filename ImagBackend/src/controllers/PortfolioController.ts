@@ -46,6 +46,21 @@ export class PortfolioController {
       res.status(500).json({ error: "Erro interno ao buscar portfolio." });
     }
   }
+      static async getPortfolioInfoByCabeleireiroId(req: Request, res: Response): Promise<void> {
+    try {
+      const { id } = req.params;
+      const portfolio = await PortfolioService.getPortfolioInfoByCabeleireiroId(id);
+      if (!portfolio) {
+        res.status(404).json({ error: "Portfolio não encontrado." });
+        return;
+      }
+      res.status(200).json(portfolio);
+    } catch (error) {
+      console.error("Erro ao buscar portfolio por ID:", error);
+      res.status(500).json({ error: "Erro interno ao buscar portfolio." });
+    }
+  }
+  
   static async upadatePortfolioDescricaoById(req: Request, res: Response): Promise<void> {
     try {
       const { id } = req.params;
@@ -102,7 +117,7 @@ export class PortfolioController {
         res.status(404).json({ error: "Portfolio não encontrado." });
         return;
       }
-      res.status(200).json({ message: "Portfolio deletado com sucesso." });
+      res.status(200).json(deletedPortfolio);
     } catch (error) {
       console.error("Erro ao deletar portfolio:", error);
       res.status(500).json({ error: "Erro interno ao deletar portfolio." });

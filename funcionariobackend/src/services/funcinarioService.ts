@@ -224,10 +224,6 @@ class FuncionarioService {
   }
 
   static async delete(Email: string, salaoId: string) {
-    const existingFuncionario = await this.findByEmailandSalao(Email, salaoId);
-    if (!existingFuncionario) {
-      throw new Error("Funcionário não encontrado");
-    }
     return await prisma.funcionario.delete({
       where: {
         Email_SalaoId: {

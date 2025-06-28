@@ -4,7 +4,7 @@ import { Portfolio } from "../models/portifolioModel";
 import { handleApiResponse } from "../utils/HandlerDeRespostaDoBackend";
 
 const CabeleireiroURL = process.env.CABELEREIRO_URL || "http://localhost:4002";
-
+const Auth_URL = process.env.AUTH_URL || "http://localhost:4001";
 export const postCabeleireiro = async (cabeleireiro: Cabeleireiro) => {
   let responseCabeleireiro = await fetch(CabeleireiroURL + "/cabeleireiro", {
     method: "POST",
@@ -65,16 +65,45 @@ export const getCabeleireiroNomesPage = async (
 };
 
 export const deleteCabeleireiro = async (id: string) => {
-  let responseCabeleireiro = await fetch(
-    CabeleireiroURL + `/cabeleireiro/delete/${id}`,
+  const Auth_URL = process.env.AUTH_URL || "http://localhost:4001";
+  let response = await fetch(
+    Auth_URL + `/cabeleireiro/delete/${id}`,
     {
       method: "DELETE",
-    },
+      headers: {
+        "Content-Type": "application/json",
+      },
+    }
   );
-  if (responseCabeleireiro.ok) {
-    return (await responseCabeleireiro.json()) as Cabeleireiro;
+  let result: any = null;
+  try {
+    result = await response.json();
+  } catch (e) {
+    throw new Error("Erro inesperado ao deletar/desativar cabeleireiro.");
+  }
+  if (response.ok) {
+    if (result.details) {
+      if (result.details.cabeleireiroDeleted) {
+        return {
+          status: "DELETADO",
+          message: result.message || "Cabeleireiro deletado com sucesso.",
+          details: result.details,
+        };
+      } else if (result.details.cabeleireiroDeactivated) {
+        return {
+          status: "DESATIVADO",
+          message: result.message || "Cabeleireiro desativado.",
+          details: result.details,
+        };
+      }
+    }
+    return {
+      status: "SUCESSO",
+      message: result.message || "Operação realizada.",
+      details: result.details || {},
+    };
   } else {
-    throw new Error("Error in deleting Cabeleireiro");
+    throw new Error(result.message || "Erro ao deletar/desativar cabeleireiro.");
   }
 };
 
