@@ -23,7 +23,11 @@ import {
   postCabeleireiro,
   updateCabeleireiro,
 } from "./Services/ServiceCabelereiro";
-import { createPortfolio, deletePortfolio, getPortfolioByCabeleireiroId } from "./Services/ServiceImag";
+import {
+  createPortfolio,
+  deletePortfolio,
+  getPortfolioByCabeleireiroId,
+} from "./Services/ServiceImag";
 import { StatusCadastro } from "@prisma/client";
 import { findLoginbyUserId } from "./Services/Service";
 
@@ -146,11 +150,12 @@ RoutesLogin.post(
         Telefone,
         SalaoId,
         Mei,
-        undefined
+        undefined,
       );
       if (!cabeleireiro) {
         throw new Error("Cabeleireiro not created");
-      }console.log("Cabeleireiro created: ", cabeleireiro);
+      }
+      console.log("Cabeleireiro created: ", cabeleireiro);
       let portfolio = await createPortfolio(
         cabeleireiro.ID!,
         "Portfolio de " + Nome,
@@ -271,6 +276,7 @@ RoutesLogin.delete(
     try {
       try {
         let deleted = await deleteFuncionario(id);
+        console.log("Deletando funcionario: ", id);
         if (deleted) {
           await deleteAuth(id);
           res.status(200).json({
@@ -280,9 +286,10 @@ RoutesLogin.delete(
         }
       } catch (err: any) {
         if (err.message && err.message.includes("em uso")) {
+          console.log("Funcionário em uso, desativando...");
           const funcionarioAtual = await getFuncionarioById(id);
           if (funcionarioAtual) {
-            await updateFuncionario(
+            let ok =await updateFuncionario(
               id,
               funcionarioAtual.Nome,
               funcionarioAtual.CPF,
@@ -293,6 +300,7 @@ RoutesLogin.delete(
               funcionarioAtual.Salario || 0,
               StatusCadastro.DESATIVADO,
             );
+            ok ? console.log("Funcionário desativado com sucesso.") : console.log("Falha ao desativar funcionário.");
           }
           await deleteAuth(id);
           res.status(200).json({
@@ -332,7 +340,9 @@ RoutesLogin.delete(
       }
     } catch (error) {
       console.error("Erro ao buscar dados para backup:", error);
-      res.status(500).json({ message: "Erro ao acessar dados do cabeleireiro ou portfolio." });
+      res.status(500).json({
+        message: "Erro ao acessar dados do cabeleireiro ou portfolio.",
+      });
       return;
     }
     let cabeleireiroDeleted = false;
@@ -344,11 +354,10 @@ RoutesLogin.delete(
       if (portfolioBackup && portfolioBackup.ID) {
         const portfolioDeleteResult = await deletePortfolio(portfolioBackup.ID);
         if (!portfolioDeleteResult) {
-          throw new Error("Falha ao deletar portfolio do cabeleireiro");
+          console.log("Falha ao deletar portfolio do cabeleireiro");
         }
         portfolioDeleted = true;
       }
-
       try {
         await deleteCabeleireiro(id);
         cabeleireiroDeleted = true;
@@ -366,7 +375,7 @@ RoutesLogin.delete(
           );
           cabeleireiroDeactivated = true;
         } else {
-         throw new Error("Falha ao deletar cabeleireiro");
+          throw new Error("Falha ao deletar cabeleireiro");
         }
       }
       const loginDeleteResult = await deleteAuth(id);
@@ -384,9 +393,8 @@ RoutesLogin.delete(
           cabeleireiroDeactivated,
           loginDeleted: true,
           portfolioDeleted: !!portfolioBackup,
-        }
+        },
       });
-
     } catch (error) {
       console.error("Erro durante operação de deleção:", error);
       await performRollbackCabeleireiro(
@@ -396,14 +404,15 @@ RoutesLogin.delete(
         cabeleireiroDeleted,
         cabeleireiroDeactivated,
         loginDeleted,
-        portfolioDeleted
+        portfolioDeleted,
       );
       res.status(500).json({
-        message: "Erro durante a operação. Todas as alterações foram revertidas.",
-        error: (error as Error).message
+        message:
+          "Erro durante a operação. Todas as alterações foram revertidas.",
+        error: (error as Error).message,
       });
     }
-  }
+  },
 );
 
 async function performRollbackCabeleireiro(
@@ -413,7 +422,7 @@ async function performRollbackCabeleireiro(
   cabeleireiroDeleted: boolean,
   cabeleireiroDeactivated: boolean,
   loginDeleted: boolean,
-  portfolioDeleted: boolean
+  portfolioDeleted: boolean,
 ) {
   try {
     console.log("Iniciando rollback...");
@@ -422,7 +431,7 @@ async function performRollbackCabeleireiro(
         await createPortfolio(
           portfolioBackup.CabeleireiroId,
           portfolioBackup.Descricao,
-          portfolioBackup.SalaoId
+          portfolioBackup.SalaoId,
         );
         console.log("Portfolio restaurado com sucesso");
       } catch (error) {

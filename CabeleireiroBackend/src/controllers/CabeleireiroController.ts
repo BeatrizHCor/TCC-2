@@ -93,8 +93,11 @@ class CabeleireiroController {
   };
   static update = async (req: Request, res: Response): Promise<void> => {
     try {
-      const { Email, CPF, Telefone, SalaoId, Mei, Nome, ID, Status } = req.body;
+      let { Email, CPF, Telefone, SalaoId, Mei, Nome, ID, Status } = req.body;
       console.log("atualizando cabeleireiro");
+      if (!Mei) {
+        Mei = null;
+      }
       const cabeleireiro = await CabeleireiroService.update(
         CPF,
         Email,
@@ -103,7 +106,7 @@ class CabeleireiroController {
         Telefone,
         SalaoId,
         ID,
-        Status ? Status : Status.ATIVO,
+        Status ? Status : null,
       );
       if (!cabeleireiro) {
         res
