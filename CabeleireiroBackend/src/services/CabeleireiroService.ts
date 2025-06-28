@@ -162,7 +162,7 @@ class CabeleireiroService {
   static create = async (
     CPF: string,
     Email: string,
-    Mei: string,
+    Mei: string | null,
     Nome: string,
     Telefone: string,
     SalaoId: string,
@@ -172,13 +172,15 @@ class CabeleireiroService {
       const data: any = {
         CPF,
         Email,
-        Mei,
         Nome,
         Telefone,
         SalaoId,
       };
       if (ID) {
         data.ID = ID;
+      }
+      if (Mei) {
+        data.Mei = Mei;
       }
       return await prisma.cabeleireiro.create({
         data,
@@ -191,12 +193,12 @@ class CabeleireiroService {
   static update = async (
     CPF: string,
     Email: string,
-    Mei: string,
+    Mei: string | null,
     Nome: string,
     Telefone: string,
     SalaoId: string,
     ID: string,
-    Status?: StatusCadastro
+    Status: StatusCadastro | null,
   ) => {
     try {
       const existingCabeleireiro = await CabeleireiroService.findById(ID);
@@ -208,11 +210,11 @@ class CabeleireiroService {
         data: {
           CPF,
           Email,
-          Mei,
           Nome,
           Telefone,
           SalaoId,
-          Status: Status ? Status : existingCabeleireiro.Status
+          Status: Status ? Status : existingCabeleireiro.Status,
+          ...(Mei ? { Mei } : {}),
         },
         where: {
           ID: ID,
@@ -224,11 +226,11 @@ class CabeleireiroService {
     }
   };
   static delete = async (ID: string) => {
-      return await prisma.cabeleireiro.delete({
-        where: {
-          ID: ID,
-        },
-      });
+    return await prisma.cabeleireiro.delete({
+      where: {
+        ID: ID,
+      },
+    });
   };
   static getBySalao = async (salaoID: string, includeRelations = false) => {
     try {
