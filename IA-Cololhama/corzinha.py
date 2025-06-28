@@ -2,11 +2,10 @@ import cv2
 import numpy as np
 import torch
 from PIL import Image
-import torch.nn.functional as F
 import torchvision.transforms as transforms
 import colorsys
 from sklearn.cluster import KMeans
-from typing import Tuple, List, Optional
+from typing import Tuple, List
 
 try:
     from model import BiSeNet
@@ -132,12 +131,34 @@ class ProcessMask:
         return mascara_final
 
 
+def extrai_media_cabelo(imagem_original: np.ndarray, mascara_cabelo: np.ndarray) -> str:
+    if len(imagem_original.shape) == 3 and imagem_original.shape[2] == 3:
+        img_rgb = cv2.cvtColor(imagem_original, cv2.COLOR_BGR2RGB)
+    else:
+        img_rgb = imagem_original
+
+    if len(mascara_cabelo.shape) == 3:
+        mascara_cabelo = cv2.cvtColor(mascara_cabelo, cv2.COLOR_BGR2GRAY)
+
+    pixels_cabelo = img_rgb[mascara_cabelo == 255]
+
+    if len(pixels_cabelo) == 0:
+        print("Nenhum pixel de cabelo encontrado!")
+        return "#8B4513"
+
+    cor_media = np.median(pixels_cabelo, axis=0)
+    r, g, b = int(cor_media[0]), int(cor_media[1]), int(cor_media[2])
+
+    return '#{:02x}{:02x}{:02x}'.format(r, g, b)
+
+
 class pintar_cabelo:
     def __init__(self):
         self.color_processor = ProcessCor()
         self.mask_processor = ProcessMask()
     
-    def extrair_textura_cabelo(self, image: np.ndarray, mask: np.ndarray) -> Tuple[np.ndarray, np.ndarray]:
+    @staticmethod
+    def extrair_textura_cabelo(image: np.ndarray, mask: np.ndarray) -> Tuple[np.ndarray, np.ndarray]:
         lab_img = cv2.cvtColor(image, cv2.COLOR_BGR2LAB)
         luminancia = lab_img[:, :, 0]
         
@@ -219,8 +240,9 @@ class pintar_cabelo:
         
         return resultado_final
     
-    def aplicar_cor_cabelo_simples(self, imagem_original: np.ndarray, mascara_cabelo: np.ndarray, 
-                           hex_nova_cor: str, intensity: float = 0.7) -> np.ndarray:
+    @staticmethod
+    def aplicar_cor_cabelo_simples(imagem_original: np.ndarray, mascara_cabelo: np.ndarray,
+                                   hex_nova_cor: str, intensity: float = 0.7) -> np.ndarray:
         nova_cor_rgb = [
             int(hex_nova_cor[1:3], 16),
             int(hex_nova_cor[3:5], 16),
@@ -241,26 +263,6 @@ class pintar_cabelo:
             result[:, :, i] = np.clip(channel, 0, 255).astype(np.uint8)
         
         return result
-    
-    def extrai_media_cabelo(self, imagem_original: np.ndarray, mascara_cabelo: np.ndarray) -> str:
-        if len(imagem_original.shape) == 3 and imagem_original.shape[2] == 3:
-            img_rgb = cv2.cvtColor(imagem_original, cv2.COLOR_BGR2RGB)
-        else:
-            img_rgb = imagem_original
-        
-        if len(mascara_cabelo.shape) == 3:
-            mascara_cabelo = cv2.cvtColor(mascara_cabelo, cv2.COLOR_BGR2GRAY)
-        
-        pixels_cabelo = img_rgb[mascara_cabelo == 255]
-        
-        if len(pixels_cabelo) == 0:
-            print("Nenhum pixel de cabelo encontrado!")
-            return "#8B4513"  
-        
-        cor_media = np.median(pixels_cabelo, axis=0)
-        r, g, b = int(cor_media[0]), int(cor_media[1]), int(cor_media[2])
-        
-        return '#{:02x}{:02x}{:02x}'.format(r, g, b)
 
 
 class ModelLoader:
@@ -368,7 +370,7 @@ class LhamaAPI:
         )
         
         print("  → Extraindo cor original do cabelo...")
-        cor_original = self.colorizer.extrai_media_cabelo(image, clean_mascara_cabelo)
+        cor_original = extrai_media_cabelo(image, clean_mascara_cabelo)
         print(f"  → Cor original detectada: {cor_original}")
         
         print("  → Gerando paleta de cores...")
