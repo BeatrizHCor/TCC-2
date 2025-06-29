@@ -1,45 +1,21 @@
 import axios from "axios";
 import { Cabeleireiro } from "../models/cabelereiroModel";
+import { Password } from "@mui/icons-material";
+const token = localStorage.getItem("usuario");
 
 const api = axios.create({
-  baseURL: import.meta.env.APIGATEWAY_URL || "http://localhost:5000",
+  baseURL: import.meta.env.VITE_GATEWAY_URL || "http://localhost:5000",
   timeout: 100000,
   headers: {
-    "Content-Type": "application/json",
+    "Content-Type": "application/json"
   },
 });
-
-// set os dados do usuario para autenticação no header de cada requisição
-api.interceptors.request.use(
-  (config) => {
-    const usuario = localStorage.getItem("usuario"); 
-    if (usuario) {
-      const { userID, userType } = JSON.parse(usuario); 
-      config.headers.userID = userID; 
-      config.headers.userType = userType; 
-    }
-    return config;
-  },
-  (error) => Promise.reject(error)
-);
-
-// verifique se a resposta contém um novo token e atualiza
-api.interceptors.response.use(
-  (response) => {
-    const tokenHeader = response.headers["authorization"]?.replace("Bearer ", "");
-    const currentToken = localStorage.getItem("token");
-    if (tokenHeader !== currentToken) {
-      console.log("Atualizando token na memória local");
-      localStorage.setItem("token", tokenHeader);
-      axios.defaults.headers.common["Authorization"] = `Bearer ${tokenHeader}`;
-    }
-    return response;
-  },
-  (error) => {
-    console.error("Erro na resposta da API:", error);
-    return Promise.reject(error);
-  }
-);
+api.interceptors.request.use((config) => {
+  const token = localStorage.getItem("usuario");
+  config.headers = config.headers || {};
+  config.headers.Authorization = btoa(token || "");
+  return config;
+});
 
 interface CabeleireiroPageResponse {
   data: Cabeleireiro[];
@@ -49,17 +25,29 @@ interface CabeleireiroPageResponse {
 }
 export const CabeleireiroService = {
   async cadastrarCabeleireiro(
-    cabeleireiro: Cabeleireiro
+    CPF: string,
+    Nome: string,
+    Email: string,
+    Telefone: string,
+    Mei: string,
+    SalaoId: string,
+    Password: string,
+    userType: string = "Cabeleireiro"
   ): Promise<Cabeleireiro> {
     try {
-      const novoCabeleireiro = {
-        CPF: cabeleireiro.cpf,
-        Nome: cabeleireiro.nome,
-        Email: cabeleireiro.email,
-        Telefone: String(cabeleireiro.telefone),
-        SalaoId: cabeleireiro.salaoId,
-      };
-      const response = await api.post("/cabeleireiro", novoCabeleireiro);
+      const response = await api.post("/cadastrar/cabeleireiro", {
+        CPF,
+        Nome,
+        Email,
+        Telefone,
+        SalaoId,
+        Password,
+        userType,
+        Mei,
+      });
+      if (response.data.token) {
+        const { token, userID, userType } = response.data;
+      }
       return response.data;
     } catch (error) {
       console.error("Erro ao cadastrar cabeleireiro:", error);
@@ -108,7 +96,8 @@ export const CabeleireiroService = {
     page: number = 1,
     limit: number = 10,
     includeRelations: boolean = false,
-    salaoId: string
+    salaoId: string,
+    nome?: string
   ): Promise<CabeleireiroPageResponse> {
     try {
       const response = await api.get(`/cabeleireiro/page`, {
@@ -117,6 +106,7 @@ export const CabeleireiroService = {
           limit,
           includeRelations,
           salaoId,
+          nome
         },
       });
 
@@ -126,6 +116,105 @@ export const CabeleireiroService = {
       throw error;
     }
   },
+  async getCabeleireiroNomesPage(
+    page: number = 1,
+    limit: number = 10,
+    salaoId: string,
+    nome?: string
+  ): Promise<CabeleireiroPageResponse> {
+    try {
+      const response = await api.get(`/cabeleireiro/nomes/page`, {
+        params: {
+          page,
+          limit,
+          salaoId,
+          nome
+        },
+      });
+
+      return response.data;
+    } catch (error) {
+      console.error("Erro ao buscar página de nomes de cabeleireiros:", error);
+      throw error;
+    }
+  },
+
+  async getCabeleireiroById(
+    id: string,
+    includeRelations: boolean = false
+  ): Promise<Cabeleireiro> {
+    try {
+      const response = await api.get(`/cabeleireiro/ID/${id}`, {
+        params: { include: includeRelations },
+      });
+      const cabeleireiro: Cabeleireiro = response.data;
+      return cabeleireiro;
+    } catch (error) {
+      console.error("Erro ao buscar cabeleireiro por ID:", error);
+      throw error;
+    }
+  },
+
+  async deleteCabeleireiro(id: string): Promise<{ status: string; message: string; details?: any }> {
+    try {
+      const response = await api.delete(`/cabeleireiro/delete/${id}`);
+      return {
+        status: response.data.status,
+        message: response.data.message,
+        details: response.data.details || {},
+      };
+    } catch (error: any) {
+      let message = "Erro ao deletar cabeleireiro.";
+      if (error.response && error.response.data && error.response.data.message) {
+        message = error.response.data.message;
+      }
+      return {
+        status: "ERRO",
+        message,
+        details: error.response?.data?.details || {},
+      };
+    }
+  },
+  async UpdateCabeleireiro(
+    ID: string,
+    CPF: string,
+    Nome: string,
+    Email: string,
+    Telefone: string,
+    Mei: string,
+    SalaoId: string,
+    Password: string
+  ): Promise<Cabeleireiro> {
+    try {
+      const response = await api.put(`/cabeleireiro`, {
+        ID,
+        CPF,
+        Nome,
+        Email,
+        Telefone,
+        Mei,
+        SalaoId,
+        Password,
+      });
+      return response.data;
+    } catch (error) {
+      console.error("Erro ao atualizar cabeleireiro:", error);
+      throw error;
+    }
+  },
+
+  async getCabeleireiroBySalao(salaoId: string, includeRelations: boolean): Promise<Cabeleireiro[]> {
+    try {
+      const response = await api.get(`/cabeleireiro/salao/${salaoId}`, {
+        params: { includeRelations }
+      });
+      return response.data;
+    } catch (error) {
+      console.error("Erro ao buscar cabeleireiros por salão:", error);
+      throw error;
+    }
+  }
+
 };
 
 export default CabeleireiroService;

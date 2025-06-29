@@ -3,13 +3,13 @@ import  express, { NextFunction, Request, Response, Router }  from 'express';
 import cors from 'cors';
 import funcionarioRoutes from './routes/funcionarioRoutes';
 import servicoRoutes from './routes/servicosRoutes';
-
+import atendimentoRoutes from './routes/FuncionarioAtendimentoRoutes';
+import agendamentoRoutes from './routes/FuncionarioAgendamentoRoutes';
 dotenv.config();
 
 const PORT = process.env.PORT;
 const route = Router();
 const app = express();
-
 
 app.use(express.json());
 app.use(cors());
@@ -21,6 +21,8 @@ route.get("/", (_req: Request, res: Response) => {
 app.use(route);
 app.use(funcionarioRoutes);
 app.use(servicoRoutes);
+app.use(atendimentoRoutes);
+app.use(agendamentoRoutes);
 app.listen(PORT, () => {
   console.log(`Servidor rodando na porta ${PORT}`);
 });

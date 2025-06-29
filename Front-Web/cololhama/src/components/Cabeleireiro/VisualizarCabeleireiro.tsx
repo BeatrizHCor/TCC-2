@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useContext, useState } from "react";
 import {
   Box,
   Table,
@@ -10,103 +10,252 @@ import {
   TablePagination,
   Paper,
   TextField,
-  MenuItem,
-  Select,
-  FormControl,
-  InputLabel,
+  Button,
+  Typography,
+  InputAdornment,
+  IconButton,
 } from "@mui/material";
+import EditIcon from "@mui/icons-material/Edit";
+import CheckIcon from "@mui/icons-material/Check";
+import CloseIcon from "@mui/icons-material/Close";
+import { Image } from "@mui/icons-material";
 import { useVisualizarCabeleireiros } from "./useVisualizarCabeleireiro";
 import "../../styles/styles.global.css";
 import { Cabeleireiro } from "../../models/cabelereiroModel";
+import { Link } from "react-router-dom";
+import theme from "../../styles/theme";
+import { AuthContext } from "../../contexts/AuthContext";
+import { userTypes } from "../../models/tipo-usuario.enum";
+
+const SalaoID = import.meta.env.VITE_SALAO_ID || "1";
 
 const colunas = [
   { id: "nome", label: "Nome" },
-  { id: "email", label: "Email" },
-  { id: "telefone", label: "Telefone" },
+  { id: "email", label: "Email", admVisivel: true },
+  { id: "telefone", label: "Telefone", admVisivel: true },
+  { id: "mei", label: "MEI", admVisivel: true },
+  { id: "status", label: "Status", admVisivel: true },
+  { id: "portif", label: "Portfólio" },
+  { id: "acoes", label: "Ações", admVisivel: true },
 ];
 
 export const VisualizarCabeleireiro: React.FC = () => {
+  const { userType } = useContext(AuthContext);
   const [page, setPage] = useState(0);
   const [rowsPerPage, setRowsPerPage] = useState(10);
-  const [colunaBusca, setColunaBusca] = useState("nome");
+  const [nomeFilterInput, setNomeFilterInput] = useState("");
   const [termoBusca, setTermoBusca] = useState("");
 
-  const { cabeleireiros, totalCabeleireiros, isLoading, error } =
-    useVisualizarCabeleireiros(page + 1, rowsPerPage, "1");
+  const {
+    cabeleireiros,
+    totalCabeleireiros,
+    handleEditarCabeleireiro,
+    isLoading,
+    error,
+  } = useVisualizarCabeleireiros(page + 1, rowsPerPage, SalaoID, termoBusca, userType!);
 
   const handleChangePage = (_: unknown, newPage: number) => {
     setPage(newPage);
   };
 
-  const handleChangeRowsPerPage = (
-    event: React.ChangeEvent<HTMLInputElement>
-  ) => {
+  const handleChangeRowsPerPage = (event: React.ChangeEvent<HTMLInputElement>) => {
     setRowsPerPage(parseInt(event.target.value, 10));
     setPage(0);
   };
 
-  const handleColunaBuscaChange = (event: any) => {
-    setColunaBusca(event.target.value);
-  };
-
-  const handleTermoBuscaChange = (
-    event: React.ChangeEvent<HTMLInputElement>
-  ) => {
-    setTermoBusca(event.target.value);
+  const aplicarFiltroNome = () => {
+    setTermoBusca(nomeFilterInput);
     setPage(0);
   };
+
   if (isLoading) return <Box>Carregando...</Box>;
-  if (error) return <Box>Erro ao carregar cabeleireiro: {error}</Box>;
+  if (error) return <Box>Erro ao carregar cabeleireiros: {error}</Box>;
+
+  const canEdit =
+    userType &&
+    [userTypes.Funcionario, userTypes.AdmSalao, userTypes.AdmSistema].includes(userType);
+
+  const admUsers = [
+    userTypes.Funcionario,
+    userTypes.AdmSalao,
+    userTypes.AdmSistema,
+  ];
+
+  const colunasVisiveis = colunas.filter((coluna) => {
+    if (!coluna.admVisivel) return true;
+    return admUsers.includes(userType!);
+  });
+
 
   return (
-    <Box sx={{ width: "100%", p: 2 }}>
-      <Box sx={{ display: "flex", mb: 2 }}>
-        <FormControl variant="outlined" sx={{ minWidth: 120, mr: 1 }}>
-          <InputLabel id="coluna-busca-label">Buscar por</InputLabel>
-          <Select
-            labelId="coluna-busca-label"
-            value={colunaBusca}
-            onChange={handleColunaBuscaChange}
-            label="Buscar por"
-          >
-            {colunas.map((coluna) => (
-              <MenuItem key={coluna.id} value={coluna.id}>
-                {coluna.label}
-              </MenuItem>
-            ))}
-          </Select>
-        </FormControl>
+    <Box sx={{ width: "100%", px: { xs: 1, sm: 3 }, py: 2 }}>
+      <Box
+        sx={{
+          display: 'flex',
+          flexWrap: 'wrap',
+          gap: 2,
+          justifyContent: { xs: 'center', md: 'space-between' },
+          alignItems: 'center',
+          mb: 2,
+        }}
+      >
+        <Typography
+          variant="h4"
+          sx={{
+            mb: { xs: 1, md: 0 },
+            fontWeight: 600,
+            color: theme.palette.primary.main,
+            textAlign: { xs: 'center', md: 'left' },
+          }}
+        >
+          Cabeleireiros
+        </Typography>
+      </Box>
+      <Box
+        sx={{
+          display: "flex",
+          flexWrap: "wrap",
+          gap: 2,
+          justifyContent: "center",
+          alignItems: "center",
+          mb: 3,
+          maxWidth: 700,
+          mx: "auto",
+        }}
+      >
         <TextField
           variant="outlined"
-          label="Buscar"
-          value={termoBusca}
-          onChange={handleTermoBuscaChange}
-          fullWidth
+          label="Buscar por nome"
+          value={nomeFilterInput}
+          onChange={(e) => setNomeFilterInput(e.target.value)}
+          size="medium"
+          sx={{ flexGrow: 1, minWidth: 280 }}
         />
+        <Button
+          variant="contained"
+          onClick={aplicarFiltroNome}
+          size="medium"
+          sx={{ height: 45, minWidth: 120 }}
+        >
+          Buscar
+        </Button>
+
+        {canEdit && (
+          <Button
+            component={Link}
+            to="/cabeleireiro/novo"
+            variant="contained"
+            size="medium"
+            sx={{
+              backgroundColor: "#f5f5f5",
+              color: theme.palette.primary.main,
+              border: `1.5px solid ${theme.palette.primary.main}`,
+              height: 45,
+              minWidth: 140,
+              "&:hover": {
+                backgroundColor: "#e0e0e0",
+                borderColor: theme.palette.primary.main,
+              },
+              textTransform: "none",
+              fontWeight: 600,
+              boxShadow: "none",
+            }}
+          >
+            Novo Cabeleireiro
+          </Button>
+        )}
       </Box>
 
-      <Paper sx={{ width: "100%", mb: 2 }}>
-        <TableContainer>
+      <Paper elevation={3} sx={{ borderRadius: 2, overflow: "hidden" }}>
+        <TableContainer sx={{ backgroundColor: "#f0f0f0" }}>
           <Table>
             <TableHead>
-              <TableRow>
-                {colunas.map((coluna) => (
-                  <TableCell key={coluna.id}>{coluna.label}</TableCell>
+              <TableRow
+                sx={{ backgroundColor: theme.palette.primary.main, borderBottom: "2px solid #ccc" }}
+              >
+                {colunasVisiveis.map((coluna) => (
+                  <TableCell
+                    align="center"
+                    key={coluna.id}
+                    sx={{
+                      fontWeight: "bold",
+                      textTransform: "uppercase",
+                      fontSize: "0.875rem",
+                      color: "white",
+                    }}
+                  >
+                    {coluna.label}
+                  </TableCell>
                 ))}
               </TableRow>
             </TableHead>
+
             <TableBody>
-              {cabeleireiros.map((cabeleireiro: Cabeleireiro) => (
-                <TableRow key={cabeleireiro.id}>
-                  <TableCell>{cabeleireiro.nome}</TableCell>
-                  <TableCell>{cabeleireiro.email}</TableCell>
-                  <TableCell>{cabeleireiro.telefone}</TableCell>
-                  <TableCell>{cabeleireiro.mei}</TableCell>
+              {cabeleireiros.length === 0 ? (
+                <TableRow>
+                  <TableCell colSpan={colunasVisiveis.length} align="center">
+                    Nenhum cabeleireiro encontrado.
+                  </TableCell>
                 </TableRow>
-              ))}
+              ) : (
+                cabeleireiros.map((cabeleireiro: Cabeleireiro) => (
+                  <TableRow
+                    key={cabeleireiro.ID}
+                    hover
+                    sx={{ "&:hover": { backgroundColor: "#fafafa" } }}
+                  >
+                    <TableCell align="center">{cabeleireiro.Nome || "—"}</TableCell>
+
+                    {admUsers.includes(userType!) && (
+                      <>
+                        <TableCell align="center">{cabeleireiro.Email || "Indisponível"}</TableCell>
+                        <TableCell align="center">{cabeleireiro.Telefone || "Indisponível"}</TableCell>
+                        <TableCell align="center">
+                          {cabeleireiro.Mei === undefined
+                            ? "Não informado"
+                            : cabeleireiro.Mei || "Indisponível"}
+                        </TableCell>
+                        <TableCell align="center">
+                          {cabeleireiro.Status === "ATIVO" ? (
+                            <CheckIcon sx={{ color: "green" }} />
+                          ) : (
+                            <CloseIcon sx={{ color: "red" }} />
+                          )}
+                        </TableCell>
+                      </>
+                    )}
+                    <TableCell align="center">
+                      <Button
+                        component={Link}
+                        startIcon={<Image />}
+                        variant="outlined"
+                        size="small"
+                        to={`/portfolio/${cabeleireiro.ID}`}
+                      >
+                        Portfólio
+                      </Button>
+                    </TableCell>
+                    {canEdit && cabeleireiro.Status === "ATIVO" && (
+                      <TableCell align="center">
+                        <Button
+                          startIcon={<EditIcon />}
+                          variant="outlined"
+                          size="small"
+                          onClick={() => {
+                            if (cabeleireiro.ID) handleEditarCabeleireiro(cabeleireiro.ID);
+                          }}
+                        >
+                          Editar
+                        </Button>
+                      </TableCell>
+                    )}
+                  </TableRow>
+                ))
+              )}
             </TableBody>
           </Table>
         </TableContainer>
+
         <TablePagination
           rowsPerPageOptions={[5, 10, 25]}
           component="div"
@@ -116,12 +265,11 @@ export const VisualizarCabeleireiro: React.FC = () => {
           onPageChange={handleChangePage}
           onRowsPerPageChange={handleChangeRowsPerPage}
           labelRowsPerPage="Itens por página:"
-          labelDisplayedRows={({ from, to, count }) =>
-            `${from}-${to} de ${count}`
-          }
+          labelDisplayedRows={({ from, to, count }) => `${from}-${to} de ${count}`}
         />
       </Paper>
     </Box>
   );
 };
+
 export default VisualizarCabeleireiro;

@@ -2,58 +2,87 @@ import { Request, Response } from "express";
 import CabeleireiroService from "../services/CabeleireiroService";
 
 class CabeleireiroController {
-  static findAllPaginated = async (req: Request, res: Response) => {
+  static findAllPaginated = async (
+    req: Request,
+    res: Response,
+  ): Promise<void> => {
     try {
-      const { page, limit, includeRelations, salaoId, name } = req.query;
+      const { page, limit, includeRelations, salaoId } = req.query;
+      const { nome = "" } = req.query;
       const cabeleireiros = await CabeleireiroService.getCabeleireiroPage(
         Number(page),
         Number(limit),
         includeRelations === "true",
         salaoId ? String(salaoId) : null,
-        name ? String(name) : null
+        nome ? String(nome) : null,
       );
-      res.json(cabeleireiros);
+      res.status(200).json(cabeleireiros);
     } catch (error) {
       console.log(error);
-      res.status(404).json({ message: "Cabeleireiro não encontrado" });
+      res.status(204).json({ message: "Cabeleireiro não encontrado" });
     }
   };
-
-  static findById = async (req: Request, res: Response) => {
+  static findAllNamesPaginated = async (
+    req: Request,
+    res: Response,
+  ): Promise<void> => {
+    try {
+      const { page, limit, salaoId } = req.query;
+      const { nome = "" } = req.query;
+      const cabeleireiros = await CabeleireiroService.getCabeleireiroNomePage(
+        Number(page),
+        Number(limit),
+        salaoId ? String(salaoId) : null,
+        nome ? String(nome) : null,
+      );
+      res.status(200).json(cabeleireiros);
+    } catch (error) {
+      console.log(error);
+      res.status(204).json({ message: "Cabeleireiro não encontrado" });
+    }
+  };
+  static findById = async (req: Request, res: Response): Promise<void> => {
     try {
       const { id } = req.params;
-      const includeRelations = req.query.include === "true"; // Converte include para booleano
+      const includeRelations = req.query.include === "true";
       const cabeleireiro = await CabeleireiroService.findById(
         id,
-        includeRelations
+        includeRelations,
       );
       if (!cabeleireiro) {
-        res.status(404).json({ message: "Cabeleireiro não encontrado" });
+        res.status(204).json({ message: "Cabeleireiro não encontrado" });
       } else {
         res.json(cabeleireiro);
       }
     } catch (e) {
       console.log(e);
-      res.status(404).json({ message: "Cabeleireiro não encontrado" });
+      res.status(204).json({ message: "Cabeleireiro não encontrado" });
     }
   };
-  static create = async (req: Request, res: Response) => {
+  static create = async (req: Request, res: Response): Promise<void> => {
     try {
-      const { Email, CPF, Telefone, SalaoId, Mei, Nome } = req.body;
+      let { Email, CPF, Telefone, SalaoId, Mei, Nome, ID } = req.body;
+      if (!Mei) {
+        Mei = null;
+      }
+      if (!ID) {
+        ID = null;
+      }
       const cabeleireiro = await CabeleireiroService.create(
         CPF,
         Email,
         Mei,
         Nome,
         Telefone,
-        SalaoId
+        SalaoId,
+        ID,
       );
-      if (!cabeleireiro) {
+      if (!cabeleireiro || cabeleireiro === null) {
         res
           .status(404)
           .json({ message: "Cabeleireiro não pode ser registrado" });
       } else {
-        res.json(cabeleireiro);
+        res.status(201).json(cabeleireiro);
       }
     } catch (e) {
       console.log(e);
@@ -62,9 +91,13 @@ class CabeleireiroController {
         .json({ message: "Não foi possivél criar o Cabeleireiro" });
     }
   };
-  static update = async (req: Request, res: Response) => {
+  static update = async (req: Request, res: Response): Promise<void> => {
     try {
-      const { Email, CPF, Telefone, SalaoId, Mei, Nome, ID } = req.body;
+      let { Email, CPF, Telefone, SalaoId, Mei, Nome, ID, Status } = req.body;
+      console.log("atualizando cabeleireiro");
+      if (!Mei) {
+        Mei = null;
+      }
       const cabeleireiro = await CabeleireiroService.update(
         CPF,
         Email,
@@ -72,14 +105,15 @@ class CabeleireiroController {
         Nome,
         Telefone,
         SalaoId,
-        ID
+        ID,
+        Status ? Status : null,
       );
       if (!cabeleireiro) {
         res
           .status(404)
           .json({ message: "Cabeleireiro não pode ser registrado" });
       } else {
-        res.json(cabeleireiro);
+        res.status(200).json(cabeleireiro);
       }
     } catch (e) {
       console.log(e);
@@ -88,22 +122,69 @@ class CabeleireiroController {
         .json({ message: "Não foi possivél criar o Cabeleireiro" });
     }
   };
-  static delete = async (req: Request, res: Response) => {
+
+  static delete = async (req: Request, res: Response): Promise<void> => {
     try {
       const { id } = req.params;
-      const cabeleireiro = await CabeleireiroService.delete(id);
-      if (!cabeleireiro) {
-        res.status(404).json({ message: "Cabeleireiro não pode ser deletado" });
+      const existingCabeleireiro = await CabeleireiroService.findById(id);
+      if (!existingCabeleireiro) {
+        res.status(404).json({ message: "Cabeleireiro não encontrado." });
+        return;
       } else {
-        res.json(cabeleireiro);
+        const cabeleireiro = await CabeleireiroService.delete(id);
+        if (!cabeleireiro) {
+          throw new Error("Erro ao excluir cabeleireiro.");
+        } else {
+          res.status(200).json(cabeleireiro);
+        }
+      }
+    } catch (error) {
+      console.log(error);
+      if (
+        (error instanceof Error && error.message.includes("constraint")) ||
+        (typeof error === "object" &&
+          error !== null &&
+          "code" in error &&
+          (error as any).code === "P2003")
+      ) {
+        res.status(409).json({
+          message: "Não é possível excluir: cabeleireiro está em uso.",
+        });
+      } else {
+        res.status(500).json({
+          message: error instanceof Error
+            ? error.message
+            : "Erro ao excluir cabeleireiro",
+        });
+      }
+    }
+  };
+
+  static getBySalao = async (req: Request, res: Response): Promise<void> => {
+    try {
+      const { salaoId } = req.params;
+      const includeRelations = req.query.includeRelations === "true";
+      if (!salaoId) {
+        res.status(400).json({ message: "SalaoId do salão não informado" });
+      } else {
+        const cabeleireiros = await CabeleireiroService.getBySalao(
+          salaoId,
+          includeRelations,
+        );
+        if (!cabeleireiros || cabeleireiros.length === 0) {
+          res.status(204).json({
+            message: "Nenhum cabeleireiro encontrado para este salão",
+          });
+        } else {
+          res.status(200).json(cabeleireiros);
+        }
       }
     } catch (e) {
       console.log(e);
-      res
-        .status(500)
-        .json({ message: "Não foi possivél deletar o Cabeleireiro" });
+      res.status(500).json({
+        message: "Erro ao buscar cabeleireiros do salão",
+      });
     }
   };
 }
-
 export default CabeleireiroController;

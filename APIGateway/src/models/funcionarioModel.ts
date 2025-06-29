@@ -1,17 +1,18 @@
 import { AtendimentoAuxiliar } from "./atendimentoAuxiliarModel";
-import { Atendimento } from "./atendimentoModal";
-import { Holerite } from "./holeriteModel";
+import { Salao } from "./salaoModel";
+import { StatusCadastro } from "./status.cadastro.enum";
 
 export interface Funcionario {
-    id?: string;
-    cpf: string;
-    nome: string;
-    email: string;
-    telefone: string;
-    salaoId: string; 
-    auxiliar: boolean;
-    salario: number;
-    atendimentos: Atendimento[];
-    atendimentoAuxiliar: AtendimentoAuxiliar[];
-    holerite: Holerite[];
+    ID?: string;
+    CPF: string;
+    Nome: string;
+    Email: string;
+    Telefone: string;
+    Salao?: Salao;
+    SalaoId: string;
+    Auxiliar: boolean;
+    Salario?: number;
+    AtendimentoAuxiliar?: AtendimentoAuxiliar[];
+    DataCadastro?: Date;
+    Status?: StatusCadastro;
   }

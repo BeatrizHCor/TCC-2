@@ -3,7 +3,7 @@ import CadastroCliente from "../../components/Cliente/CadastroCliente";
 
 const CadastroPage: React.FC = () => {
   return (
-    <div className="cadastro-page">
+    <div>
       < CadastroCliente />
     </div>
   );

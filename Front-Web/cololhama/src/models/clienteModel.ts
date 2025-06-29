@@ -1,15 +1,19 @@
 import { Agendamentos } from "./agendamentoModel";
 import { HistoricoSimulacao } from "./historicoSimulacaoModel";
+import { Salao } from "./salaoModel";
+import { StatusCadastro } from "./status.cadastro.enum";
 
 export interface Cliente {
-    id?: string;  
+    ID?: string;  
     CPF: string;
-    nome: string;
-    email: string;
-    telefone: string;
-    salaoId: string;
-    agendamentos?: Agendamentos[];
-    historicoSimulacao?: HistoricoSimulacao[];
-    dataCadastro?: Date;
+    Nome: string;
+    Email: string;
+    Telefone: string;
+    SalaoId: string;
+    Salao?: Salao;
+    Agendamentos?: Agendamentos[];
+    HistoricoSimulacao?: HistoricoSimulacao[];
+    DataCadastro?: Date;
+    Status?: StatusCadastro;
   }
   

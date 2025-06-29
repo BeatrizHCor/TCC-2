@@ -1,4 +1,4 @@
-import { Prisma } from "@prisma/client";
+import { Prisma, StatusCadastro } from "@prisma/client";
 import prisma from "../config/database";
 
 class CabeleireiroService {
@@ -7,22 +7,32 @@ class CabeleireiroService {
     limit: number | null = null,
     include = false,
     salaoId: string | null = null,
-    name: string | null = null
+    nome: string | null = null,
   ) => {
+    let where: Prisma.CabeleireiroWhereInput = {};
+    if (nome && nome.trim().length > 0) {
+      where.Nome = {
+        contains: nome,
+        mode: "insensitive",
+      };
+    }
+    if (salaoId) {
+      where.SalaoId = salaoId;
+    }
     return await prisma.cabeleireiro.findMany({
       ...(skip !== null ? { skip } : {}),
       ...(limit !== null ? { take: limit } : {}),
-      where: {
-        SalaoId: salaoId ? salaoId : Prisma.skip,
-        Nome: name ? name : Prisma.skip,
-      },
+      where: where,
       ...(include
         ? {
-            include: {
-              Agendamentos: true,
-            },
-          }
+          include: {
+            Agendamentos: true,
+          },
+        }
         : {}),
+      orderBy: {
+        Nome: "asc",
+      },
     });
   };
 
@@ -31,22 +41,97 @@ class CabeleireiroService {
     limit = 10,
     includeRelations = false,
     salaoId: string | null = null,
-    name: string | null = null
+    nome: string | null = null,
   ) => {
     const skip = (page - 1) * limit;
-
+    const where: Prisma.CabeleireiroWhereInput = {};
+    if (salaoId) {
+      where.SalaoId = salaoId;
+    }
+    if (nome && nome.trim().length > 0) {
+      where.Nome = {
+        contains: nome,
+        mode: "insensitive",
+      };
+    }
+    where.Status = "ATIVO";
     const [total, cabeleireiros] = await Promise.all([
-      CabeleireiroService.getCabeleireiros(null, null, false, salaoId, name),
+      await prisma.cabeleireiro.count({ where }),
       CabeleireiroService.getCabeleireiros(
         skip,
         limit,
         includeRelations,
-        salaoId
+        salaoId,
+        nome,
       ),
     ]);
 
     return {
-      total: total.length,
+      total: total,
+      page,
+      limit,
+      data: cabeleireiros,
+    };
+  };
+  static getCabeleireirosNomes = async (
+    skip: number | null = null,
+    limit: number | null = null,
+    salaoId: string | null = null,
+    nome: string | null = null,
+  ) => {
+    let where: Prisma.CabeleireiroWhereInput = {};
+    if (nome && nome.trim().length > 0) {
+      where.Nome = {
+        contains: nome,
+        mode: "insensitive",
+      };
+    }
+    if (salaoId) {
+      where.SalaoId = salaoId;
+    }
+    return await prisma.cabeleireiro.findMany({
+      ...(skip !== null ? { skip } : {}),
+      ...(limit !== null ? { take: limit } : {}),
+      where: where,
+      select: {
+        ID: true,
+        Nome: true,
+      },
+      orderBy: {
+        Nome: "asc",
+      },
+    });
+  };
+
+  static getCabeleireiroNomePage = async (
+    page = 1,
+    limit = 10,
+    salaoId: string | null = null,
+    nome: string | null = null,
+  ) => {
+    const skip = (page - 1) * limit;
+    const where: Prisma.CabeleireiroWhereInput = {};
+    if (salaoId) {
+      where.SalaoId = salaoId;
+    }
+    if (nome && nome.trim().length > 0) {
+      where.Nome = {
+        contains: nome,
+        mode: "insensitive",
+      };
+    }
+    const [total, cabeleireiros] = await Promise.all([
+      await prisma.cabeleireiro.count({ where }),
+      CabeleireiroService.getCabeleireirosNomes(
+        skip,
+        limit,
+        salaoId,
+        nome,
+      ),
+    ]);
+
+    return {
+      total: total,
       page,
       limit,
       data: cabeleireiros,
@@ -57,15 +142,15 @@ class CabeleireiroService {
     try {
       return await prisma.cabeleireiro.findUnique({
         where: {
-          ID,
+          ID: ID,
         },
         ...(include
           ? {
-              include: {
-                Salao: true,
-                Agendamentos: true,
-              },
-            }
+            include: {
+              Salao: true,
+              Agendamentos: true,
+            },
+          }
           : {}),
       });
     } catch (e) {
@@ -77,21 +162,28 @@ class CabeleireiroService {
   static create = async (
     CPF: string,
     Email: string,
-    Mei: string,
+    Mei: string | null,
     Nome: string,
     Telefone: string,
-    SalaoId: string
+    SalaoId: string,
+    ID?: string,
   ) => {
     try {
+      const data: any = {
+        CPF,
+        Email,
+        Nome,
+        Telefone,
+        SalaoId,
+      };
+      if (ID) {
+        data.ID = ID;
+      }
+      if (Mei) {
+        data.Mei = Mei;
+      }
       return await prisma.cabeleireiro.create({
-        data: {
-          CPF,
-          Email,
-          Mei,
-          Nome,
-          Telefone,
-          SalaoId,
-        },
+        data,
       });
     } catch (e) {
       console.log(e);
@@ -101,24 +193,31 @@ class CabeleireiroService {
   static update = async (
     CPF: string,
     Email: string,
-    Mei: string,
+    Mei: string | null,
     Nome: string,
     Telefone: string,
     SalaoId: string,
-    ID: string
+    ID: string,
+    Status: StatusCadastro | null,
   ) => {
     try {
+      const existingCabeleireiro = await CabeleireiroService.findById(ID);
+      if (!existingCabeleireiro) {
+        console.log("Cabeleireiro não encontrado");
+        return null;
+      }
       return await prisma.cabeleireiro.update({
         data: {
           CPF,
           Email,
-          Mei,
           Nome,
           Telefone,
           SalaoId,
+          Status: Status ? Status : existingCabeleireiro.Status,
+          ...(Mei ? { Mei } : {}),
         },
         where: {
-          ID,
+          ID: ID,
         },
       });
     } catch (e) {
@@ -127,10 +226,29 @@ class CabeleireiroService {
     }
   };
   static delete = async (ID: string) => {
+    return await prisma.cabeleireiro.delete({
+      where: {
+        ID: ID,
+      },
+    });
+  };
+  static getBySalao = async (salaoID: string, includeRelations = false) => {
     try {
-      return await prisma.cabeleireiro.delete({
+      return await prisma.cabeleireiro.findMany({
         where: {
-          ID,
+          SalaoId: salaoID,
+          Status: "ATIVO",
+        },
+        ...(includeRelations
+          ? {
+            include: {
+              Salao: true,
+              Agendamentos: true,
+            },
+          }
+          : {}),
+        orderBy: {
+          Nome: "asc",
         },
       });
     } catch (e) {

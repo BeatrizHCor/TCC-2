@@ -1,8 +1,9 @@
 export interface AdmSalao {
-    id?: string;
-    cpf: string;
-    nome: string;
-    email: string;
-    telefone: string;
-    salaoId: string;
+    ID?: string;
+    CPF: string;
+    Nome: string;
+    Email: string;
+    Telefone: string;
+    SalaoId: string;
+    DataCadastro?: string;
   }

@@ -1,10 +1,19 @@
+import { Atendimento } from "./atendimentoModal";
+import { Cabeleireiro } from "./cabelereiroModel";
+import { Cliente } from "./clienteModel";
+import { ServicoAgendamento } from "./servicoAgendamentoModel";
+import { StatusAgendamento } from "./StatusAgendamento.enum";
+
 export interface Agendamentos {
-    id?: string;
-    data: Date;
-    status: StatusAgendamento;
-    clienteID: string;
-    salaoId: string;
-    cabeleireiroID: string;
-    atendimentoID?: string;
-  
+    ID?: string;
+    Data: Date;
+    Status: StatusAgendamento;
+    ClienteID: string;
+    Cliente: Cliente;
+    SalaoId: string;
+    CabeleireiroID: string;
+    Cabeleireiro?: Cabeleireiro;  
+    AtendimentoID?: string;
+    Atendimento: Atendimento;
+    ServicoAgendamento?: ServicoAgendamento[];  
   }

@@ -1,9 +1,11 @@
+import { Cabeleireiro } from "./cabelereiroModel";
 import { Imagem } from "./imagemModel";
 
 export interface Portfolio {
-    id?: string;
-    cabeleireiroID: string; 
-    saloId: string;
-    descricao: string;
-    imagem: Imagem[];
+    ID?: string;
+    CabeleireiroID: string; 
+    Cabeleireiro?: Cabeleireiro;
+    SalaoId: string;
+    Descricao: string;
+    Imagem: Imagem[];
   }

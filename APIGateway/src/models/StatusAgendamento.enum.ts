@@ -1,3 +1,6 @@
-enum StatusAgendamento {
-    Agendado
+export enum StatusAgendamento {
+    Agendado,
+    Confirmado,
+    Finalizado,
+    Cancelado
   }

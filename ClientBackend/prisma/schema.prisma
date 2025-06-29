@@ -25,15 +25,12 @@ model Salao {
   Email              String
   Clientes           Cliente[]
   Funcionarios       Funcionario[]
-  Pagamentos         PagamentosAssinatura[]
   Cabeleireiros      Cabeleireiro[]
   Adm                AdmSalao?
   Atendimentos       Atendimento[]
   Portfolio          Portfolio[]
   Servico            Servico[]
   Agendamentos       Agendamentos[]
-  Holerite           Holerite[]
-  Gastos             Gastos[]
   HistoricoSimulacao HistoricoSimulacao[]
 }
 
@@ -49,8 +46,10 @@ model Cliente {
   Agendamentos       Agendamentos[]
   HistoricoSimulacao HistoricoSimulacao[]
   DataCadastro       DateTime             @default(now())
-
+  Status        StatusCadastro       @default(ATIVO)
+  
   @@unique([Email, SalaoId])
+  @@unique([CPF, SalaoId])
 }
 
 model Funcionario {
@@ -64,41 +63,46 @@ model Funcionario {
   SalaoId             String
   Auxiliar            Boolean
   Salario             Float
-  Atendimentos        Atendimento[]
   AtendimentoAuxiliar AtendimentoAuxiliar[]
-  Holerite            Holerite[]
+  DataCadastro        DateTime             @default(now())
+  Status              StatusCadastro       @default(ATIVO)
 
   @@unique([Email, SalaoId])
+  @@unique([CPF, SalaoId])
 }
 
 model Cabeleireiro {
   ID String @id @default(uuid())
 
-  CPF          String
-  Nome         String
-  Email        String
-  Telefone     String
-  Mei          String
-  Salao        Salao          @relation(fields: [SalaoId], references: [ID])
-  SalaoId      String
-  Portfolio    Portfolio?
-  Agendamentos Agendamentos[]
-  Holerite     Holerite[]
+  CPF           String
+  Nome          String
+  Email         String
+  Telefone      String
+  Mei           String?
+  Salao         Salao                @relation(fields: [SalaoId], references: [ID])
+  SalaoId       String
+  Portfolio     Portfolio?
+  Agendamentos  Agendamentos[]
+  DataCadastro  DateTime             @default(now())
+  Status        StatusCadastro       @default(ATIVO)
 
   @@unique([Email, SalaoId])
+  @@unique([CPF, SalaoId])
 }
 
 model AdmSalao {
   ID String @id @default(uuid())
 
-  CPF      String
-  Nome     String
-  Email    String
-  Telefone String
-  Salao    Salao  @relation(fields: [SalaoId], references: [ID])
-  SalaoId  String @unique
+  CPF                String
+  Nome               String
+  Email              String
+  Telefone           String
+  Salao              Salao          @relation(fields: [SalaoId], references: [ID])
+  SalaoId            String         @unique
+  DataCadastro       DateTime       @default(now())
 
   @@unique([Email, SalaoId])
+  @@unique([CPF, SalaoId])
 }
 
 model AdmSistema {
@@ -110,39 +114,23 @@ model AdmSistema {
   Telefone String
 }
 
-model PagamentosAssinatura {
-  ID      String          @id @default(uuid())
-  Data    DateTime
-  Valor   Float
-  Salao   Salao           @relation(fields: [SalaoId], references: [ID])
-  SalaoId String
-  Status  StatusPagamento
-}
-
-enum StatusPagamento {
-  PAGO
-  PENDENTE
-  ATRASADO
-}
 
 model AtendimentoAuxiliar {
-  Atendimento   Atendimento @relation(fields: [AtendimentoId], references: [ID])
-  AtendimentoId String      @unique
+  Atendimento   Atendimento @relation(fields: [AtendimentoId], references: [ID], onDelete: Cascade)
+  AtendimentoId String
   AuxiliarID    String
-  SalaoId       String
   Auxiliar      Funcionario @relation(fields: [AuxiliarID], references: [ID])
+  @@unique([AtendimentoId, AuxiliarID])
 }
 
 model Atendimento {
   ID                  String               @id @default(uuid())
   Data                DateTime
   PrecoTotal          Float
-  FuncionarioID       String
-  Funcionario         Funcionario          @relation(fields: [FuncionarioID], references: [ID])
   Auxiliar            Boolean
-  AtendimentoAuxiliar AtendimentoAuxiliar?
-  Salao               Salao                @relation(fields: [SalaoId], references: [ID])
+  AtendimentoAuxiliar AtendimentoAuxiliar[]
   SalaoId             String
+  Salao               Salao                @relation(fields: [SalaoId], references: [ID])
   ServicoAtendimento  ServicoAtendimento[]
   Agendamentos        Agendamentos[]
 }
@@ -156,6 +144,7 @@ model Servico {
   PrecoMax           Float
   Descricao          String
   ServicoAtendimento ServicoAtendimento[]
+  ServicoAgendamento ServicoAgendamento[]
 }
 
 model Portfolio {
@@ -169,54 +158,49 @@ model Portfolio {
 }
 
 model Agendamentos {
-  ID             String            @id @default(uuid())
-  Data           DateTime
-  Status         StatusAgendamento
-  ClienteID      String
-  Cliente        Cliente           @relation(fields: [ClienteID], references: [ID])
-  Salao          Salao             @relation(fields: [SalaoId], references: [ID])
-  SalaoId        String
-  CabeleireiroID String
-  Cabeleireiro   Cabeleireiro      @relation(fields: [CabeleireiroID], references: [ID])
-  AtendimentoID  String?
-  Atendimento    Atendimento?      @relation(fields: [AtendimentoID], references: [ID])
+  ID                  String            @id @default(uuid())
+  Data                DateTime
+  Status              StatusAgendamento
+  ClienteID           String
+  Cliente             Cliente           @relation(fields: [ClienteID], references: [ID])
+  Salao               Salao             @relation(fields: [SalaoId], references: [ID])
+  SalaoId             String
+  CabeleireiroID      String
+  Cabeleireiro        Cabeleireiro      @relation(fields: [CabeleireiroID], references: [ID])
+  AtendimentoID       String?
+  Atendimento         Atendimento?      @relation(fields: [AtendimentoID], references: [ID])
+  ServicoAgendamento  ServicoAgendamento[]
+}
+
+model ServicoAgendamento {
+  ID              String       @id @default(uuid())
+  Nome            String
+  PrecoMin        Float
+  PrecoMax        Float
+  ServicoId       String
+  Servico         Servico      @relation(fields: [ServicoId], references: [ID])
+  AgendamentosId  String
+  Agendamentos    Agendamentos @relation(fields: [AgendamentosId], references: [ID], onDelete: Cascade)
+  @@unique([ServicoId, AgendamentosId])
 }
 
 enum StatusAgendamento {
   Agendado
+  Confirmado
+  Finalizado
+  Cancelado
 }
 
-model Holerite {
-  ID             String        @id @default(uuid())
-  Data           DateTime
-  Valor          Float
-  FuncionarioID  String
-  Funcionario    Funcionario?  @relation(fields: [FuncionarioID], references: [ID])
-  Salao          Salao         @relation(fields: [SalaoId], references: [ID])
-  SalaoId        String
-  CabeleireiroID String
-  Cabeleireiro   Cabeleireiro? @relation(fields: [CabeleireiroID], references: [ID])
-}
 
 model ServicoAtendimento {
   ID            String      @id @default(uuid())
   PrecoItem     Float
   AtendimentoId String
-  Atendimento   Atendimento @relation(fields: [AtendimentoId], references: [ID])
+  Atendimento   Atendimento @relation(fields: [AtendimentoId], references: [ID], onDelete: Cascade)
   ServicoId     String
   Servico       Servico     @relation(fields: [ServicoId], references: [ID])
 }
 
-model Gastos {
-  ID String @id @default(uuid())
-
-  Salao     Salao    @relation(fields: [SalaoId], references: [ID])
-  SalaoId   String
-  Nome      String
-  Valor     Float
-  Descricao String
-  Data      DateTime
-}
 
 model HistoricoSimulacao {
   ID        String   @id @default(uuid())
@@ -228,14 +212,23 @@ model HistoricoSimulacao {
   Imagem    Imagem[]
 }
 
+enum ImagemTipo {
+  Analoga
+  Analoga2
+  Complementar
+  Portfolio
+  Original
+}
+
 model Imagem {
   ID                   String              @id @default(uuid())
-  PortfolioId          String
-  Portfolio            Portfolio           @relation(fields: [PortfolioId], references: [ID])
+  PortfolioId          String?
+  Portfolio            Portfolio?           @relation(fields: [PortfolioId], references: [ID], onDelete: Cascade)
   HistoricoSimulacaoId String?
-  HistoricoSimulacao   HistoricoSimulacao? @relation(fields: [HistoricoSimulacaoId], references: [ID])
+  HistoricoSimulacao   HistoricoSimulacao? @relation(fields: [HistoricoSimulacaoId], references: [ID], onDelete: Cascade)
   Endereco             String
   Descricao            String
+  Tipo                 ImagemTipo          @default(Portfolio)
 }
 
 model AuthControl {
@@ -256,4 +249,9 @@ enum userTypes {
   Cabeleireiro
   AdmSalao
   AdmSistema
+}
+
+enum StatusCadastro {
+  ATIVO
+  DESATIVADO
 }

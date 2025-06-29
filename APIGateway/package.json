@@ -12,10 +12,15 @@
   "license": "ISC",
   "description": "",
   "dependencies": {
+    "@types/multer": "^1.4.13",
+    "axios": "^1.10.0",
     "cors": "^2.8.5",
+    "date-fns-tz": "^3.2.0",
     "dotenv": "^16.4.7",
     "express": "^4.21.2",
-    "gateway": "file:"
+    "form-data": "^4.0.3",
+    "gateway": "file:",
+    "multer": "^2.0.1"
   },
   "devDependencies": {
     "@types/express": "^5.0.1",

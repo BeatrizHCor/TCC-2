@@ -1,17 +1,18 @@
 import { Agendamentos } from "./agendamentoModel";
-import { Holerite } from "./holeriteModel";
 import { Portfolio } from "./portifolioModel";
+import { StatusCadastro } from "./status.cadastro.enum";
 
 export interface Cabeleireiro {
-    id?: string;
-    cpf: string;
-    nome: string;
-    email: string;
-    telefone: string;
-    mei?: string;
-    salaoId: string; 
-    portfolio?: Portfolio; 
-    agendamentos?: Agendamentos[];
-    holerite?: Holerite[];
+    ID?: string;
+    CPF: string;
+    Nome: string;
+    Email: string;
+    Telefone: string;
+    Mei?: string;
+    SalaoId: string; 
+    Portfolio?: Portfolio; 
+    Agendamentos?: Agendamentos[];
+    DataCadastro?: Date;
+    Status?: StatusCadastro;
   }
   

@@ -1,18 +1,18 @@
-import express from "express";
+import express, { Request, Response } from "express";
 import "dotenv/config";
-import { Router, Request, Response } from "express";
 import RoutesLogin from "./RoutesLogin";
+
 const app = express();
-const port = process.env.PORT;
-const route = Router();
+const port = process.env.PORT || 3000; 
 
 app.use(express.json());
 
-route.get("/", (req: Request, res: Response) => {
+app.get("/", (req: Request, res: Response) => {
   res.send("hello world with Typescript");
 });
 
-app.use(route);
-app.use(RoutesLogin);
+app.use("/", RoutesLogin);
 
-app.listen(port, () => console.log(`server running on port ${port}`));
+app.listen(port, () => {
+  console.log(`Auth service running on port ${port}`);
+});
