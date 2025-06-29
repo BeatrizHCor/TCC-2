@@ -220,7 +220,7 @@ const ManterCabeleireiro: React.FC = () => {
                     },
                   },
                 }}
-                disabled={isLoading || isEditing}
+                disabled={isLoading}
               />
             </Box>
             <Box

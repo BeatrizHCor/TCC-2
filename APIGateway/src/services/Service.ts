@@ -188,4 +188,30 @@ export const authenticate = async (
     return false;
   }
 };
+export const updateLoginPassword = async (
+  userID: string,
+  newPassword: string,
+  SalaoId: string
+): Promise<{ success: boolean; message: string }> => {
+  const response = await fetch(loginURL + "/login/update", {
+    method: "PUT",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({
+      userID,
+      newPassword,
+      SalaoId,
+    }),
+  });
+
+  if (response.ok) {
+    const data = await response.json();
+    return { success: true, message: data.message || "Senha atualizada com sucesso." };
+  } else {
+    const data = await response.json().catch(() => ({}));
+    return { success: false, message: data.message || "Erro ao atualizar senha." };
+  }
+};
+
 //Todas as outras funções vão usar a função de authenticate no Service para verificar se o usuário é quem diz ser, pra depois permitir.

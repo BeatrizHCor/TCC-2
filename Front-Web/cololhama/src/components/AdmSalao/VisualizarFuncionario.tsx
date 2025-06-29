@@ -218,7 +218,7 @@ export const VisualizarFuncionarios: React.FC = () => {
                         <CloseIcon sx={{ color: "red" }} />
                       )}
                   </TableCell>
-                  {isADMSalao && (
+                  {isADMSalao && funcionario.Status === "ATIVO" && (
                     <TableCell>
                       <Button
                         startIcon={<EditIcon />}

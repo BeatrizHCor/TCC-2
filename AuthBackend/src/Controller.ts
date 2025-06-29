@@ -60,6 +60,41 @@ export const verifyPasswordAndReturnToken = async (
   }
 };
 
+export const updateLoginPassword = async (
+  UsuarioID: string,
+  newPassword: string,
+  SalaoId: string
+): Promise<{ success: boolean; message: string }> => {
+  if (!UsuarioID || !newPassword || !SalaoId) {
+    return { success: false, message: "Parâmetros obrigatórios ausentes." };
+  }
+  try {
+    const login = await findLoginbyUserId(UsuarioID);
+    if (!login) {
+      return { success: false, message: "Login não encontrado." };
+    }
+    console.log("Atualizando senha para o usuário/ senha antiga:", login.Senha);
+
+    const hashed = await argon2.hash(newPassword + SALT);
+    const updated = await updateLogin(
+      UsuarioID,
+      hashed,
+      login.Email,
+      SalaoId
+    );
+    if (updated) {
+      console.log("Atualizando senha para o usuário/ senha nova:", updated.Senha);
+      return { success: true, message: "Senha atualizada com sucesso." };
+    } else {
+      console.log("Atualizando senha para o usuário/ senha nova: senha não atualizada");
+      return { success: false, message: "Erro ao atualizar senha." };
+    }
+  } catch (e) {
+    console.log(e);
+    return { success: false, message: "Erro interno ao atualizar senha." };
+  }
+};
+
 const generateRandomToken = () => {
   const array = new Uint8Array(64);
   crypto.getRandomValues(array);

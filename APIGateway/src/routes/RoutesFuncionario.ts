@@ -19,6 +19,7 @@ import {
   cadastrarFuncionario,
   postLogin,
   registerLogin,
+  updateLoginPassword,
 } from "../services/Service";
 import { userTypes } from "../models/tipo-usuario.enum";
 import { getUserInfoAndAuth } from "../utils/FazerAutenticacaoEGetUserInfo";
@@ -263,28 +264,39 @@ RoutesFuncionario.put(
         ].includes(userInfo?.userType)
       ) {
         res.status(403).json({ message: "Unauthorized" });
-      } else {
-        let funcionarioUpdate = await updateFuncionario(
-          id,
-          Nome,
-          CPF,
-          Email,
-          Telefone,
-          SalaoId,
-          Auxiliar,
-          Salario,
+        return;
+      }
+      let funcionarioUpdate = await updateFuncionario(
+        id,
+        Nome,
+        CPF,
+        Email,
+        Telefone,
+        SalaoId,
+        Auxiliar,
+        Salario,
+      );
+      if (!funcionarioUpdate) {
+        res.status(404).send("Funcionario not found");
+        return;
+      }
+      if (password) {
+        const result = await updateLoginPassword(
+          funcionarioUpdate.ID!,
+          password,
+          funcionarioUpdate.SalaoId,
         );
-        if (funcionarioUpdate) {
-          res.status(200).send(funcionarioUpdate);
-        } else {
-          res.status(404).send("Funcionario not found");
+        if (!result || !result.success) {
+          res.status(500).send("Error updating login for Funcionario");
+          return;
         }
       }
+      res.status(200).send(funcionarioUpdate);
     } catch (e) {
       console.log(e);
       res.status(500).send("Error in updating Funcionario");
     }
-  },
+  }
 );
 
 //--------SERVIÇO--------//

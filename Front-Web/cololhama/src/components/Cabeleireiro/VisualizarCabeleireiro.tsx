@@ -34,8 +34,8 @@ const colunas = [
   { id: "email", label: "Email", admVisivel: true },
   { id: "telefone", label: "Telefone", admVisivel: true },
   { id: "mei", label: "MEI", admVisivel: true },
-  { id: "portif", label: "Portfólio" },
   { id: "status", label: "Status", admVisivel: true },
+  { id: "portif", label: "Portfólio" },
   { id: "acoes", label: "Ações", admVisivel: true },
 ];
 
@@ -46,13 +46,13 @@ export const VisualizarCabeleireiro: React.FC = () => {
   const [nomeFilterInput, setNomeFilterInput] = useState("");
   const [termoBusca, setTermoBusca] = useState("");
 
-const {
-  cabeleireiros,
-  totalCabeleireiros,
-  handleEditarCabeleireiro,
-  isLoading,
-  error,
-} = useVisualizarCabeleireiros(page + 1, rowsPerPage, SalaoID, termoBusca, userType!);
+  const {
+    cabeleireiros,
+    totalCabeleireiros,
+    handleEditarCabeleireiro,
+    isLoading,
+    error,
+  } = useVisualizarCabeleireiros(page + 1, rowsPerPage, SalaoID, termoBusca, userType!);
 
   const handleChangePage = (_: unknown, newPage: number) => {
     setPage(newPage);
@@ -89,7 +89,7 @@ const {
 
   return (
     <Box sx={{ width: "100%", px: { xs: 1, sm: 3 }, py: 2 }}>
-       <Box
+      <Box
         sx={{
           display: 'flex',
           flexWrap: 'wrap',
@@ -215,9 +215,15 @@ const {
                             ? "Não informado"
                             : cabeleireiro.Mei || "Indisponível"}
                         </TableCell>
+                        <TableCell align="center">
+                          {cabeleireiro.Status === "ATIVO" ? (
+                            <CheckIcon sx={{ color: "green" }} />
+                          ) : (
+                            <CloseIcon sx={{ color: "red" }} />
+                          )}
+                        </TableCell>
                       </>
                     )}
-
                     <TableCell align="center">
                       <Button
                         component={Link}
@@ -229,14 +235,7 @@ const {
                         Portfólio
                       </Button>
                     </TableCell>
-                    <TableCell align="center">
-                      {cabeleireiro.Status === "ATIVO" ? (
-                        <CheckIcon sx={{ color: "green" }} />
-                      ) : (
-                        <CloseIcon sx={{ color: "red" }} />
-                      )}
-                    </TableCell>
-                    {canEdit && (
+                    {canEdit && cabeleireiro.Status === "ATIVO" && (
                       <TableCell align="center">
                         <Button
                           startIcon={<EditIcon />}

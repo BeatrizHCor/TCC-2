@@ -3,8 +3,7 @@ import { useNavigate } from "react-router-dom";
 import FuncionarioService from "../../services/FuncionarioService";
 import { validarCPF, validarEmail } from "../../utils/validations";
 import { Funcionario } from "../../models/funcionarioModel";
-// LEMBRETE: tratamento de erros a serem devidamente colocados,
-// qundo terminar replicar logica para outras paginas de CRUD
+
 const SalaoId: string = import.meta.env.SALAO_ID || "1";
 
 interface ValidationErrors {

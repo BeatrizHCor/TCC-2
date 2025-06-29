@@ -30,6 +30,7 @@ import {
 } from "./Services/ServiceImag";
 import { StatusCadastro } from "@prisma/client";
 import { findLoginbyUserId } from "./Services/Service";
+import { updateLoginPassword } from "./Controller"; // certifique-se de importar corretamente
 
 const RoutesLogin = Router();
 
@@ -475,5 +476,24 @@ async function performRollbackCabeleireiro(
     console.error("Erro crítico durante rollback:", error);
   }
 }
+
+RoutesLogin.put("/login/update", async (req: Request, res: Response) => {
+  const { userID, newPassword, SalaoId } = req.body;
+  if (!userID || !newPassword || !SalaoId) {
+    res.status(400).json({ message: "Parâmetros obrigatórios ausentes." });
+    return;
+  }
+  try {
+    const updated = await updateLoginPassword(userID, newPassword, SalaoId);
+    if (updated) {
+      res.status(200).json({ message: "Senha do login atualizada com sucesso." });
+    } else {
+      res.status(400).json({ message: "Falha ao atualizar senha do login." });
+    }
+  } catch (e) {
+    console.log(e);
+    res.status(500).json({ message: "Erro ao atualizar senha do login." });
+  }
+});
 
 export default RoutesLogin;

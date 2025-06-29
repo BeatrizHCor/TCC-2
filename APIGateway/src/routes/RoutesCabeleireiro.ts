@@ -4,6 +4,7 @@ import {
   cadastrarCabeleireiro,
   postLogin,
   registerLogin,
+  updateLoginPassword,
 } from "../services/Service";
 import {
   deleteCabeleireiro,
@@ -266,6 +267,28 @@ RoutesCabeleireiro.put("/cabeleireiro", async (req: Request, res: Response) => {
         Nome,
         ID,
       );
+      if (!cabeleireiro) {
+        res.status(404).json({ message: "Cabeleireiro not found" });
+        return;
+      } else if (cabeleireiro === null) {
+        res.status(400).json({
+          message: "Error updating Cabeleireiro, invalid parameters",
+        });
+        return;
+      } else if (Password) {
+        const result = await updateLoginPassword(
+          cabeleireiro.ID!,
+          Password,
+          cabeleireiro.SalaoId,
+        );
+        if (result) {
+          res.status(200).send(cabeleireiro);
+          return;
+        } else {
+          res.status(500).send("Error registering login for Cabeleireiro");
+          return;
+        }
+      }
       res.status(200).send(cabeleireiro);
     }
   } catch (e) {

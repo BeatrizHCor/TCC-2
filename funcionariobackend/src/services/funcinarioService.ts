@@ -196,7 +196,7 @@ class FuncionarioService {
     SalaoId: string,
     Auxiliar: boolean,
     Salario: number,
-    Status?: StatusCadastro
+    Status: StatusCadastro | null
   ) {
     try {
       const existingFuncionario = await this.findById(id);

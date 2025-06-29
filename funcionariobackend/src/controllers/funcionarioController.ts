@@ -155,7 +155,7 @@ class FuncionarioController {
         SalaoId,
         Auxiliar,
         Salario,
-        Status ? Status : Status.ATIVO
+        Status ? Status : null
       );
       res.status(200).json(updatedFuncionario);
     } catch (error) {
