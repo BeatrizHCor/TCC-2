@@ -180,7 +180,7 @@ class HistoricoSimulacaoService {
                     if (fs.existsSync(filePath)) {
                         fs.unlinkSync(filePath);
                     } else {
-                        console.log(`⚠️ Arquivo não encontrado: ${filePath}`);
+                        console.log(`Arquivo não encontrado: ${filePath}`);
                     }
                 } catch (fileError) {
                     console.error(`Erro ao deletar arquivo ${imagem.Endereco}:`, fileError);
@@ -310,8 +310,6 @@ class HistoricoSimulacaoService {
 
             for (let i = 0; i < imagensASalvar.length; i++) {
                 const img = imagensASalvar[i];
-
-                console.log(`📸 Processando imagem ${i + 1}:`, img.desc);
 
                 if (!img.base64) {
                     continue;
