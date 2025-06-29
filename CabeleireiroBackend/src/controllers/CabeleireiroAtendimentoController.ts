@@ -14,7 +14,6 @@ class AtendimentoController {
         userId,
         data = null,
       } = req.query;
-      console.log(req.query);
       const Atendimentos = await AtendimentoService.getAtendimentosPage(
         Number(page),
         Number(limit),
@@ -24,7 +23,6 @@ class AtendimentoController {
         String(userId),
         data ? String(data) : null
       );
-      console.log("Atendimentos controller:", Atendimentos);
       res.json(Atendimentos);
     } catch (error) {
       console.error(error);

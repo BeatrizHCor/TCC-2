@@ -26,7 +26,7 @@ export const registerLogin = async (
     }),
   });
   if (responseRegister.ok) {
-    console.log("Register response for user", userID, ":", responseRegister.ok);
+    console.log("Register response for user", userID);
   } else {
     console.log("Register failed", responseRegister.status);
   }
@@ -57,7 +57,7 @@ export const cadastrarCliente = async (
     }),
   });
   if (responseRegister.ok) {
-    console.log("Register response for client", CPF, ":", responseRegister.ok);
+    console.log("Register response for client", responseRegister.status);
     return await responseRegister.json();
   } else {
     console.log("Register failed", responseRegister.status);
@@ -96,9 +96,7 @@ export const cadastrarFuncionario = async (
   if (responseRegister.ok) {
     console.log(
       "Register response for funcionario",
-      CPF,
-      ":",
-      responseRegister.ok,
+      responseRegister.status,
     );
     return await responseRegister.json();
   } else {
@@ -136,15 +134,13 @@ export const cadastrarCabeleireiro = async (
   if (responseRegister.ok) {
     console.log(
       "Register response for cabeleireiro",
-      CPF,
-      ":",
-      responseRegister.ok,
+      responseRegister.status,
     );
     return await responseRegister.json();
   } else {
     console.log("Register failed", responseRegister.status);
     return false;
-    }
+  }
 };
 
 export const postLogin = async (
@@ -191,7 +187,7 @@ export const authenticate = async (
 export const updateLoginPassword = async (
   userID: string,
   newPassword: string,
-  SalaoId: string
+  SalaoId: string,
 ): Promise<{ success: boolean; message: string }> => {
   const response = await fetch(loginURL + "/login/update", {
     method: "PUT",
@@ -207,11 +203,15 @@ export const updateLoginPassword = async (
 
   if (response.ok) {
     const data = await response.json();
-    return { success: true, message: data.message || "Senha atualizada com sucesso." };
+    return {
+      success: true,
+      message: data.message || "Senha atualizada com sucesso.",
+    };
   } else {
     const data = await response.json().catch(() => ({}));
-    return { success: false, message: data.message || "Erro ao atualizar senha." };
+    return {
+      success: false,
+      message: data.message || "Erro ao atualizar senha.",
+    };
   }
 };
-
-//Todas as outras funções vão usar a função de authenticate no Service para verificar se o usuário é quem diz ser, pra depois permitir.

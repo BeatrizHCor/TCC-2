@@ -20,7 +20,6 @@ class AgendamentoService {
         ano: number = 0,
     ) => {
         let where: Prisma.AgendamentosWhereInput = {};
-        console.log("Valores d,m,a: ", dia, mes, ano);
         const range = getRangeByDataInputWithTimezone(ano, mes, dia);
         if (salaoId !== null) {
             where.SalaoId = salaoId;
@@ -31,7 +30,6 @@ class AgendamentoService {
                 lte: range.dataFinal,
             };
         }
-        console.log("cliente: ", ClienteId);
         where.ClienteID = ClienteId;
 
         return await prisma.agendamentos.findMany({
@@ -209,8 +207,6 @@ class AgendamentoService {
                             ID: { in: Servicos },
                         },
                     });
-                    console.log(Servicos);
-                    console.log(services);
                     await tx.servicoAgendamento.createMany({
                         data: services.map((servico) => ({
                             AgendamentosId: id,

@@ -26,7 +26,6 @@ export const getCabeleireiroPage = async (
   salaoId?: number,
   nome?: string | null,
 ) => {
-  console.log(CabeleireiroURL);
   let responseCabeleireiros = await fetch(
     CabeleireiroURL +
       `/cabeleireiro/page?page=${page}&limit=${limit}&includeRelations=${includeRelations}` +
@@ -48,7 +47,6 @@ export const getCabeleireiroNomesPage = async (
   salaoId?: number,
   nome?: string | null,
 ) => {
-  console.log(CabeleireiroURL);
   let responseCabeleireiros = await fetch(
     CabeleireiroURL +
       `/cabeleireiro/nomes/page?page=${page}&limit=${limit}` +

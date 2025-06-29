@@ -48,14 +48,12 @@ RoutesFuncionario.get(
         console.log("Informações de auntenticação ausentes ou inválidas");
         res.status(403).json({ message: "Unauthorized" });
       } else {
-        console.log("auth envio :", userInfo);
         let userTypeAuth = userInfo.userType;
         const auth = await authenticate(
           userInfo.userID,
           userInfo.token,
           userInfo.userType,
         );
-        console.log("auth retorno :", auth);
         if (
           !auth ||
           ![
@@ -155,7 +153,7 @@ RoutesFuncionario.post(
         }
       }
     } catch (e) {
-      console.log(e);
+      console.log("Erro ao realizar operação: ", e);
       res.status(500).send("Error in creating Funcionario");
     }
   },
@@ -205,7 +203,7 @@ RoutesFuncionario.delete(
         }
       }
     } catch (e) {
-      console.log(e);
+      console.log("Erro ao realizar operação: ", e);
       res.status(500).send("Error in deleting Funcionario");
     }
   },
@@ -223,7 +221,7 @@ RoutesFuncionario.get(
         res.status(404).send("Funcionario not found");
       }
     } catch (e) {
-      console.log(e);
+      console.log("",e);
       res.status(500).send("Error in getting Funcionario");
     }
   },
@@ -241,7 +239,7 @@ RoutesFuncionario.get(
         res.status(204).send("Auxiliar not found");
       }
     } catch (e) {
-      console.log(e);
+      console.log("",e);
       res.status(500).send("Error in getting Funcionario");
     }
   },
@@ -293,7 +291,7 @@ RoutesFuncionario.put(
       }
       res.status(200).send(funcionarioUpdate);
     } catch (e) {
-      console.log(e);
+      console.log("Erro ao realizar operação: ", e);
       res.status(500).send("Error in updating Funcionario");
     }
   }
@@ -350,7 +348,7 @@ RoutesFuncionario.post("/servico", async (req: Request, res: Response) => {
       res.status(201).send(servico);
     }
   } catch (e) {
-    console.log(e);
+    console.log("Erro ao realizar operação: ", e);
     res.status(500).send("Error in creating service");
   }
 });
@@ -378,7 +376,7 @@ RoutesFuncionario.delete(
         }
       }
     } catch (e) {
-      console.log(e);
+      console.log("Erro ao realizar operação: ", e);
       res.status(500).send("Error in deleting Funcionario");
     }
   },
@@ -415,7 +413,7 @@ RoutesFuncionario.put(
         }
       }
     } catch (e) {
-      console.log(e);
+      console.log("Erro ao realizar operação: ", e);
       res.status(500).send("Error in updating Funcionario");
     }
   },
@@ -433,7 +431,7 @@ RoutesFuncionario.get(
         res.status(404).send("Servico not found");
       }
     } catch (e) {
-      console.log(e);
+      console.log("Erro ao realizar operação: ", e);
       res.status(500).send("Error in getting Funcionario");
     }
   },
@@ -451,7 +449,7 @@ RoutesFuncionario.get(
         res.status(404).send("Servico not found");
       }
     } catch (e) {
-      console.log(e);
+      console.log("Erro ao realizar operação: ", e);
       res.status(500).send("Error in getting Funcionario");
     }
   },
@@ -469,7 +467,7 @@ RoutesFuncionario.get(
         res.status(404).send("Servico not found");
       }
     } catch (e) {
-      console.log(e);
+      console.log("Erro ao realizar operação: ", e);
       res.status(500).send("Error in finding Servicos");
     }
   },

@@ -75,6 +75,8 @@ const ManterAtendimento: React.FC = () => {
   const [openDeleteDialog, setOpenDeleteDialog] = useState(false);
   const [openServicosModal, setOpenServicosModal] = useState(false);
   const [openAuxiliarModal, setOpenAuxiliarModal] = useState(false);
+  const [servicoSearch, setServicoSearch] = useState("");
+  const [auxiliarSearch, setAuxiliarSearch] = useState("");
   const { state } = useLocation();
   const {
     data: stateData = "",
@@ -160,7 +162,7 @@ const ManterAtendimento: React.FC = () => {
   const handleRemoveServico = (index: number) => {
     const servicosAtualizados = servicoAtendimento.filter((_, i) => i !== index);
     setServicoAtendimento(servicosAtualizados);
-    
+
     const novoTotal = servicosAtualizados.reduce(
       (sum: number, s: ServicoAtendimento) => sum + s.PrecoItem,
       0
@@ -232,18 +234,18 @@ const ManterAtendimento: React.FC = () => {
 
   function handlePrecoItem(index: number, value: number): void {
     let servicoAtendimentos = [...servicoAtendimento];
-    
+
     if (index >= 0 && index < servicoAtendimentos.length) {
       servicoAtendimentos[index] = {
         ...servicoAtendimentos[index],
         PrecoItem: value,
       };
-      
+
       let total = servicoAtendimentos.reduce(
         (sum: number, s: ServicoAtendimento) => sum + s.PrecoItem,
         0
       );
-      
+
       setServicoAtendimento(servicoAtendimentos);
       setPrecoTotal(total);
     }
@@ -489,7 +491,7 @@ const ManterAtendimento: React.FC = () => {
                                     ""
                                   );
                                   const float = parseFloat(raw) / 100;
-                                  handlePrecoItem(index, float); 
+                                  handlePrecoItem(index, float);
                                 }}
                                 disabled={userType === "Cliente"}
                               />
@@ -498,7 +500,7 @@ const ManterAtendimento: React.FC = () => {
                               <IconButton
                                 size="small"
                                 color="error"
-                                onClick={() => handleRemoveServico(index)} 
+                                onClick={() => handleRemoveServico(index)}
                                 disabled={userType === "Cliente"}
                               >
                                 <RemoveIcon />
@@ -593,30 +595,45 @@ const ManterAtendimento: React.FC = () => {
         maxWidth="md"
         fullWidth
       >
-        <DialogTitle>Selecionar Serviço</DialogTitle>
         <DialogContent>
+          <TextField
+            fullWidth
+            placeholder="Buscar serviço"
+            value={servicoSearch}
+            onChange={(e) => setServicoSearch(e.target.value)}
+            sx={{ mb: 2 }}
+          />
           <List>
             {servicosDisponiveis
               .filter(
                 (servico) =>
-                  !servicoAtendimento.some((sa) => sa.ServicoId === servico.ID)
+                  !servicosAgendamento.some((sa) => sa.ServicoId === servico.ID) &&
+                  servico.Nome.toLowerCase().includes(servicoSearch.toLowerCase())
               )
               .map((servico) => (
                 <ListItem key={servico.ID} disablePadding>
                   <ListItemButton onClick={() => handleAddServico(servico)}>
                     <ListItemText
-                      disableTypography
                       primary={servico.Nome}
                       secondary={
-                        <>
-                          <Typography variant="body2" color="text.secondary">
+                        <span>
+                          <Typography
+                            variant="body2"
+                            color="text.secondary"
+                            component="span"
+                          >
                             {servico.Descricao}
                           </Typography>
-                          <Typography variant="body2" color="primary">
+                          <br />
+                          <Typography
+                            variant="body2"
+                            color="primary"
+                            component="span"
+                          >
                             {formatCurrency(servico.PrecoMin)} -{" "}
                             {formatCurrency(servico.PrecoMax)}
                           </Typography>
-                        </>
+                        </span>
                       }
                     />
                   </ListItemButton>
@@ -637,25 +654,36 @@ const ManterAtendimento: React.FC = () => {
       >
         <DialogTitle>Selecionar Auxiliar</DialogTitle>
         <DialogContent>
+          <TextField
+            fullWidth
+            placeholder="Buscar auxiliar"
+            value={auxiliarSearch}
+            onChange={(e) => setAuxiliarSearch(e.target.value)}
+            sx={{ mb: 2 }}
+          />
           <List>
-            {auxiliaresDisponives.map((auxiliar) => (
-              <ListItem key={auxiliar.ID} disablePadding>
-                <ListItemButton onClick={() => handleSelectAuxiliar(auxiliar)}>
-                  <ListItemText
-                    disableTypography
-                    primary={auxiliar.Nome}
-                    secondary={
-                      <Typography
-                        component="span"
-                        variant="body2"
-                        color="text.secondary"
-                      >
-                      </Typography>
-                    }
-                  />
-                </ListItemButton>
-              </ListItem>
-            ))}
+            {auxiliaresDisponives
+              .filter((auxiliar) =>
+                auxiliar.Nome.toLowerCase().includes(auxiliarSearch.toLowerCase())
+              )
+              .map((auxiliar) => (
+                <ListItem key={auxiliar.ID} disablePadding>
+                  <ListItemButton onClick={() => handleSelectAuxiliar(auxiliar)}>
+                    <ListItemText
+                      disableTypography
+                      primary={auxiliar.Nome}
+                      secondary={
+                        <Typography
+                          component="span"
+                          variant="body2"
+                          color="text.secondary"
+                        >
+                        </Typography>
+                      }
+                    />
+                  </ListItemButton>
+                </ListItem>
+              ))}
           </List>
         </DialogContent>
         <DialogActions>

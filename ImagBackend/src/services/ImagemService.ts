@@ -59,7 +59,7 @@ export class ImagemService {
       );
       const expectedDir = path.normalize(
         path.join(__dirname, "..", "..", "uploads", "portfolio"),
-      ); // checa para garantir que não haja deletes fora da pasta
+      );
       if (!filePath.startsWith(expectedDir)) {
         throw new Error("Invalid file path detected.");
       }

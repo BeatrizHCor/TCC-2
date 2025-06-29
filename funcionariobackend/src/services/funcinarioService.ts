@@ -93,7 +93,6 @@ class FuncionarioService {
           Salario: Salario,
         },
       });
-      console.log(funcionario);
       return funcionario;
     } catch (error) {
       console.error("Erro ao criar funcionário:", error);

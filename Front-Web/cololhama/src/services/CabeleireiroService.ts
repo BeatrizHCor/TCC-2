@@ -78,9 +78,7 @@ export const CabeleireiroService = {
   ): Promise<boolean> {
     try {
       const path = `/cabeleireiro/cpf/${cpf}/${salaoId}`;
-      console.log(`Verificando cabeleireiro por CPF no caminho: ${path}`);
       const response = await api.get(path);
-      console.log("Resposta do servidor:", response.data);
       return !!response.data;
     } catch (error) {
       if (axios.isAxiosError(error) && error.response?.status === 404) {

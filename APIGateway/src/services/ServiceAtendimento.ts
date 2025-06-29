@@ -42,12 +42,6 @@ export const ClientegetAtendimentosPage = async (
   userId: string,
   cabeleireiro: string | null,
 ) => {
-  console.log(
-    ClienteURL +
-      `/atendimento/page?page=${page}&limit=${limit}&userId=${userId}&salaoId=${salaoId}&data=${data}&includeRelations=${includeRelations}${
-        cabeleireiro ? `&cabeleireiro=${cabeleireiro}` : ""
-      }`,
-  );
   let responseAtendimento = await fetch(
     ClienteURL +
       `/atendimento/page?page=${page}&limit=${limit}&userId=${userId}&salaoId=${salaoId}&data=${data}&includeRelations=${includeRelations}${

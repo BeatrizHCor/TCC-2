@@ -24,7 +24,6 @@ class AtendimentoService {
     if (salaoId !== null) {
       where.SalaoId = salaoId;
     }
-    console.log("Valores d,m,a: ", data);
     const range = getRangeByStringInputWithTimezone(data);
     if (range !== null) {
       where.Data = {

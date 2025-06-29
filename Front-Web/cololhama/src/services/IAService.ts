@@ -37,9 +37,7 @@ class IaService {
         const errorText = await response.text();
         throw new Error(`Erro ${response.status}: ${response.statusText} - ${errorText}`);
       }
-
       const data = await response.json();
-      console.log('Gateway API data:', data);
 
       return {
         success: true,

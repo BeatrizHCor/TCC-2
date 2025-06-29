@@ -61,7 +61,6 @@ RoutesAtendimento.post("/atendimento", async (req: Request, res: Response) => {
           userTypes.ADM_SISTEMA,
         ].includes(userTypeAuth)
       ) {
-        console.log("criar atendimento paramentros", req.body);
         const result = await postAtendimentoFuncionario(
           Data,
           PrecoTotal,
@@ -89,8 +88,6 @@ RoutesAtendimento.post("/atendimento", async (req: Request, res: Response) => {
     }
   } catch (e) {
     console.log(e);
-    console.log("aqui terceiro");
-
     res.status(500).send("Erro no ao criar atendimento");
   }
 });
@@ -240,7 +237,6 @@ RoutesAtendimento.get(
   `/atendimentobyagendamento/:agendamentoId`,
   async (req: Request, res: Response) => {
     let { agendamentoId } = req.params;
-    console.log(agendamentoId);
     try {
       let atendimento = await getAtendimentobyAgendamentoId(agendamentoId);
       res.status(201).json(atendimento);
@@ -264,7 +260,6 @@ RoutesAtendimento.get(
     console;
     try {
       const { userInfo, auth } = await getUserInfoAndAuth(req.headers);
-      console.log(userInfo);
       if (!userInfo) {
         res.status(403).json({ message: "Não autorizado" });
         return;
@@ -316,7 +311,6 @@ RoutesAtendimento.get(
     console;
     try {
       const { userInfo, auth } = await getUserInfoAndAuth(req.headers);
-      console.log(userInfo);
       if (!userInfo) {
         res.status(403).json({ message: "Não autorizado" });
         return;
@@ -366,10 +360,8 @@ RoutesAtendimento.get(
     const includeRelations = req.query.includeRelations === "true";
     const userId = req.query.userId as string;
     const cliente = req.query.cliente as string;
-    console.log(req.query);
     try {
       const { userInfo, auth } = await getUserInfoAndAuth(req.headers);
-      console.log(userInfo);
       if (!userInfo) {
         res.status(403).json({ message: "Não autorizado" });
         return;

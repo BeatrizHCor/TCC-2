@@ -8,8 +8,8 @@ export class ImagemController {
 
       if (!req.file) {
         res.status(400).json({ error: "Nenhum arquivo enviado." });
+        return;
       }
-      console.log('Arquivo recebido controler:', req.file);
       const imagem = await ImagemService.uploadImagemPortfolio(
         req.file!,
         PortfolioId,
@@ -31,6 +31,7 @@ export class ImagemController {
 
       if (!imagem) {
          res.status(404).json({ error: "Imagem não encontrada." });
+        return;
       }
 
       res.status(200).json(imagem);

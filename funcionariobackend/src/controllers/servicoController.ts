@@ -45,7 +45,7 @@ static async create(req: Request, res: Response): Promise<void> {
     const {Nome, SalaoId, PrecoMin, PrecoMax, Descricao} = req.body;
 
     if (!Nome || !PrecoMin || isNaN(Number(PrecoMin)) || !PrecoMax || isNaN(Number(PrecoMax)) || !SalaoId) {
-      console.log("Parametros errados no createServico");
+      console.log("Parametros invalidos  ou ausentes no create Servico");
       res.status(400).json({ message: "Campos obrigatórios ausentes." });
     } else {
     if (PrecoMin > PrecoMax) {

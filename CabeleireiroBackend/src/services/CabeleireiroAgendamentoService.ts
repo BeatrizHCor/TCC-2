@@ -20,7 +20,6 @@ class AgendamentoService {
     ano: number = 0
   ) => {
     let where: Prisma.AgendamentosWhereInput = {};
-    console.log("Valores d,m,a: ", dia, mes, ano);
     const range = getRangeByDataInputWithTimezone(ano, mes, dia);
     if (salaoId !== null) {
       where.SalaoId = salaoId;
@@ -137,8 +136,6 @@ class AgendamentoService {
             Status,
           },
         });
-
-        console.log("Agendamento encontrado e atualizado", agendamento);
         return agendamento;
       });
     } catch (e) {

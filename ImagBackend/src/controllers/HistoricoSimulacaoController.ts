@@ -73,9 +73,6 @@ export class HistoricoSimulacaoController {
                 });
                 return;
             }
-
-            console.log(`🗑️ Solicitação de exclusão para histórico: ${id}`);
-
             const historicoExiste = await HistoricoSimulacaoService.getHistoricoSimulacaoById(id);
 
             if (!historicoExiste) {

@@ -221,28 +221,16 @@ class HistoricoSimulacaoService {
     }
 
     try {
-      console.log(`🗑️ Deletando simulação: ${historicoId}`);
-
       const headers = this.getAuthHeaders();
 
-      // CORREÇÃO: Usar a rota correta que acabamos de criar no gateway
       const url = `${this.gatewayUrl}/historico/simulacao/${historicoId}`;
-
-      console.log(`📡 Fazendo DELETE para: ${url}`);
-      console.log(`🔑 Headers:`, headers);
-
       const response = await fetch(url, {
         method: 'DELETE',
         headers: headers,
       });
-
-      console.log(`📊 Status da resposta: ${response.status}`);
-
       if (!response.ok) {
         const errorText = await response.text();
-        console.error(`❌ Erro na resposta: ${errorText}`);
-
-        // Tratar diferentes tipos de erro
+        console.error(`Erro na resposta: ${errorText}`);
         if (response.status === 404) {
           throw new Error("Simulação não encontrada");
         } else if (response.status === 403) {
@@ -253,26 +241,22 @@ class HistoricoSimulacaoService {
           throw new Error(`Erro ${response.status}: ${response.statusText} - ${errorText}`);
         }
       }
-
-      // Tentar fazer parse da resposta
       let responseData;
       try {
         const responseText = await response.text();
         responseData = responseText ? JSON.parse(responseText) : {};
       } catch (parseError) {
-        console.warn("⚠️ Não foi possível fazer parse da resposta, mas a operação parece ter sido bem-sucedida");
+        console.warn("Não foi possível fazer parse da resposta, mas a operação parece ter sido bem-sucedida");
         responseData = { success: true };
       }
-
-      console.log(`✅ Simulação deletada com sucesso:`, responseData);
-
+      console.log(`Simulação deletada com sucesso:`, responseData);
       return {
         success: true,
         //message: responseData.message || "Simulação deletada com sucesso"
       };
 
     } catch (error: any) {
-      console.error(`❌ Erro ao deletar simulação:`, error);
+      console.error(` Erro ao deletar simulação:`, error);
 
       return {
         success: false,

@@ -41,8 +41,6 @@ RoutesCabeleireiro.post(
         ) {
           res.status(403).json({ message: "Unauthorized" });
         } else {
-          console.log("gateway: ", Nome);
-
           if (
             !CPF || !Nome || !Email || !Telefone || !SalaoId || !Password ||
             !userType

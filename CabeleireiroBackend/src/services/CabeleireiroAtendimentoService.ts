@@ -20,7 +20,6 @@ class AtendimentoService {
     data: string | null = null
   ) {
     const where: Prisma.AtendimentoWhereInput = {};
-    console.log("nome Cliente", nomeCliente);
     if (salaoId !== null) {
       where.SalaoId = salaoId;
     }

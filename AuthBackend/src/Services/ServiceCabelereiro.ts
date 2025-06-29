@@ -41,7 +41,6 @@ export const getCabeleireiroPage = async (
   salaoId?: number,
   nome?: string | null,
 ) => {
-  console.log(CabeleireiroURL);
   let responseCabeleireiros = await fetch(
     CabeleireiroURL +
       `/cabeleireiro/page?page=${page}&limit=${limit}&includeRelations=${includeRelations}` +
@@ -67,9 +66,7 @@ export const deleteCabeleireiro = async (id: string) => {
   if (responseCabeleireiro.ok) {
     return true;
   } else if (responseCabeleireiro.status === 409) {
-    console.log("Status da resposta:", responseCabeleireiro.status);
     const data = await responseCabeleireiro.json().catch(() => ({}));
-    console.log("Body da resposta:", data);
     const msg = data && data.message
       ? data.message
       : "Não é possível excluir: cabeleireiro está em uso.";

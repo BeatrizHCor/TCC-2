@@ -94,7 +94,6 @@ class CabeleireiroController {
   static update = async (req: Request, res: Response): Promise<void> => {
     try {
       let { Email, CPF, Telefone, SalaoId, Mei, Nome, ID, Status } = req.body;
-      console.log("atualizando cabeleireiro");
       if (!Mei) {
         Mei = null;
       }

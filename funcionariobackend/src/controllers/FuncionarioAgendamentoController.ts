@@ -6,7 +6,6 @@ class AgendamentoController {
     try {
       const { page, limit, includeRelations, salaoId, dia, mes, ano } =
         req.query;
-      console.log(req.query.p);
       const agendamentos = await AgendamentoService.getAgendamentosPage(
         !isNaN(Number(page)) ? Number(page) : null,
         !isNaN(Number(limit)) ? Number(limit) : null,
@@ -27,12 +26,10 @@ class AgendamentoController {
     try {
       const { id } = req.params;
       const includeRelations = req.query.includeRelations === "true";
-      console.log("includeRelations controller: ", includeRelations);
       const agendamento = await AgendamentoService.findById(
         id,
         includeRelations,
       );
-      console.log("agendamento: ", agendamento);
       if (!agendamento) {
         res
           .status(204)
@@ -50,7 +47,6 @@ class AgendamentoController {
     try {
       const { Data, ClienteID, SalaoId, CabeleireiroID, servicosIds } =
         req.body;
-      console.log("criar agendamento paramentros", req.body);
       const agendamento = await AgendamentoService.createAgendamento(
         new Date(Data),
         "Agendado",
@@ -77,8 +73,6 @@ class AgendamentoController {
       const { id } = req.params;
       const { Data, Status, ClienteID, SalaoId, CabeleireiroID, servicosIds } =
         req.body;
-      console.log(servicosIds);
-
       const agendamento = await AgendamentoService.updateAgendamento(
         id,
         new Date(Data),
@@ -101,9 +95,7 @@ class AgendamentoController {
   static deleteAgendamento = async (req: Request, res: Response) => {
     try {
       const { id } = req.params;
-      console.log("controller do delete: ", id);
       const agendamento = await AgendamentoService.deleteAgendamento(id);
-      console.log(agendamento);
       if (!agendamento) {
         res.status(404).json({ message: "Agendamento não encontrado" });
       } else {

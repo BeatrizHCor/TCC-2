@@ -38,12 +38,6 @@ class PortfolioService {
       formData.append("imagem", file, file.name);
       formData.append("PortfolioId", PortfolioId);
       formData.append("Descricao", descricao);
-      console.log(
-        "Dados do FormData:",
-        formData.get("PortfolioId"),
-        formData.get("Descricao"),
-        formData.get("imagem"),
-      );
       const response = await apiUpload.post(`/imagem/portfolio/${PortfolioId}`, formData);
 
       return response.data;

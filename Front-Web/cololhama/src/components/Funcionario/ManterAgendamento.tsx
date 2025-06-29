@@ -74,7 +74,9 @@ const ManterAgendamento: React.FC = () => {
   const [openServicosModal, setOpenServicosModal] = useState(false);
   const [openCabeleireirosModal, setOpenCabeleireirosModal] = useState(false);
   const [openClientesModal, setOpenClientesModal] = useState(false);
-
+  const [clienteSearch, setClienteSearch] = useState("");
+  const [cabeleireiroSearch, setCabeleireiroSearch] = useState("");
+  const [servicoSearch, setServicoSearch] = useState("");
   const {
     data,
     setData,
@@ -175,7 +177,7 @@ const ManterAgendamento: React.FC = () => {
         data,
         isEditing,
         horaOriginal,
-        novosServicos 
+        novosServicos
       );
 
       if (!isOcupadoComNovosServicos && validationErrors.data) {
@@ -659,31 +661,42 @@ const ManterAgendamento: React.FC = () => {
       >
         <DialogTitle>Selecionar Cliente</DialogTitle>
         <DialogContent>
+          <TextField
+            fullWidth
+            placeholder="Buscar cliente"
+            value={clienteSearch}
+            onChange={(e) => setClienteSearch(e.target.value)}
+            sx={{ mb: 2 }}
+          />
           <List>
-            {clientesDisponiveis?.map((cliente) => (
-              <ListItem key={cliente.ID} disablePadding>
-                <ListItemButton
-                  onClick={() => {
-                    setClienteId(cliente.ID!);
-                    setClienteNome(cliente.Nome);
-                    setOpenClientesModal(false);
-                  }}
-                >
-                  <ListItemText
-                    primary={cliente.Nome}
-                    secondary={
-                      <Typography
-                        component="span"
-                        variant="body2"
-                        color="text.secondary"
-                      >
-                        {cliente.Email}
-                      </Typography>
-                    }
-                  />
-                </ListItemButton>
-              </ListItem>
-            ))}
+            {clientesDisponiveis
+              ?.filter((cliente) =>
+                cliente.Nome.toLowerCase().includes(clienteSearch.toLowerCase())
+              )
+              .map((cliente) => (
+                <ListItem key={cliente.ID} disablePadding>
+                  <ListItemButton
+                    onClick={() => {
+                      setClienteId(cliente.ID!);
+                      setClienteNome(cliente.Nome);
+                      setOpenClientesModal(false);
+                    }}
+                  >
+                    <ListItemText
+                      primary={cliente.Nome}
+                      secondary={
+                        <Typography
+                          component="span"
+                          variant="body2"
+                          color="text.secondary"
+                        >
+                          {cliente.Email}
+                        </Typography>
+                      }
+                    />
+                  </ListItemButton>
+                </ListItem>
+              ))}
           </List>
         </DialogContent>
         <DialogActions>
@@ -727,11 +740,19 @@ const ManterAgendamento: React.FC = () => {
       >
         <DialogTitle>Selecionar Serviço</DialogTitle>
         <DialogContent>
+          <TextField
+            fullWidth
+            placeholder="Buscar serviço"
+            value={servicoSearch}
+            onChange={(e) => setServicoSearch(e.target.value)}
+            sx={{ mb: 2 }}
+          />
           <List>
             {servicosDisponiveis
               .filter(
                 (servico) =>
-                  !servicosAgendamento.some((sa) => sa.ServicoId === servico.ID)
+                  !servicosAgendamento.some((sa) => sa.ServicoId === servico.ID) &&
+                  servico.Nome.toLowerCase().includes(servicoSearch.toLowerCase())
               )
               .map((servico) => (
                 <ListItem key={servico.ID} disablePadding>
@@ -753,7 +774,7 @@ const ManterAgendamento: React.FC = () => {
                             color="primary"
                             component="span"
                           >
-                            {formatCurrency(servico.PrecoMin)} - {" "}
+                            {formatCurrency(servico.PrecoMin)} -{" "}
                             {formatCurrency(servico.PrecoMax)}
                           </Typography>
                         </span>
@@ -777,27 +798,37 @@ const ManterAgendamento: React.FC = () => {
       >
         <DialogTitle>Selecionar Cabeleireiro</DialogTitle>
         <DialogContent>
+          <TextField
+            fullWidth
+            placeholder="Buscar cabeleireiro"
+            value={cabeleireiroSearch}
+            onChange={(e) => setCabeleireiroSearch(e.target.value)}
+            sx={{ mb: 2 }}
+          />
           <List>
-            {cabeleireirosDisponiveis.map((cabeleireiro) => (
-              <ListItem key={cabeleireiro.ID} disablePadding>
-                <ListItemButton
-                  onClick={() => handleSelectCabeleireiro(cabeleireiro)}
-                >
-                  <ListItemText
-                    primary={cabeleireiro.Nome}
-                    secondary={
-                      <Typography
-                        component="span"
-                        variant="body2"
-                        color="text.secondary"
-                      >
-                        {cabeleireiro.Email}
-                      </Typography>
-                    }
-                  />
-                </ListItemButton>
-              </ListItem>
-            ))}
+            {cabeleireirosDisponiveis
+              .filter((cabeleireiro) =>
+                cabeleireiro.Nome.toLowerCase().includes(cabeleireiroSearch.toLowerCase())
+              )
+              .map((cabeleireiro) => (
+                <ListItem key={cabeleireiro.ID} disablePadding>
+                  <ListItemButton
+                    onClick={() => handleSelectCabeleireiro(cabeleireiro)}
+                  >
+                    <ListItemText
+                      primary={cabeleireiro.Nome}
+                      secondary={
+                        <Typography
+                          component="span"
+                          variant="body2"
+                          color="text.secondary"
+                        >
+                        </Typography>
+                      }
+                    />
+                  </ListItemButton>
+                </ListItem>
+              ))}
           </List>
         </DialogContent>
         <DialogActions>

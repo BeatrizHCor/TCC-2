@@ -60,7 +60,6 @@ class AgendamentoController {
   static createAgendamento = async (req: Request, res: Response) => {
     try {
       const { Data, ClienteID, SalaoId, CabeleireiroID, servicosIds } = req.body;
-      console.log("Controller servicos: ", servicosIds);
       const agendamento = await AgendamentoService.createAgendamento(
         new Date(Data),
         "Agendado",
@@ -89,7 +88,6 @@ class AgendamentoController {
       const { id } = req.params;
       const { Data, Status, ClienteID, CabeleireiroID, SalaoId, servicosIds } =
         req.body;
-        console.log("parametros no controller backCliente: ", Data, Status, ClienteID, CabeleireiroID, SalaoId, servicosIds);
       const agendamento = await AgendamentoService.updateAgendamento(
         id,
         new Date(Data),
@@ -113,9 +111,7 @@ class AgendamentoController {
   static deleteAgendamento = async (req: Request, res: Response) => {
     try {
       const { id } = req.params;
-      console.log("controller do delete: ", id);
       const agendamento = await AgendamentoService.deleteAgendamento(id);
-      console.log(agendamento);
       if (!agendamento) {
         res.status(404).json({ message: "Agendamento não encontrado" });
       } else {
@@ -134,7 +130,6 @@ class AgendamentoController {
     try {
       const { salaoId, cabeleireiroId } = req.params;
       const { data } = req.query;
-      console.log("data controller: ", data);
       if (!salaoId || !cabeleireiroId || !data) {
         res.status(400).json({
           message: "Parâmetros obrigatórios: salaoId, cabeleireiroId e data.",

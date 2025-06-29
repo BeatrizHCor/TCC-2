@@ -45,7 +45,7 @@ class AgendamentoService {
           includeRelations,
         },
       });
-      console.log("Agendamentos recebidos:", response.data);
+      console.log("Agendamentos recebidos");
       return response.data;
     } catch (error) {
       console.error("Erro ao buscar agendamentos:", error);
@@ -73,7 +73,7 @@ class AgendamentoService {
           includeRelations,
         },
       });
-      console.log("Agendamentos recebidos (cabeleireiro):", response.data);
+      console.log("Agendamentos recebidos (cabeleireiro)");
       return response.data;
     } catch (error) {
       console.error("Erro ao buscar agendamentos (cabeleireiro):", error);
@@ -102,7 +102,7 @@ class AgendamentoService {
           includeRelations,
         },
       });
-      console.log("Agendamentos recebidos (cliente):", response.data);
+      console.log("Agendamentos recebidos (cliente)");
       return response.data;
     } catch (error) {
       console.error("Erro ao buscar agendamentos (cliente):", error);
@@ -199,7 +199,7 @@ class AgendamentoService {
         SalaoId,
         servicosIds,
       });
-      console.log("Agendamento atualizado (funcionario):", response.data);
+      console.log("Agendamento atualizado (funcionario)");
       if (response.status === 403) {
         console.error(
           "Erro ao atualizar agendamento (funcionário): Acesso negado",
@@ -273,7 +273,7 @@ class AgendamentoService {
         console.error("Erro ao atualizar agendamento (cliente): Acesso negado");
         return false;
       }
-      console.log("Agendamento atualizado (cliente):", response.data);
+      console.log("Agendamento atualizado (cliente)");
       return response.data;
     } catch (error) {
       console.error("Erro ao atualizar agendamento (cliente):", error);
@@ -365,7 +365,6 @@ class AgendamentoService {
         { params: { data } },
       );
       if (response.status === 200) {
-        console.log("buscar horários ocupados futuros: ", response.data);
         return response.data;
       }
       console.error(

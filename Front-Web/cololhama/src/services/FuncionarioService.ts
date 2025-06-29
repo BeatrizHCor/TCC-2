@@ -31,7 +31,6 @@ export const FuncionarioService = {
     salaoId: string
   ): Promise<FuncionarioPageResponse | boolean> {
     try {
-      console.log("Buscando funcionários com o nome:", nome);
       const response = await api.get<FuncionarioPageResponse>(
         `/funcionario/page`,
         {
@@ -44,7 +43,6 @@ export const FuncionarioService = {
           },
         }
       );
-      console.log("funcionários:", response.data.data);
       if (response.status === 403) {
         return false;
       }

@@ -40,9 +40,6 @@ export const verifyPasswordAndReturnToken = async (
   password: string,
   salaoID: string
 ) => {
-  console.log("Email:", email);
-  console.log("SalaoId:", salaoID);
-
   let login = await findLoginbyEmail(email, salaoID);
   if (login) {
     let match = await argon2.verify(login.Senha, password + SALT);
@@ -73,8 +70,6 @@ export const updateLoginPassword = async (
     if (!login) {
       return { success: false, message: "Login não encontrado." };
     }
-    console.log("Atualizando senha para o usuário/ senha antiga:", login.Senha);
-
     const hashed = await argon2.hash(newPassword + SALT);
     const updated = await updateLogin(
       UsuarioID,
@@ -83,7 +78,6 @@ export const updateLoginPassword = async (
       SalaoId
     );
     if (updated) {
-      console.log("Atualizando senha para o usuário/ senha nova:", updated.Senha);
       return { success: true, message: "Senha atualizada com sucesso." };
     } else {
       console.log("Atualizando senha para o usuário/ senha nova: senha não atualizada");

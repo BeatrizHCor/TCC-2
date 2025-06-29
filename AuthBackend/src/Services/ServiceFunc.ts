@@ -65,9 +65,7 @@ export const deleteFuncionario = async (id: string) => {
     if (responseFuncionario.ok) {
         return true;
     } else if (responseFuncionario.status === 409) {
-        console.log("Status da resposta:", responseFuncionario.status);
         const data = await responseFuncionario.json().catch(() => ({}));
-        console.log("Body da resposta:", data);
         const msg = data && data.message
             ? data.message
             : "Não é possível excluir: funcionário está em uso.";

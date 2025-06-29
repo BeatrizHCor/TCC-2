@@ -527,8 +527,6 @@ RoutesAgendamento.put(
             userTypes.ADM_SISTEMA,
           ].includes(userInfo.userType)
         ) {
-                console.log("parametros no controller backCliente: ", Data, Status, ClienteID, CabeleireiroID, SalaoId, servicosIds);
-
           const agendamento = await ClienteUpdateAgendamento(
             id,
             Data,

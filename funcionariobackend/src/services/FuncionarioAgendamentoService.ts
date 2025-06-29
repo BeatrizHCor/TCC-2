@@ -242,8 +242,6 @@ class AgendamentoService {
             Status,
           },
         });
-
-        console.log("Agendamento encontrado e atualizado", agendamento);
         return agendamento;
       });
     } catch (e) {

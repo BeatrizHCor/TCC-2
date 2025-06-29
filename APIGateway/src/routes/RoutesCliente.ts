@@ -305,7 +305,6 @@ RoutesCliente.get(
   async (req: Request, res: Response) => {
     const { salaoId } = req.params;
     const include = req.query.include === "true";
-    console.log(salaoId);
     try {
       const userInfo = JSON.parse(
         Buffer.from(req.headers.authorization || "", "base64").toString(

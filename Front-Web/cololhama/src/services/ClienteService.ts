@@ -56,7 +56,6 @@ export const ClienteService = {
 
       if (response.data && response.data.token) {
         localStorage.setItem("usuario", JSON.stringify(response.data));
-        console.log("Token salvo no localStorage");
       }
 
       return response.status === 200 || response.status === 201;
@@ -110,15 +109,12 @@ export const ClienteService = {
   ): Promise<boolean> {
     try {
       const path = `/cliente/checkcpf/${cpf}/${salaoId}`;
-      console.log(`Verificando cliente por CPF no caminho: ${path}`);
       const response = await api.get(path);
 
       if (response.status === 204) {
         console.log("Cliente não encontrado (status 204), retornando false.");
         return false;
       }
-
-      console.log("Resposta da verificação CPF:", response.data);
       return !!response.data;
     } catch (error) {
       if (

@@ -126,7 +126,6 @@ class PortfolioService {
                     Descricao: "asc",
                 },
             });
-            console.log("Portfolios encontrados:", portfolios.length);
             return portfolios;
         } catch (error) {
             console.error("Erro ao buscar todos os portfolios:", error);

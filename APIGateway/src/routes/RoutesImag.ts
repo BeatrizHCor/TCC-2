@@ -191,16 +191,7 @@ RoutesImagem.post(
             const portfolioIdToSend = req.body.PortfolioId || PortfolioId;
             form.append("PortfolioId", portfolioIdToSend);
             form.append("Descricao", req.body.Descricao || "");
-
-            console.log("Dados sendo enviados:", {
-                PortfolioId: portfolioIdToSend,
-                Descricao: req.body.Descricao || "",
-                arquivo: req.file.originalname,
-                tamanho: req.file.size,
-            });
-
             const axios = require("axios");
-
             const response = await axios.post(
                 `${process.env.VITE_IMAGEM_URL}/imagem/portfolio`,
                 form,

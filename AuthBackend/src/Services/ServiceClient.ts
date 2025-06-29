@@ -95,7 +95,6 @@ export const getClienteById = async (id: string, includeRelations = false) => {
   }
 };
 export const getClienteByCPF = async (cpf: string, salaoId: string) => {
-  console.log(CustomerURL + `/cliente/cpf/${cpf}/${salaoId}`);
   let responseCliente = await fetch(
     CustomerURL + `/cliente/cpf/${cpf}/${salaoId}`,
     {
@@ -146,8 +145,6 @@ export const deleteCliente = async (id: string) => {
 };
 
 export const updateCliente = async (id: string, data: Cliente) => {
-  console.log(CustomerURL + `/cliente/${id}`);
-  console.log(data);
   let responseCliente = await fetch(CustomerURL + `/cliente/${id}`, {
     method: "PUT",
     headers: {

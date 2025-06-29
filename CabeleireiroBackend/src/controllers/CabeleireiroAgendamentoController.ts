@@ -63,7 +63,6 @@ class AgendamentoController {
     try {
       const { Data, ClienteID, SalaoId, CabeleireiroID, servicosIds } =
         req.body;
-      console.log("criar agendamento paramentros", req.body);
       let timezone = "America/Sao_Paulo";
       const data = new Date(Data);
       const dataBrasilia = toZonedTime(data, timezone);
@@ -102,7 +101,6 @@ class AgendamentoController {
         CabeleireiroID,
         servicosIds,
       );
-      console.log(servicosIds);
       if (!agendamento) {
         res.status(404).json({ message: "Agendamento não encontrado" });
       } else {
