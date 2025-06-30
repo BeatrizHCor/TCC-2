@@ -56,6 +56,7 @@ export const ClienteService = {
 
       if (response.data && response.data.token) {
         localStorage.setItem("usuario", JSON.stringify(response.data));
+        console.log("Token salvo no localStorage");
       }
 
       return response.status === 200 || response.status === 201;
@@ -109,12 +110,15 @@ export const ClienteService = {
   ): Promise<boolean> {
     try {
       const path = `/cliente/checkcpf/${cpf}/${salaoId}`;
+      console.log(`Verificando cliente por CPF no caminho: ${path}`);
       const response = await api.get(path);
 
       if (response.status === 204) {
         console.log("Cliente não encontrado (status 204), retornando false.");
         return false;
       }
+
+      console.log("Resposta da verificação CPF:", response.data);
       return !!response.data;
     } catch (error) {
       if (
@@ -145,15 +149,48 @@ export const ClienteService = {
     Nome: string,
     Email: string,
     Telefone: string,
-    SalaoId: string
+    SalaoId: string,
+    Password?: string
   ): Promise<Cliente> {
     try {
-      const response = await api.put(`/cliente/${id}`, {
+      const dadosAtualizacao: any = {
         CPF,
         Nome,
         Email,
         Telefone,
         SalaoId,
+      };
+
+      if (Password) {
+        dadosAtualizacao.newPassword = Password;
+      }
+
+
+      const response = await api.put(`/cliente/${id}`, dadosAtualizacao);
+      return response.data;
+    } catch (error) {
+      console.error("Erro ao atualizar cliente:", error);
+      throw error;
+    }
+  },
+
+  async updateCliente(
+    id: string,
+    CPF: string,
+    Nome: string,
+    Email: string,
+    Telefone: string,
+    SalaoId: string,
+    password: string
+  ): Promise<Cliente> {
+    try {
+      const response = await api.put<Cliente>(`/cliente/update/${id}`, {
+        CPF,
+        Nome,
+        Email,
+        Telefone,
+        SalaoId,
+        password,
       });
       return response.data;
     } catch (error) {
@@ -161,6 +198,7 @@ export const ClienteService = {
       throw error;
     }
   },
+
   async getClientesBySalao(
     salaoId: string,
     include: boolean = false

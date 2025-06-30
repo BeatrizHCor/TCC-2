@@ -4,7 +4,6 @@ import {
   cpfMask,
   telefoneMask,
   validarEmail,
-  validarSenha,
   validarTelefone,
 } from "../../utils/validations";
 import { Cliente } from "../../models/clienteModel";
@@ -17,7 +16,10 @@ interface FormErrors {
   confirmacaoSenha?: string;
 }
 
-export const usePerfilCliente = (ClienteId: string) => {
+export const usePerfilCliente = (
+  ClienteId: string,
+  setEditMode?: React.Dispatch<React.SetStateAction<boolean>>
+) => {
   const [perfil, setPerfil] = useState<Cliente>({
     CPF: "",
     Nome: "",
@@ -26,6 +28,7 @@ export const usePerfilCliente = (ClienteId: string) => {
     SalaoId: "",
   });
 
+  const [novaSenha, setNovaSenha] = useState("");
   const [confirmacaoSenha, setConfirmacaoSenha] = useState("");
   const [errors, setErrors] = useState<FormErrors>({});
   const [loading, setLoading] = useState(false);
@@ -34,12 +37,16 @@ export const usePerfilCliente = (ClienteId: string) => {
   const [saveSuccess, setSaveSuccess] = useState(false);
   const [saveError, setSaveError] = useState(false);
   const [isInitialized, setIsInitialized] = useState(false);
+
   useEffect(() => {
-    setTimeout(() => {
+    const timer = setTimeout(() => {
       if (saveError) setSaveError(false);
       if (saveSuccess) setSaveSuccess(false);
-    }, 3000);
+    }, 1500);
+
+    return () => clearTimeout(timer);
   }, [saveError, saveSuccess]);
+
   useEffect(() => {
     const fetchPerfil = async () => {
       setLoading(true);
@@ -84,6 +91,15 @@ export const usePerfilCliente = (ClienteId: string) => {
     }
   };
 
+  const handleNovaSenhaChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = e.target.value;
+    setNovaSenha(value);
+
+    if (errors.password) {
+      setErrors((prev) => ({ ...prev, password: undefined }));
+    }
+  };
+
   const handleConfirmacaoSenhaChange = (
     event: React.ChangeEvent<HTMLInputElement>
   ) => {
@@ -110,6 +126,14 @@ export const usePerfilCliente = (ClienteId: string) => {
       newErrors.email = "Email inválido";
     }
 
+    if (novaSenha && confirmacaoSenha && novaSenha !== confirmacaoSenha) {
+      newErrors.confirmacaoSenha = "Senhas não coincidem";
+    }
+
+    if (novaSenha && !confirmacaoSenha) {
+      newErrors.confirmacaoSenha = "Confirme a nova senha";
+    }
+
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
@@ -132,10 +156,14 @@ export const usePerfilCliente = (ClienteId: string) => {
         perfil.Nome,
         perfil.Email,
         perfil.Telefone,
-        perfil.SalaoId
+        perfil.SalaoId,
+        novaSenha || undefined
       );
       if (response) {
         setSaveSuccess(true);
+        setNovaSenha("");
+        setConfirmacaoSenha("");
+        if (setEditMode) setEditMode(false); 
       } else {
         setSaveError(true);
       }
@@ -153,6 +181,7 @@ export const usePerfilCliente = (ClienteId: string) => {
     cpfFormatado,
     telefoneFormatado,
     setTelefoneFormatado,
+    novaSenha,
     confirmacaoSenha,
     setConfirmacaoSenha,
     errors,
@@ -163,6 +192,7 @@ export const usePerfilCliente = (ClienteId: string) => {
     isInitialized,
     handleChange,
     handleTelefoneChange,
+    handleNovaSenhaChange,
     handleSubmit,
     handleConfirmacaoSenhaChange,
     saveError,

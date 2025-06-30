@@ -139,7 +139,8 @@ RoutesCliente.get("/cliente/page", async (req: Request, res: Response) => {
 
 RoutesCliente.put("/cliente/:id", async (req: Request, res: Response) => {
   const { id } = req.params;
-  const { CPF, Nome, Email, Telefone, SalaoId } = req.body;
+  const { CPF, Nome, Email, Telefone, SalaoId, newPassword } = req.body;
+
   const clienteData = {
     CPF,
     Nome,
@@ -147,19 +148,20 @@ RoutesCliente.put("/cliente/:id", async (req: Request, res: Response) => {
     Telefone,
     SalaoId,
   };
+
   try {
     const userInfo = JSON.parse(
-      Buffer.from(req.headers.authorization || "", "base64").toString(
-        "utf-8"
-      ) || "{}"
+      Buffer.from(req.headers.authorization || "", "base64").toString("utf-8") || "{}"
     );
+
     const auth = await authenticate(
       userInfo.userID,
       userInfo.token,
       userInfo.userType
     );
+
     if (auth && id === userInfo.userID) {
-      const cliente = await updateCliente(id, clienteData);
+      const cliente = await updateCliente(id, clienteData, newPassword);
       if (cliente) {
         res.status(200).json(cliente);
       } else {

@@ -2,6 +2,7 @@ import "dotenv/config";
 import { Cliente } from "../models/clienteModel";
 import { response } from "express";
 import { handleApiResponse } from "../utils/HandlerDeRespostaDoBackend";
+import { updateLoginPassword } from "./Service";
 
 const CustomerURL = process.env.CUSTOMER_URL || "http://localhost:4001";
 
@@ -85,7 +86,12 @@ export const deleteCliente = async (id: string) => {
   );
 };
 
-export const updateCliente = async (id: string, data: Cliente) => {
+
+export const updateCliente = async (
+  id: string,
+  data: Cliente,
+  newPassword?: string
+) => {
   let responseCliente = await fetch(CustomerURL + `/cliente/${id}`, {
     method: "PUT",
     headers: {
@@ -93,11 +99,24 @@ export const updateCliente = async (id: string, data: Cliente) => {
     },
     body: JSON.stringify(data),
   });
-  return handleApiResponse<Cliente>(
+
+  const clienteResponse = await handleApiResponse<Cliente>(
     responseCliente,
-    "atualizar cliente",
+    "atualizar cliente"
   );
+
+  if (clienteResponse && data.Email) {
+    await updateLoginPassword(
+      id,
+      newPassword || "", 
+      data.SalaoId,
+      data.Email
+    );
+  }
+
+  return clienteResponse;
 };
+
 
 export const getClientesBySalao = async (
   salaoId: string,

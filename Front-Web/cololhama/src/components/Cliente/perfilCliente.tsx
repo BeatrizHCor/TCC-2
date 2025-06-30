@@ -21,17 +21,20 @@ import { AuthContext } from "../../contexts/AuthContext";
 import AuthGuard from "../../utils/AuthGuard";
 import { userTypes } from "../../models/tipo-usuario.enum";
 
-interface PerfilClienteProps {}
+interface PerfilClienteProps { }
 
 const salaoId = import.meta.env.SALAO_ID || "1";
 
 export const PerfilCliente: React.FC<PerfilClienteProps> = () => {
   const { userId, checkLocalStorage } = useContext(AuthContext);
   const isMobile = useMediaQuery(theme.breakpoints.down("md"));
+  const [editMode, setEditMode] = useState(false);
+
   const {
     perfil,
     cpfFormatado,
     telefoneFormatado,
+    novaSenha,
     confirmacaoSenha,
     errors,
     loading,
@@ -40,12 +43,11 @@ export const PerfilCliente: React.FC<PerfilClienteProps> = () => {
     isInitialized,
     handleChange,
     handleTelefoneChange,
+    handleNovaSenhaChange,
     handleSubmit,
     saveError,
     handleConfirmacaoSenhaChange,
-  } = usePerfilCliente(userId);
-
-  const [editMode, setEditMode] = useState(false);
+  } = usePerfilCliente(userId, setEditMode);
 
   const toggleEditMode = () => {
     setEditMode(!editMode);
@@ -78,7 +80,6 @@ export const PerfilCliente: React.FC<PerfilClienteProps> = () => {
           py={isMobile ? 4 : 0}
           gap={isMobile ? 4 : 0}
         >
-
           {!isMobile && (
             <Box flex={1} display="flex" justifyContent="flex-end" pr={4}>
               <img
@@ -87,7 +88,8 @@ export const PerfilCliente: React.FC<PerfilClienteProps> = () => {
                 style={{
                   width: "450px",
                   height: "450px",
-                  filter: "invert(16%) sepia(90%) saturate(400%) hue-rotate(-5deg)",
+                  filter:
+                    "invert(16%) sepia(90%) saturate(400%) hue-rotate(-5deg)",
                 }}
               />
             </Box>
@@ -101,58 +103,55 @@ export const PerfilCliente: React.FC<PerfilClienteProps> = () => {
           >
             <Paper
               elevation={3}
-              sx={{ 
-                p: isMobile ? 3 : 5, 
-                width: isMobile ? "100%" : 520, 
+              sx={{
+                p: isMobile ? 3 : 5,
+                width: isMobile ? "100%" : 520,
+                maxWidth: "100%",
                 position: "relative",
-                maxWidth: "100%"
               }}
             >
-
-              {saveSuccess && (
-                <Fade in={saveSuccess}>
+              {saveError && (
+                <Fade in={saveError}>
                   <Box
-                    position="absolute"
-                    top={0}
-                    left={0}
-                    width="100%"
-                    height="100%"
+                    position="fixed"
+                    bottom={20}
+                    right={20}
+                    bgcolor="rgba(255, 0, 0, 0.8)"
+                    color="white"
+                    px={3}
+                    py={1.5}
+                    borderRadius={2}
                     display="flex"
-                    flexDirection="column"
                     alignItems="center"
-                    justifyContent="center"
-                    bgcolor="rgba(255, 255, 255, 0.9)"
-                    zIndex={10}
-                    sx={{ borderRadius: 1 }}
+                    gap={1}
+                    zIndex={1300}
+                    boxShadow={3}
                   >
-                    <CheckCircleIcon sx={{ fontSize: 80, color: "green" }} />
-                    <Typography variant="h6" sx={{ mt: 2, color: "green" }}>
-                      Perfil salvo com sucesso!
-                    </Typography>
+                    <Error />
+                    <Typography>Erro ao Salvar Perfil. Tente Novamente.</Typography>
                   </Box>
                 </Fade>
               )}
 
-              {saveError && (
-                <Fade in={saveError}>
+              {saveSuccess && (
+                <Fade in={saveSuccess}>
                   <Box
-                    position="absolute"
-                    top={0}
-                    left={0}
-                    width="100%"
-                    height="100%"
+                    position="fixed"
+                    bottom={20}
+                    right={20}
+                    bgcolor="rgba(0, 128, 0, 0.8)"
+                    color="white"
+                    px={3}
+                    py={1.5}
+                    borderRadius={2}
                     display="flex"
-                    flexDirection="column"
                     alignItems="center"
-                    justifyContent="center"
-                    bgcolor="rgba(255, 255, 255, 0.9)"
-                    zIndex={10}
-                    sx={{ borderRadius: 1 }}
+                    gap={1}
+                    zIndex={1300}
+                    boxShadow={3}
                   >
-                    <Error sx={{ fontSize: 80, color: "red" }} />
-                    <Typography variant="h6" sx={{ mt: 2, color: "red" }}>
-                      Erro ao Salvar Perfil. Tente Novamente.
-                    </Typography>
+                    <CheckCircleIcon />
+                    <Typography>Perfil salvo com sucesso!</Typography>
                   </Box>
                 </Fade>
               )}
@@ -193,10 +192,29 @@ export const PerfilCliente: React.FC<PerfilClienteProps> = () => {
                     }}
                   />
 
+                  <TextField
+                    name="Email"
+                    label="Email"
+                    type="email"
+                    value={perfil.Email || ""}
+                    required
+                    onChange={handleChange}
+                    error={!!errors.email}
+                    helperText={errors.email}
+                    fullWidth
+                    disabled={!editMode}
+                    sx={{
+                      backgroundColor: editMode ? "white" : "#f8f8f8",
+                      "& .MuiInputBase-input.Mui-disabled": {
+                        WebkitTextFillColor: "#000000",
+                      },
+                    }}
+                  />
+
                   <Box sx={{ mx: isMobile ? 0 : -1 }}>
-                    <Box 
-                      display="flex" 
-                      gap={2} 
+                    <Box
+                      display="flex"
+                      gap={2}
                       alignItems="center"
                       flexDirection={isMobile ? "column" : "row"}
                     >
@@ -243,6 +261,33 @@ export const PerfilCliente: React.FC<PerfilClienteProps> = () => {
                   >
                     Senha
                   </Typography>
+
+                  {editMode && (
+                    <>
+                      <TextField
+                        type="password"
+                        label="Nova Senha (deixe vazio para não alterar)"
+                        value={novaSenha}
+                        onChange={handleNovaSenhaChange}
+                        error={!!errors.password}
+                        helperText={errors.password}
+                        fullWidth
+                        sx={{ backgroundColor: "white" }}
+                      />
+
+                      <TextField
+                        type="password"
+                        label="Confirmar Nova Senha"
+                        value={confirmacaoSenha}
+                        onChange={handleConfirmacaoSenhaChange}
+                        error={!!errors.confirmacaoSenha}
+                        helperText={errors.confirmacaoSenha}
+                        fullWidth
+                        sx={{ backgroundColor: "white" }}
+                      />
+                    </>
+                  )}
+
 
                   <Box
                     display="flex"
@@ -303,7 +348,8 @@ export const PerfilCliente: React.FC<PerfilClienteProps> = () => {
               style={{
                 width: "250px",
                 height: "250px",
-                filter: "invert(16%) sepia(90%) saturate(400%) hue-rotate(-5deg)",
+                filter:
+                  "invert(16%) sepia(90%) saturate(400%) hue-rotate(-5deg)",
               }}
             />
           </Box>
