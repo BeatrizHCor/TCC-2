@@ -48,6 +48,7 @@ import { Cabeleireiro } from "../../models/cabelereiroModel";
 import useManterAtendimento from "./useManterAtendimento";
 import { ServicoAtendimento } from "../../models/servicoAtendimentoModel";
 import { Funcionario } from "../../models/funcionarioModel";
+import { AtendimentoAuxiliar } from "../../models/atendimentoAuxiliarModel";
 import { DateTimePicker } from "@mui/x-date-pickers/DateTimePicker";
 import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
 import { AdapterDateFns } from "@mui/x-date-pickers/AdapterDateFns";
@@ -116,8 +117,6 @@ const ManterAtendimento: React.FC = () => {
     clienteNome,
     setClienteNome,
     clientesDisponiveis,
-    auxiliarNome,
-    setAuxiliarNome,
     auxiliar,
     setAuxiliar,
     atendimentoId,
@@ -170,6 +169,21 @@ const ManterAtendimento: React.FC = () => {
     setPrecoTotal(novoTotal);
   };
 
+  const handleAddAuxiliar = (funcionario: Funcionario) => {
+    const novoAuxiliar: AtendimentoAuxiliar = {
+      AuxiliarID: funcionario.ID!,
+      AtendimentoId: atendimentoId,
+    };
+
+    setAuxiliar([...auxiliar, novoAuxiliar]);
+    setOpenAuxiliarModal(false);
+  };
+
+  const handleRemoveAuxiliar = (index: number) => {
+    const auxiliaresAtualizados = auxiliar.filter((_, i) => i !== index);
+    setAuxiliar(auxiliaresAtualizados);
+  };
+
   const formatCurrency = (value: number) => {
     return new Intl.NumberFormat("pt-BR", {
       style: "currency",
@@ -205,14 +219,6 @@ const ManterAtendimento: React.FC = () => {
       </Box>
     );
   }
-
-  const handleSelectAuxiliar = (auxiliar: Funcionario) => {
-    setAuxiliarNome(auxiliar.Nome);
-    setAuxiliar([
-      { AuxiliarID: auxiliar.ID || "", AtendimentoId: atendimentoId },
-    ]);
-    setOpenAuxiliarModal(false);
-  };
 
   if (!userType || !userId) {
     return (
@@ -389,141 +395,175 @@ const ManterAtendimento: React.FC = () => {
                     sx={{ cursor: "pointer" }}
                   />
                 </Box>
-
-                <Box>
-                  <TextField
-                    fullWidth
-                    label="Auxiliar"
-                    value={auxiliarNome}
-                    onClick={() => setOpenAuxiliarModal(true)}
-                    disabled={userType === "Cliente"}
-                    placeholder="Clique para selecionar um auxiliar"
-                    slotProps={{
-                      input: {
-                        readOnly: true,
-                        endAdornment: (
-                          <InputAdornment position="end">
-                            {auxiliarNome !== "" ? (
-                              <IconButton
-                                onClick={(e) => {
-                                  e.stopPropagation();
-                                  setAuxiliarNome("");
-                                  setAuxiliar([]);
-                                }}
-                              >
-                                <RemoveIcon />
-                              </IconButton>
-                            ) : (
-                              <PersonIcon />
-                            )}
-                          </InputAdornment>
-                        ),
-                      },
-                    }}
-                    sx={{ cursor: "pointer" }}
-                  />
-                </Box>
               </Box>
             </Box>
 
             <Box sx={{ flex: 1 }}>
-              <Typography variant="h6" sx={{ mb: 2 }}>
-                Serviços do Atendimento
-              </Typography>
+              <Box sx={{ display: "flex", flexDirection: "column", gap: 3 }}>
+                {/* Seção de Serviços */}
+                <Box>
+                  <Typography variant="h6" sx={{ mb: 2 }}>
+                    Serviços do Atendimento
+                  </Typography>
 
-              <Button
-                variant="outlined"
-                startIcon={<AddIcon />}
-                onClick={() => setOpenServicosModal(true)}
-                sx={{ mb: 2 }}
-                fullWidth
-                disabled={userType === "Cliente"}
-              >
-                Adicionar Serviço
-              </Button>
+                  <Button
+                    variant="outlined"
+                    startIcon={<AddIcon />}
+                    onClick={() => setOpenServicosModal(true)}
+                    sx={{ mb: 2 }}
+                    fullWidth
+                    disabled={userType === "Cliente"}
+                  >
+                    Adicionar Serviço
+                  </Button>
 
-              <TableContainer component={Paper} variant="outlined">
-                <Table size="small">
-                  <TableHead>
-                    <TableRow>
-                      <TableCell>Serviço</TableCell>
-                      <TableCell align="right">Preço</TableCell>
-                      <TableCell align="center">Ação</TableCell>
-                    </TableRow>
-                  </TableHead>
-                  <TableBody>
-                    {servicoAtendimento.length === 0 ? (
-                      <TableRow>
-                        <TableCell colSpan={3} align="center">
-                          <Typography variant="body2" color="text.secondary">
-                            Nenhum serviço adicionado
-                          </Typography>
-                        </TableCell>
-                      </TableRow>
-                    ) : (
-                      servicoAtendimento.map((servicoAtend, index) => {
-                        let servico = servicosDisponiveis.find(
-                          (s) => s.ID === servicoAtend.ServicoId
-                        );
-                        return (
-                          <TableRow key={`${servicoAtend.ServicoId}-${index}`}>
-                            <TableCell>
-                              {servico?.Nome || "Serviço não encontrado"}
-                            </TableCell>
-                            <TableCell align="right" sx={{ padding: 0 }}>
-                              <TextField
-                                variant="outlined"
-                                size="small"
-                                fullWidth
-                                sx={{
-                                  "& .MuiInputBase-root": {
-                                    padding: 0,
-                                    height: "100%",
-                                  },
-                                  "& input": {
-                                    padding: "8px",
-                                  },
-                                }}
-                                value={formatCurrency(servicoAtend.PrecoItem)}
-                                onChange={(e) => {
-                                  const raw = e.target.value.replace(
-                                    /[^\d]/g,
-                                    ""
-                                  );
-                                  const float = parseFloat(raw) / 100;
-                                  handlePrecoItem(index, float);
-                                }}
-                                disabled={userType === "Cliente"}
-                              />
-                            </TableCell>
-                            <TableCell align="center">
-                              <IconButton
-                                size="small"
-                                color="error"
-                                onClick={() => handleRemoveServico(index)}
-                                disabled={userType === "Cliente"}
-                              >
-                                <RemoveIcon />
-                              </IconButton>
+                  <TableContainer component={Paper} variant="outlined">
+                    <Table size="small">
+                      <TableHead>
+                        <TableRow>
+                          <TableCell>Serviço</TableCell>
+                          <TableCell align="right">Preço</TableCell>
+                          <TableCell align="center">Ação</TableCell>
+                        </TableRow>
+                      </TableHead>
+                      <TableBody>
+                        {servicoAtendimento.length === 0 ? (
+                          <TableRow>
+                            <TableCell colSpan={3} align="center">
+                              <Typography variant="body2" color="text.secondary">
+                                Nenhum serviço adicionado
+                              </Typography>
                             </TableCell>
                           </TableRow>
-                        );
-                      })
-                    )}
-                  </TableBody>
-                </Table>
-              </TableContainer>
+                        ) : (
+                          servicoAtendimento.map((servicoAtend, index) => {
+                            let servico = servicosDisponiveis.find(
+                              (s) => s.ID === servicoAtend.ServicoId
+                            );
+                            return (
+                              <TableRow key={`${servicoAtend.ServicoId}-${index}`}>
+                                <TableCell>
+                                  {servico?.Nome || "Serviço não encontrado"}
+                                </TableCell>
+                                <TableCell align="right" sx={{ padding: 0 }}>
+                                  <TextField
+                                    variant="outlined"
+                                    size="small"
+                                    fullWidth
+                                    sx={{
+                                      "& .MuiInputBase-root": {
+                                        padding: 0,
+                                        height: "100%",
+                                      },
+                                      "& input": {
+                                        padding: "8px",
+                                      },
+                                    }}
+                                    value={formatCurrency(servicoAtend.PrecoItem)}
+                                    onChange={(e) => {
+                                      const raw = e.target.value.replace(
+                                        /[^\d]/g,
+                                        ""
+                                      );
+                                      const float = parseFloat(raw) / 100;
+                                      handlePrecoItem(index, float);
+                                    }}
+                                    disabled={userType === "Cliente"}
+                                  />
+                                </TableCell>
+                                <TableCell align="center">
+                                  <IconButton
+                                    size="small"
+                                    color="error"
+                                    onClick={() => handleRemoveServico(index)}
+                                    disabled={userType === "Cliente"}
+                                  >
+                                    <RemoveIcon />
+                                  </IconButton>
+                                </TableCell>
+                              </TableRow>
+                            );
+                          })
+                        )}
+                      </TableBody>
+                    </Table>
+                  </TableContainer>
 
-              {servicoAtendimento.length > 0 && (
-                <Box sx={{ mt: 2 }}>
-                  <Typography variant="subtitle2">
-                    Total: {formatCurrency(precoTotal)}
-                  </Typography>
-                  <Typography variant="caption" color="text.secondary">
-                    Tempo estimado: {servicoAtendimento.length * 40} minutos
-                  </Typography>
+                  {servicoAtendimento.length > 0 && (
+                    <Box sx={{ mt: 2 }}>
+                      <Typography variant="subtitle2">
+                        Total: {formatCurrency(precoTotal)}
+                      </Typography>
+                      <Typography variant="caption" color="text.secondary">
+                        Tempo estimado: {servicoAtendimento.length * 40} minutos
+                      </Typography>
+                    </Box>
+                  )}
                 </Box>
-              )}
+
+                {/* Seção de Auxiliares */}
+                <Box>
+                  <Typography variant="h6" sx={{ mb: 2 }}>
+                    Auxiliares do Atendimento
+                  </Typography>
+
+                  <Button
+                    variant="outlined"
+                    startIcon={<AddIcon />}
+                    onClick={() => setOpenAuxiliarModal(true)}
+                    sx={{ mb: 2 }}
+                    fullWidth
+                    disabled={userType === "Cliente"}
+                  >
+                    Adicionar Auxiliar
+                  </Button>
+
+                  <TableContainer component={Paper} variant="outlined">
+                    <Table size="small">
+                      <TableHead>
+                        <TableRow>
+                          <TableCell>Auxiliar</TableCell>
+                          <TableCell align="center">Ação</TableCell>
+                        </TableRow>
+                      </TableHead>
+                      <TableBody>
+                        {auxiliar.length === 0 ? (
+                          <TableRow>
+                            <TableCell colSpan={2} align="center">
+                              <Typography variant="body2" color="text.secondary">
+                                Nenhum auxiliar adicionado
+                              </Typography>
+                            </TableCell>
+                          </TableRow>
+                        ) : (
+                          auxiliar.map((aux, index) => {
+                            let funcionario = auxiliaresDisponives.find(
+                              (f) => f.ID === aux.AuxiliarID
+                            );
+                            return (
+                              <TableRow key={`${aux.AuxiliarID}-${index}`}>
+                                <TableCell>
+                                  {funcionario?.Nome || "Auxiliar não encontrado"}
+                                </TableCell>
+                                <TableCell align="center">
+                                  <IconButton
+                                    size="small"
+                                    color="error"
+                                    onClick={() => handleRemoveAuxiliar(index)}
+                                    disabled={userType === "Cliente"}
+                                  >
+                                    <RemoveIcon />
+                                  </IconButton>
+                                </TableCell>
+                              </TableRow>
+                            );
+                          })
+                        )}
+                      </TableBody>
+                    </Table>
+                  </TableContainer>
+                </Box>
+              </Box>
             </Box>
           </Box>
 
@@ -585,6 +625,7 @@ const ManterAtendimento: React.FC = () => {
         maxWidth="md"
         fullWidth
       >
+        <DialogTitle>Adicionar Serviço</DialogTitle>
         <DialogContent>
           <TextField
             fullWidth
@@ -597,7 +638,7 @@ const ManterAtendimento: React.FC = () => {
             {servicosDisponiveis
               .filter(
                 (servico) =>
-                  !servicosAgendamento.some((sa) => sa.ServicoId === servico.ID) &&
+                  !servicoAtendimento.some((sa) => sa.ServicoId === servico.ID) &&
                   servico.Nome.toLowerCase().includes(servicoSearch.toLowerCase())
               )
               .map((servico) => (
@@ -642,7 +683,7 @@ const ManterAtendimento: React.FC = () => {
         maxWidth="sm"
         fullWidth
       >
-        <DialogTitle>Selecionar Auxiliar</DialogTitle>
+        <DialogTitle>Adicionar Auxiliar</DialogTitle>
         <DialogContent>
           <TextField
             fullWidth
@@ -653,21 +694,23 @@ const ManterAtendimento: React.FC = () => {
           />
           <List>
             {auxiliaresDisponives
-              .filter((auxiliar) =>
-                auxiliar.Nome.toLowerCase().includes(auxiliarSearch.toLowerCase())
+              .filter(
+                (funcionario) =>
+                  !auxiliar.some((aux) => aux.AuxiliarID === funcionario.ID) &&
+                  funcionario.Nome.toLowerCase().includes(auxiliarSearch.toLowerCase())
               )
-              .map((auxiliar) => (
-                <ListItem key={auxiliar.ID} disablePadding>
-                  <ListItemButton onClick={() => handleSelectAuxiliar(auxiliar)}>
+              .map((funcionario) => (
+                <ListItem key={funcionario.ID} disablePadding>
+                  <ListItemButton onClick={() => handleAddAuxiliar(funcionario)}>
                     <ListItemText
-                      disableTypography
-                      primary={auxiliar.Nome}
+                      primary={funcionario.Nome}
                       secondary={
                         <Typography
                           component="span"
                           variant="body2"
                           color="text.secondary"
                         >
+                          Auxiliar
                         </Typography>
                       }
                     />
