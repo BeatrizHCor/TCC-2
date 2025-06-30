@@ -69,7 +69,7 @@ RoutesFuncionario.get(
             nome,
             includeRelations,
             salaoId,
-            mostrarDesativados
+            mostrarDesativados,
           );
           res.json(funcionarios);
         }
@@ -220,7 +220,7 @@ RoutesFuncionario.get(
         res.status(404).send("Funcionario not found");
       }
     } catch (e) {
-      console.log("",e);
+      console.log("", e);
       res.status(500).send("Error in getting Funcionario");
     }
   },
@@ -238,7 +238,7 @@ RoutesFuncionario.get(
         res.status(204).send("Auxiliar not found");
       }
     } catch (e) {
-      console.log("",e);
+      console.log("", e);
       res.status(500).send("Error in getting Funcionario");
     }
   },
@@ -298,7 +298,7 @@ RoutesFuncionario.put(
           funcionarioUpdate.ID!,
           password,
           funcionarioUpdate.SalaoId,
-          Email
+          Email,
         );
         if (result.success) {
           res.status(200).send(funcionarioUpdate);
@@ -315,17 +315,23 @@ RoutesFuncionario.put(
             funcionarioback.Salario ? funcionarioback.Salario : 0,
           );
           if (!updateCorrecao) {
-            res.status(404).json({ message: "Erro ao atualizar funcionario, correções falharam" });
+            res.status(404).json({
+              message: "Erro ao atualizar funcionario, correções falharam",
+            });
             return;
           }
-          res.status(500).send("Error updating login for Funcionario");
+          res.status(200).json({
+            message:
+              "A atualização do login falhou, mas o funcionário foi restaurado ao estado anterior. Nenhuma alteração permanente foi feita.",
+            status: "compensado",
+          });
         }
       }
     } catch (e) {
       console.log("Erro ao realizar operação: ", e);
       res.status(500).send("Error in updating Funcionario");
     }
-  }
+  },
 );
 
 //--------SERVIÇO--------//

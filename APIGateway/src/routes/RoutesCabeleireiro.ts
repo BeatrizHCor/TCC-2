@@ -329,8 +329,11 @@ RoutesCabeleireiro.put("/cabeleireiro", async (req: Request, res: Response) => {
             });
             return;
           }
-          res.status(204).send("Error registering login for Cabeleireiro");
-          return;
+          res.status(200).json({
+            message:
+              "A atualização do login falhou, mas o cabeleireiro foi restaurado ao estado anterior. Nenhuma alteração permanente foi feita.",
+            status: "compensado",
+          });
         }
       }
       res.status(200).send(cabeleireiro);

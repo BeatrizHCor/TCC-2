@@ -103,7 +103,7 @@ export const useVisualizarAgendamentos = (
 
     debounceRef.current = setTimeout(() => {
     buscarAgendamentos();
-    }, 1100);
+    }, 600);
 
     return () => {
       if (debounceRef.current) clearTimeout(debounceRef.current);

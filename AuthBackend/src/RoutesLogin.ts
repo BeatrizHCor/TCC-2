@@ -477,6 +477,12 @@ async function performRollbackCabeleireiro(
 
 RoutesLogin.put("/login/update", async (req: Request, res: Response) => {
   const { userID, newPassword, SalaoId, Email} = req.body;
+  console.log("Parâmetros :", {
+    userID,
+    SalaoId,
+    Email,
+    newPassword,
+  });
   if (!userID || !SalaoId || !Email) {
     res.status(400).json({ message: "Parâmetros obrigatórios ausentes." });
     return;

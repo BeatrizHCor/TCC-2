@@ -12,7 +12,7 @@ class FuncionarioController {
         nome ? String(nome) : null,
         includeRelations === "true",
         salaoId ? String(salaoId) : "",
-        mostrarDesativados === "true"
+        mostrarDesativados === "true",
       );
       res.status(200).json(funcionarios);
     } catch (error) {
