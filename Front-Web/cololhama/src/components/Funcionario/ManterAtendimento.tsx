@@ -299,9 +299,9 @@ const ManterAtendimento: React.FC = () => {
                         setData("");
                       }
                     }}
-                    disabled={userType === "Cliente" || isLoading}
                     minDateTime={new Date()}
                     format="dd/MM/yyyy HH:mm"
+                    disabled={true}
                     slotProps={{
                       textField: {
                         fullWidth: true,
@@ -544,16 +544,6 @@ const ManterAtendimento: React.FC = () => {
               Voltar
             </Button>
             <Box sx={{ display: "flex", gap: { xs: 1, sm: 2 } }}>
-              {isEditing && userType !== "Cliente" ? (
-                <Button
-                  variant="outlined"
-                  color="error"
-                  startIcon={<DeleteIcon />}
-                  onClick={handleOpenDeleteDialog}
-                >
-                  Excluir
-                </Button>
-              ) : null}
               <Button
                 type="submit"
                 variant="contained"

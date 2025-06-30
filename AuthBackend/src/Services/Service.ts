@@ -35,15 +35,12 @@ export const updateLogin = async (
   try {
     return await prisma.authControl.update({
       data: {
-        Email,
-        Senha,
-        Token,
+        Email: Email,
+        Senha: Senha,
+        ...Token ? { Token } : {},
       },
       where: {
-        Email_SalaoId: {
-          Email,
-          SalaoId,
-        },
+        UsuarioID: UsuarioID,
       },
     });
   } catch (e) {

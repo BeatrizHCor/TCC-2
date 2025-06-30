@@ -235,6 +235,16 @@ RoutesCabeleireiro.delete(
 RoutesCabeleireiro.put("/cabeleireiro", async (req: Request, res: Response) => {
   let { ID, CPF, Nome, Email, Telefone, Mei, SalaoId, Password } = req.body;
   try {
+          if (
+        !Nome ||
+        !CPF ||
+        !Email ||
+        !Telefone ||
+        !SalaoId
+      ) {
+        res.status(400).send("Missing required fields");
+        return;
+      }
     const userInfo = JSON.parse(
       Buffer.from(req.headers.authorization || "", "base64").toString(
         "utf-8",
@@ -256,6 +266,12 @@ RoutesCabeleireiro.put("/cabeleireiro", async (req: Request, res: Response) => {
     ) {
       res.status(403).json({ message: "Unauthorized" });
     } else {
+      let cabeleireiroBackup = await getCabeleireiroById(
+        ID, false)
+      if (!cabeleireiroBackup) {
+        res.status(404).json({ message: "Cabeleireiro not found" });
+        return;
+      }
       let cabeleireiro = await updateCabeleireiro(
         Email,
         CPF,
@@ -268,22 +284,31 @@ RoutesCabeleireiro.put("/cabeleireiro", async (req: Request, res: Response) => {
       if (!cabeleireiro) {
         res.status(404).json({ message: "Cabeleireiro not found" });
         return;
-      } else if (cabeleireiro === null) {
-        res.status(400).json({
-          message: "Error updating Cabeleireiro, invalid parameters",
-        });
-        return;
-      } else if (Password) {
+      } else if (Password || Email) {
         const result = await updateLoginPassword(
           cabeleireiro.ID!,
           Password,
           cabeleireiro.SalaoId,
+          Email
         );
-        if (result) {
+        if (result.success) {
           res.status(200).send(cabeleireiro);
           return;
         } else {
-          res.status(500).send("Error registering login for Cabeleireiro");
+          let updateCorrecao = await updateCabeleireiro(
+            cabeleireiroBackup.Email,
+            cabeleireiroBackup.CPF,
+            cabeleireiroBackup.Telefone,
+            cabeleireiroBackup.SalaoId,
+            cabeleireiroBackup.Mei,
+            cabeleireiroBackup.Nome,
+            cabeleireiroBackup.ID,
+          );
+          if (!updateCorrecao) {
+            res.status(404).json({ message: "Erro ao atualizar cabeleireiro, correções falharam" });
+            return;
+          }
+          res.status(204).send("Error registering login for Cabeleireiro");
           return;
         }
       }

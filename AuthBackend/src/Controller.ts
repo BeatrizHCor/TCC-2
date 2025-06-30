@@ -57,24 +57,22 @@ export const verifyPasswordAndReturnToken = async (
   }
 };
 
-export const updateLoginPassword = async (
+export const updateRegister = async (
   UsuarioID: string,
   newPassword: string,
-  SalaoId: string
+  SalaoId: string,
+  Email: string,
+  SenhaNova: boolean
 ): Promise<{ success: boolean; message: string }> => {
-  if (!UsuarioID || !newPassword || !SalaoId) {
-    return { success: false, message: "Parâmetros obrigatórios ausentes." };
-  }
   try {
-    const login = await findLoginbyUserId(UsuarioID);
-    if (!login) {
-      return { success: false, message: "Login não encontrado." };
+    let hashed = newPassword;
+    if (SenhaNova) {
+      hashed = await argon2.hash(newPassword + SALT);
     }
-    const hashed = await argon2.hash(newPassword + SALT);
     const updated = await updateLogin(
       UsuarioID,
       hashed,
-      login.Email,
+      Email,
       SalaoId
     );
     if (updated) {

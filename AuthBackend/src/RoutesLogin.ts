@@ -30,7 +30,7 @@ import {
 } from "./Services/ServiceImag";
 import { StatusCadastro } from "@prisma/client";
 import { findLoginbyUserId } from "./Services/Service";
-import { updateLoginPassword } from "./Controller"; // certifique-se de importar corretamente
+import { updateRegister } from "./Controller"; // certifique-se de importar corretamente
 
 const RoutesLogin = Router();
 
@@ -476,14 +476,24 @@ async function performRollbackCabeleireiro(
 }
 
 RoutesLogin.put("/login/update", async (req: Request, res: Response) => {
-  const { userID, newPassword, SalaoId } = req.body;
-  if (!userID || !newPassword || !SalaoId) {
+  const { userID, newPassword, SalaoId, Email} = req.body;
+  if (!userID || !SalaoId || !Email) {
     res.status(400).json({ message: "Parâmetros obrigatórios ausentes." });
     return;
   }
   try {
-    const updated = await updateLoginPassword(userID, newPassword, SalaoId);
-    if (updated) {
+    let senha = newPassword;
+    let SenhaNova = true;
+    let login = await findLoginbyUserId(userID);
+    if (!login) {
+      res.status(404).json({ message: "Login não encontrado." });
+      return;
+    } else if (!newPassword) {
+      senha = login.Senha;
+      SenhaNova = false;
+    }
+    const updated = await updateRegister(userID, senha, SalaoId, Email, SenhaNova);
+    if (updated.success) {
       res.status(200).json({ message: "Senha do login atualizada com sucesso." });
     } else {
       res.status(400).json({ message: "Falha ao atualizar senha do login." });

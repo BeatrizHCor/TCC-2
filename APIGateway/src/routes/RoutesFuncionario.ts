@@ -252,6 +252,17 @@ RoutesFuncionario.put(
     const { Nome, CPF, Email, Telefone, SalaoId, Auxiliar, Salario, password } =
       req.body;
     try {
+      if (
+        !Nome ||
+        !CPF ||
+        !Email ||
+        !Telefone ||
+        !SalaoId ||
+        !Salario
+      ) {
+        res.status(400).send("Missing required fields");
+        return;
+      }
       const { userInfo, auth } = await getUserInfoAndAuth(req.headers);
       if (
         !auth ||
@@ -262,6 +273,11 @@ RoutesFuncionario.put(
         ].includes(userInfo?.userType)
       ) {
         res.status(403).json({ message: "Unauthorized" });
+        return;
+      }
+      let funcionarioback = await getFuncionarioById(id);
+      if (!funcionarioback) {
+        res.status(404).send("Funcionario not found");
         return;
       }
       let funcionarioUpdate = await updateFuncionario(
@@ -278,18 +294,34 @@ RoutesFuncionario.put(
         res.status(404).send("Funcionario not found");
         return;
       }
-      if (password) {
+      if (password || Email) {
         const result = await updateLoginPassword(
           funcionarioUpdate.ID!,
           password,
           funcionarioUpdate.SalaoId,
+          Email
         );
-        if (!result || !result.success) {
-          res.status(500).send("Error updating login for Funcionario");
+        if (result.success) {
+          res.status(200).send(funcionarioUpdate);
           return;
+        } else {
+          let updateCorrecao = await updateFuncionario(
+            id,
+            funcionarioback.Nome,
+            funcionarioback.CPF,
+            funcionarioback.Email,
+            funcionarioback.Telefone,
+            funcionarioback.SalaoId,
+            funcionarioback.Auxiliar,
+            funcionarioback.Salario ? funcionarioback.Salario : 0,
+          );
+          if (!updateCorrecao) {
+            res.status(404).json({ message: "Erro ao atualizar funcionario, correções falharam" });
+            return;
+          }
+          res.status(500).send("Error updating login for Funcionario");
         }
       }
-      res.status(200).send(funcionarioUpdate);
     } catch (e) {
       console.log("Erro ao realizar operação: ", e);
       res.status(500).send("Error in updating Funcionario");

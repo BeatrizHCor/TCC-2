@@ -64,11 +64,10 @@ export const getAtendimentobyAgendamentoId = async (agendamentoId: string) => {
       method: "GET",
     },
   );
-  if (response.ok) {
-    return (await response.json()) as Atendimento;
-  } else {
-    throw new Error("Erro ao buscar agendamento por ID");
-  }
+  return handleApiResponse<Agendamentos[]>(
+    response,
+    "buscar atendimentos",
+  );
 };
 export const FuncionariogetAtendimentobyId = async (atendimentoId: string) => {
   let response = await fetch(
@@ -77,11 +76,10 @@ export const FuncionariogetAtendimentobyId = async (atendimentoId: string) => {
       method: "GET",
     },
   );
-  if (response.ok) {
-    return (await response.json()) as Atendimento;
-  } else {
-    throw new Error("Erro ao buscar agendamento por ID");
-  }
+  return handleApiResponse<Agendamentos[]>(
+    response,
+    "buscar atendimentos",
+  );
 };
 
 export const postAtendimentoFuncionario = async (
@@ -108,11 +106,10 @@ export const postAtendimentoFuncionario = async (
       AgendamentoID,
     }),
   });
-  if (response.ok) {
-    return (await response.json()) as Atendimento;
-  } else {
-    throw new Error("Erro ao buscar agendamento por ID");
-  }
+  return handleApiResponse<Agendamentos[]>(
+    response,
+    "criar atendimentos",
+  );
 };
 
 export const postAtendimentoCabeleireiro = async (
@@ -139,11 +136,10 @@ export const postAtendimentoCabeleireiro = async (
       AgendamentoID,
     }),
   });
-  if (response.ok) {
-    return (await response.json()) as Atendimento;
-  } else {
-    throw new Error("Erro ao buscar agendamento por ID");
-  }
+  return handleApiResponse<Agendamentos[]>(
+    response,
+    "criar atendimentos",
+  );
 };
 
 export const putAtendimentoFuncionario = async (
@@ -173,11 +169,10 @@ export const putAtendimentoFuncionario = async (
       status,
     }),
   });
-  if (response.ok) {
-    return (await response.json()) as Atendimento;
-  } else {
-    throw new Error("Erro ao buscar agendamento por ID");
-  }
+  return handleApiResponse<Agendamentos[]>(
+    response,
+    "atualizar atendimentos",
+  );
 };
 
 export const putAtendimentoCabeleireiro = async (
@@ -210,11 +205,10 @@ export const putAtendimentoCabeleireiro = async (
       }),
     },
   );
-  if (response.ok) {
-    return (await response.json()) as Atendimento;
-  } else {
-    throw new Error("Erro ao buscar agendamento por ID");
-  }
+  return handleApiResponse<Agendamentos[]>(
+    response,
+    "atualizar atendimentos",
+  );
 };
 export const FuncionarioDeleteAtendimento = async (id: string) => {
   let response = await fetch(FuncionarioURL + `/atendimento/delete/${id}`, {
@@ -258,7 +252,7 @@ export const CabeleireirogetAtendimentosPage = async (
     responseAtendimentos,
     "buscar atendimentos",
   );
-}
+};
 export const CabeleireirogetAtendimentobyId = async (atendimentoId: string) => {
   let response = await fetch(
     CabeleireiroURL + `/atendimento/ID/${atendimentoId}`,
@@ -266,14 +260,12 @@ export const CabeleireirogetAtendimentobyId = async (atendimentoId: string) => {
       method: "GET",
     },
   );
-  if (response.ok) {
-    return (await response.json()) as Atendimento;
-  } else {
-    throw new Error("Erro ao buscar agendamento por ID");
-  }
+  return handleApiResponse<Agendamentos[]>(
+    response,
+    "buscar atendimento",
+  );
 };
 //-----Cliente
-
 export const ClientegetAtendimentobyId = async (atendimentoId: string) => {
   let response = await fetch(
     ClienteURL + `/atendimento/ID/${atendimentoId}`,

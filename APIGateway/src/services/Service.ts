@@ -186,8 +186,9 @@ export const authenticate = async (
 };
 export const updateLoginPassword = async (
   userID: string,
-  newPassword: string,
+  newPassword = "",
   SalaoId: string,
+  Email: string
 ): Promise<{ success: boolean; message: string }> => {
   const response = await fetch(loginURL + "/login/update", {
     method: "PUT",
@@ -198,9 +199,10 @@ export const updateLoginPassword = async (
       userID,
       newPassword,
       SalaoId,
+      Email
     }),
   });
-
+console.log("updateLoginPassword response: ", response.status);
   if (response.ok) {
     const data = await response.json();
     return {

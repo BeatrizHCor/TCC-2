@@ -91,67 +91,7 @@ RoutesAtendimento.post("/atendimento", async (req: Request, res: Response) => {
     res.status(500).send("Erro no ao criar atendimento");
   }
 });
-RoutesAtendimento.get(
-  "/atendimento/ID/:id",
-  async (req: Request, res: Response) => {
-    const { id } = req.params;
-    try {
-      const { userInfo, auth } = await getUserInfoAndAuth(req.headers);
-      if (
-        !auth ||
-        ![
-          userTypes.CABELEIREIRO,
-          userTypes.FUNCIONARIO,
-          userTypes.ADM_SALAO,
-          userTypes.ADM_SISTEMA,
-        ].includes(userInfo.userTypeAuth)
-      ) {
-        res.status(403).json({ message: "Unauthorized" });
-      } else {
-        if (
-          [
-            userTypes.FUNCIONARIO,
-            userTypes.ADM_SALAO,
-            userTypes.ADM_SISTEMA,
-          ].includes(userInfo.userTypeAuth)
-        ) {
-          const result = await FuncionariogetAtendimentobyId(id);
-          if (result) {
-            res.status(201).json(result);
-          } else {
-            res.status(404).json({ message: "Atendimento não encontrado" });
-          }
-        } else if ([userTypes.CABELEIREIRO].includes(userInfo.userTypeAuth)) {
-          const result = await CabeleireirogetAtendimentobyId(id);
-          if (result && result.Agendamentos[0].CabeleireiroID !== userInfo.userID) {
-            res.status(403).json({ message: "Unauthorized" });
-            return;
-          } else if (result) {
-            res.status(201).json(result);
-          } else {
-            res.status(404).json({ message: "Atendimento não encontrado" });
-          }
-          if ([userTypes.CLIENTE].includes(userInfo.userTypeAuth)) {
-            const result = await ClientegetAtendimentobyId(id);
-          if (result && result[0]?.ClienteID !== userInfo.userID) {
-            res.status(403).json({ message: "Unauthorized" });
-            return;
-          } else if (result) {
-            res.status(201).json(result);
-          } else {
-            res.status(404).json({ message: "Atendimento não encontrado" });
-          }
-          }
-        } else {
-          res.status(403).json({ message: "Unauthorized" });
-        }
-      }
-    } catch (e) {
-      console.log(e);
-      res.status(500).send("Erro no busacr atendimento por id");
-    }
-  },
-);
+
 RoutesAtendimento.put(
   "/atendimento/:atendimentoId",
   async (req: Request, res: Response) => {

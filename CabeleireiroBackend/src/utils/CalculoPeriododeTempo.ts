@@ -54,7 +54,6 @@ export function getRangeByStringInputWithTimezone(
   dataStr: string | null,
 ): { dataInicial: Date; dataFinal: Date } | null {
   if (!dataStr) {
-    console.log("Data não fornecida");
     return null;
   }
 
