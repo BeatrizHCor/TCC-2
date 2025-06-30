@@ -20,7 +20,7 @@ model Salao {
   Nome               String
   RazaoSocial        String
   CEP                String
-  Telefone           Int
+  Telefone           String
   Complemento        String
   Email              String
   Clientes           Cliente[]
