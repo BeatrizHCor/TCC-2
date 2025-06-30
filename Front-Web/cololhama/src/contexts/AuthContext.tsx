@@ -31,15 +31,15 @@ export const AuthContextProvider = ({ children }: ComponentProps) => {
   const [userType, setUserType] = useState<userTypes | undefined>();
 
   const url = import.meta.env.VITE_GATEWAY_URL || "http://localhost:5000";
-  const salaoId = import.meta.env.VITE_SALAO_ID || "1";
+  const SalaoID = import.meta.env.VITE_SALAO_ID || "1";
 
   const doLogin = async (email: string, password: string) => {
     try {
-      console.log("Fazendo login com:", { email, password, salaoId, url });
+      console.log("Fazendo login");
 
       const response = await fetch(`${url}/login`, {
         method: "POST",
-        body: JSON.stringify({ Email: email, password, SalaoID: salaoId }),
+        body: JSON.stringify({ Email: email, password, SalaoID }),
         headers: {
           "Content-Type": "application/json",
         },
@@ -51,7 +51,7 @@ export const AuthContextProvider = ({ children }: ComponentProps) => {
       }
 
       const infos = await response.json();
-      console.log("Login bem-sucedido. Infos recebidas:", infos);
+      console.log("Login bem-sucedido. Informações recebidas");
 
       localStorage.setItem("usuario", JSON.stringify(infos));
       setToken(infos.token);

@@ -51,7 +51,9 @@ export const ClienteLogin: React.FC = () => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-
+    if (!email || !senha) {
+      return;
+    }
     if (!validateEmail(email)) {
       setEmailError("Formato de email inválido");
       return;
@@ -95,19 +97,19 @@ export const ClienteLogin: React.FC = () => {
           width="100%"
         >
 
-          <Box 
-            flex={1} 
-            display="flex" 
-            justifyContent="center" 
+          <Box
+            flex={1}
+            display="flex"
+            justifyContent="center"
             width="100%"
-            order={1} 
+            order={1}
           >
-            <Paper 
-              elevation={3} 
-              sx={{ 
-                p: isMobile ? 3 : 5, 
-                width: "100%", 
-                maxWidth: 400 
+            <Paper
+              elevation={3}
+              sx={{
+                p: isMobile ? 3 : 5,
+                width: "100%",
+                maxWidth: 400
               }}
             >
               {loading && <LinearProgress />}
@@ -175,9 +177,9 @@ export const ClienteLogin: React.FC = () => {
                     flexDirection={isMobile ? "column" : "row"}
                     gap={isMobile ? 2 : 0}
                   >
-                    <MuiLink 
-                      component={Link} 
-                      to="/cadastro" 
+                    <MuiLink
+                      component={Link}
+                      to="/cadastro"
                       variant="body2"
                       sx={{ mb: isMobile ? 1 : 0 }}
                     >
@@ -208,11 +210,11 @@ export const ClienteLogin: React.FC = () => {
             </Paper>
           </Box>
 
-          <Box 
-            flex={1} 
-            display="flex" 
+          <Box
+            flex={1}
+            display="flex"
             justifyContent="center"
-            order={2} 
+            order={2}
           >
             <img
               src="/icone.svg"

@@ -8,7 +8,8 @@ class FuncionarioService {
     limit: number,
     nome: string | null = null,
     include = false,
-    salaoId: string
+    salaoId: string,
+    mostrarDesativados: boolean = false
   ) {
     let where: Prisma.FuncionarioWhereInput = {};
     if (nome) {
@@ -19,6 +20,9 @@ class FuncionarioService {
     }
     if (salaoId) {
       where.SalaoId = salaoId;
+    }
+        if (!mostrarDesativados) {
+      where.Status = StatusCadastro.ATIVO;
     }
     return await prisma.funcionario.findMany({
       ...(skip !== null ? { skip } : {}),
@@ -43,7 +47,8 @@ class FuncionarioService {
     limit = 10,
     nome: string | null = null,
     includeRelations = false,
-    salaoId: string
+    salaoId: string,
+    mostrarDesativados: boolean = false
   ) {
     const skip = (page - 1) * limit;
     const where: Prisma.FuncionarioWhereInput = {};
@@ -53,6 +58,9 @@ class FuncionarioService {
     if (nome !== null) {
       where.Nome = { contains: nome, mode: "insensitive" };
     }
+    if (!mostrarDesativados) {
+      where.Status = StatusCadastro.ATIVO;
+    }
     const [total, funcionarios] = await Promise.all([
       prisma.funcionario.count({ where }),
       FuncionarioService.getFuncionarios(
@@ -60,7 +68,8 @@ class FuncionarioService {
         limit,
         nome,
         includeRelations,
-        salaoId
+        salaoId,
+        mostrarDesativados
       ),
     ]);
 

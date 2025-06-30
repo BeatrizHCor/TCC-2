@@ -95,6 +95,7 @@ export const CabeleireiroService = {
     limit: number = 10,
     includeRelations: boolean = false,
     salaoId: string,
+    mostrarDesativados: boolean,
     nome?: string
   ): Promise<CabeleireiroPageResponse> {
     try {
@@ -104,6 +105,7 @@ export const CabeleireiroService = {
           limit,
           includeRelations,
           salaoId,
+          mostrarDesativados,
           nome
         },
       });

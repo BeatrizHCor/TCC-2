@@ -7,6 +7,7 @@ class CabeleireiroService {
     limit: number | null = null,
     include = false,
     salaoId: string | null = null,
+    mostrarDesativados: boolean,
     nome: string | null = null,
   ) => {
     let where: Prisma.CabeleireiroWhereInput = {};
@@ -18,6 +19,9 @@ class CabeleireiroService {
     }
     if (salaoId) {
       where.SalaoId = salaoId;
+    }
+    if (!mostrarDesativados) {
+      where.Status = StatusCadastro.ATIVO;
     }
     return await prisma.cabeleireiro.findMany({
       ...(skip !== null ? { skip } : {}),
@@ -41,6 +45,7 @@ class CabeleireiroService {
     limit = 10,
     includeRelations = false,
     salaoId: string | null = null,
+    mostrarDesativados: boolean,
     nome: string | null = null,
   ) => {
     const skip = (page - 1) * limit;
@@ -54,7 +59,9 @@ class CabeleireiroService {
         mode: "insensitive",
       };
     }
-    where.Status = "ATIVO";
+    if (!mostrarDesativados) {
+      where.Status = StatusCadastro.ATIVO;
+    }
     const [total, cabeleireiros] = await Promise.all([
       await prisma.cabeleireiro.count({ where }),
       CabeleireiroService.getCabeleireiros(
@@ -62,6 +69,7 @@ class CabeleireiroService {
         limit,
         includeRelations,
         salaoId,
+        mostrarDesativados,
         nome,
       ),
     ]);
@@ -89,6 +97,7 @@ class CabeleireiroService {
     if (salaoId) {
       where.SalaoId = salaoId;
     }
+    where.Status = StatusCadastro.ATIVO;
     return await prisma.cabeleireiro.findMany({
       ...(skip !== null ? { skip } : {}),
       ...(limit !== null ? { take: limit } : {}),
@@ -120,6 +129,7 @@ class CabeleireiroService {
         mode: "insensitive",
       };
     }
+    where.Status = StatusCadastro.ATIVO;
     const [total, cabeleireiros] = await Promise.all([
       await prisma.cabeleireiro.count({ where }),
       CabeleireiroService.getCabeleireirosNomes(
@@ -237,7 +247,7 @@ class CabeleireiroService {
       return await prisma.cabeleireiro.findMany({
         where: {
           SalaoId: salaoID,
-          Status: "ATIVO",
+          Status: StatusCadastro.ATIVO,
         },
         ...(includeRelations
           ? {

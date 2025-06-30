@@ -18,6 +18,7 @@ export const useVisualizarCabeleireiros = (
   salaoId: string,
   termoBusca: string,
   userType?: userTypes,
+  mostrarDesativados: boolean = false
 ): UseVisualizarCabeleireirosResult => {
   const [cabeleireiros, setCabeleireiros] = useState<Cabeleireiro[]>([]);
   const [totalCabeleireiros, setTotalCabeleireiros] = useState<number>(0);
@@ -43,6 +44,7 @@ export const useVisualizarCabeleireiros = (
             limit,
             false,
             salaoId,
+            mostrarDesativados,
             termoBusca,
           );
         } else {
@@ -75,9 +77,9 @@ export const useVisualizarCabeleireiros = (
       } finally {
         setIsLoading(false);
       }
-    };
+    };console.log("Modo Mostrar Desativados", mostrarDesativados);
     buscarCabeleireiros();
-  }, [page, limit, salaoId, termoBusca]);
+  }, [page, limit, salaoId, termoBusca, mostrarDesativados]);
   const handleEditarCabeleireiro = (cabeleireiroId: string) => {
     navigate(`/cabeleireiro/editar/${cabeleireiroId}`);
   };

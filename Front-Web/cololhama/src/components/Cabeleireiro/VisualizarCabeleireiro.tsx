@@ -14,6 +14,8 @@ import {
   Typography,
   InputAdornment,
   IconButton,
+  FormControlLabel,
+  Switch,
 } from "@mui/material";
 import EditIcon from "@mui/icons-material/Edit";
 import CheckIcon from "@mui/icons-material/Check";
@@ -45,14 +47,7 @@ export const VisualizarCabeleireiro: React.FC = () => {
   const [rowsPerPage, setRowsPerPage] = useState(10);
   const [nomeFilterInput, setNomeFilterInput] = useState("");
   const [termoBusca, setTermoBusca] = useState("");
-
-  const {
-    cabeleireiros,
-    totalCabeleireiros,
-    handleEditarCabeleireiro,
-    isLoading,
-    error,
-  } = useVisualizarCabeleireiros(page + 1, rowsPerPage, SalaoID, termoBusca, userType!);
+  const [modoMostrarDesativados, setModoMostrarDesativados] = useState(false);
 
   const handleChangePage = (_: unknown, newPage: number) => {
     setPage(newPage);
@@ -63,29 +58,43 @@ export const VisualizarCabeleireiro: React.FC = () => {
     setPage(0);
   };
 
-  const aplicarFiltroNome = () => {
-    setTermoBusca(nomeFilterInput);
-    setPage(0);
-  };
+const aplicarFiltroNome = () => {
+  setTermoBusca(nomeFilterInput);
+  setPage(0);
+};
 
-  if (isLoading) return <Box>Carregando...</Box>;
-  if (error) return <Box>Erro ao carregar cabeleireiros: {error}</Box>;
+const canEdit =
+  userType &&
+  [userTypes.Funcionario, userTypes.AdmSalao, userTypes.AdmSistema].includes(userType);
 
-  const canEdit =
-    userType &&
-    [userTypes.Funcionario, userTypes.AdmSalao, userTypes.AdmSistema].includes(userType);
+const admUsers = [
+  userTypes.Funcionario,
+  userTypes.AdmSalao,
+  userTypes.AdmSistema,
+];
 
-  const admUsers = [
-    userTypes.Funcionario,
-    userTypes.AdmSalao,
-    userTypes.AdmSistema,
-  ];
+const colunasVisiveis = colunas.filter((coluna) => {
+  if (!coluna.admVisivel) return true;
+  return admUsers.includes(userType!);
+});
 
-  const colunasVisiveis = colunas.filter((coluna) => {
-    if (!coluna.admVisivel) return true;
-    return admUsers.includes(userType!);
-  });
+const {
+  cabeleireiros,
+  totalCabeleireiros,
+  handleEditarCabeleireiro,
+  isLoading,
+  error,
+} = useVisualizarCabeleireiros(
+  page + 1,
+  rowsPerPage,
+  SalaoID,
+  termoBusca,
+  userType!,
+  canEdit ? modoMostrarDesativados : false
+);
 
+if (isLoading) return <Box>Carregando...</Box>;
+if (error) return <Box>Erro ao carregar cabeleireiros: {error}</Box>;
 
   return (
     <Box sx={{ width: "100%", px: { xs: 1, sm: 3 }, py: 2 }}>
@@ -119,7 +128,7 @@ export const VisualizarCabeleireiro: React.FC = () => {
           justifyContent: "center",
           alignItems: "center",
           mb: 3,
-          maxWidth: 700,
+          maxWidth: 800,
           mx: "auto",
         }}
       >
@@ -164,8 +173,18 @@ export const VisualizarCabeleireiro: React.FC = () => {
             Novo Cabeleireiro
           </Button>
         )}
+        {canEdit && (
+          <FormControlLabel
+            control={
+              <Switch
+                checked={modoMostrarDesativados}
+                onChange={() => setModoMostrarDesativados((prev) => !prev)}                               
+              />
+            }
+            label={modoMostrarDesativados ? "Mostrar Todos" : "Mostrar Ativos" }
+          />
+        )}
       </Box>
-
       <Paper elevation={3} sx={{ borderRadius: 2, overflow: "hidden" }}>
         <TableContainer sx={{ backgroundColor: "#f0f0f0" }}>
           <Table>

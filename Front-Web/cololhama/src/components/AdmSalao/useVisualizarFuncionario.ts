@@ -16,7 +16,8 @@ export const useVisualizarFuncionarios = (
   page: number = 1,
   limit: number = 10,
   nomeFilter: string = "",
-  salaoId: string
+  salaoId: string,
+  mostrarDesativados: boolean
 ): UseVisualizarFuncionariosResult => {
   const [funcionarios, setFuncionarios] = useState<Funcionario[]>([]);
   const [totalFuncionarios, setTotalFuncionarios] = useState<number>(0);
@@ -36,7 +37,8 @@ export const useVisualizarFuncionarios = (
           limit,
           nomeFilter,
           false,
-          salaoId
+          salaoId,
+          mostrarDesativados
         );
         if (typeof response === "boolean") {
           return setForbidden(true);
@@ -67,7 +69,7 @@ export const useVisualizarFuncionarios = (
     };
 
     buscarFuncionarios();
-  }, [page, limit, nomeFilter, salaoId]);
+  }, [page, limit, nomeFilter, salaoId, mostrarDesativados]);
 
   const handleEditarFuncionario = (funcionarioId: string) => {
     navigate(`/funcionario/editar/${funcionarioId}`);

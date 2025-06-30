@@ -36,9 +36,9 @@ export default function PaginaHome() {
     <Box sx={{ backgroundColor: "#fafafa" }}>
       <Box
         sx={{
-          height: "30vh",
           background: `linear-gradient(135deg, #fff7f9 0%, #fafafa 100%)`,
           overflow: "hidden",
+          mb: 2,
         }}
       >
         <Container
@@ -190,9 +190,9 @@ export default function PaginaHome() {
                   >
                     {
                       s.Nome.toLowerCase().includes("corte") ? <Scissors size={28} />
-                      : s.Nome.toLowerCase().includes("coloração") ? <Palette size={28} />
-                      : s.Nome.toLowerCase().includes("hidratação") ? <Smile size={28} />
-                      : <Sparkles size={28} />
+                        : s.Nome.toLowerCase().includes("coloração") ? <Palette size={28} />
+                          : s.Nome.toLowerCase().includes("hidratação") ? <Smile size={28} />
+                            : <Sparkles size={28} />
                     }
                     <Typography variant="body2" mt={1} fontWeight={600}>
                       {s.Nome}

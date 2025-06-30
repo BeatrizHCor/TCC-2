@@ -7,13 +7,14 @@ class CabeleireiroController {
     res: Response,
   ): Promise<void> => {
     try {
-      const { page, limit, includeRelations, salaoId } = req.query;
+      const { page, limit, includeRelations, salaoId, mostrarDesativados } = req.query;
       const { nome = "" } = req.query;
       const cabeleireiros = await CabeleireiroService.getCabeleireiroPage(
         Number(page),
         Number(limit),
         includeRelations === "true",
         salaoId ? String(salaoId) : null,
+        mostrarDesativados === "true",
         nome ? String(nome) : null,
       );
       res.status(200).json(cabeleireiros);

@@ -9,7 +9,6 @@ import {
   getServicoById,
   getServicoPage,
   getServicosBySalao,
-  postFuncionario,
   postServico,
   updateFuncionario,
   updateServico,
@@ -17,8 +16,6 @@ import {
 import {
   authenticate,
   cadastrarFuncionario,
-  postLogin,
-  registerLogin,
   updateLoginPassword,
 } from "../services/Service";
 import { userTypes } from "../models/tipo-usuario.enum";
@@ -31,8 +28,9 @@ RoutesFuncionario.get(
     const page = (req.query.page as string) || "0";
     const limit = (req.query.limit as string) || "10";
     const nome = (req.query.nome as string) || "";
-    const includeRelations = req.query.include === "true" ? true : false;
+    const includeRelations = req.query.include === "true";
     const salaoId = (req.query.salaoId as string) || "";
+    const mostrarDesativados = req.query.mostrarDesativados === "true";
     try {
       const userInfo = JSON.parse(
         Buffer.from(req.headers.authorization || "", "base64").toString(
@@ -71,6 +69,7 @@ RoutesFuncionario.get(
             nome,
             includeRelations,
             salaoId,
+            mostrarDesativados
           );
           res.json(funcionarios);
         }

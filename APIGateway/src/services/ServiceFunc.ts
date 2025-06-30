@@ -13,7 +13,7 @@ export const postFuncionario = async (
   Telefone: string,
   SalaoId: string,
   Auxiliar: boolean,
-  Salario: number
+  Salario: number,
 ) => {
   let responseFuncionario = await fetch(FuncionarioURL + "/funcionario", {
     method: "POST",
@@ -32,7 +32,7 @@ export const postFuncionario = async (
   });
   return handleApiResponse<Funcionario>(
     responseFuncionario,
-    "criar Funcionario"
+    "criar Funcionario",
   );
 };
 
@@ -41,18 +41,19 @@ export const getFuncionarioPage = async (
   limit: string,
   nome: string,
   includeRelations: boolean = false,
-  salaoId: string
+  salaoId: string,
+  mostrarDesativados: boolean,
 ) => {
   let responseFuncionarios = await fetch(
     FuncionarioURL +
-      `/funcionario/page?page=${page}&limit=${limit}&nome=${nome}&includeRelations=${includeRelations}&salaoId=${salaoId}`,
+      `/funcionario/page?page=${page}&limit=${limit}&nome=${nome}&includeRelations=${includeRelations}&salaoId=${salaoId}&mostrarDesativados=${mostrarDesativados}`,
     {
       method: "GET",
-    }
+    },
   );
   return handleApiResponse<Funcionario[]>(
     responseFuncionarios,
-    "buscar Funcionario paginado"
+    "buscar Funcionario paginado",
   );
 };
 
@@ -61,7 +62,7 @@ export const deleteFuncionario = async (id: string) => {
     Auth_URL + `/funcionario/delete/${id}`,
     {
       method: "DELETE",
-    }
+    },
   );
   if (responseFuncionario.ok) {
     const data = await responseFuncionario.json();
@@ -86,7 +87,7 @@ export const updateFuncionario = async (
   Telefone: string,
   SalaoId: string,
   Auxiliar: boolean,
-  Salario: number
+  Salario: number,
 ) => {
   let responseFuncionario = await fetch(
     FuncionarioURL + `/funcionario/update/${id}`,
@@ -104,11 +105,11 @@ export const updateFuncionario = async (
         Auxiliar,
         Salario,
       }),
-    }
+    },
   );
   return handleApiResponse<Funcionario>(
     responseFuncionario,
-    "update Funcionario"
+    "update Funcionario",
   );
 };
 export const getFuncionarioById = async (id: string) => {
@@ -116,11 +117,11 @@ export const getFuncionarioById = async (id: string) => {
     FuncionarioURL + `/funcionario/ID/${id}`,
     {
       method: "GET",
-    }
+    },
   );
   return handleApiResponse<Funcionario>(
     responseFuncionario,
-    "buscar Funcionario por ID"
+    "buscar Funcionario por ID",
   );
 };
 
@@ -129,11 +130,11 @@ export const getAuxiliarBySalao = async (id: string) => {
     FuncionarioURL + `/auxiliar/salao/${id}`,
     {
       method: "GET",
-    }
+    },
   );
   return handleApiResponse<Funcionario[]>(
     responseFuncionario,
-    "buscar Auxiliar por Salao"
+    "buscar Auxiliar por Salao",
   );
 };
 
@@ -145,18 +146,18 @@ export const getServicoPage = async (
   nome: string,
   precoMin: string,
   precoMax: string,
-  includeRelations: boolean = false
+  includeRelations: boolean = false,
 ) => {
   let responseServicos = await fetch(
     FuncionarioURL +
       `/servico/page?page=${page}&limit=${limit}&salaoId=${salaoId}&nome=${nome}&precoMin=${precoMin}&precoMax=${precoMax}&includeRelations=${includeRelations}`,
     {
       method: "GET",
-    }
+    },
   );
   return handleApiResponse<Servico>(
     responseServicos,
-    "buscar servicos por page"
+    "buscar servicos por page",
   );
 };
 
@@ -165,7 +166,7 @@ export const postServico = async (
   SalaoId: string,
   PrecoMin: number,
   PrecoMax: number,
-  Descricao: string
+  Descricao: string,
 ) => {
   let responseServico = await fetch(FuncionarioURL + "/servico", {
     method: "POST",
@@ -192,7 +193,7 @@ export const deleteServico = async (id: string) => {
   }
   return handleApiResponse<Servico>(
     responseServico,
-    "buscar servico por nome e salao"
+    "buscar servico por nome e salao",
   );
 };
 
@@ -202,7 +203,7 @@ export const updateServico = async (
   SalaoId: string,
   PrecoMin: number,
   PrecoMax: number,
-  Descricao: string
+  Descricao: string,
 ) => {
   let responseServico = await fetch(FuncionarioURL + `/servico/update/${id}`, {
     method: "PUT",
@@ -232,26 +233,26 @@ export const getServicosBySalao = async (salaoId: string) => {
     FuncionarioURL + `/servico/salao/${salaoId}`,
     {
       method: "GET",
-    }
+    },
   );
   return handleApiResponse<Servico>(
     responseServicos,
-    "buscar servico por salao"
+    "buscar servico por salao",
   );
 };
 
 export const findServicoByNomeAndSalaoId = async (
   nome: string,
-  salaoId: string
+  salaoId: string,
 ) => {
   let responseServico = await fetch(
     FuncionarioURL + `/servico/find/${nome}/${salaoId}`,
     {
       method: "GET",
-    }
+    },
   );
   return handleApiResponse<Servico>(
     responseServico,
-    "buscar servico por nome e salao"
+    "buscar servico por nome e salao",
   );
 };

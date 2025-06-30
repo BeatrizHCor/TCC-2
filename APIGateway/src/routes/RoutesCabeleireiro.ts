@@ -2,8 +2,6 @@ import { Request, Response, Router } from "express";
 import {
   authenticate,
   cadastrarCabeleireiro,
-  postLogin,
-  registerLogin,
   updateLoginPassword,
 } from "../services/Service";
 import {
@@ -12,7 +10,6 @@ import {
   getCabeleireiroBySalao,
   getCabeleireiroNomesPage,
   getCabeleireiroPage,
-  postCabeleireiro,
   updateCabeleireiro,
 } from "../services/ServiceCabelereiro";
 import { userTypes } from "../models/tipo-usuario.enum";
@@ -81,7 +78,8 @@ RoutesCabeleireiro.post(
 RoutesCabeleireiro.get(
   "/cabeleireiro/page",
   async (req: Request, res: Response) => {
-    let { page, limit, includeRelations, salaoId, nome } = req.query;
+    let { page, limit, includeRelations, mostrarDesativados, salaoId, nome } =
+      req.query;
     try {
       const { userInfo, auth } = await getUserInfoAndAuth(req.headers);
       if (!userInfo) {
@@ -102,10 +100,17 @@ RoutesCabeleireiro.get(
             Number(page),
             Number(limit),
             Boolean(includeRelations === "true"),
-            salaoId ? Number(salaoId) : undefined,
+            mostrarDesativados === "true",
+            salaoId ? String(salaoId) : undefined,
             nome ? String(nome) : undefined,
           );
-          res.status(200).send(cabeleireiros);
+          if (!cabeleireiros) {
+            res.status(404).send("Cabeleireiros not found");
+          } else if (cabeleireiros.length === 0) {
+            res.status(204).send("No cabeleireiros found");
+          } else {
+            res.status(200).send(cabeleireiros);
+          }
         }
       }
     } catch (e) {
@@ -120,13 +125,25 @@ RoutesCabeleireiro.get(
   async (req: Request, res: Response) => {
     let { page, limit, salaoId, nome } = req.query;
     try {
+      if (!page || !limit || !salaoId) {
+        res.status(400).send(
+          "Page, limit, and salaoId parameters are required",
+        );
+        return;
+      }
       let cabeleireiros = await getCabeleireiroNomesPage(
         Number(page),
         Number(limit),
-        salaoId ? Number(salaoId) : undefined,
+        String(salaoId),
         nome ? String(nome) : undefined,
       );
-      res.status(200).send(cabeleireiros);
+      if (!cabeleireiros) {
+        res.status(404).send("Cabeleireiros not found");
+      } else if (cabeleireiros.length === 0) {
+        res.status(204).send("No cabeleireiros found");
+      } else {
+        res.status(200).send(cabeleireiros);
+      }
     } catch (e) {
       console.log(e);
       res.status(500).send("Error querying Cabeleireiros");
@@ -235,16 +252,16 @@ RoutesCabeleireiro.delete(
 RoutesCabeleireiro.put("/cabeleireiro", async (req: Request, res: Response) => {
   let { ID, CPF, Nome, Email, Telefone, Mei, SalaoId, Password } = req.body;
   try {
-          if (
-        !Nome ||
-        !CPF ||
-        !Email ||
-        !Telefone ||
-        !SalaoId
-      ) {
-        res.status(400).send("Missing required fields");
-        return;
-      }
+    if (
+      !Nome ||
+      !CPF ||
+      !Email ||
+      !Telefone ||
+      !SalaoId
+    ) {
+      res.status(400).send("Missing required fields");
+      return;
+    }
     const userInfo = JSON.parse(
       Buffer.from(req.headers.authorization || "", "base64").toString(
         "utf-8",
@@ -267,7 +284,9 @@ RoutesCabeleireiro.put("/cabeleireiro", async (req: Request, res: Response) => {
       res.status(403).json({ message: "Unauthorized" });
     } else {
       let cabeleireiroBackup = await getCabeleireiroById(
-        ID, false)
+        ID,
+        false,
+      );
       if (!cabeleireiroBackup) {
         res.status(404).json({ message: "Cabeleireiro not found" });
         return;
@@ -289,7 +308,7 @@ RoutesCabeleireiro.put("/cabeleireiro", async (req: Request, res: Response) => {
           cabeleireiro.ID!,
           Password,
           cabeleireiro.SalaoId,
-          Email
+          Email,
         );
         if (result.success) {
           res.status(200).send(cabeleireiro);
@@ -305,7 +324,9 @@ RoutesCabeleireiro.put("/cabeleireiro", async (req: Request, res: Response) => {
             cabeleireiroBackup.ID,
           );
           if (!updateCorrecao) {
-            res.status(404).json({ message: "Erro ao atualizar cabeleireiro, correções falharam" });
+            res.status(404).json({
+              message: "Erro ao atualizar cabeleireiro, correções falharam",
+            });
             return;
           }
           res.status(204).send("Error registering login for Cabeleireiro");

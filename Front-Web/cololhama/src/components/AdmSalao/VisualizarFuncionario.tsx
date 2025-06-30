@@ -12,6 +12,8 @@ import {
   TextField,
   Button,
   Typography,
+  FormControlLabel,
+  Switch,
 } from "@mui/material";
 import EditIcon from "@mui/icons-material/Edit";
 import CloseIcon from "@mui/icons-material/Close";
@@ -41,7 +43,7 @@ export const VisualizarFuncionarios: React.FC = () => {
   const [rowsPerPage, setRowsPerPage] = useState(10);
   const [nomeFilter, setNomeFilter] = useState("");
   const [nomeFiltroInput, setNomeFiltroInput] = useState("");
-
+  const [mostrarDesativados, setMostrarDesativados] = useState(false);
   const isADMSalao =
     userType === userTypes.AdmSalao || userType === userTypes.AdmSistema;
 
@@ -52,8 +54,7 @@ export const VisualizarFuncionarios: React.FC = () => {
     error,
     handleEditarFuncionario,
     forbidden,
-  } = useVisualizarFuncionarios(page + 1, rowsPerPage, nomeFilter, SalaoID);
-
+  } = useVisualizarFuncionarios(page + 1, rowsPerPage, nomeFilter, SalaoID, mostrarDesativados);
   useEffect(() => {
     if (forbidden) {
       doLogout();
@@ -163,6 +164,17 @@ export const VisualizarFuncionarios: React.FC = () => {
               Novo Funcionário
             </Button>
           )}
+          <FormControlLabel
+            control={
+              <Switch
+                checked={mostrarDesativados}
+                onChange={() => setMostrarDesativados((prev) => !prev)}
+                color="primary"
+              />
+            }
+            label={mostrarDesativados ? "Mostrar todos" : "Mostrar ativos"}
+            sx={{ ml: 2 }}
+          />
         </Box>
       </Box>
 
@@ -212,11 +224,11 @@ export const VisualizarFuncionarios: React.FC = () => {
                       : "N/A"}
                   </TableCell>
                   <TableCell>
-                      {funcionario.Status === "ATIVO" ? (
-                        <CheckIcon color="green" />
-                      ) : (
-                        <CloseIcon sx={{ color: "red" }} />
-                      )}
+                    {funcionario.Status === "ATIVO" ? (
+                      <CheckIcon color="green" />
+                    ) : (
+                      <CloseIcon sx={{ color: "red" }} />
+                    )}
                   </TableCell>
                   {isADMSalao && funcionario.Status === "ATIVO" && (
                     <TableCell>

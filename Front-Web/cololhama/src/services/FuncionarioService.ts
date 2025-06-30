@@ -28,7 +28,8 @@ export const FuncionarioService = {
     limit: number = 10,
     nome: string | null = null,
     includeRelations: boolean = false,
-    salaoId: string
+    salaoId: string,
+    mostrarDesativados: boolean
   ): Promise<FuncionarioPageResponse | boolean> {
     try {
       const response = await api.get<FuncionarioPageResponse>(
@@ -40,6 +41,7 @@ export const FuncionarioService = {
             nome,
             includeRelations,
             salaoId,
+            mostrarDesativados,
           },
         }
       );

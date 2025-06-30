@@ -23,12 +23,14 @@ export const getCabeleireiroPage = async (
   page: number,
   limit: number,
   includeRelations: boolean = false,
-  salaoId?: number,
+  mostrarDesativados: boolean,
+  salaoId?: string,
   nome?: string | null,
 ) => {
   let responseCabeleireiros = await fetch(
     CabeleireiroURL +
       `/cabeleireiro/page?page=${page}&limit=${limit}&includeRelations=${includeRelations}` +
+      `&mostrarDesativados=${mostrarDesativados}` +
       `${salaoId ? "&salaoID=" + String(salaoId) : ""}` +
       `${nome ? "&nome=" + String(nome) : ""}`,
     {
@@ -44,7 +46,7 @@ export const getCabeleireiroPage = async (
 export const getCabeleireiroNomesPage = async (
   page: number,
   limit: number,
-  salaoId?: number,
+  salaoId: string,
   nome?: string | null,
 ) => {
   let responseCabeleireiros = await fetch(
