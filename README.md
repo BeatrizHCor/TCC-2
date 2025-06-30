@@ -114,7 +114,7 @@ Utilize o Postman ou similar para fazer uma requisição POST para `http://local
 
 Após concluir a configuração:
 
-1. **Inicie todos os serviços** (Gateway, AuthBack, demais backends e frontend): `npm run dev'
+1. **Inicie todos os serviços** (Gateway, AuthBack, demais backends e frontend): `npm run dev` 
 2. **Acesse o sistema** através do frontend em `http://localhost:5173`
 3. **Faça login** com as credenciais do administrador cadastrado:
    - Email: `salao.adm@example.com`
