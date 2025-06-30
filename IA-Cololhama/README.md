@@ -1,30 +1,77 @@
-The CelebAMask-HQ dataset is available for non-commercial research purposes only.
-You agree not to reproduce, duplicate, copy, sell, trade, resell or exploit for any commercial purposes, any portion of the images and any portion of derived data.
 
-###
+# IA-Cololhama
 
+Sistema de colorização automática de imagens em escala de cinza utilizando técnicas de Inteligência Artificial.
+
+## Sobre o Dataset
+
+Este projeto utiliza parte do dataset CelebAMask-HQ, disponível exclusivamente para fins de pesquisa não-comercial. O uso está sujeito às seguintes restrições:
+- Proibida a reprodução, duplicação, cópia, venda ou exploração comercial das imagens
+- Proibido o uso comercial de qualquer porção dos dados derivados
+
+## Pré-requisitos
+
+- Python 3.11 (de preferência não usar versões superiores)
+- pip (gerenciador de pacotes Python)
+- PyCharm (recomendado para usuários não familiarizados com Python)
+
+## Instalação e Configuração
+
+### 1. Verificação do Ambiente Python
+
+Antes de começar, verifique se possui Python e pip instalados:
+
+```bash
+python --version
+pip --version
+```
+
+### 2. Configuração do Ambiente Virtual (PyCharm)
+
+1. Abra o PyCharm e carregue a pasta `IA-Cololhama`
+2. Configure o interpretador Python:
+   - Pressione `Ctrl+Alt+S` para abrir Settings
+   - Navegue até `Project: IA-Cololhama > Python Interpreter`
+   - Clique em `Add Interpreter > New`
+   - Selecione Python 3.11
+3. Aguarde a configuração do ambiente virtual ser concluída
+
+### 3. Instalação das Dependências
+
+No terminal do PyCharm, execute:
+
+```bash
+pip install -r requirements.txt
+```
+
+### 4. Verificação da Instalação
+
+Para garantir que todas as dependências foram instaladas corretamente:
+1. Abra os arquivos `main.py` e `corzinha.py` no PyCharm
+2. Verifique se não há imports destacados em vermelho
+3. Se todos os imports estiverem normais, a instalação foi bem-sucedida
+
+## Execução
+
+Para iniciar o sistema, execute o seguinte comando no terminal (dentro da pasta do projeto):
+
+```bash
 uvicorn main:app --reload
+```
 
+### Saída Esperada
 
-## Para a Bea
- passo a passo de como fazer isso aqui rodar:
- - baixar o pycharm pra facilitar a sua vida
- - ver see vc tem python e pip instalados (normalmente o pycharm faz isso pra vc mas né)
-        - python --version
-        - pip --version
- - abrir a pasta IA-Cololhama no pycharm 
- - criar uma venv de python 11 (eu usei 11.9), baixa a versão do python no site oficial, não esaquece de clicar na opção de adicionar ao PATH antes de instalar 
-            1. Ctrl+Alt+S (Settings)
-            2. Project: IA-Cololhama > Python Interpreter
-            3. Add Interpreter > New
-            4. Selecione Python 3.11
-- Aguarde a configuração terminar
-- espera tudo ficar pronto da venv, demora um pouquinho mesamo, é normal
-- ai tu coloca no terminal do pycharm msm um "pip install -r requirements.txt" e espera baixar td
-- para garantir, depois de baixar tudo, abre main.py e corzinha.py no pycharm mesmo, se nenhum import estiver vermelho é pq ta tudo certo.
-- no vscode ou qualquer tyerminal, entra na pasta do IA-Cololhama e coloca o comando de rodar a IA
-- uvicorn main:app --reload
-- espera um pouquinho, tem que aparecer o seguinte "
+Após executar o comando, você deverá ver a seguinte mensagem indicando que o sistema foi inicializado com sucesso:
+
+```
 Lhama API inicializada com sucesso
 INFO:     Application startup complete.
-"
+```
+
+## Suporte
+
+Para usuários não familiarizados com Python, recomenda-se o uso do PyCharm IDE para facilitar o processo de configuração e desenvolvimento.
+
+---
+
+*Projeto desenvolvido para Trabalho de Conclusão de Curso (TCC)*
