@@ -65,6 +65,9 @@ PORT=
 ```
 
 ### 2. Configuração Inicial do Banco de Dados
+#### Criar as tabelas
+Excecute o arquivo createSQL.sql no seu banco de dados postgreSQL para criação de todas as tabelas. Você também pode importá-lo com o Query Tool do pgAdmin se o tiver instalado.
+
 Execute os seguintes comandos SQL no PostgreSQL para criar os dados iniciais:
 
 #### Criar Salão:
@@ -109,6 +112,10 @@ Para os serviços de Autenticação (AuthBackend), Cabeleireiro (CabeleireiroBac
 - Rodar o comando ```npm i ``` e esperar a instalação de todos os pacotes.
 - Rodar o comando ```npx prisma generate```, aceitar a instalação de engine do prisma se necessário e esperar a geração dos arquivos.
 
+Para os serviços de Front-end (Front-Web/cololhama) e API Gateway:
+- Acessar a pasta raiz;
+- Rodar o comando ```npm i ``` e esperar a instalação de todos os pacotes.
+
 ## Como Utilizar o Sistema
 
 Após concluir a configuração:
@@ -133,4 +140,4 @@ O Cololhama utiliza uma arquitetura de microsserviços, com:
 ---
 
 *Trabalho de Conclusão de Curso - Sistema Cololhama para Gestão de Salões de Beleza*
->>>>>>> 2827c3869700fe73289250666013f4a6b155319e
+
