@@ -38,7 +38,7 @@ pip --version
 
 ### 3. Instalação das Dependências
 
-No terminal do PyCharm, execute:
+No terminal do PyCharm, dentro de seu ambiente virtual, execute:
 
 ```bash
 pip install -r requirements.txt
